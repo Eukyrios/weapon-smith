@@ -1,0 +1,303 @@
+
+/* ==========================================================================
+   Weapon Smith — same room as Loadout Roulette.
+   Ebony ground, Spring Green accent, Alabaster text. Dark only: the sibling
+   site made that call deliberately and two halves of one project should not
+   disagree about what colour the floor is.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #060e13;
+  --surface: #0e1a21;
+  --surface-2: #14232c;
+  --line: #1f333e;
+  --line-2: #2e4756;
+
+  --text: #fafafa;
+  --text-dim: #95a8b4;
+  --text-faint: #5e7381;
+
+  --accent: #0ff796;
+  --accent-dim: #0a8f57;
+  --accent-rgb: 15, 247, 150;
+  --red: #e04a3a;
+
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 700px at 50% -15%, #0e2a33 0%, transparent 62%),
+    radial-gradient(900px 520px at 8% 28%, #0a2220 0%, transparent 60%),
+    radial-gradient(900px 520px at 95% 18%, #08202a 0%, transparent 58%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 26px 18px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+header { display: flex; flex-direction: column; gap: 8px; }
+.eyebrow {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint);
+}
+h1 {
+  margin: 0; font-size: 30px; font-weight: 800;
+  letter-spacing: -0.02em; text-transform: uppercase; color: var(--text);
+}
+h1 .tag { text-transform: none; }
+.sub { color: var(--text-dim); max-width: 62ch; margin: 0; }
+
+section { display: flex; flex-direction: column; gap: 12px; }
+h2 {
+  margin: 0; font-size: 17px; font-weight: 800; letter-spacing: 0.01em;
+  color: var(--accent); display: flex; align-items: baseline; gap: 10px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--line);
+}
+h2 .n {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; color: var(--text-faint); min-width: 20px;
+}
+h2 .count {
+  margin-left: auto; font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--text-faint); font-variant-numeric: tabular-nums;
+}
+p { margin: 0; max-width: 78ch; }
+.lede { color: var(--text-dim); font-size: 14px; }
+code {
+  font-family: var(--mono); font-size: 0.88em;
+  background: var(--surface-2); color: var(--text-dim);
+  padding: 0.1em 0.36em; border-radius: 3px;
+}
+
+.nav { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; }
+.nav a {
+  color: var(--text-faint); text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+.nav a:hover, .nav a:focus-visible { color: var(--accent); border-color: var(--accent-dim); }
+
+.tablewrap {
+  overflow-x: auto; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead th {
+  text-align: left; font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-faint);
+  padding: 10px 14px; border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+tbody td { padding: 8px 14px; border-bottom: 1px solid var(--line); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: var(--surface-2); }
+td a {
+  color: var(--text); text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+td a:hover, td a:focus-visible { color: var(--accent); border-color: var(--accent-dim); }
+td.slotcell { color: var(--accent); font-weight: 600; white-space: nowrap; }
+td.cut { color: var(--red); font-weight: 600; white-space: nowrap; }
+td.none { color: var(--text-faint); }
+td.v { color: var(--accent); font-weight: 600; }
+/* A link in a value cell keeps the value's colour — `td a` would repaint it as
+   body text and it would stop reading as something you can click. */
+td.v a { color: inherit; border-bottom: 1px solid var(--accent-dim); }
+td.v a:hover, td.v a:focus-visible { border-bottom-color: var(--accent); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--text-dim); }
+.num.up { color: var(--accent); }
+.num.down { color: var(--red); }
+tr.is-gap td:first-child a { color: var(--red); }
+
+.tag {
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--red); border: 1px solid currentColor; border-radius: 3px;
+  padding: 2px 5px; margin-left: 8px; white-space: nowrap; vertical-align: middle;
+}
+
+.grid { display: grid; gap: 6px; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+.card {
+  display: flex; align-items: center; gap: 10px; padding: 7px 12px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 6px; color: var(--text); text-decoration: none; font-size: 14px;
+}
+.card > span { flex: 1 1 auto; }
+.card:hover, .card:focus-visible {
+  border-color: var(--accent-dim); color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.15);
+}
+.card--thin { border-style: dashed; color: var(--text-dim); }
+.card--thin:hover { color: var(--red); border-color: var(--red); }
+.card .thumb {
+  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 4px;
+  background-color: var(--surface-2); background-repeat: no-repeat;
+  background-position: center; background-size: contain;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.card em {
+  font-family: var(--mono); font-size: 10px; font-style: normal;
+  letter-spacing: 0.06em; color: var(--text-faint); white-space: nowrap;
+}
+.card[hidden], section[hidden] { display: none; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font-family: var(--mono); font-size: 11px; padding: 5px 10px;
+  border: 1px solid var(--line); border-radius: 6px; color: var(--text-dim);
+  text-decoration: none;
+}
+a.chip:hover, a.chip:focus-visible { color: var(--accent); border-color: var(--accent-dim); }
+
+.filter {
+  width: 100%; max-width: 22rem; font: inherit; font-size: 14px;
+  padding: 8px 12px; color: var(--text); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px;
+}
+.filter::placeholder { color: var(--text-faint); }
+.filter:focus-visible { outline: none; border-color: var(--accent-dim);
+                        box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.25); }
+
+a.big {
+  color: var(--accent); font-weight: 600; text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
+
+.cls h3 {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-dim);
+  margin: 0 0 2px;
+}
+.cls p { color: var(--text-dim); font-size: 14px; }
+.queue { display: flex; flex-direction: column; gap: 14px; }
+
+.itemgrid { display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-start; }
+.itemgrid .tablewrap { flex: 1 1 20rem; }
+.shot {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  object-fit: contain; padding: 10px;
+}
+
+.slots > h2 { border-bottom: 1px solid var(--line); }
+.slots .hint {
+  margin-left: auto; font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--text-faint);
+}
+.slots__body { display: flex; flex-direction: column; gap: 28px; }
+.slots__body h2 { font-size: 15px; }
+
+/* --------------------------------------------------------------------------
+   The catalogue browser: a list of groups on the left, one group on the right.
+   -------------------------------------------------------------------------- */
+.browse { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 22px; align-items: start; }
+.browse__nav { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.browse__main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.navgroup { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; }
+.navgroup > summary {
+  cursor: pointer; list-style: none; padding: 9px 12px;
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent);
+  display: flex; align-items: center; gap: 8px;
+}
+.navgroup > summary::-webkit-details-marker { display: none; }
+.navgroup > summary::before {
+  content: "\25B8"; color: var(--accent-dim); font-size: 11px;
+  transition: transform 120ms ease;
+}
+.navgroup[open] > summary::before { transform: rotate(90deg); }
+.navgroup > summary:hover { background: var(--surface-2); }
+.navgroup > summary .count { margin-left: auto; letter-spacing: 0.06em; }
+.navgroup__list { display: flex; flex-direction: column; padding: 4px; border-top: 1px solid var(--line); }
+
+.navlink {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px;
+  color: var(--text-dim); text-decoration: none; font-size: 13px;
+}
+.navdiv {
+  padding: 12px 8px 4px; font-family: var(--mono); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-faint);
+}
+.navlink em {
+  margin-left: auto; font-family: var(--mono); font-size: 10px; font-style: normal;
+  color: var(--text-faint); font-variant-numeric: tabular-nums;
+}
+.navlink:hover, .navlink:focus-visible { background: var(--surface-2); color: var(--text); }
+.navlink.is-on { background: rgba(var(--accent-rgb), 0.12); color: var(--accent); }
+.navlink.is-on em { color: var(--accent-dim); }
+
+.banner {
+  display: block; padding: 10px 14px; border-radius: 6px; font-size: 13px;
+  color: var(--text-dim); background: var(--surface);
+  border: 1px solid var(--line); border-left: 3px solid var(--accent-dim);
+}
+.banner strong { color: var(--accent); font-weight: 700; }
+
+.tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); }
+.tile {
+  position: relative; display: block; aspect-ratio: 4 / 3; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  text-decoration: none;
+}
+.tile--gap { border-style: dashed; }
+.tile__art {
+  position: absolute; inset: 0; background-repeat: no-repeat;
+  background-position: center 42%; background-size: 88% auto;
+}
+.tile__name {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 20px 8px 7px;
+  font-size: 12px; line-height: 1.25; color: var(--text);
+  /* The name sits on top of the picture, so it carries its own backing rather
+     than trusting whatever pixels happen to be under it. */
+  background: linear-gradient(to top, var(--bg) 38%, rgba(6, 14, 19, 0.72) 68%, transparent);
+}
+.tile:hover, .tile:focus-visible { border-color: var(--accent-dim); }
+.tile:hover .tile__name, .tile:focus-visible .tile__name { color: var(--accent); }
+.tile--gap .tile__name { color: var(--red); }
+.tile[hidden], .group[hidden] { display: none; }
+
+@media (max-width: 760px) {
+  .browse { grid-template-columns: 1fr; }
+  .browse__nav { position: static; }
+}
+
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.canvas {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 6px; padding: 18px 14px; overflow-x: auto;
+}
+svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
+
+.g-root { fill: var(--accent); stroke: none; }
+.g-root-t { font-family: var(--sans); font-weight: 800; font-size: 15px; fill: var(--bg); }
+.g-box { fill: var(--surface-2); stroke: var(--line-2); stroke-width: 1; }
+.g-box--grant { fill: none; stroke: var(--accent-dim); stroke-width: 1.5; }
+.g-t { font-family: var(--sans); font-size: 12px; fill: var(--text); }
+.g-n { font-family: var(--mono); font-size: 11px; fill: var(--text-faint); }
+.g-via { font-family: var(--mono); font-size: 10px; fill: var(--text-faint); }
+.g-edge { stroke: var(--line-2); stroke-width: 1; fill: none; }
+
+:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: 2px; }
+
+@media (max-width: 34rem) {
+  .wrap { padding: 20px 12px 44px; gap: 26px; }
+  h1 { font-size: 24px; }
+}
