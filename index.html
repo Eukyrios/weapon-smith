@@ -1,4 +1,29 @@
-<title>Weapon Smith</title>
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weapon Smith &mdash; Delta Force attachment catalogue</title>
+<meta name="description" content="Every weapon, round and attachment in Delta Force: Operations: 66 weapons, 89 rounds and 438 attachments, with the slots each one fits and the slots it opens.">
+<link rel="canonical" href="https://eukyrios.github.io/weapon-smith/">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#060e13">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Weapon Smith">
+<meta property="og:title" content="Weapon Smith &mdash; Delta Force attachment catalogue">
+<meta property="og:description" content="Every weapon, round and attachment in Delta Force: Operations: 66 weapons, 89 rounds and 438 attachments, with the slots each one fits and the slots it opens.">
+<meta property="og:url" content="https://eukyrios.github.io/weapon-smith/">
+<meta property="og:image" content="https://eukyrios.github.io/weapon-smith/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Weapon Smith &mdash; the Delta Force: Operations weapon and attachment catalogue">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Weapon Smith &mdash; Delta Force attachment catalogue">
+<meta name="twitter:description" content="Every weapon, round and attachment in Delta Force: Operations: 66 weapons, 89 rounds and 438 attachments, with the slots each one fits and the slots it opens.">
+<meta name="twitter:image" content="https://eukyrios.github.io/weapon-smith/og.png">
+
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Weapon Smith", "url": "https://eukyrios.github.io/weapon-smith/", "description": "Every weapon, round and attachment in Delta Force: Operations: 66 weapons, 89 rounds and 438 attachments, with the slots each one fits and the slots it opens.", "inLanguage": "en", "image": "https://eukyrios.github.io/weapon-smith/og.png"}</script>
 <style>
 /* ==========================================================================
    Weapon Smith — same room as Loadout Roulette.
@@ -62,6 +87,16 @@ body {
 }
 
 header { display: flex; flex-direction: column; gap: 8px; }
+/* The mark sits inside the h1 rather than above it: one lockup, and it takes
+   its size from the heading instead of needing its own at every breakpoint.
+   Sized in em and nudged onto the baseline, so the h1 stays a line of text —
+   making it a flex row would have relaid every other h1 on the site. display
+   and margin are spelled out because the diagram rule further down sets every
+   svg to block with auto margins, which put the mark on a line of its own. */
+.mark {
+  display: inline-block; width: 1.3em; height: 1.3em;
+  vertical-align: -0.26em; margin: 0 12px 0 0;
+}
 .eyebrow {
   font-family: var(--mono); font-size: 10px; font-weight: 600;
   letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint);
@@ -326,7 +361,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
 
   <header>
     <span class="eyebrow">Delta Force &middot; Operations</span>
-    <h1>Weapon Smith</h1>
+    <h1><svg class="mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><g fill="#95a8b4"> <path d="M13 34h36v6H13l-6-3z"/> <path d="M24 46h14l7 7H17z"/> <rect x="15" y="52.4" width="34" height="3.6" rx="1.4"/> </g> <path d="M19 40h24l-5 6H24z" fill="#5e7381"/> <path d="M33 30l5-5-16-16-5 5z" fill="#0a8f57"/> <path d="M31 33l7 2 9-9-2-7-7 2z" fill="#0ff796"/></svg>Weapon Smith</h1>
   </header>
 
   <div class="browse">

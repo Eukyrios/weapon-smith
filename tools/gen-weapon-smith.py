@@ -494,11 +494,24 @@ def item_page(item, accepted_in):
 {slots_html}"""
 
     tag = ' <span class="tag">missing info</span>' if is_gap(item['id']) else ''
+    kind = CAT_LABEL.get(item['cat'], item['cat']) if item['cat'] else ''
+    # The description says what this page can answer. An item whose stats are
+    # not read yet says that instead of implying numbers it does not have.
+    desc = f"{item['name']} &mdash; "
+    desc += f'{kind.lower()} attachment ' if kind else 'attachment '
+    desc += 'for Delta Force: Operations. '
+    desc += ('Every stat line it changes. ' if stat_lines
+             else 'Its stat lines are not read off the game yet. ')
+    n = len(accepted_in)
+    if n:
+        slots = 'one weapon slot' if n == 1 else f'{n} weapon slots'
+        desc += f'Fits {slots}.'
     return shell(f"{item['name']} &middot; Weapon Smith",
                  'Catalogue', item['name'] + tag,
-                 CAT_LABEL.get(item['cat'], item['cat']) if item['cat']
-                 else 'Named in a slot list.',
-                 body, NAV.format(up='../', back='Weapon Smith'), '../smith.css')
+                 kind if kind else 'Named in a slot list.',
+                 body, NAV.format(up='../', back='Weapon Smith'), '../smith.css',
+                 desc=desc, path=f"catalogue/{item['id']}.html",
+                 crumb=item['name'])
 
 
 def gun_page(w):
@@ -550,9 +563,20 @@ def gun_page(w):
   </section>
 
 {slots}"""
+    cal = f" chambered in {w['caliber']}" if w.get('caliber') else ''
+    if w['id'] in DOCUMENTED:
+        desc = (f"{w['name']} &mdash; {w['cls'].lower()}{cal} in Delta Force: "
+                f'Operations. All {len(SECTIONS)} attachment slots and every '
+                'attachment that fits each one.')
+    else:
+        desc = (f"{w['name']} &mdash; {w['cls'].lower()}{cal} in Delta Force: "
+                'Operations. Its slot list is not transcribed yet; the '
+                'catalogue holds the attachments it will draw from.')
     return shell(f"{w['name']} &middot; Weapon Smith", 'Catalogue', w['name'],
                  w['cls'], body, NAV.format(up='../', back='Weapon Smith'),
-                 '../smith.css')
+                 '../smith.css',
+                 desc=desc, path=f'catalogue/{gun_file(w["id"])}',
+                 crumb=w['name'])
 
 
 def ammo_page(a, guns):
@@ -594,9 +618,18 @@ def ammo_page(a, guns):
   </section>
 
 {chambers}{note}"""
+    pen = f", penetration {a['pen']} of 7" if a['pen'] is not None else ''
+    desc = (f"{a['name']} &mdash; {a['caliber']} round for Delta Force: "
+            f'Operations{pen}. ')
+    n = len(guns)
+    desc += (f"The {'one weapon' if n == 1 else str(n) + ' weapons'} that "
+             f"chamber{'s' if n == 1 else ''} it." if guns
+             else 'No weapon in the catalogue chambers it yet.')
     return shell(f"{a['name']} &middot; Weapon Smith", 'Catalogue', a['name'],
                  a['caliber'], body, NAV.format(up='../', back='Weapon Smith'),
-                 '../smith.css')
+                 '../smith.css',
+                 desc=desc, path=f'catalogue/{ammo_file(a["id"])}',
+                 crumb=a['name'])
 
 
 def catalogue_browser(items, by_caliber, pages='', art=''):
@@ -861,6 +894,16 @@ body {
 }
 
 header { display: flex; flex-direction: column; gap: 8px; }
+/* The mark sits inside the h1 rather than above it: one lockup, and it takes
+   its size from the heading instead of needing its own at every breakpoint.
+   Sized in em and nudged onto the baseline, so the h1 stays a line of text —
+   making it a flex row would have relaid every other h1 on the site. display
+   and margin are spelled out because the diagram rule further down sets every
+   svg to block with auto margins, which put the mark on a line of its own. */
+.mark {
+  display: inline-block; width: 1.3em; height: 1.3em;
+  vertical-align: -0.26em; margin: 0 12px 0 0;
+}
 .eyebrow {
   font-family: var(--mono); font-size: 10px; font-weight: 600;
   letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-faint);
@@ -1124,6 +1167,128 @@ DOCUMENTED = {'rm277'}
 PAGES = ['catalogue/gun-rm277.html']   # documented weapons, for the sitemap
 SITE = 'https://eukyrios.github.io/weapon-smith/'
 
+# The mark: a hammer over an anvil. Drawn on a 64 grid in three tones — steel
+# for the anvil, a darker steel for the waist it stands on, accent green for the
+# hammer, because a smith's tools are the thing being lit and the anvil is what
+# they land on. Built from filled masses rather than outlines: a stroked drawing
+# silts up at tab size, a silhouette survives it. The horn points away from the
+# hammer so the two shapes never touch at small sizes. Every edge is a straight
+# line or a rounded corner, which is what lets tools/make-og.py redraw the same
+# mark with Pillow: one geometry, two renderers, no drift.
+_MARK = """  <g fill="#95a8b4">
+    <path d="M13 34h36v6H13l-6-3z"/>
+    <path d="M24 46h14l7 7H17z"/>
+    <rect x="15" y="52.4" width="34" height="3.6" rx="1.4"/>
+  </g>
+  <path d="M19 40h24l-5 6H24z" fill="#5e7381"/>
+  <path d="M33 30l5-5-16-16-5 5z" fill="#0a8f57"/>
+  <path d="M31 33l7 2 9-9-2-7-7 2z" fill="#0ff796"/>"""
+
+FAVICON = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" '
+           'role="img" aria-label="Weapon Smith">\n'
+           '  <rect width="64" height="64" rx="12" fill="#060e13"/>\n'
+           + _MARK + '\n</svg>\n')
+
+# In the page the mark is decoration beside a heading that already says the
+# name, so it is hidden from screen readers rather than announced twice. The
+# newlines are squeezed out because it goes inline into an h1.
+LOGO = ('<svg class="mark" viewBox="0 0 64 64" aria-hidden="true" '
+        'focusable="false">' + ' '.join(_MARK.split()) + '</svg>')
+
+OG = SITE + 'og.png'
+OG_ALT = ('Weapon Smith &mdash; the Delta Force: Operations weapon and '
+          'attachment catalogue')
+
+
+def attr(text):
+    """Text going into an attribute. The descriptions are prose and prose has
+    quotation marks in it; everything else here is already entity-escaped."""
+    return text.replace('"', '&quot;')
+
+
+def head(title, desc, path, css_href=None, crumb=''):
+    """What a crawler is given, on every one of the 596 pages.
+
+    Copied in shape from the sibling site, which learned it the hard way: the
+    canonical and og:url must be absolute and must agree, the description is
+    written for the page rather than the site (596 pages sharing one sentence
+    is 595 pages telling Google they are duplicates), and the icon and theme
+    colour are what make the tab recognisable.
+
+    `path` is the page's address under SITE and doubles as the depth: a page
+    inside catalogue/ reaches the icon one level up.
+    """
+    # Descriptions are assembled from clauses that come and go with the data,
+    # so tidy the seams here rather than at every call site.
+    desc = ' '.join(desc.split())
+    up = '../' if '/' in path else ''
+    url = SITE + path
+    style = (f'<link rel="stylesheet" href="{css_href}">' if css_href
+             else f'<style>{CSS}</style>')
+    return '\n'.join([
+        '<!doctype html>',
+        '<html lang="en">',
+        '<meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        f'<title>{title}</title>',
+        f'<meta name="description" content="{attr(desc)}">',
+        f'<link rel="canonical" href="{url}">',
+        f'<link rel="icon" type="image/svg+xml" href="{up}favicon.svg">',
+        '<meta name="color-scheme" content="dark">',
+        '<meta name="theme-color" content="#060e13">',
+        '',
+        '<meta property="og:type" content="website">',
+        '<meta property="og:site_name" content="Weapon Smith">',
+        f'<meta property="og:title" content="{attr(title)}">',
+        f'<meta property="og:description" content="{attr(desc)}">',
+        f'<meta property="og:url" content="{url}">',
+        f'<meta property="og:image" content="{OG}">',
+        '<meta property="og:image:width" content="1200">',
+        '<meta property="og:image:height" content="630">',
+        f'<meta property="og:image:alt" content="{OG_ALT}">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        f'<meta name="twitter:title" content="{attr(title)}">',
+        f'<meta name="twitter:description" content="{attr(desc)}">',
+        f'<meta name="twitter:image" content="{OG}">',
+        '',
+        ld_json(desc, path, crumb),
+        style,
+    ])
+
+
+def ld_json(desc, path, crumb):
+    """Structured data: what kind of thing this page is, not what words are on
+    it. The front page is the site; every other page is a leaf under it, and
+    saying so as a breadcrumb is what puts the trail under the result instead
+    of a bare URL. A page with no crumb name gets no block rather than a
+    half-filled one."""
+    if not path:
+        data = {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            'name': 'Weapon Smith',
+            'url': SITE,
+            'description': desc,
+            'inLanguage': 'en',
+            'image': OG,
+        }
+    elif crumb:
+        data = {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            'itemListElement': [
+                {'@type': 'ListItem', 'position': 1,
+                 'name': 'Weapon Smith', 'item': SITE},
+                {'@type': 'ListItem', 'position': 2,
+                 'name': crumb, 'item': SITE + path},
+            ],
+        }
+    else:
+        return ''
+    return ('<script type="application/ld+json">'
+            + json.dumps(data, ensure_ascii=False)
+            + '</script>')
+
 NAV = ('  <nav class="nav">\n'
        '    <a href="{up}">&larr; {back}</a>\n'
        '  </nav>\n')
@@ -1155,16 +1320,14 @@ def banner():
         '\n</aside>\n')
 
 
-def shell(title, eyebrow, h1, sub, body, nav, css_href=None):
+def shell(title, eyebrow, h1, sub, body, nav, css_href=None,
+          desc='', path='', crumb=''):
     """`css_href` links a shared stylesheet instead of inlining it. The
     catalogue is 439 pages; inlining 5KB of CSS into each costs 2MB of repo for
     nothing. The two hand-shared pages stay self-contained so they can be
     published or emailed on their own."""
-    style = (f'<link rel="stylesheet" href="{css_href}">' if css_href
-             else f'<style>{CSS}</style>')
     return '\n'.join([
-        f'<title>{title}</title>',
-        style,
+        head(title, desc, path, css_href, crumb),
         '',
         banner(),
         '<div class="wrap">',
@@ -1195,9 +1358,15 @@ def index_page(items, by_caliber):
     The front page carries no back link: there is nothing above it on this
     site, and it is not a page of the sibling site to be returned from.
     """
+    desc = (f'Every weapon, round and attachment in Delta Force: '
+            f'Operations: {len(WEAPONS)} weapons, {len(AMMO)} rounds and '
+            f'{len(items)} attachments, with the slots each one fits and the '
+            'slots it opens.')
     return shell(
-        'Weapon Smith', 'Delta Force &middot; Operations', 'Weapon Smith', '',
-        catalogue_browser(items, by_caliber, pages='catalogue/', art=''), '')
+        'Weapon Smith &mdash; Delta Force attachment catalogue',
+        'Delta Force &middot; Operations', LOGO + 'Weapon Smith', '',
+        catalogue_browser(items, by_caliber, pages='catalogue/', art=''), '',
+        desc=desc, path='')
 
 
 def build():
@@ -1254,17 +1423,33 @@ if __name__ == '__main__':
     # Site furniture. Generated too, so a new weapon page reaches the sitemap
     # without anyone remembering to add it.
     (out / '.nojekyll').write_text('', encoding='utf-8')
+    (out / 'favicon.svg').write_text(FAVICON, encoding='utf-8')
     (out / 'robots.txt').write_text(
         'User-agent: *\nAllow: /\n\nSitemap: ' + SITE + 'sitemap.xml\n',
         encoding='utf-8')
-    urls = [('', '1.0')] + [(w, '0.7') for w in PAGES]
+
+    # Every page, not a hand-kept list of two. A catalogue is worth nothing to
+    # a reader who cannot be shown the page holding the thing they searched
+    # for, and a crawler that has to find 595 pages by walking the front page's
+    # filter finds them slowly. changefreq and priority are hints Google mostly
+    # ignores; they are here to say which pages are the ones being worked on.
+    urls = [('', 'weekly', '1.0')]
+    urls += [(p, 'weekly', '0.8') for p in PAGES]
+    urls += [(f'catalogue/{gun_file(w["id"])}', 'monthly', '0.6')
+             for w in WEAPONS if f'catalogue/{gun_file(w["id"])}' not in PAGES]
+    urls += [(f'catalogue/{ammo_file(a["id"])}', 'monthly', '0.5')
+             for a in AMMO]
+    urls += [(f"catalogue/{i['id']}.html", 'monthly', '0.5')
+             for i in items.values()]
     (out / 'sitemap.xml').write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
         + ''.join(f'  <url>\n    <loc>{SITE}{u}</loc>\n'
-                  f'    <changefreq>weekly</changefreq>\n'
-                  f'    <priority>{pr}</priority>\n  </url>\n' for u, pr in urls)
+                  f'    <changefreq>{freq}</changefreq>\n'
+                  f'    <priority>{pr}</priority>\n  </url>\n'
+                  for u, freq, pr in urls)
         + '</urlset>\n', encoding='utf-8')
+    print(f'wrote sitemap.xml with {len(urls)} urls')
     cat = out / 'catalogue'
     cat.mkdir(exist_ok=True)
     # Wipe before writing: a renamed item leaves its old page behind otherwise,
@@ -1290,9 +1475,13 @@ if __name__ == '__main__':
     # bookmarked or linked. It is a signpost now rather than a 404 — the pages
     # themselves still live in this folder, only the index moved up.
     (cat / 'index.html').write_text(
+        '<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
         '<title>Catalogue &middot; Weapon Smith</title>\n'
         '<meta http-equiv="refresh" content="0; url=../">\n'
         '<link rel="canonical" href="' + SITE + '">\n'
+        # A forwarding page has nothing to index and the canonical alone leaves
+        # it to Google's judgement. This says it outright.
+        '<meta name="robots" content="noindex, follow">\n'
         '<p>The catalogue is the front page now. '
         '<a href="../">Weapon Smith &rarr;</a></p>\n', encoding='utf-8')
     for i in items.values():
