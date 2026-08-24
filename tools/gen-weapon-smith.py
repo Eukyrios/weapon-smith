@@ -1049,15 +1049,13 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .navlink.is-on { background: rgba(var(--accent-rgb), 0.12); color: var(--accent); }
 .navlink.is-on em { color: var(--accent-dim); }
 
-/* The notice overlays the page rather than sitting in the flow: it is pinned
-   to the top of the viewport and the content scrolls underneath it, so it
-   cannot be scrolled past and missed. Nothing below reserves room for it —
-   covering the top of the page is the point. */
+/* The notice sits in the flow, above the page wrapper: a full-width bar that
+   the content begins below, so it covers nothing. It is the top of the
+   document rather than a fixture of the viewport, so it scrolls away once
+   read. */
 .banner {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   font-size: 13px; color: var(--warn-ink); background: var(--warn);
   border-bottom: 1px solid var(--warn-line);
-  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
   /* Side padding tracks .wrap's own gutter, so the sentence lines up with the
      page content instead of running to the edges of a wide screen. */
   padding: 10px max(18px, calc((100vw - 1240px) / 2 + 18px));
@@ -1145,7 +1143,7 @@ def banner():
     named = ', '.join(sorted(WEAPON_NAME.get(w, w) for w in DOCUMENTED))
     one = done == 1
     return (
-        '  <aside class="banner">\n'
+        '<aside class="banner">\n'
         '    <strong>Early days.</strong> This site is being written as the game '
         f'is read, and {"one" if one else done} of {total} weapons '
         f'{"has an attachment list" if one else "have attachment lists"} so far '
@@ -1154,7 +1152,7 @@ def banner():
         'faster as it goes: most of what a new gun takes is already catalogued, '
         'so there are fewer attachments left to add each time. Every other '
         'weapon page carries what the catalogue knows and says so.'
-        '\n  </aside>\n')
+        '\n</aside>\n')
 
 
 def shell(title, eyebrow, h1, sub, body, nav, css_href=None):
@@ -1168,9 +1166,9 @@ def shell(title, eyebrow, h1, sub, body, nav, css_href=None):
         f'<title>{title}</title>',
         style,
         '',
+        banner(),
         '<div class="wrap">',
         '',
-        banner(),
         nav,
         '  <header>',
         f'    <span class="eyebrow">{eyebrow}</span>',

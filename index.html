@@ -250,15 +250,13 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .navlink.is-on { background: rgba(var(--accent-rgb), 0.12); color: var(--accent); }
 .navlink.is-on em { color: var(--accent-dim); }
 
-/* The notice overlays the page rather than sitting in the flow: it is pinned
-   to the top of the viewport and the content scrolls underneath it, so it
-   cannot be scrolled past and missed. Nothing below reserves room for it —
-   covering the top of the page is the point. */
+/* The notice sits in the flow, above the page wrapper: a full-width bar that
+   the content begins below, so it covers nothing. It is the top of the
+   document rather than a fixture of the viewport, so it scrolls away once
+   read. */
 .banner {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   font-size: 13px; color: var(--warn-ink); background: var(--warn);
   border-bottom: 1px solid var(--warn-line);
-  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
   /* Side padding tracks .wrap's own gutter, so the sentence lines up with the
      page content instead of running to the edges of a wide screen. */
   padding: 10px max(18px, calc((100vw - 1240px) / 2 + 18px));
@@ -319,11 +317,11 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
 }
 </style>
 
-<div class="wrap">
-
-  <aside class="banner">
+<aside class="banner">
     <strong>Early days.</strong> This site is being written as the game is read, and one of 66 weapons has an attachment list so far &mdash; the RM277. I enter this by hand, one attachment at a time, so the first few guns will take a while. It gets faster as it goes: most of what a new gun takes is already catalogued, so there are fewer attachments left to add each time. Every other weapon page carries what the catalogue knows and says so.
-  </aside>
+</aside>
+
+<div class="wrap">
 
 
   <header>
