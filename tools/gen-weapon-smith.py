@@ -824,6 +824,12 @@ CSS = """
   --accent-rgb: 15, 247, 150;
   --red: #e04a3a;
 
+  /* Yellow is the caveat colour. The green accent marks what is finished, so
+     the standing notice about what is *not* finished must not borrow it. */
+  --warn: #f5d90a;
+  --warn-line: #a08c05;
+  --warn-ink: #17130a;
+
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
 }
@@ -1043,12 +1049,20 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .navlink.is-on { background: rgba(var(--accent-rgb), 0.12); color: var(--accent); }
 .navlink.is-on em { color: var(--accent-dim); }
 
+/* The notice overlays the page rather than sitting in the flow: it is pinned
+   to the top of the viewport and the content scrolls underneath it, so it
+   cannot be scrolled past and missed. Nothing below reserves room for it —
+   covering the top of the page is the point. */
 .banner {
-  display: block; padding: 10px 14px; border-radius: 6px; font-size: 13px;
-  color: var(--text-dim); background: var(--surface);
-  border: 1px solid var(--line); border-left: 3px solid var(--accent-dim);
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  font-size: 13px; color: var(--warn-ink); background: var(--warn);
+  border-bottom: 1px solid var(--warn-line);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+  /* Side padding tracks .wrap's own gutter, so the sentence lines up with the
+     page content instead of running to the edges of a wide screen. */
+  padding: 10px max(18px, calc((100vw - 1240px) / 2 + 18px));
 }
-.banner strong { color: var(--accent); font-weight: 700; }
+.banner strong { color: var(--warn-ink); font-weight: 700; }
 
 .tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); }
 .tile {
@@ -1100,6 +1114,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
 @media (max-width: 34rem) {
   .wrap { padding: 20px 12px 44px; gap: 26px; }
   h1 { font-size: 24px; }
+  .banner { padding: 9px 12px; font-size: 12px; }
 }
 """
 
@@ -1134,9 +1149,12 @@ def banner():
         '    <strong>Early days.</strong> This site is being written as the game '
         f'is read, and {"one" if one else done} of {total} weapons '
         f'{"has an attachment list" if one else "have attachment lists"} so far '
-        f'&mdash; {"the " if one else ""}{named}. Every other weapon page carries '
-        'what the catalogue knows and says so; slot lists are transcribed one gun '
-        'at a time.\n  </aside>\n')
+        f'&mdash; {"the " if one else ""}{named}. I enter this by hand, one '
+        'attachment at a time, so the first few guns will take a while. It gets '
+        'faster as it goes: most of what a new gun takes is already catalogued, '
+        'so there are fewer attachments left to add each time. Every other '
+        'weapon page carries what the catalogue knows and says so.'
+        '\n  </aside>\n')
 
 
 def shell(title, eyebrow, h1, sub, body, nav, css_href=None):
@@ -1175,12 +1193,13 @@ def index_page(items, by_caliber):
     catalogue one level down. Nobody wants the page that offers the page: the
     first thing anyone arrives wanting is the list, so the list is what is here,
     and the extra hop is gone.
+
+    The front page carries no back link: there is nothing above it on this
+    site, and it is not a page of the sibling site to be returned from.
     """
     return shell(
         'Weapon Smith', 'Delta Force &middot; Operations', 'Weapon Smith', '',
-        catalogue_browser(items, by_caliber, pages='catalogue/', art=''),
-        NAV.format(up='https://eukyrios.github.io/loadout-roulette/',
-                   back='Loadout Roulette'))
+        catalogue_browser(items, by_caliber, pages='catalogue/', art=''), '')
 
 
 def build():
