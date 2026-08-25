@@ -1,0 +1,15 @@
+# Line endings, settled once.
+#
+# The site is generated on Windows and, sometimes, elsewhere. Python writes
+# CRLF on one and LF on the other, so alternating between them turned every
+# regeneration into a 45,000-line diff in which the two lines that actually
+# changed were unfindable. Storing text as LF whatever wrote it means a diff
+# shows the change and nothing else.
+* text=auto eol=lf
+
+# And the pictures are not text. Without this a stray byte pair in a PNG can be
+# "corrected" into a corrupt file.
+*.png binary
+*.jpg binary
+*.mp4 binary
+*.zip binary
