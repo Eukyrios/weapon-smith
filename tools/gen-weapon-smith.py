@@ -229,11 +229,40 @@ SECTIONS = [
     ('stock-pad', 'Stock pad', ''),
 ]
 
+# Deliberate departures from the derived lists, recorded by the editor's dev
+# mode and written into the weapon's own file.
+#
+# A delta rather than a frozen copy of the lists. The whole point of deriving
+# them is that a rule added tomorrow reaches every weapon at once, and a copy
+# would quietly stop doing that. What is in here is a claim that the derivation
+# is wrong for this weapon in this one place — which is a thing worth seeing on
+# its own in a diff, rather than buried in four hundred unchanged rows.
+EDITS = json.loads(
+    (ROOT / 'data/gunsmith-rm277.json').read_text(encoding='utf-8')
+).get('edits') or {}
+_SLOT_EDITS = EDITS.get('slots') or {}
+_FIT_EDITS = EDITS.get('fits') or {}
+
+SECTIONS = [s for s in SECTIONS if s[0] not in set(_SLOT_EDITS.get('remove', []))]
+for _sid in _SLOT_EDITS.get('add', []):
+    if _sid not in {s[0] for s in SECTIONS}:
+        SECTIONS.append((_sid, SLOT_LABEL.get(_sid, _sid), ''))
+
+
 def rows_for(slot):
-    """Dictated order: resolved ids with the missing names spliced back in."""
+    """Dictated order: resolved ids with the missing names spliced back in,
+    then whatever the dev mode says this weapon does or does not take."""
     out = [nm(i) for i in FITS.get(slot, [])]
     for idx, name in MISSING.get(slot, []):
         out.insert(idx, name)
+    e = _FIT_EDITS.get(slot) or {}
+    if e:
+        drop = set(e.get('remove', []))
+        out = [n for n in out if item_id(n) not in drop]
+        for iid in e.get('add', []):
+            name = NAMES.get(iid) or iid
+            if name not in out:
+                out.append(name)
     return [(name, needs_info(item_id(name))) for name in out]
 
 
@@ -247,7 +276,8 @@ def table(slot, prefix='catalogue/'):
         a = f'<td class="slotcell">{adds}</td>' if adds else '<td class="none">&mdash;</td>'
         b = f'<td class="cut">{blocks}</td>' if blocks else '<td class="none">&mdash;</td>'
         href = prefix + item_id(name) + '.html'
-        body += (f'          <tr{cls}><td><a href="{href}">{name}</a>{tag}</td>'
+        body += (f'          <tr{cls} data-item="{item_id(name)}">'
+                 f'<td><a href="{href}">{name}</a>{tag}</td>'
                  f'{a}{b}</tr>\n')
     return ('    <div class="tablewrap">\n      <table>\n        <thead>\n'
             '          <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>\n'
@@ -1075,7 +1105,7 @@ def gunsmith_body():
                 extra[slot] = dict(c, slot=slot)
     order = list(base.values()) + [extra[k] for k in sorted(extra)]
 
-    chips, lines, dots, panels = [], [], [], []
+    chips, lines, panels = [], [], []
     for s in order:
         granted = s['slot'] in extra
         cx, cy = s['x'] + C / 2, s['y'] + C / 2
@@ -1099,13 +1129,7 @@ def gunsmith_body():
                          f'x1="{cx}" y1="{cy}" '
                          f'x2="{s["ax"]}" y2="{s["ay"]}"'
                          + (' hidden' if granted else '') + '></line>\n')
-        ax = s['ax'] if s.get('ax') is not None else round(cx)
-        ay = s['ay'] if s.get('ay') is not None else round(cy)
-        dots.append(f'      <button class="pin" data-slot="{s["slot"]}" '
-                    f'style="left:{pc(ax, fw)};top:{pc(ay, fh)}" '
-                    f'title="{s["label"]}"></button>\n')
 
-    placed = sum(1 for s in d['slots'] if s.get('ax') is not None)
     prov = (' <em class="prov">derived, unconfirmed</em>'
             if d['weapon'].get('derived') else '')
     # Every stat line the page might need to add up, by item, so the arithmetic
@@ -1174,8 +1198,7 @@ def gunsmith_body():
     <svg class="stage__wires" viewBox="0 0 {fw} {fh}" preserveAspectRatio="none"
          aria-hidden="true">
 {''.join(lines)}    </svg>
-{''.join(chips)}    <div class="pins" hidden>
-{''.join(dots)}    </div>
+{''.join(chips)}    <div class="pins" hidden></div>
 
     <aside class="panel" id="panel" hidden>
 {''.join(panels)}      <button class="panel__x" id="close" aria-label="Close">&times;</button>
@@ -1189,14 +1212,6 @@ def gunsmith_body():
   </div>
   </div>
 
-  <section class="placer" hidden>
-    <h2>Anchor placement</h2>
-    <p class="lede">{placed} of {len(d['slots'])} placed. Drag each dot onto its
-    marker on the weapon, then copy the JSON below into
-    <code>data/gunsmith-rm277.json</code>.</p>
-    <p><button class="btn" id="copy">Copy coordinates</button></p>
-    <pre class="out" id="out"></pre>
-  </section>
 
   <script>
     const WEAPON = {json.dumps(d['weapon']['stats'])};
@@ -1205,6 +1220,14 @@ def gunsmith_body():
     const OPENS = {json.dumps(opens)};
     const LAYOUTS = {json.dumps(lays)};
     const FW = {fw}, FH = {fh}, CHIP = {C};
+    const SLOTS = {json.dumps([{'id': s['id'], 'label': SLOT_LABEL.get(s['id'], s['id'])} for s in SLOT_TYPES])};
+
+    // The hash carries two things: which slot to open, and whether the editor
+    // is in dev mode. Written as #right-patch#dev because that is one string to
+    // paste and one to delete.
+    const HASH = location.hash.slice(1).split('#');
+    const DEV = HASH.includes('dev');
+    const TAIL = DEV ? '#dev' : '';
 
     // Each chip is a real link to the slot's table on the weapon page, and stays
     // one. This only intercepts the click to show the same list here instead,
@@ -1232,6 +1255,10 @@ def gunsmith_body():
     // the muzzle or the bipod away with it. So the set of chips is a function
     // of what is fitted, and it is recomputed rather than toggled.
     const BASE_SLOTS = new Set(Object.keys(LAYOUTS[0].chips));
+    // Slots dev mode has been told this weapon does not have. Held here rather
+    // than in the layouts, because it is an opinion about the weapon and the
+    // layouts are a record of the game.
+    const DROPPED = new Set();
 
     // What each layout changed about the base picture: its new chips, and the
     // neighbours the game pushed aside to make room. Composing two layouts
@@ -1351,6 +1378,7 @@ def gunsmith_body():
       for (const slot of blocks) delete chips[slot];
       for (const slot of Object.keys(chips))
         if (!BASE_SLOTS.has(slot) && !grants.has(slot)) delete chips[slot];
+      for (const slot of DROPPED) delete chips[slot];
       // Two clips can each move the same neighbour a different way, and a
       // composed picture can land one chip on another. Only composed ones: a
       // layout we actually watched is left at the pixel it was measured at.
@@ -1377,6 +1405,27 @@ def gunsmith_body():
       }}
       // A slot that has just closed cannot stay the one on screen.
       if (cur.slot && !chips[cur.slot]) shut();
+      if (DEV) pins(chips);
+    }}
+
+    // One dot per visible chip, on the end of its line. Rebuilt with the
+    // layout rather than toggled, because which chips exist is the thing that
+    // changes.
+    function pins(chips) {{
+      const box = document.querySelector('.pins');
+      box.hidden = false;
+      box.innerHTML = '';
+      for (const [slot, p] of Object.entries(chips)) {{
+        const ax = p.ax == null ? p.x + CHIP / 2 : p.ax;
+        const ay = p.ay == null ? p.y + CHIP / 2 : p.ay;
+        const el = document.createElement('button');
+        el.className = 'pin' + (p.ax == null ? ' is-loose' : '');
+        el.dataset.slot = slot;
+        el.style.left = (ax / FW * 100).toFixed(4) + '%';
+        el.style.top = (ay / FH * 100).toFixed(4) + '%';
+        el.title = slot + ' — ' + ax + ', ' + ay;
+        box.appendChild(el);
+      }}
     }}
 
     // ---- the arithmetic -----------------------------------------------
@@ -1544,7 +1593,7 @@ def gunsmith_body():
         const first = found.querySelector('.pcard');
         if (first) pick(found, first.dataset.item);
         found.querySelector('.picks').scrollTop = 0;
-        history.replaceState(null, '', '#' + slot);
+        history.replaceState(null, '', '#' + slot + TAIL);
       }}
     }}
 
@@ -1555,7 +1604,7 @@ def gunsmith_body():
       cur = {{slot: null, item: null}};
       equipBtn.hidden = true;
       for (const c of document.querySelectorAll('.chip3')) c.classList.remove('is-on');
-      history.replaceState(null, '', location.pathname);
+      history.replaceState(null, '', location.pathname + (TAIL ? '#dev' : ''));
     }}
 
     for (const l of lists) {{
@@ -1630,38 +1679,272 @@ def gunsmith_body():
       if (e.target.closest('.panel, .chip3, #equip, .pins')) return;
       shut();
     }});
-    if (location.hash) showSlot(location.hash.slice(1));
+    if (location.hash) showSlot(HASH[0]);
 
-    // Placement is a maintenance mode, not a feature: ?place turns it on.
-    const place = new URLSearchParams(location.search).has('place');
-    const pins = document.querySelector('.pins');
-    if (place) {{
-      pins.hidden = false;
-      document.querySelector('.placer').hidden = false;
-      stage.classList.add('is-placing');
-      const at = {{}};
-      let held = null;
-      const put = (el, e) => {{
-        const r = stage.getBoundingClientRect();
-        const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
-        const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
-        el.style.left = (x * 100) + '%';
-        el.style.top = (y * 100) + '%';
-        at[el.dataset.slot] = [Math.round(x * {fw}), Math.round(y * {fh})];
-      }};
-      for (const p of pins.querySelectorAll('.pin')) {{
-        p.addEventListener('pointerdown', (e) => {{
-          held = p; p.setPointerCapture(e.pointerId); e.preventDefault();
-        }});
-        p.addEventListener('pointermove', (e) => {{ if (held === p) put(p, e); }});
-        p.addEventListener('pointerup', () => {{ held = null; }});
+    // Typing #dev onto a page that is already open only changes the hash, and
+    // dev mode is decided at load. Reload for it, or the address bar and the
+    // page disagree about which one you are looking at.
+    addEventListener('hashchange', () => {{
+      if (location.hash.slice(1).split('#').includes('dev') !== DEV)
+        location.reload();
+    }});
+
+    // ---- dev mode ---------------------------------------------------------
+    // Put #dev on the end of the hash to turn it on:
+    //     catalogue/gun-rm277.html#right-patch#dev
+    // It edits the two things this page cannot derive — where a chip and the
+    // end of its line sit, and which attachments a slot takes on this weapon —
+    // and prints the file to paste back. Nothing is saved: the page is a view
+    // of the repo, not a store, and a tool that wrote silently would be one
+    // more place for the data to live.
+    //
+    // Everything it needs is fetched rather than baked in, so a reader who is
+    // not editing carries none of it.
+    if (DEV) dev();
+
+    async function dev() {{
+      const [doc, cat] = await Promise.all([
+        fetch('../data/gunsmith-rm277.json').then((r) => r.json()),
+        fetch('../data/attachments.json').then((r) => r.json()),
+      ]);
+      const named = {{}};
+      for (const a of cat) named[a.id] = a.name;
+      doc.edits = doc.edits || {{}};
+      const ed = doc.edits;
+      ed.slots = ed.slots || {{add: [], remove: []}};
+      ed.fits = ed.fits || {{}};
+
+      document.body.classList.add('is-dev');
+      const bar = document.createElement('div');
+      bar.className = 'devbar';
+      document.querySelector('.gunsmith').prepend(bar);
+
+      const out = document.createElement('div');
+      out.className = 'devout';
+      out.innerHTML = '<p class="dlabel">data/gunsmith-rm277.json</p>'
+        + '<textarea class="out" spellcheck="false" rows="10"></textarea>'
+        + '<p><button class="btn" type="button">Copy</button>'
+        + '<button class="btn btn--ghost" type="button">Undo everything</button></p>';
+      document.querySelector('.gunsmith').after(out);
+      const text = out.querySelector('textarea');
+      const [copyBtn, undoBtn] = out.querySelectorAll('button');
+      const clean = JSON.stringify(doc);
+
+      function say(msg) {{
+        const {{grants, blocks}} = openSlots();
+        const exact = LAYOUTS.find(
+          (l) => sameSet(grants, l.when) && sameSet(blocks, l.blocks));
+        bar.innerHTML = '<b>Dev</b> <span>' + (exact
+          ? 'editing the layout for: ' + (exact.when.length
+              ? exact.when.join(', ') : 'the bare rifle')
+          : 'this combination has no recorded layout, so chips cannot be moved '
+            + '&mdash; line ends still can') + '</span>'
+          + (msg ? '<em>' + msg + '</em>' : '');
+        text.value = JSON.stringify(doc, null, 1);
       }}
-      document.getElementById('copy').addEventListener('click', () => {{
-        const txt = JSON.stringify(at, null, 1);
-        document.getElementById('out').textContent = txt;
-        // The <pre> is the real output; the clipboard is a convenience and
-        // is denied outright in some contexts, so its rejection is caught.
-        if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {{}});
+
+      // Where a slot's numbers live in the file. An anchor is a point on the
+      // weapon, so it is written everywhere that slot appears; a chip position
+      // belongs to one arrangement, so it is written only to the one on screen.
+      function homes(slot, anchor) {{
+        const {{grants, blocks}} = openSlots();
+        const hit = [];
+        const base = doc.slots.find((s) => s.slot === slot);
+        if (anchor) {{
+          if (base) hit.push(base);
+          for (const l of doc.layouts || [])
+            if (l.chips[slot]) hit.push(l.chips[slot]);
+          return hit;
+        }}
+        const i = LAYOUTS.findIndex(
+          (l) => sameSet(grants, l.when) && sameSet(blocks, l.blocks));
+        if (i < 0) return [];
+        if (i === 0) return base ? [base] : [];
+        const c = (doc.layouts[i - 1] || {{}}).chips || {{}};
+        return c[slot] ? [c[slot]] : [];
+      }}
+
+      let drag = null;
+      function frameXY(e) {{
+        const r = stage.getBoundingClientRect();
+        return [Math.round((e.clientX - r.left) / r.width * FW),
+                Math.round((e.clientY - r.top) / r.height * FH)];
+      }}
+
+      stage.addEventListener('pointerdown', (e) => {{
+        const pin = e.target.closest('.pin');
+        const chip = e.target.closest('.chip3');
+        if (!pin && !chip) return;
+        const slot = (pin || chip).dataset.slot;
+        const where = homes(slot, !!pin);
+        if (!where.length) {{ say('nothing to write that to'); return; }}
+        drag = {{slot, anchor: !!pin, where, moved: false}};
+        stage.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      }});
+      stage.addEventListener('pointermove', (e) => {{
+        if (!drag) return;
+        const [x, y] = frameXY(e);
+        for (const t of drag.where) {{
+          if (drag.anchor) {{ t.ax = x; t.ay = y; }}
+          else {{ t.x = x - CHIP / 2 | 0; t.y = y - CHIP / 2 | 0; }}
+        }}
+        drag.moved = true;
+        pushLayouts();
+        relayout();
+        say(drag.slot + (drag.anchor ? ' line ends at ' : ' chip at ')
+            + x + ', ' + y);
+      }});
+      stage.addEventListener('pointerup', () => {{
+        // A drag that never moved was a click, and a click on a chip opens it.
+        if (drag && !drag.moved) showSlot(drag.slot);
+        drag = null;
+      }});
+
+      // The page draws from LAYOUTS; the file is what is edited. Copy across
+      // after every change so the two cannot disagree about what is on screen.
+      function pushLayouts() {{
+        LAYOUTS[0].chips = doc.slots.reduce((a, s) => {{
+          a[s.slot] = {{x: s.x, y: s.y, ax: s.ax, ay: s.ay}}; return a;
+        }}, {{}});
+        (doc.layouts || []).forEach((l, i) => {{
+          LAYOUTS[i + 1].chips = Object.fromEntries(
+            Object.entries(l.chips).map(([k, c]) =>
+              [k, {{x: c.x, y: c.y, ax: c.ax, ay: c.ay}}]));
+        }});
+      }}
+
+      // ---- the slot tables --------------------------------------------
+      // Removing a row is a claim that the derived list is wrong for this
+      // weapon, so it is recorded as a departure from that list rather than by
+      // freezing a copy of it: add a rule tomorrow and every other weapon still
+      // picks it up.
+      function delta(slot) {{
+        ed.fits[slot] = ed.fits[slot] || {{add: [], remove: []}};
+        return ed.fits[slot];
+      }}
+      const strike = (id, list) => {{
+        const i = list.indexOf(id);
+        if (i >= 0) list.splice(i, 1);
+      }};
+
+      for (const sec of document.querySelectorAll('[id^="slot-"]')) {{
+        const slot = sec.id.slice(5);
+        const h2 = sec.querySelector('h2');
+        const kill = document.createElement('button');
+        kill.className = 'devx';
+        kill.type = 'button';
+        kill.textContent = 'remove slot';
+        kill.addEventListener('click', () => {{
+          sec.hidden = true;
+          DROPPED.add(slot);
+          strike(slot, ed.slots.add);
+          if (!ed.slots.remove.includes(slot)) ed.slots.remove.push(slot);
+          relayout();
+          say('removed the ' + slot + ' slot');
+        }});
+        h2.appendChild(kill);
+
+        for (const tr of sec.querySelectorAll('tbody tr')) {{
+          const id = tr.dataset.item;
+          const x = document.createElement('button');
+          x.className = 'devx';
+          x.type = 'button';
+          x.textContent = '\\u00d7';
+          x.title = 'This does not fit here';
+          x.addEventListener('click', () => {{
+            tr.hidden = true;
+            const d = delta(slot);
+            strike(id, d.add);
+            if (!d.remove.includes(id)) d.remove.push(id);
+            say('dropped ' + id + ' from ' + slot);
+          }});
+          tr.firstElementChild.appendChild(x);
+        }}
+
+        const add = document.createElement('p');
+        add.className = 'devadd';
+        add.innerHTML = '<select><option value="">Add an attachment&hellip;</option>'
+          + cat.slice().sort((a, b) => a.name.localeCompare(b.name))
+               .map((a) => '<option value="' + a.id + '">' + a.name + '</option>')
+               .join('') + '</select>';
+        add.querySelector('select').addEventListener('change', (e) => {{
+          const id = e.target.value;
+          if (!id) return;
+          e.target.value = '';
+          const d = delta(slot);
+          strike(id, d.remove);
+          if (!d.add.includes(id)) d.add.push(id);
+          // Built as nodes rather than as a string: the name comes from a
+          // data file and this is the one place on the page that would put it
+          // straight into markup.
+          const tr = document.createElement('tr');
+          tr.dataset.item = id;
+          const td = document.createElement('td');
+          const a = document.createElement('a');
+          a.href = id + '.html';
+          a.textContent = named[id] || id;
+          const flag = document.createElement('em');
+          flag.className = 'devnew';
+          flag.textContent = 'added';
+          td.append(a, ' ', flag);
+          tr.append(td);
+          for (let i = 0; i < 2; i++) {{
+            const c = document.createElement('td');
+            c.className = 'none';
+            c.textContent = '\u2014';
+            tr.append(c);
+          }}
+          sec.querySelector('tbody').appendChild(tr);
+          say('added ' + id + ' to ' + slot);
+        }});
+        sec.appendChild(add);
+      }}
+
+      const newSlot = document.createElement('p');
+      newSlot.className = 'devadd devaddslot';
+      newSlot.innerHTML = '<select><option value="">Add a slot&hellip;</option>'
+        + SLOTS.map((s) => '<option value="' + s.id + '">' + s.label
+                           + '</option>').join('') + '</select>';
+      newSlot.querySelector('select').addEventListener('change', (e) => {{
+        const id = e.target.value;
+        if (!id) return;
+        e.target.value = '';
+        strike(id, ed.slots.remove);
+        if (!ed.slots.add.includes(id)) ed.slots.add.push(id);
+        DROPPED.delete(id);
+        const back = document.querySelector('#slot-' + id);
+        if (back) {{
+          back.hidden = false;
+          relayout();
+          say('put the ' + id + ' slot back');
+          return;
+        }}
+        // A slot the page has never drawn needs a chip before it can be
+        // dragged, so one is parked in the middle for exactly that.
+        if (!doc.slots.some((s) => s.slot === id))
+          doc.slots.push({{slot: id, label: id, x: (FW - CHIP) / 2 | 0,
+                          y: (FH - CHIP) / 2 | 0, ax: null, ay: null}});
+        pushLayouts();
+        relayout();
+        say('added the ' + id + ' slot — regenerate for its chip and table');
+      }});
+      (document.getElementById('tables') || document.body).append(newSlot);
+
+      copyBtn.addEventListener('click', () => {{
+        text.select();
+        if (navigator.clipboard)
+          navigator.clipboard.writeText(text.value).catch(() => {{}});
+      }});
+      undoBtn.addEventListener('click', () => {{ location.reload(); }});
+
+      pushLayouts();
+      relayout();
+      say('');
+      // Losing an hour of dragging to a stray click is the failure this
+      // prevents; the browser decides whether to honour it.
+      addEventListener('beforeunload', (e) => {{
+        if (JSON.stringify(doc) !== clean) e.preventDefault();
       }});
     }}
   </script>
@@ -2326,44 +2609,56 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .chip3:hover .chip3__label, .chip3:focus-visible .chip3__label { color: var(--accent); }
 
-.pins { position: absolute; inset: 0; }
+ /* The dots layer sits over the chips, so it has to be transparent to the
+   pointer or it swallows every click meant for a chip underneath. */
+.pins { position: absolute; inset: 0; pointer-events: none; }
+.pin { pointer-events: auto; }
 .pin {
   position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px;
   padding: 0; border: 2px solid var(--warn); border-radius: 50%;
   background: rgba(245,217,10,.25); cursor: grab; touch-action: none;
 }
 .pin:active { cursor: grabbing; }
-.stage.is-placing .chip3 { pointer-events: none; }
 
 /* --------------------------------------------------------------------------
-   The anchor workbench (dev-anchors.html). Not linked from the site: it is a
-   tool that lives in the built pages so it can see the same artwork and the
-   same coordinates the editor lays out from.
+   Dev mode: #dev on the end of the hash. None of this is reachable from the
+   site, and the script that builds it does not run without the hash, so a
+   reader carries the rules and nothing else.
    -------------------------------------------------------------------------- */
-.stage__wires--hot { stroke: var(--accent-dim); stroke-width: 1.5; }
-.stage__wires--hot line.is-on { stroke: var(--warn); stroke-width: 2.5; }
-.pin.is-on { border-color: var(--accent); background: rgba(42, 202, 150, .35); }
-/* A chip whose line has never been placed: its dot sits on the chip itself. */
+.devbar {
+  grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px;
+  align-items: baseline; padding: 7px 11px; border-radius: 5px;
+  font-size: 12px; color: var(--bg); background: var(--warn);
+}
+.devbar b { letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
+.devbar em { margin-left: auto; font-style: normal; font-family: var(--mono); }
+.devout { margin-top: 14px; }
+.devout .dlabel { margin-top: 0; padding-top: 0; border-top: 0; }
+.devout textarea {
+  width: 100%; resize: vertical;
+  font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 12px;
+}
+.devout .btn { margin-right: 8px; }
+.devx {
+  font: inherit; font-size: 10px; margin-left: 8px; padding: 1px 6px;
+  cursor: pointer; color: var(--red); background: transparent;
+  border: 1px solid currentColor; border-radius: 3px;
+}
+.devx:hover { color: var(--bg); background: var(--red); }
+.devadd { margin: 8px 0 0; }
+.devadd select {
+  font: inherit; font-size: 12px; padding: 5px 8px; color: var(--text-dim);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 5px;
+}
+.devnew {
+  font-family: var(--mono); font-size: 9px; font-style: normal;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+}
+/* A dot with no line yet: it sits on its own chip until it is dragged off. */
 .pin.is-loose { border-style: dashed; border-color: var(--red); }
-
-.zoomer.is-zoomed { overflow: auto; }
-.zoomer.is-zoomed .stage { width: 2032px; max-width: none; }
-
-.devbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-.devtab {
-  font: inherit; font-size: 12px; padding: 6px 11px; cursor: pointer;
-  color: var(--text-dim); background: var(--surface);
-  border: 1px solid var(--line); border-radius: 5px;
-}
-.devtab:hover { border-color: var(--line-2); color: var(--text); }
-.devtab.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
-.devopt {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-size: 12px; color: var(--text-dim);
-}
-tr.is-sel td { background: rgba(var(--accent-rgb), 0.1); }
-tr.is-gap td:first-child { color: var(--red); }
-textarea.out { width: 100%; resize: vertical; }
+body.is-dev .chip3 { cursor: grab; }
 
 .btn {
   font: inherit; font-size: 13px; padding: 7px 14px; cursor: pointer;
@@ -2595,268 +2890,6 @@ def shell(title, eyebrow, h1, sub, body, nav, css_href=None,
     ])
 
 
-def anchors_page():
-    """A workbench for the leader lines: drag each line's end onto the weapon.
-
-    The anchors were found by following each chip's hairline out of the frame
-    it was cut from and taking where it stopped. That is right most of the
-    time and plainly wrong some of the time — a line that runs along a bright
-    edge of the receiver keeps going, and lands past the mark it was meant to
-    stop on. Judging which is which is a job for an eye, so this page hands the
-    eye a handle.
-
-    It is not linked from anywhere and it is not in the sitemap. It is a tool
-    that happens to be a page, kept in the built site because that is where it
-    can see the same artwork and the same coordinates the editor uses — an
-    anchor moved here is an anchor moved for the editor, with no second copy of
-    the layout code to drift.
-
-    An anchor is a point on the weapon rather than a property of a chip, so by
-    default moving one moves it in every layout that has that slot. The barrels
-    are why the switch exists: they change the weapon's own shape, so an upper
-    rail's mark is not in the same place with the integral barrel as with the
-    Whale Shark combo.
-    """
-    d = json.loads(GUNSMITH.read_text(encoding='utf-8'))
-    fw, fh = d['frame']['w'], d['frame']['h']
-    g, C = d['gun'], d['chip']
-    pc = lambda v, tot: f'{v / tot * 100:.4f}%'
-
-    names = {}
-    for iid in {i for lay in d.get('layouts', []) for i in lay['by']}:
-        names[iid] = NAMES.get(iid) or (RULES.get(iid) or {}).get('name') or iid
-
-    return '\n'.join([
-        '<!doctype html>',
-        '<html lang="en">',
-        '<meta charset="utf-8">',
-        '<meta name="viewport" content="width=device-width, initial-scale=1">',
-        '<meta name="robots" content="noindex, nofollow">',
-        '<title>Anchor workbench &middot; Weapon Smith</title>',
-        '<link rel="stylesheet" href="smith.css">',
-        f"""<div class="wrap">
-  <header>
-    <p class="eyebrow">Developer tool</p>
-    <h1>Anchor workbench</h1>
-    <p class="lede">Where each slot&rsquo;s leader line ends on the weapon.
-    Pick a configuration, drag a dot onto the mark its line should touch, then
-    copy the file below over <code>data/gunsmith-rm277.json</code> and re-run
-    <code>npm run gen</code>. Arrow keys nudge the selected dot by a pixel,
-    with shift by ten. Nothing is saved by the page.</p>
-  </header>
-
-  <section>
-    <div class="devbar" id="tabs"></div>
-    <label class="devopt"><input type="checkbox" id="link" checked>
-      Move this slot&rsquo;s anchor in every layout that has it</label>
-    <label class="devopt"><input type="checkbox" id="zoom">
-      Show the weapon at 1:1, so a pixel here is a pixel in the file</label>
-  </section>
-
-  <div class="zoomer" id="zoomer">
-  <div class="stage is-placing" style="aspect-ratio:{fw}/{fh}">
-    <img class="stage__gun" src="smith/rm277.png" alt=""
-         style="left:{pc(g['x'], fw)};top:{pc(g['y'], fh)};
-                width:{pc(g['w'], fw)};height:{pc(g['h'], fh)}">
-    <svg class="stage__wires stage__wires--hot" viewBox="0 0 {fw} {fh}"
-         preserveAspectRatio="none" aria-hidden="true" id="wires"></svg>
-    <div id="chips"></div>
-    <div class="pins" id="pins"></div>
-  </div>
-  </div>
-
-  <section>
-    <h2>Anchors <span class="count" id="tally"></span></h2>
-    <div class="tablewrap">
-      <table id="grid">
-        <thead><tr><th>Slot</th><th>Chip</th><th>Anchor</th><th>Line</th></tr>
-        </thead><tbody></tbody>
-      </table>
-    </div>
-  </section>
-
-  <section>
-    <h2>data/gunsmith-rm277.json</h2>
-    <p><button class="btn" id="copy">Copy the whole file</button>
-       <button class="btn btn--ghost" id="reset">Undo my changes</button></p>
-    <textarea class="out" id="out" spellcheck="false" rows="14"></textarea>
-  </section>
-</div>
-
-<script>
-const START = {json.dumps(d)};
-const NAMES = {json.dumps(names)};
-const FW = {fw}, FH = {fh}, CHIP = {C};
-let doc = JSON.parse(JSON.stringify(START));
-let which = 0;          // 0 is the bare rifle, then one per recorded layout
-let held = null, sel = null;
-
-// One shape for both kinds of layout, so nothing below has to care whether it
-// is looking at the base slots array or a layout's chips object.
-function views() {{
-  const out = [{{name: 'Bare rifle', chips: doc.slots.reduce((a, s) => {{
-    a[s.slot] = s; return a;
-  }}, {{}})}}];
-  for (const l of doc.layouts || [])
-    out.push({{name: l.by.map((i) => NAMES[i] || i).join(' + '), chips: l.chips}});
-  return out;
-}}
-
-function tabs() {{
-  const box = document.getElementById('tabs');
-  box.innerHTML = '';
-  views().forEach((v, i) => {{
-    const b = document.createElement('button');
-    b.className = 'devtab' + (i === which ? ' is-on' : '');
-    b.textContent = v.name;
-    b.addEventListener('click', () => {{ which = i; sel = null; draw(); }});
-    box.appendChild(b);
-  }});
-}}
-
-function draw() {{
-  const v = views()[which];
-  const chips = document.getElementById('chips');
-  const pins = document.getElementById('pins');
-  const wires = document.getElementById('wires');
-  chips.innerHTML = ''; pins.innerHTML = ''; wires.innerHTML = '';
-  const rows = [];
-
-  for (const [slot, c] of Object.entries(v.chips)) {{
-    const el = document.createElement('span');
-    el.className = 'chip3' + (slot === sel ? ' is-on' : '');
-    el.style.cssText = 'left:' + (c.x / FW * 100) + '%;top:' + (c.y / FH * 100)
-      + '%;width:' + (CHIP / FW * 100) + '%;height:' + (CHIP / FH * 100) + '%';
-    el.innerHTML = '<span class="chip3__label">' + (c.label || slot)
-      + '</span><span class="chip3__art" style="background-image:url(smith/slot/'
-      + slot + '.png)"></span>';
-    chips.appendChild(el);
-
-    const has = c.ax !== null && c.ax !== undefined;
-    const ax = has ? c.ax : Math.round(c.x + CHIP / 2);
-    const ay = has ? c.ay : Math.round(c.y + CHIP / 2);
-    if (has) {{
-      const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      ln.setAttribute('x1', c.x + CHIP / 2);
-      ln.setAttribute('y1', c.y + CHIP / 2);
-      ln.setAttribute('x2', ax);
-      ln.setAttribute('y2', ay);
-      if (slot === sel) ln.setAttribute('class', 'is-on');
-      wires.appendChild(ln);
-    }}
-
-    const pin = document.createElement('button');
-    pin.className = 'pin' + (slot === sel ? ' is-on' : '')
-      + (has ? '' : ' is-loose');
-    pin.dataset.slot = slot;
-    pin.style.left = (ax / FW * 100) + '%';
-    pin.style.top = (ay / FH * 100) + '%';
-    pin.title = (c.label || slot) + ' — ' + ax + ',' + ay;
-    pins.appendChild(pin);
-
-    // Two lines ending on the same pixel is the shape a bad trace takes: the
-    // hairline ran along an edge of the receiver and both stopped at the same
-    // place. Worth saying out loud, because on screen it just looks tidy.
-    let near = [];
-    for (const [o, oc] of Object.entries(v.chips)) {{
-      if (o === slot || oc.ax === null || oc.ax === undefined || !has) continue;
-      if (Math.hypot(oc.ax - ax, oc.ay - ay) < 25) near.push(oc.label || o);
-    }}
-    const note = !has ? 'not placed'
-      : near.length ? 'shares a point with ' + near.join(', ') : '';
-    rows.push('<tr class="' + (slot === sel ? 'is-sel ' : '')
-      + (has && !near.length ? '' : 'is-gap') + '" data-slot="' + slot
-      + '"><td>' + (c.label || slot) + '</td><td class="num">'
-      + c.x + ', ' + c.y
-      + '</td><td class="num">' + (has ? ax + ', ' + ay : '&mdash;')
-      + '</td><td>' + note + '</td></tr>');
-  }}
-
-  document.querySelector('#grid tbody').innerHTML = rows.join('');
-  const n = Object.keys(v.chips).length;
-  const flagged = document.querySelectorAll('#grid tbody tr.is-gap').length;
-  document.getElementById('tally').textContent =
-    n + ' slots, ' + (flagged ? flagged + ' worth a look' : 'none flagged');
-  document.getElementById('out').value = JSON.stringify(doc, null, 1);
-}}
-
-// Writing an anchor: into this layout, and into every other layout holding the
-// same slot unless the switch says otherwise.
-function put(slot, ax, ay) {{
-  ax = Math.max(0, Math.min(FW, Math.round(ax)));
-  ay = Math.max(0, Math.min(FH, Math.round(ay)));
-  const every = document.getElementById('link').checked;
-  const targets = every
-    ? views().map((v) => v.chips[slot]).filter(Boolean)
-    : [views()[which].chips[slot]].filter(Boolean);
-  for (const t of targets) {{ t.ax = ax; t.ay = ay; }}
-}}
-
-const stage = document.querySelector('.stage');
-function at(e) {{
-  const r = stage.getBoundingClientRect();
-  return [(e.clientX - r.left) / r.width * FW, (e.clientY - r.top) / r.height * FH];
-}}
-
-document.getElementById('pins').addEventListener('pointerdown', (e) => {{
-  const p = e.target.closest('.pin');
-  if (!p) return;
-  held = p.dataset.slot; sel = held;
-  p.setPointerCapture(e.pointerId);
-  e.preventDefault();
-  draw();
-}});
-addEventListener('pointermove', (e) => {{
-  if (!held) return;
-  put(held, ...at(e));
-  draw();
-}});
-addEventListener('pointerup', () => {{ held = null; }});
-
-document.querySelector('#grid tbody').addEventListener('click', (e) => {{
-  const tr = e.target.closest('tr');
-  if (tr) {{ sel = tr.dataset.slot; draw(); }}
-}});
-
-addEventListener('keydown', (e) => {{
-  if (!sel || !e.key.startsWith('Arrow')) return;
-  const c = views()[which].chips[sel];
-  if (!c) return;
-  const step = e.shiftKey ? 10 : 1;
-  const dx = (e.key === 'ArrowRight') - (e.key === 'ArrowLeft');
-  const dy = (e.key === 'ArrowDown') - (e.key === 'ArrowUp');
-  e.preventDefault();
-  put(sel, (c.ax ?? c.x + CHIP / 2) + dx * step,
-           (c.ay ?? c.y + CHIP / 2) + dy * step);
-  draw();
-}});
-
-document.getElementById('copy').addEventListener('click', () => {{
-  const t = document.getElementById('out');
-  t.select();
-  if (navigator.clipboard) navigator.clipboard.writeText(t.value);
-}});
-document.getElementById('reset').addEventListener('click', () => {{
-  doc = JSON.parse(JSON.stringify(START)); sel = null; draw();
-}});
-
-// At 1:1 the little bracket marks on the weapon are legible and a drag lands
-// where it looks like it lands. The box scrolls; everything inside is placed
-// as a percentage, so the chips and lines come along.
-document.getElementById('zoom').addEventListener('change', (e) => {{
-  const z = document.getElementById('zoomer');
-  z.classList.toggle('is-zoomed', e.target.checked);
-  if (e.target.checked) {{
-    z.scrollLeft = (z.scrollWidth - z.clientWidth) / 2;
-    z.scrollTop = (z.scrollHeight - z.clientHeight) / 2;
-  }}
-}});
-
-tabs(); draw();
-</script>""",
-    ]) + '\n'
-
-
 def index_page(items, by_caliber):
     """The front door, which is the catalogue.
 
@@ -2935,10 +2968,11 @@ if __name__ == '__main__':
 
     (out / 'smith.css').write_text(CSS, encoding='utf-8')
 
-    # A tool, not a page of the site: no link to it, no sitemap entry, noindex
-    # in its head. It is written into the built site because that is where it
-    # can see the artwork and the coordinates the editor uses.
-    (out / 'dev-anchors.html').write_text(anchors_page(), encoding='utf-8')
+    # The standalone workbench folded into the editor itself, behind #dev.
+    stale_dev = out / 'dev-anchors.html'
+    if stale_dev.exists():
+        stale_dev.unlink()
+        print('removed stale dev-anchors.html')
 
     # Site furniture. Generated too, so a new weapon page reaches the sitemap
     # without anyone remembering to add it.

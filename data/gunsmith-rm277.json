@@ -277,8 +277,8 @@
     "tactical-device": {
      "x": 740,
      "y": 239,
-     "ax": 912,
-     "ay": 454,
+     "ax": 933,
+     "ay": 480,
      "label": "Tactical Device"
     },
     "optics": {
@@ -291,8 +291,8 @@
     "riser-optics": {
      "x": 992,
      "y": 224,
-     "ax": 1032,
-     "ay": 437,
+     "ax": 1033,
+     "ay": 476,
      "label": "Riser Optic"
     },
     "offset-optics": {
@@ -410,8 +410,8 @@
     "tactical-device": {
      "x": 740,
      "y": 239,
-     "ax": 912,
-     "ay": 454,
+     "ax": 933,
+     "ay": 480,
      "label": "Tactical Device"
     },
     "optics": {
@@ -424,15 +424,15 @@
     "riser-optics": {
      "x": 980,
      "y": 224,
-     "ax": 1032,
-     "ay": 424,
+     "ax": 1033,
+     "ay": 476,
      "label": "Riser Optic"
     },
     "red-dot-optics": {
      "x": 1063,
      "y": 225,
-     "ax": 1040,
-     "ay": 402,
+     "ax": 1002,
+     "ay": 477,
      "label": "Red Dot Optic"
     },
     "offset-optics": {
@@ -575,8 +575,8 @@
     "rear-grip-patch": {
      "x": 1609,
      "y": 766,
-     "ax": 1421,
-     "ay": 724,
+     "ax": 1345,
+     "ay": 698,
      "label": "Rear Grip Patch"
     },
     "cheek-pad": {
@@ -677,8 +677,8 @@
     "rear-grip-mount": {
      "x": 1224,
      "y": 862,
-     "ax": 1157,
-     "ay": 754,
+     "ax": 1145,
+     "ay": 735,
      "label": "Rear Grip Mount"
     },
     "offset-optics": {

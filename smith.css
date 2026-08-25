@@ -656,44 +656,56 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .chip3:hover .chip3__label, .chip3:focus-visible .chip3__label { color: var(--accent); }
 
-.pins { position: absolute; inset: 0; }
+ /* The dots layer sits over the chips, so it has to be transparent to the
+   pointer or it swallows every click meant for a chip underneath. */
+.pins { position: absolute; inset: 0; pointer-events: none; }
+.pin { pointer-events: auto; }
 .pin {
   position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px;
   padding: 0; border: 2px solid var(--warn); border-radius: 50%;
   background: rgba(245,217,10,.25); cursor: grab; touch-action: none;
 }
 .pin:active { cursor: grabbing; }
-.stage.is-placing .chip3 { pointer-events: none; }
 
 /* --------------------------------------------------------------------------
-   The anchor workbench (dev-anchors.html). Not linked from the site: it is a
-   tool that lives in the built pages so it can see the same artwork and the
-   same coordinates the editor lays out from.
+   Dev mode: #dev on the end of the hash. None of this is reachable from the
+   site, and the script that builds it does not run without the hash, so a
+   reader carries the rules and nothing else.
    -------------------------------------------------------------------------- */
-.stage__wires--hot { stroke: var(--accent-dim); stroke-width: 1.5; }
-.stage__wires--hot line.is-on { stroke: var(--warn); stroke-width: 2.5; }
-.pin.is-on { border-color: var(--accent); background: rgba(42, 202, 150, .35); }
-/* A chip whose line has never been placed: its dot sits on the chip itself. */
+.devbar {
+  grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px;
+  align-items: baseline; padding: 7px 11px; border-radius: 5px;
+  font-size: 12px; color: var(--bg); background: var(--warn);
+}
+.devbar b { letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
+.devbar em { margin-left: auto; font-style: normal; font-family: var(--mono); }
+.devout { margin-top: 14px; }
+.devout .dlabel { margin-top: 0; padding-top: 0; border-top: 0; }
+.devout textarea {
+  width: 100%; resize: vertical;
+  font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 12px;
+}
+.devout .btn { margin-right: 8px; }
+.devx {
+  font: inherit; font-size: 10px; margin-left: 8px; padding: 1px 6px;
+  cursor: pointer; color: var(--red); background: transparent;
+  border: 1px solid currentColor; border-radius: 3px;
+}
+.devx:hover { color: var(--bg); background: var(--red); }
+.devadd { margin: 8px 0 0; }
+.devadd select {
+  font: inherit; font-size: 12px; padding: 5px 8px; color: var(--text-dim);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 5px;
+}
+.devnew {
+  font-family: var(--mono); font-size: 9px; font-style: normal;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent);
+}
+/* A dot with no line yet: it sits on its own chip until it is dragged off. */
 .pin.is-loose { border-style: dashed; border-color: var(--red); }
-
-.zoomer.is-zoomed { overflow: auto; }
-.zoomer.is-zoomed .stage { width: 2032px; max-width: none; }
-
-.devbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-.devtab {
-  font: inherit; font-size: 12px; padding: 6px 11px; cursor: pointer;
-  color: var(--text-dim); background: var(--surface);
-  border: 1px solid var(--line); border-radius: 5px;
-}
-.devtab:hover { border-color: var(--line-2); color: var(--text); }
-.devtab.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
-.devopt {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-size: 12px; color: var(--text-dim);
-}
-tr.is-sel td { background: rgba(var(--accent-rgb), 0.1); }
-tr.is-gap td:first-child { color: var(--red); }
-textarea.out { width: 100%; resize: vertical; }
+body.is-dev .chip3 { cursor: grab; }
 
 .btn {
   font: inherit; font-size: 13px; padding: 7px 14px; cursor: pointer;
