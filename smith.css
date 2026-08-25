@@ -598,6 +598,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .stage {
   position: relative; width: 100%; border: 1px solid var(--line);
   border-radius: 8px; overflow: hidden;
+  container-type: inline-size;
   background:
     radial-gradient(120% 90% at 50% 0%, #10333d 0%, transparent 60%),
     var(--surface);
@@ -614,14 +615,36 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .chip3 {
   position: absolute; display: block; text-decoration: none;
   border: 1px solid var(--line-2); border-radius: 2px; background: rgba(6,14,19,.35);
+  /* The fan reflows when a fitted part opens a slot rather than the new chip
+     dropping into a gap, so the neighbours slide. Watching one move is what
+     makes it read as the same chip. */
+  transition: left 220ms ease, top 220ms ease;
+}
+/* `display: block` above outranks the browser's own rule for [hidden], so a
+   chip for a slot nothing has opened yet stays laid out and swallows the
+   clicks meant for the chip underneath it. */
+.chip3[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .chip3 { transition: none; }
 }
 .chip3__art {
   display: block; width: 100%; height: 100%;
   background-repeat: no-repeat; background-position: center; background-size: contain;
 }
+/* Clipped to the chip's width, and clipped at the front, which is why the game
+   shows a Riser Optic as "ser Optic". Without it the long names on the optic
+   arm -- Tactical Device, Riser Optic, Red Dot Optic, three in a row -- print
+   over each other. `direction: rtl` does the front-clipping: the words are
+   strong left-to-right so their order is untouched, only which end overflows.
+   The full name is on the chip's title for anyone who needs it. */
 .chip3__label {
   position: absolute; bottom: 100%; left: 0; margin-bottom: 3px;
+  max-width: 100%; overflow: hidden; direction: rtl;
   font-size: 11px; line-height: 1; white-space: nowrap; color: var(--text-dim);
+  /* Sized against the stage, not the page, so a label keeps the same share of
+     its chip at every width -- the game's does, and a fixed 11px turned
+     "Left Rail" into "eft Rail" on a narrow window. */
+  font-size: clamp(8px, 0.82cqw, 15px);
 }
 .chip3 em {
   position: absolute; right: -1px; bottom: -1px; padding: 0 4px;

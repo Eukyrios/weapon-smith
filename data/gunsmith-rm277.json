@@ -206,5 +206,754 @@
     "text": "Auto / Single"
    }
   ]
- }
+ },
+ "layouts": [
+  {
+   "when": [
+    "riser-optics",
+    "tactical-device"
+   ],
+   "blocks": [],
+   "by": [
+    "multi-purpose-tactical-riser"
+   ],
+   "chips": {
+    "muzzle": {
+     "x": 165,
+     "y": 588,
+     "ax": 435,
+     "ay": 533,
+     "label": "Muzzle"
+    },
+    "left-rail": {
+     "x": 185,
+     "y": 471,
+     "ax": 598,
+     "ay": 528,
+     "label": "Left Rail"
+    },
+    "foregrip": {
+     "x": 228,
+     "y": 680,
+     "ax": 766,
+     "ay": 573,
+     "label": "Foregrip"
+    },
+    "right-rail": {
+     "x": 264,
+     "y": 392,
+     "ax": 624,
+     "ay": 520,
+     "label": "Right Rail"
+    },
+    "rail-bipod": {
+     "x": 321,
+     "y": 744,
+     "ax": 626,
+     "ay": 569,
+     "label": "Rail Bipod"
+    },
+    "left-patch": {
+     "x": 363,
+     "y": 336,
+     "ax": 734,
+     "ay": 525,
+     "label": "Left Patch"
+    },
+    "barrel": {
+     "x": 467,
+     "y": 296,
+     "ax": 752,
+     "ay": 520,
+     "label": "Barrel"
+    },
+    "right-patch": {
+     "x": 576,
+     "y": 268,
+     "ax": 757,
+     "ay": 524,
+     "label": "Right Patch"
+    },
+    "tactical-device": {
+     "x": 740,
+     "y": 239,
+     "ax": 912,
+     "ay": 454,
+     "label": "Tactical Device"
+    },
+    "optics": {
+     "x": 889,
+     "y": 226,
+     "ax": 1007,
+     "ay": 475,
+     "label": "Optic"
+    },
+    "riser-optics": {
+     "x": 992,
+     "y": 224,
+     "ax": 1032,
+     "ay": 437,
+     "label": "Riser Optic"
+    },
+    "offset-optics": {
+     "x": 1237,
+     "y": 239,
+     "ax": 1123,
+     "ay": 465,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1320,
+     "y": 849,
+     "ax": 1130,
+     "ay": 687,
+     "label": "Rear Grip"
+    },
+    "mag-mount": {
+     "x": 1546,
+     "y": 792,
+     "ax": 1304,
+     "ay": 709,
+     "label": "Mag Mount"
+    },
+    "cheek-pad": {
+     "x": 1676,
+     "y": 368,
+     "ax": 1381,
+     "ay": 494,
+     "label": "Cheek Pad"
+    },
+    "mag": {
+     "x": 1685,
+     "y": 727,
+     "ax": 1306,
+     "ay": 659,
+     "label": "Mag"
+    },
+    "stock-pad": {
+     "x": 1816,
+     "y": 533,
+     "ax": 1514,
+     "ay": 585,
+     "label": "Stock Pad"
+    }
+   }
+  },
+  {
+   "when": [
+    "red-dot-optics",
+    "riser-optics",
+    "tactical-device"
+   ],
+   "blocks": [],
+   "by": [
+    "multi-purpose-tactical-riser",
+    "meo-micro-sight-riser"
+   ],
+   "chips": {
+    "muzzle": {
+     "x": 165,
+     "y": 588,
+     "ax": 435,
+     "ay": 533,
+     "label": "Muzzle"
+    },
+    "left-rail": {
+     "x": 185,
+     "y": 471,
+     "ax": 598,
+     "ay": 528,
+     "label": "Left Rail"
+    },
+    "foregrip": {
+     "x": 228,
+     "y": 680,
+     "ax": 766,
+     "ay": 573,
+     "label": "Foregrip"
+    },
+    "right-rail": {
+     "x": 264,
+     "y": 391,
+     "ax": 624,
+     "ay": 520,
+     "label": "Right Rail"
+    },
+    "rail-bipod": {
+     "x": 321,
+     "y": 744,
+     "ax": 626,
+     "ay": 569,
+     "label": "Rail Bipod"
+    },
+    "left-patch": {
+     "x": 363,
+     "y": 336,
+     "ax": 734,
+     "ay": 525,
+     "label": "Left Patch"
+    },
+    "barrel": {
+     "x": 467,
+     "y": 296,
+     "ax": 752,
+     "ay": 520,
+     "label": "Barrel"
+    },
+    "right-patch": {
+     "x": 576,
+     "y": 268,
+     "ax": 757,
+     "ay": 524,
+     "label": "Right Patch"
+    },
+    "tactical-device": {
+     "x": 740,
+     "y": 239,
+     "ax": 912,
+     "ay": 454,
+     "label": "Tactical Device"
+    },
+    "optics": {
+     "x": 869,
+     "y": 227,
+     "ax": 1007,
+     "ay": 475,
+     "label": "Optic"
+    },
+    "riser-optics": {
+     "x": 980,
+     "y": 224,
+     "ax": 1032,
+     "ay": 424,
+     "label": "Riser Optic"
+    },
+    "red-dot-optics": {
+     "x": 1063,
+     "y": 225,
+     "ax": 1040,
+     "ay": 402,
+     "label": "Red Dot Optic"
+    },
+    "offset-optics": {
+     "x": 1237,
+     "y": 239,
+     "ax": 1123,
+     "ay": 465,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1320,
+     "y": 849,
+     "ax": 1130,
+     "ay": 687,
+     "label": "Rear Grip"
+    },
+    "mag-mount": {
+     "x": 1546,
+     "y": 791,
+     "ax": 1304,
+     "ay": 709,
+     "label": "Mag Mount"
+    },
+    "cheek-pad": {
+     "x": 1676,
+     "y": 368,
+     "ax": 1381,
+     "ay": 494,
+     "label": "Cheek Pad"
+    },
+    "mag": {
+     "x": 1685,
+     "y": 727,
+     "ax": 1306,
+     "ay": 659,
+     "label": "Mag"
+    },
+    "stock-pad": {
+     "x": 1816,
+     "y": 533,
+     "ax": 1514,
+     "ay": 585,
+     "label": "Stock Pad"
+    }
+   }
+  },
+  {
+   "when": [
+    "rear-grip-patch"
+   ],
+   "blocks": [],
+   "by": [
+    "ar-modular-rear-grip"
+   ],
+   "chips": {
+    "muzzle": {
+     "x": 165,
+     "y": 588,
+     "ax": 435,
+     "ay": 533,
+     "label": "Muzzle"
+    },
+    "left-rail": {
+     "x": 185,
+     "y": 471,
+     "ax": 598,
+     "ay": 528,
+     "label": "Left Rail"
+    },
+    "foregrip": {
+     "x": 228,
+     "y": 680,
+     "ax": 766,
+     "ay": 573,
+     "label": "Foregrip"
+    },
+    "right-rail": {
+     "x": 264,
+     "y": 391,
+     "ax": 624,
+     "ay": 520,
+     "label": "Right Rail"
+    },
+    "rail-bipod": {
+     "x": 321,
+     "y": 744,
+     "ax": 626,
+     "ay": 569,
+     "label": "Rail Bipod"
+    },
+    "left-patch": {
+     "x": 363,
+     "y": 336,
+     "ax": 734,
+     "ay": 525,
+     "label": "Left Patch"
+    },
+    "barrel": {
+     "x": 467,
+     "y": 296,
+     "ax": 752,
+     "ay": 520,
+     "label": "Barrel"
+    },
+    "right-patch": {
+     "x": 576,
+     "y": 268,
+     "ax": 757,
+     "ay": 524,
+     "label": "Right Patch"
+    },
+    "optics": {
+     "x": 978,
+     "y": 224,
+     "ax": 1007,
+     "ay": 475,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1237,
+     "y": 239,
+     "ax": 1123,
+     "ay": 465,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1393,
+     "y": 835,
+     "ax": 1130,
+     "ay": 687,
+     "label": "Rear Grip"
+    },
+    "mag-mount": {
+     "x": 1504,
+     "y": 806,
+     "ax": 1304,
+     "ay": 709,
+     "label": "Mag Mount"
+    },
+    "rear-grip-patch": {
+     "x": 1609,
+     "y": 766,
+     "ax": 1421,
+     "ay": 724,
+     "label": "Rear Grip Patch"
+    },
+    "cheek-pad": {
+     "x": 1676,
+     "y": 368,
+     "ax": 1381,
+     "ay": 494,
+     "label": "Cheek Pad"
+    },
+    "mag": {
+     "x": 1709,
+     "y": 711,
+     "ax": 1306,
+     "ay": 659,
+     "label": "Mag"
+    },
+    "stock-pad": {
+     "x": 1816,
+     "y": 533,
+     "ax": 1514,
+     "ay": 585,
+     "label": "Stock Pad"
+    }
+   }
+  },
+  {
+   "when": [
+    "rear-grip-mount"
+   ],
+   "blocks": [],
+   "by": [
+    "ar-heavy-tower-grip"
+   ],
+   "chips": {
+    "muzzle": {
+     "x": 165,
+     "y": 588,
+     "ax": 435,
+     "ay": 533,
+     "label": "Muzzle"
+    },
+    "left-rail": {
+     "x": 185,
+     "y": 471,
+     "ax": 598,
+     "ay": 528,
+     "label": "Left Rail"
+    },
+    "foregrip": {
+     "x": 228,
+     "y": 680,
+     "ax": 766,
+     "ay": 573,
+     "label": "Foregrip"
+    },
+    "right-rail": {
+     "x": 264,
+     "y": 391,
+     "ax": 624,
+     "ay": 520,
+     "label": "Right Rail"
+    },
+    "rail-bipod": {
+     "x": 321,
+     "y": 744,
+     "ax": 626,
+     "ay": 569,
+     "label": "Rail Bipod"
+    },
+    "left-patch": {
+     "x": 363,
+     "y": 336,
+     "ax": 734,
+     "ay": 525,
+     "label": "Left Patch"
+    },
+    "barrel": {
+     "x": 467,
+     "y": 296,
+     "ax": 752,
+     "ay": 520,
+     "label": "Barrel"
+    },
+    "right-patch": {
+     "x": 576,
+     "y": 268,
+     "ax": 757,
+     "ay": 524,
+     "label": "Right Patch"
+    },
+    "optics": {
+     "x": 978,
+     "y": 224,
+     "ax": 1007,
+     "ay": 475,
+     "label": "Optic"
+    },
+    "rear-grip-mount": {
+     "x": 1224,
+     "y": 862,
+     "ax": 1157,
+     "ay": 754,
+     "label": "Rear Grip Mount"
+    },
+    "offset-optics": {
+     "x": 1237,
+     "y": 239,
+     "ax": 1123,
+     "ay": 465,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1387,
+     "y": 836,
+     "ax": 1130,
+     "ay": 687,
+     "label": "Rear Grip"
+    },
+    "mag-mount": {
+     "x": 1546,
+     "y": 791,
+     "ax": 1304,
+     "ay": 709,
+     "label": "Mag Mount"
+    },
+    "cheek-pad": {
+     "x": 1676,
+     "y": 368,
+     "ax": 1381,
+     "ay": 494,
+     "label": "Cheek Pad"
+    },
+    "mag": {
+     "x": 1685,
+     "y": 727,
+     "ax": 1306,
+     "ay": 659,
+     "label": "Mag"
+    },
+    "stock-pad": {
+     "x": 1816,
+     "y": 533,
+     "ax": 1514,
+     "ay": 585,
+     "label": "Stock Pad"
+    }
+   }
+  },
+  {
+   "when": [
+    "upper-rail"
+   ],
+   "blocks": [
+    "muzzle",
+    "rail-bipod"
+   ],
+   "by": [
+    "rm277-heavy-integral-barrel"
+   ],
+   "chips": {
+    "right-rail": {
+     "x": 169,
+     "y": 500,
+     "ax": 624,
+     "ay": 520,
+     "label": "Right Rail"
+    },
+    "left-rail": {
+     "x": 178,
+     "y": 619,
+     "ax": 598,
+     "ay": 528,
+     "label": "Left Rail"
+    },
+    "left-patch": {
+     "x": 238,
+     "y": 411,
+     "ax": 734,
+     "ay": 525,
+     "label": "Left Patch"
+    },
+    "foregrip": {
+     "x": 254,
+     "y": 702,
+     "ax": 766,
+     "ay": 573,
+     "label": "Foregrip"
+    },
+    "upper-rail": {
+     "x": 333,
+     "y": 351,
+     "ax": 537,
+     "ay": 475,
+     "label": "Upper Rail"
+    },
+    "barrel": {
+     "x": 437,
+     "y": 307,
+     "ax": 752,
+     "ay": 520,
+     "label": "Barrel"
+    },
+    "right-patch": {
+     "x": 547,
+     "y": 275,
+     "ax": 757,
+     "ay": 524,
+     "label": "Right Patch"
+    },
+    "optics": {
+     "x": 990,
+     "y": 224,
+     "ax": 1007,
+     "ay": 475,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1245,
+     "y": 240,
+     "ax": 1123,
+     "ay": 465,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1329,
+     "y": 847,
+     "ax": 1130,
+     "ay": 687,
+     "label": "Rear Grip"
+    },
+    "mag-mount": {
+     "x": 1549,
+     "y": 790,
+     "ax": 1304,
+     "ay": 709,
+     "label": "Mag Mount"
+    },
+    "cheek-pad": {
+     "x": 1679,
+     "y": 370,
+     "ax": 1381,
+     "ay": 494,
+     "label": "Cheek Pad"
+    },
+    "mag": {
+     "x": 1686,
+     "y": 726,
+     "ax": 1306,
+     "ay": 659,
+     "label": "Mag"
+    },
+    "stock-pad": {
+     "x": 1816,
+     "y": 533,
+     "ax": 1514,
+     "ay": 585,
+     "label": "Stock Pad"
+    }
+   }
+  },
+  {
+   "when": [
+    "upper-rail"
+   ],
+   "blocks": [
+    "rail-bipod"
+   ],
+   "by": [
+    "rm277-whale-shark-barrel-combo"
+   ],
+   "chips": {
+    "left-rail": {
+     "x": 161,
+     "y": 530,
+     "ax": 598,
+     "ay": 528,
+     "label": "Left Rail"
+    },
+    "muzzle": {
+     "x": 195,
+     "y": 645,
+     "ax": 435,
+     "ay": 533,
+     "label": "Muzzle"
+    },
+    "right-rail": {
+     "x": 214,
+     "y": 433,
+     "ax": 624,
+     "ay": 520,
+     "label": "Right Rail"
+    },
+    "foregrip": {
+     "x": 280,
+     "y": 719,
+     "ax": 766,
+     "ay": 573,
+     "label": "Foregrip"
+    },
+    "barrel": {
+     "x": 305,
+     "y": 365,
+     "ax": 752,
+     "ay": 520,
+     "label": "Barrel"
+    },
+    "left-patch": {
+     "x": 407,
+     "y": 317,
+     "ax": 734,
+     "ay": 525,
+     "label": "Left Patch"
+    },
+    "right-patch": {
+     "x": 514,
+     "y": 283,
+     "ax": 757,
+     "ay": 524,
+     "label": "Right Patch"
+    },
+    "upper-rail": {
+     "x": 623,
+     "y": 257,
+     "ax": 696,
+     "ay": 466,
+     "label": "Upper Rail"
+    },
+    "optics": {
+     "x": 1039,
+     "y": 225,
+     "ax": 1007,
+     "ay": 475,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1310,
+     "y": 249,
+     "ax": 1123,
+     "ay": 465,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1399,
+     "y": 833,
+     "ax": 1130,
+     "ay": 687,
+     "label": "Rear Grip"
+    },
+    "mag-mount": {
+     "x": 1577,
+     "y": 780,
+     "ax": 1304,
+     "ay": 709,
+     "label": "Mag Mount"
+    },
+    "cheek-pad": {
+     "x": 1693,
+     "y": 379,
+     "ax": 1381,
+     "ay": 494,
+     "label": "Cheek Pad"
+    },
+    "mag": {
+     "x": 1703,
+     "y": 714,
+     "ax": 1306,
+     "ay": 659,
+     "label": "Mag"
+    },
+    "stock-pad": {
+     "x": 1816,
+     "y": 534,
+     "ax": 1514,
+     "ay": 585,
+     "label": "Stock Pad"
+    }
+   }
+  }
+ ]
 }

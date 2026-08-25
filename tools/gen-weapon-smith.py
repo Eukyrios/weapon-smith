@@ -1049,38 +1049,56 @@ def gunsmith_body():
 
     Rebuilt from the game's own screen rather than invented, because the point
     of it is recognition — someone who has used the gunsmith should see the
-    same picture. The artwork is cut from a screen recording by
-    tools/cut-gunsmith.py; this only lays it out.
+    same picture. The artwork and the coordinates are cut from screen
+    recordings by tools/cut-gunsmith.py and tools/cut-gunsmith-granted.py; this
+    only lays them out.
 
     Everything is positioned in the coordinates of the frame the art came from
     and scaled as one unit, so the chips, the weapon and the lines cannot drift
     apart at any window size. A slot with no anchor recorded yet simply gets no
-    line, which is why the page is useful before all fifteen are placed.
+    line, which is why the page was useful before all of them were placed.
     """
     d = json.loads(GUNSMITH.read_text(encoding='utf-8'))
     fw, fh = d['frame']['w'], d['frame']['h']
     g, C = d['gun'], d['chip']
     pc = lambda v, tot: f'{v / tot * 100:.4f}%'
 
+    # The base fifteen, and every chip a fitted part opens. A granted chip is
+    # in the page from the start and simply hidden, because the alternative --
+    # building it on equip -- means its picture, its count and its whole
+    # attachment list arrive late, and the list is the expensive half.
+    base = {s['slot']: s for s in d['slots']}
+    extra = {}
+    for lay in d.get('layouts', []):
+        for slot, c in lay['chips'].items():
+            if slot not in base and slot not in extra:
+                extra[slot] = dict(c, slot=slot)
+    order = list(base.values()) + [extra[k] for k in sorted(extra)]
+
     chips, lines, dots, panels = [], [], [], []
-    for s in d['slots']:
+    for s in order:
+        granted = s['slot'] in extra
         cx, cy = s['x'] + C / 2, s['y'] + C / 2
         label = SLOT_TITLE.get(s['slot'], s['label'])
         n = len(rows_for(s['slot'])) if s['slot'] in dict(
             (k, 1) for k, _, _ in SECTIONS) else 0
         chips.append(
-            f'      <a class="chip3" style="left:{pc(s["x"], fw)};'
+            f'      <a class="chip3{" is-granted" if granted else ""}" '
+            f'style="left:{pc(s["x"], fw)};'
             f'top:{pc(s["y"], fh)};width:{pc(C, fw)};height:{pc(C, fh)}" '
             f'href="#slot-{s["slot"]}" '
-            f'data-slot="{s["slot"]}">'
+            f'data-slot="{s["slot"]}" title="{s["label"]}"'
+            f'{" hidden" if granted else ""}>'
             f'<span class="chip3__label">{s["label"]}</span>'
             f'<span class="chip3__art" style="background-image:'
             f'url(../smith/slot/{s["slot"]}.png)"></span>'
             + (f'<em>{n}</em>' if n else '') + '</a>\n')
         panels.append(slot_panel(s['slot'], label))
         if s.get('ax') is not None:
-            lines.append(f'      <line x1="{cx}" y1="{cy}" '
-                         f'x2="{s["ax"]}" y2="{s["ay"]}"></line>\n')
+            lines.append(f'      <line data-slot="{s["slot"]}" '
+                         f'x1="{cx}" y1="{cy}" '
+                         f'x2="{s["ax"]}" y2="{s["ay"]}"'
+                         + (' hidden' if granted else '') + '></line>\n')
         ax = s['ax'] if s.get('ax') is not None else round(cx)
         ay = s['ay'] if s.get('ay') is not None else round(cy)
         dots.append(f'      <button class="pin" data-slot="{s["slot"]}" '
@@ -1094,7 +1112,7 @@ def gunsmith_body():
     # happens against the build the reader has assembled rather than against a
     # blank rifle.
     deltas = {}
-    for s in d['slots']:
+    for s in order:
         for name, _m in rows_for(s['slot']):
             iid = item_id(name)
             st = stats_for(iid)
@@ -1107,6 +1125,33 @@ def gunsmith_body():
     seen = {k for st in deltas.values() for k in st}
     for st in d['weapon']['stats']:
         st['tracked'] = (st.get('from') or st['key']) in seen
+
+    # What each fittable part opens and what it takes over. Only the parts that
+    # can go on this rifle, and only the ones that do either, so the page ships
+    # the rules it can act on rather than all of them.
+    opens = {}
+    for s in order:
+        for name, _m in rows_for(s['slot']):
+            iid = item_id(name)
+            r = RULES.get(iid) or {}
+            if r.get('grants') or r.get('conflictSlots'):
+                opens[iid] = {'grants': r.get('grants', []),
+                              'blocks': r.get('conflictSlots', [])}
+
+    # Every arrangement of chips we have watched the game draw. The first is the
+    # bare rifle; the rest each come from a clip with one part fitted. They are
+    # whole pictures rather than lists of additions because the game reflows the
+    # fan when the count changes — a barrel combo moves the left arm by up to
+    # 155px — and a chip pasted onto the base positions would land on its
+    # neighbour.
+    def xy(c):
+        return {'x': c['x'], 'y': c['y'], 'ax': c.get('ax'), 'ay': c.get('ay')}
+
+    lays = [{'when': [], 'blocks': [],
+             'chips': {s['slot']: xy(s) for s in d['slots']}}]
+    for lay in d.get('layouts', []):
+        lays.append({'when': lay['when'], 'blocks': lay['blocks'],
+                     'chips': {k: xy(c) for k, c in lay['chips'].items()}})
     body = f"""  <div class="gunsmith" style="--ar:{fw / fh:.4f}">
   <div class="stage" style="aspect-ratio:{fw}/{fh}">
     <div class="wname">
@@ -1157,6 +1202,9 @@ def gunsmith_body():
     const WEAPON = {json.dumps(d['weapon']['stats'])};
     const SPECS = {json.dumps(d['weapon'].get('specs', []))};
     const DELTA = {json.dumps(deltas)};
+    const OPENS = {json.dumps(opens)};
+    const LAYOUTS = {json.dumps(lays)};
+    const FW = {fw}, FH = {fh}, CHIP = {C};
 
     // Each chip is a real link to the slot's table on the weapon page, and stays
     // one. This only intercepts the click to show the same list here instead,
@@ -1176,6 +1224,159 @@ def gunsmith_body():
 
     function chipFor(slot) {{
       return document.querySelector('.chip3[data-slot="' + slot + '"]');
+    }}
+
+    // ---- which slots exist right now ------------------------------------
+    // Half the rifle's slots are not on the rifle. A riser opens two, a rear
+    // grip opens a third, and either barrel opens an upper rail while taking
+    // the muzzle or the bipod away with it. So the set of chips is a function
+    // of what is fitted, and it is recomputed rather than toggled.
+    const BASE_SLOTS = new Set(Object.keys(LAYOUTS[0].chips));
+
+    // What each layout changed about the base picture: its new chips, and the
+    // neighbours the game pushed aside to make room. Composing two layouts
+    // means composing these rather than the whole pictures -- the whole picture
+    // also carries every chip the clip did not touch, and laying one over
+    // another would undo the first one's reflow. The 20px floor is the drift
+    // between one recording session and the next, which is not a move.
+    const DIFFS = LAYOUTS.map((l) => {{
+      const d = {{}};
+      for (const [slot, p] of Object.entries(l.chips)) {{
+        const b = LAYOUTS[0].chips[slot];
+        if (!b || Math.abs(p.x - b.x) > 20 || Math.abs(p.y - b.y) > 20)
+          d[slot] = p;
+      }}
+      return d;
+    }});
+
+    function openSlots() {{
+      const grants = new Set(), blocks = new Set();
+      for (const iid of Object.values(fitted)) {{
+        const r = OPENS[iid];
+        if (!r) continue;
+        for (const s of r.grants) grants.add(s);
+        for (const s of r.blocks) blocks.add(s);
+      }}
+      for (const s of blocks) grants.delete(s);
+      return {{grants, blocks}};
+    }}
+
+    const sameSet = (set, list) =>
+      set.size === list.length && list.every((x) => set.has(x));
+
+    function unfit(slot) {{
+      delete fitted[slot];
+      const chip = chipFor(slot);
+      if (chip) {{
+        chip.classList.remove('has-item');
+        chip.querySelector('.chip3__art').style.backgroundImage =
+          'url(../smith/slot/' + slot + '.png)';
+      }}
+      for (const b of document.querySelectorAll('#sl-' + slot + ' .pcard'))
+        b.classList.remove('is-fitted');
+    }}
+
+    function separate(chips) {{
+      // Push overlapping chips apart, along whichever axis they overlap least,
+      // until none touch. A handful of passes is plenty for twenty boxes, and
+      // the alternative -- two chips stacked -- reads as a broken page rather
+      // than as an arrangement we have not filmed.
+      const keys = Object.keys(chips);
+      const pos = {{}};
+      for (const k of keys) pos[k] = {{x: chips[k].x, y: chips[k].y}};
+      const GAP = CHIP + 8;
+      for (let pass = 0; pass < 40; pass++) {{
+        let touched = false;
+        for (let i = 0; i < keys.length; i++) {{
+          for (let j = i + 1; j < keys.length; j++) {{
+            const a = pos[keys[i]], b = pos[keys[j]];
+            const ox = GAP - Math.abs(a.x - b.x);
+            const oy = GAP - Math.abs(a.y - b.y);
+            if (ox <= 0 || oy <= 0) continue;
+            touched = true;
+            if (ox < oy) {{
+              const s = (a.x < b.x ? -1 : 1) * ox / 2;
+              a.x += s; b.x -= s;
+            }} else {{
+              const s = (a.y < b.y ? -1 : 1) * oy / 2;
+              a.y += s; b.y -= s;
+            }}
+          }}
+        }}
+        if (!touched) break;
+      }}
+      const out = {{}};
+      for (const k of keys)
+        out[k] = Object.assign({{}}, chips[k],
+          {{x: Math.round(pos[k].x), y: Math.round(pos[k].y)}});
+      return out;
+    }}
+
+    function relayout() {{
+      // Taking the riser off takes its two slots with it, and whatever was in
+      // them. A few passes because that can cascade -- a part in a granted slot
+      // could itself have granted another.
+      for (let pass = 0; pass < 4; pass++) {{
+        const {{grants, blocks}} = openSlots();
+        let changed = false;
+        for (const slot of Object.keys(fitted)) {{
+          const open = BASE_SLOTS.has(slot) ? !blocks.has(slot) : grants.has(slot);
+          if (!open) {{ unfit(slot); changed = true; }}
+        }}
+        if (!changed) break;
+      }}
+
+      const {{grants, blocks}} = openSlots();
+      // The arrangement we have watched for exactly this configuration, if we
+      // have one. Otherwise the base picture with each opened chip placed where
+      // the clip that opened it had it: about where the game would put it,
+      // without pretending we watched this combination.
+      const exact = LAYOUTS.find(
+        (l) => sameSet(grants, l.when) && sameSet(blocks, l.blocks));
+      let chips = Object.assign({{}}, LAYOUTS[0].chips);
+      if (exact) {{
+        chips = Object.assign({{}}, exact.chips);
+      }} else {{
+        // No footage of this combination, so compose the ones it contains.
+        // Whole layouts, not just their new chips: dropping a riser optic onto
+        // the base positions would land it on top of the optic, because the
+        // clip that opened it also shows the optic sliding out of the way.
+        LAYOUTS.forEach((l, i) => {{
+          if (!l.when.length && !l.blocks.length) return;
+          if (l.when.every((s) => grants.has(s))
+              && l.blocks.every((s) => blocks.has(s)))
+            Object.assign(chips, DIFFS[i]);
+        }});
+      }}
+      for (const slot of blocks) delete chips[slot];
+      for (const slot of Object.keys(chips))
+        if (!BASE_SLOTS.has(slot) && !grants.has(slot)) delete chips[slot];
+      // Two clips can each move the same neighbour a different way, and a
+      // composed picture can land one chip on another. Only composed ones: a
+      // layout we actually watched is left at the pixel it was measured at.
+      if (!exact) chips = separate(chips);
+
+      for (const c of document.querySelectorAll('.chip3')) {{
+        const slot = c.dataset.slot;
+        const p = chips[slot];
+        const line = document.querySelector(
+          '.stage__wires line[data-slot="' + slot + '"]');
+        c.hidden = !p;
+        // SVG has no hidden attribute worth relying on, so the line is hidden
+        // the way the browser cannot argue with.
+        if (line) line.style.display = p && p.ax != null ? '' : 'none';
+        if (!p) continue;
+        c.style.left = (p.x / FW * 100).toFixed(4) + '%';
+        c.style.top = (p.y / FH * 100).toFixed(4) + '%';
+        if (line && p.ax != null) {{
+          line.setAttribute('x1', p.x + CHIP / 2);
+          line.setAttribute('y1', p.y + CHIP / 2);
+          line.setAttribute('x2', p.ax);
+          line.setAttribute('y2', p.ay);
+        }}
+      }}
+      // A slot that has just closed cannot stay the one on screen.
+      if (cur.slot && !chips[cur.slot]) shut();
     }}
 
     // ---- the arithmetic -----------------------------------------------
@@ -1321,6 +1522,7 @@ def gunsmith_body():
       }}
       for (const b of document.querySelectorAll('#sl-' + cur.slot + ' .pcard'))
         b.classList.toggle('is-fitted', fitted[cur.slot] === b.dataset.item);
+      relayout();
       paintDelta(cur.slot, cur.item);
       paintWeapon();
       paintEquip();
@@ -1412,6 +1614,7 @@ def gunsmith_body():
       showWeapon(opening);
     }});
     paintWeapon();
+    relayout();
 
     document.getElementById('close').addEventListener('click', shut);
     addEventListener('keydown', (e) => {{ if (e.key === 'Escape') shut(); }});
@@ -2065,6 +2268,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .stage {
   position: relative; width: 100%; border: 1px solid var(--line);
   border-radius: 8px; overflow: hidden;
+  container-type: inline-size;
   background:
     radial-gradient(120% 90% at 50% 0%, #10333d 0%, transparent 60%),
     var(--surface);
@@ -2081,14 +2285,36 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .chip3 {
   position: absolute; display: block; text-decoration: none;
   border: 1px solid var(--line-2); border-radius: 2px; background: rgba(6,14,19,.35);
+  /* The fan reflows when a fitted part opens a slot rather than the new chip
+     dropping into a gap, so the neighbours slide. Watching one move is what
+     makes it read as the same chip. */
+  transition: left 220ms ease, top 220ms ease;
+}
+/* `display: block` above outranks the browser's own rule for [hidden], so a
+   chip for a slot nothing has opened yet stays laid out and swallows the
+   clicks meant for the chip underneath it. */
+.chip3[hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .chip3 { transition: none; }
 }
 .chip3__art {
   display: block; width: 100%; height: 100%;
   background-repeat: no-repeat; background-position: center; background-size: contain;
 }
+/* Clipped to the chip's width, and clipped at the front, which is why the game
+   shows a Riser Optic as "ser Optic". Without it the long names on the optic
+   arm -- Tactical Device, Riser Optic, Red Dot Optic, three in a row -- print
+   over each other. `direction: rtl` does the front-clipping: the words are
+   strong left-to-right so their order is untouched, only which end overflows.
+   The full name is on the chip's title for anyone who needs it. */
 .chip3__label {
   position: absolute; bottom: 100%; left: 0; margin-bottom: 3px;
+  max-width: 100%; overflow: hidden; direction: rtl;
   font-size: 11px; line-height: 1; white-space: nowrap; color: var(--text-dim);
+  /* Sized against the stage, not the page, so a label keeps the same share of
+     its chip at every width -- the game's does, and a fixed 11px turned
+     "Left Rail" into "eft Rail" on a narrow window. */
+  font-size: clamp(8px, 0.82cqw, 15px);
 }
 .chip3 em {
   position: absolute; right: -1px; bottom: -1px; padding: 0 4px;
