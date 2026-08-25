@@ -665,6 +665,36 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .pin:active { cursor: grabbing; }
 .stage.is-placing .chip3 { pointer-events: none; }
 
+/* --------------------------------------------------------------------------
+   The anchor workbench (dev-anchors.html). Not linked from the site: it is a
+   tool that lives in the built pages so it can see the same artwork and the
+   same coordinates the editor lays out from.
+   -------------------------------------------------------------------------- */
+.stage__wires--hot { stroke: var(--accent-dim); stroke-width: 1.5; }
+.stage__wires--hot line.is-on { stroke: var(--warn); stroke-width: 2.5; }
+.pin.is-on { border-color: var(--accent); background: rgba(42, 202, 150, .35); }
+/* A chip whose line has never been placed: its dot sits on the chip itself. */
+.pin.is-loose { border-style: dashed; border-color: var(--red); }
+
+.zoomer.is-zoomed { overflow: auto; }
+.zoomer.is-zoomed .stage { width: 2032px; max-width: none; }
+
+.devbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.devtab {
+  font: inherit; font-size: 12px; padding: 6px 11px; cursor: pointer;
+  color: var(--text-dim); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 5px;
+}
+.devtab:hover { border-color: var(--line-2); color: var(--text); }
+.devtab.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.devopt {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-dim);
+}
+tr.is-sel td { background: rgba(var(--accent-rgb), 0.1); }
+tr.is-gap td:first-child { color: var(--red); }
+textarea.out { width: 100%; resize: vertical; }
+
 .btn {
   font: inherit; font-size: 13px; padding: 7px 14px; cursor: pointer;
   color: var(--bg); background: var(--accent); border: 0; border-radius: 6px;

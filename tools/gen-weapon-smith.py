@@ -2335,6 +2335,36 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .pin:active { cursor: grabbing; }
 .stage.is-placing .chip3 { pointer-events: none; }
 
+/* --------------------------------------------------------------------------
+   The anchor workbench (dev-anchors.html). Not linked from the site: it is a
+   tool that lives in the built pages so it can see the same artwork and the
+   same coordinates the editor lays out from.
+   -------------------------------------------------------------------------- */
+.stage__wires--hot { stroke: var(--accent-dim); stroke-width: 1.5; }
+.stage__wires--hot line.is-on { stroke: var(--warn); stroke-width: 2.5; }
+.pin.is-on { border-color: var(--accent); background: rgba(42, 202, 150, .35); }
+/* A chip whose line has never been placed: its dot sits on the chip itself. */
+.pin.is-loose { border-style: dashed; border-color: var(--red); }
+
+.zoomer.is-zoomed { overflow: auto; }
+.zoomer.is-zoomed .stage { width: 2032px; max-width: none; }
+
+.devbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.devtab {
+  font: inherit; font-size: 12px; padding: 6px 11px; cursor: pointer;
+  color: var(--text-dim); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 5px;
+}
+.devtab:hover { border-color: var(--line-2); color: var(--text); }
+.devtab.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.devopt {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 12px; color: var(--text-dim);
+}
+tr.is-sel td { background: rgba(var(--accent-rgb), 0.1); }
+tr.is-gap td:first-child { color: var(--red); }
+textarea.out { width: 100%; resize: vertical; }
+
 .btn {
   font: inherit; font-size: 13px; padding: 7px 14px; cursor: pointer;
   color: var(--bg); background: var(--accent); border: 0; border-radius: 6px;
@@ -2565,6 +2595,268 @@ def shell(title, eyebrow, h1, sub, body, nav, css_href=None,
     ])
 
 
+def anchors_page():
+    """A workbench for the leader lines: drag each line's end onto the weapon.
+
+    The anchors were found by following each chip's hairline out of the frame
+    it was cut from and taking where it stopped. That is right most of the
+    time and plainly wrong some of the time — a line that runs along a bright
+    edge of the receiver keeps going, and lands past the mark it was meant to
+    stop on. Judging which is which is a job for an eye, so this page hands the
+    eye a handle.
+
+    It is not linked from anywhere and it is not in the sitemap. It is a tool
+    that happens to be a page, kept in the built site because that is where it
+    can see the same artwork and the same coordinates the editor uses — an
+    anchor moved here is an anchor moved for the editor, with no second copy of
+    the layout code to drift.
+
+    An anchor is a point on the weapon rather than a property of a chip, so by
+    default moving one moves it in every layout that has that slot. The barrels
+    are why the switch exists: they change the weapon's own shape, so an upper
+    rail's mark is not in the same place with the integral barrel as with the
+    Whale Shark combo.
+    """
+    d = json.loads(GUNSMITH.read_text(encoding='utf-8'))
+    fw, fh = d['frame']['w'], d['frame']['h']
+    g, C = d['gun'], d['chip']
+    pc = lambda v, tot: f'{v / tot * 100:.4f}%'
+
+    names = {}
+    for iid in {i for lay in d.get('layouts', []) for i in lay['by']}:
+        names[iid] = NAMES.get(iid) or (RULES.get(iid) or {}).get('name') or iid
+
+    return '\n'.join([
+        '<!doctype html>',
+        '<html lang="en">',
+        '<meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        '<meta name="robots" content="noindex, nofollow">',
+        '<title>Anchor workbench &middot; Weapon Smith</title>',
+        '<link rel="stylesheet" href="smith.css">',
+        f"""<div class="wrap">
+  <header>
+    <p class="eyebrow">Developer tool</p>
+    <h1>Anchor workbench</h1>
+    <p class="lede">Where each slot&rsquo;s leader line ends on the weapon.
+    Pick a configuration, drag a dot onto the mark its line should touch, then
+    copy the file below over <code>data/gunsmith-rm277.json</code> and re-run
+    <code>npm run gen</code>. Arrow keys nudge the selected dot by a pixel,
+    with shift by ten. Nothing is saved by the page.</p>
+  </header>
+
+  <section>
+    <div class="devbar" id="tabs"></div>
+    <label class="devopt"><input type="checkbox" id="link" checked>
+      Move this slot&rsquo;s anchor in every layout that has it</label>
+    <label class="devopt"><input type="checkbox" id="zoom">
+      Show the weapon at 1:1, so a pixel here is a pixel in the file</label>
+  </section>
+
+  <div class="zoomer" id="zoomer">
+  <div class="stage is-placing" style="aspect-ratio:{fw}/{fh}">
+    <img class="stage__gun" src="smith/rm277.png" alt=""
+         style="left:{pc(g['x'], fw)};top:{pc(g['y'], fh)};
+                width:{pc(g['w'], fw)};height:{pc(g['h'], fh)}">
+    <svg class="stage__wires stage__wires--hot" viewBox="0 0 {fw} {fh}"
+         preserveAspectRatio="none" aria-hidden="true" id="wires"></svg>
+    <div id="chips"></div>
+    <div class="pins" id="pins"></div>
+  </div>
+  </div>
+
+  <section>
+    <h2>Anchors <span class="count" id="tally"></span></h2>
+    <div class="tablewrap">
+      <table id="grid">
+        <thead><tr><th>Slot</th><th>Chip</th><th>Anchor</th><th>Line</th></tr>
+        </thead><tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>data/gunsmith-rm277.json</h2>
+    <p><button class="btn" id="copy">Copy the whole file</button>
+       <button class="btn btn--ghost" id="reset">Undo my changes</button></p>
+    <textarea class="out" id="out" spellcheck="false" rows="14"></textarea>
+  </section>
+</div>
+
+<script>
+const START = {json.dumps(d)};
+const NAMES = {json.dumps(names)};
+const FW = {fw}, FH = {fh}, CHIP = {C};
+let doc = JSON.parse(JSON.stringify(START));
+let which = 0;          // 0 is the bare rifle, then one per recorded layout
+let held = null, sel = null;
+
+// One shape for both kinds of layout, so nothing below has to care whether it
+// is looking at the base slots array or a layout's chips object.
+function views() {{
+  const out = [{{name: 'Bare rifle', chips: doc.slots.reduce((a, s) => {{
+    a[s.slot] = s; return a;
+  }}, {{}})}}];
+  for (const l of doc.layouts || [])
+    out.push({{name: l.by.map((i) => NAMES[i] || i).join(' + '), chips: l.chips}});
+  return out;
+}}
+
+function tabs() {{
+  const box = document.getElementById('tabs');
+  box.innerHTML = '';
+  views().forEach((v, i) => {{
+    const b = document.createElement('button');
+    b.className = 'devtab' + (i === which ? ' is-on' : '');
+    b.textContent = v.name;
+    b.addEventListener('click', () => {{ which = i; sel = null; draw(); }});
+    box.appendChild(b);
+  }});
+}}
+
+function draw() {{
+  const v = views()[which];
+  const chips = document.getElementById('chips');
+  const pins = document.getElementById('pins');
+  const wires = document.getElementById('wires');
+  chips.innerHTML = ''; pins.innerHTML = ''; wires.innerHTML = '';
+  const rows = [];
+
+  for (const [slot, c] of Object.entries(v.chips)) {{
+    const el = document.createElement('span');
+    el.className = 'chip3' + (slot === sel ? ' is-on' : '');
+    el.style.cssText = 'left:' + (c.x / FW * 100) + '%;top:' + (c.y / FH * 100)
+      + '%;width:' + (CHIP / FW * 100) + '%;height:' + (CHIP / FH * 100) + '%';
+    el.innerHTML = '<span class="chip3__label">' + (c.label || slot)
+      + '</span><span class="chip3__art" style="background-image:url(smith/slot/'
+      + slot + '.png)"></span>';
+    chips.appendChild(el);
+
+    const has = c.ax !== null && c.ax !== undefined;
+    const ax = has ? c.ax : Math.round(c.x + CHIP / 2);
+    const ay = has ? c.ay : Math.round(c.y + CHIP / 2);
+    if (has) {{
+      const ln = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      ln.setAttribute('x1', c.x + CHIP / 2);
+      ln.setAttribute('y1', c.y + CHIP / 2);
+      ln.setAttribute('x2', ax);
+      ln.setAttribute('y2', ay);
+      if (slot === sel) ln.setAttribute('class', 'is-on');
+      wires.appendChild(ln);
+    }}
+
+    const pin = document.createElement('button');
+    pin.className = 'pin' + (slot === sel ? ' is-on' : '')
+      + (has ? '' : ' is-loose');
+    pin.dataset.slot = slot;
+    pin.style.left = (ax / FW * 100) + '%';
+    pin.style.top = (ay / FH * 100) + '%';
+    pin.title = (c.label || slot) + ' — ' + ax + ',' + ay;
+    pins.appendChild(pin);
+
+    // Two lines ending on the same pixel is the shape a bad trace takes: the
+    // hairline ran along an edge of the receiver and both stopped at the same
+    // place. Worth saying out loud, because on screen it just looks tidy.
+    let near = [];
+    for (const [o, oc] of Object.entries(v.chips)) {{
+      if (o === slot || oc.ax === null || oc.ax === undefined || !has) continue;
+      if (Math.hypot(oc.ax - ax, oc.ay - ay) < 25) near.push(oc.label || o);
+    }}
+    const note = !has ? 'not placed'
+      : near.length ? 'shares a point with ' + near.join(', ') : '';
+    rows.push('<tr class="' + (slot === sel ? 'is-sel ' : '')
+      + (has && !near.length ? '' : 'is-gap') + '" data-slot="' + slot
+      + '"><td>' + (c.label || slot) + '</td><td class="num">'
+      + c.x + ', ' + c.y
+      + '</td><td class="num">' + (has ? ax + ', ' + ay : '&mdash;')
+      + '</td><td>' + note + '</td></tr>');
+  }}
+
+  document.querySelector('#grid tbody').innerHTML = rows.join('');
+  const n = Object.keys(v.chips).length;
+  const flagged = document.querySelectorAll('#grid tbody tr.is-gap').length;
+  document.getElementById('tally').textContent =
+    n + ' slots, ' + (flagged ? flagged + ' worth a look' : 'none flagged');
+  document.getElementById('out').value = JSON.stringify(doc, null, 1);
+}}
+
+// Writing an anchor: into this layout, and into every other layout holding the
+// same slot unless the switch says otherwise.
+function put(slot, ax, ay) {{
+  ax = Math.max(0, Math.min(FW, Math.round(ax)));
+  ay = Math.max(0, Math.min(FH, Math.round(ay)));
+  const every = document.getElementById('link').checked;
+  const targets = every
+    ? views().map((v) => v.chips[slot]).filter(Boolean)
+    : [views()[which].chips[slot]].filter(Boolean);
+  for (const t of targets) {{ t.ax = ax; t.ay = ay; }}
+}}
+
+const stage = document.querySelector('.stage');
+function at(e) {{
+  const r = stage.getBoundingClientRect();
+  return [(e.clientX - r.left) / r.width * FW, (e.clientY - r.top) / r.height * FH];
+}}
+
+document.getElementById('pins').addEventListener('pointerdown', (e) => {{
+  const p = e.target.closest('.pin');
+  if (!p) return;
+  held = p.dataset.slot; sel = held;
+  p.setPointerCapture(e.pointerId);
+  e.preventDefault();
+  draw();
+}});
+addEventListener('pointermove', (e) => {{
+  if (!held) return;
+  put(held, ...at(e));
+  draw();
+}});
+addEventListener('pointerup', () => {{ held = null; }});
+
+document.querySelector('#grid tbody').addEventListener('click', (e) => {{
+  const tr = e.target.closest('tr');
+  if (tr) {{ sel = tr.dataset.slot; draw(); }}
+}});
+
+addEventListener('keydown', (e) => {{
+  if (!sel || !e.key.startsWith('Arrow')) return;
+  const c = views()[which].chips[sel];
+  if (!c) return;
+  const step = e.shiftKey ? 10 : 1;
+  const dx = (e.key === 'ArrowRight') - (e.key === 'ArrowLeft');
+  const dy = (e.key === 'ArrowDown') - (e.key === 'ArrowUp');
+  e.preventDefault();
+  put(sel, (c.ax ?? c.x + CHIP / 2) + dx * step,
+           (c.ay ?? c.y + CHIP / 2) + dy * step);
+  draw();
+}});
+
+document.getElementById('copy').addEventListener('click', () => {{
+  const t = document.getElementById('out');
+  t.select();
+  if (navigator.clipboard) navigator.clipboard.writeText(t.value);
+}});
+document.getElementById('reset').addEventListener('click', () => {{
+  doc = JSON.parse(JSON.stringify(START)); sel = null; draw();
+}});
+
+// At 1:1 the little bracket marks on the weapon are legible and a drag lands
+// where it looks like it lands. The box scrolls; everything inside is placed
+// as a percentage, so the chips and lines come along.
+document.getElementById('zoom').addEventListener('change', (e) => {{
+  const z = document.getElementById('zoomer');
+  z.classList.toggle('is-zoomed', e.target.checked);
+  if (e.target.checked) {{
+    z.scrollLeft = (z.scrollWidth - z.clientWidth) / 2;
+    z.scrollTop = (z.scrollHeight - z.clientHeight) / 2;
+  }}
+}});
+
+tabs(); draw();
+</script>""",
+    ]) + '\n'
+
+
 def index_page(items, by_caliber):
     """The front door, which is the catalogue.
 
@@ -2642,6 +2934,11 @@ if __name__ == '__main__':
         print('removed stale rm277.html')
 
     (out / 'smith.css').write_text(CSS, encoding='utf-8')
+
+    # A tool, not a page of the site: no link to it, no sitemap entry, noindex
+    # in its head. It is written into the built site because that is where it
+    # can see the artwork and the coordinates the editor uses.
+    (out / 'dev-anchors.html').write_text(anchors_page(), encoding='utf-8')
 
     # Site furniture. Generated too, so a new weapon page reaches the sitemap
     # without anyone remembering to add it.
