@@ -1,0 +1,210 @@
+{
+ "frame": {
+  "w": 2032,
+  "h": 1080
+ },
+ "gun": {
+  "src": "rm277.png",
+  "x": 388,
+  "y": 425,
+  "w": 1208,
+  "h": 355
+ },
+ "chip": 73,
+ "slots": [
+  {
+   "slot": "optics",
+   "label": "Optic",
+   "x": 972,
+   "y": 224,
+   "ax": 1007,
+   "ay": 475
+  },
+  {
+   "slot": "offset-optics",
+   "label": "Offset Optic",
+   "x": 1237,
+   "y": 239,
+   "ax": 1123,
+   "ay": 465
+  },
+  {
+   "slot": "barrel",
+   "label": "Barrel",
+   "x": 460,
+   "y": 299,
+   "ax": 752,
+   "ay": 520
+  },
+  {
+   "slot": "right-patch",
+   "label": "Right Patch",
+   "x": 568,
+   "y": 270,
+   "ax": 757,
+   "ay": 524
+  },
+  {
+   "slot": "left-patch",
+   "label": "Left Patch",
+   "x": 355,
+   "y": 339,
+   "ax": 734,
+   "ay": 525
+  },
+  {
+   "slot": "right-rail",
+   "label": "Right Rail",
+   "x": 257,
+   "y": 397,
+   "ax": 624,
+   "ay": 520
+  },
+  {
+   "slot": "left-rail",
+   "label": "Left Rail",
+   "x": 179,
+   "y": 478,
+   "ax": 598,
+   "ay": 528
+  },
+  {
+   "slot": "muzzle",
+   "label": "Muzzle",
+   "x": 168,
+   "y": 597,
+   "ax": 435,
+   "ay": 533
+  },
+  {
+   "slot": "foregrip",
+   "label": "Foregrip",
+   "x": 235,
+   "y": 687,
+   "ax": 766,
+   "ay": 573
+  },
+  {
+   "slot": "rail-bipod",
+   "label": "Rail Bipod",
+   "x": 330,
+   "y": 748,
+   "ax": 626,
+   "ay": 569
+  },
+  {
+   "slot": "rear-grip",
+   "label": "Rear Grip",
+   "x": 1307,
+   "y": 851,
+   "ax": 1130,
+   "ay": 687
+  },
+  {
+   "slot": "mag-mount",
+   "label": "Mag Mount",
+   "x": 1537,
+   "y": 795,
+   "ax": 1304,
+   "ay": 709
+  },
+  {
+   "slot": "mag",
+   "label": "Mag",
+   "x": 1674,
+   "y": 733,
+   "ax": 1306,
+   "ay": 659
+  },
+  {
+   "slot": "stock-pad",
+   "label": "Stock Pad",
+   "x": 1817,
+   "y": 540,
+   "ax": 1514,
+   "ay": 585
+  },
+  {
+   "slot": "cheek-pad",
+   "label": "Cheek Pad",
+   "x": 1682,
+   "y": 372,
+   "ax": 1381,
+   "ay": 494
+  }
+ ],
+ "weapon": {
+  "id": "rm277",
+  "name": "RM277",
+  "stats": [
+   {
+    "key": "Damage",
+    "base": 41,
+    "max": 100
+   },
+   {
+    "key": "Range",
+    "base": 55,
+    "max": 100,
+    "unit": "m"
+   },
+   {
+    "key": "Control",
+    "base": 48,
+    "max": 100
+   },
+   {
+    "key": "Handling",
+    "base": 50,
+    "max": 100
+   },
+   {
+    "key": "Stability",
+    "base": 59,
+    "max": 100
+   },
+   {
+    "key": "Accuracy",
+    "base": 44,
+    "max": 100
+   },
+   {
+    "key": "Armour penetration",
+    "base": 42,
+    "max": 100
+   },
+   {
+    "key": "Fire rate",
+    "base": 550,
+    "max": 1200,
+    "unit": " rpm"
+   },
+   {
+    "key": "Capacity",
+    "base": 30,
+    "max": 100,
+    "from": "Holds",
+    "mode": "set"
+   },
+   {
+    "key": "Muzzle velocity",
+    "base": 650,
+    "max": 1200,
+    "unit": " m/s"
+   },
+   {
+    "key": "Gunshot heard",
+    "base": 500,
+    "max": 1000,
+    "unit": " m"
+   }
+  ],
+  "source": "Read off the game. The six bar figures were derived first, from the one frame showing a stat panel, and the reading confirmed every one of them.",
+  "specs": [
+   {
+    "key": "Fire modes",
+    "text": "Auto / Single"
+   }
+  ]
+ }
+}

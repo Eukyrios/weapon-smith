@@ -1,136 +1,161 @@
-"""Draw og.png, the 1200x630 card every share preview and search card uses.
+#!/usr/bin/env python3
+"""Draw og.png, the 1200x630 card every link preview of this site shows.
 
-Run by hand (`python tools/make-og.py`), not by gen-weapon-smith.py: the site
-generator has no dependencies beyond the standard library and is run on every
-data change, while this needs Pillow and a font and only needs running when the
-mark or the wording changes. The result is committed.
+WHY THIS IS A SCRIPT AND NOT A FILE SOMEONE MADE ONCE
 
-It is drawn rather than screenshotted because a screenshot of a catalogue is
-576 grey thumbnails at postage-stamp size, which says nothing at the size a
-share card is actually shown. The card says the name, the game, and what the
-site is for, in the same three colours as the site.
+The card states the size of the catalogue — "66 weapons, 89 rounds, 438
+attachments" — and that is data, not decoration. Drawn by hand it is correct on
+the day it is exported and silently wrong every day after, in the one place
+nobody looks: a preview rendered on somebody else's website. Generated from the
+same JSON the pages are built from, it cannot say a number the site does not.
+
+The mark comes from the same SVG the favicon does, rasterised rather than
+redrawn, so there is one anvil in this repo and not two that drift apart.
+
+    python tools/make-og.py
+
+Needs Pillow and cairosvg. The committed og.png means nobody has to run it to
+build the site — only to change what it says.
 """
-import pathlib
 import sys
 
-from PIL import Image, ImageDraw, ImageFont
+if sys.version_info < (3, 7):  # noqa: UP036
+    raise SystemExit(
+        f'needs Python 3.7 or newer, found {sys.version.split()[0]}.')
+
+import io
+import json
+import pathlib
+import re
+
+try:
+    import cairosvg
+    from PIL import Image, ImageDraw, ImageFilter, ImageFont
+except ImportError:
+    raise SystemExit('this needs Pillow and cairosvg:  pip install pillow cairosvg')
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+
 W, H = 1200, 630
+BG = (6, 14, 19)
+TEXT = (250, 250, 250)
+DIM = (149, 168, 180)
+FAINT = (94, 115, 129)
+ACCENT = (15, 247, 150)
 
-BG = (6, 14, 19)            # --bg
-GLOW = (14, 42, 51)         # the top-centre wash the site's body carries
-TEXT = (250, 250, 250)      # --text
-DIM = (149, 168, 180)       # --text-dim
-FAINT = (94, 115, 129)      # --text-faint
-ACCENT = (15, 247, 150)     # --accent
-ACCENT_DIM = (10, 143, 87)  # --accent-dim, the hammer's haft
-STEEL = (149, 168, 180)     # the anvil, --text-dim
-STEEL_DIM = (94, 115, 129)  # its waist, a step back into the shadow
+PAD = 88
+RULE = 8            # the accent bar along the bottom
 
-FONTS = pathlib.Path('C:/Windows/Fonts')
+FONTS = {
+    'title': ('/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf', 96),
+    'lede': ('/usr/share/fonts/truetype/crosextra/Carlito-Regular.ttf', 38),
+    'mono': ('/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf', 24),
+}
 
-
-def font(*names, size=48):
-    """First font that exists, at `size`. Named in preference order so this
-    still produces a card on a machine without Segoe."""
-    for n in names:
-        p = FONTS / n
-        if p.exists():
-            return ImageFont.truetype(str(p), size)
-    sys.exit(f'none of {names} found in {FONTS}')
+STRAPLINE = ('A library of every gun, round and attachment '
+             '— and a build maker on top of it.')
 
 
-def glow(img):
-    """The site's background is a wide radial wash above the fold. Pillow has no
-    gradient, so it is built by compositing one translucent ellipse per step —
-    64 steps is smooth at this size and takes no time worth measuring."""
-    steps = 64
-    for i in range(steps, 0, -1):
-        t = i / steps
-        rx, ry = int(1500 * t), int(900 * t)
-        layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
-        ImageDraw.Draw(layer).ellipse(
-            [W // 2 - rx, -520 - ry // 2, W // 2 + rx, -520 + ry],
-            fill=GLOW + (7,))
-        img.alpha_composite(layer)
+def font(kind):
+    path, size = FONTS[kind]
+    if not pathlib.Path(path).is_file():
+        raise SystemExit(f'missing font: {path}')
+    return ImageFont.truetype(path, size)
 
 
-def mark(d, x, y, s):
-    """The favicon, at `s` pixels, top-left at (x, y).
+def counts():
+    """The three numbers, from the data the site itself is built from."""
+    data = lambda n: json.loads((ROOT / 'data' / f'{n}.json').read_text(encoding='utf-8'))
+    weapons, ammo, attach = data('weapons'), data('ammo'), data('attachments')
 
-    The same 64-unit geometry as _MARK in gen-weapon-smith.py, point for point:
-    anvil face with its horn, the waist under it, the splayed foot, then the
-    hammer laid on the face. Kept as polygons on both sides so the SVG and this
-    cannot drift — if one moves, move the other.
-    """
-    u = s / 64
-
-    def p(pts):
-        return [(x + px * u, y + py * u) for px, py in pts]
-
-    d.polygon(p([(13, 34), (49, 34), (49, 40), (13, 40), (7, 37)]), fill=STEEL)
-    d.polygon(p([(24, 46), (38, 46), (45, 53), (17, 53)]), fill=STEEL)
-    d.rounded_rectangle(p([(15, 52.4), (49, 56)]), radius=1.4 * u, fill=STEEL)
-    d.polygon(p([(19, 40), (43, 40), (38, 46), (24, 46)]), fill=STEEL_DIM)
-    d.polygon(p([(33, 30), (38, 25), (22, 9), (17, 14)]), fill=ACCENT_DIM)
-    d.polygon(p([(31, 33), (38, 35), (47, 26), (45, 19), (38, 21)]), fill=ACCENT)
+    # The catalogue also carries items named in a slot list that the game
+    # catalogue has no entry for. The site counts those as attachments, so the
+    # card has to as well or the two disagree in public.
+    gen = (ROOT / 'tools' / 'gen-weapon-smith.py').read_text(encoding='utf-8')
+    block = re.search(r'^MISSING = \{.*?^\}', gen, re.S | re.M)
+    named = set(re.findall(r"\(\d+, '([^']+)'\)", block.group(0))) if block else set()
+    known = {a['name'] for a in attach}
+    extra = len(named - known)
+    return len(weapons), len(ammo), len(attach) + extra
 
 
-def tracked(d, xy, text, f, fill, space):
-    """Letter-spaced text. The site's eyebrow is 0.22em of tracking and that is
-    most of what makes it read as an eyebrow, so it is worth the loop."""
+def mark(px):
+    """The anvil, rasterised from the favicon so there is only ever one of it."""
+    svg = (ROOT / 'favicon.svg').read_text(encoding='utf-8')
+    # The favicon sits on its own rounded plate; the card supplies the ground,
+    # so drop the plate and keep the mark.
+    svg = re.sub(r'<rect[^>]*/>', '', svg, count=1)
+    png = cairosvg.svg2png(bytestring=svg.encode('utf-8'),
+                           output_width=px, output_height=px)
+    return Image.open(io.BytesIO(png)).convert('RGBA')
+
+
+def wrap(draw, text, fnt, width):
+    lines, line = [], ''
+    for word in text.split():
+        trial = f'{line} {word}'.strip()
+        if draw.textlength(trial, font=fnt) <= width or not line:
+            line = trial
+        else:
+            lines.append(line)
+            line = word
+    if line:
+        lines.append(line)
+    return lines
+
+
+def spaced(draw, xy, text, fnt, fill, tracking):
+    """Letter-spaced text. Pillow has no tracking, and the eyebrow and the
+    counts row are both set wide enough that faking it is the whole look."""
     x, y = xy
     for ch in text:
-        d.text((x, y), ch, font=f, fill=fill)
-        x += d.textlength(ch, font=f) + space
+        draw.text((x, y), ch, font=fnt, fill=fill)
+        x += draw.textlength(ch, font=fnt) + tracking
+    return x
 
 
-def main():
-    img = Image.new('RGBA', (W, H), BG + (255,))
-    glow(img)
-    d = ImageDraw.Draw(img)
+def build():
+    im = Image.new('RGB', (W, H), BG)
+    d = ImageDraw.Draw(im)
 
-    pad = 88
-    eyebrow = font('consolab.ttf', 'cour.ttf', size=26)
-    lede = font('segoeui.ttf', 'arial.ttf', size=40)
-    foot = font('consola.ttf', 'cour.ttf', size=27)
+    # A faint lift towards the top left, the same move the site's own body
+    # background makes, so the card looks like it came off the page.
+    glow = Image.new('RGB', (W, H), (14, 42, 51))
+    grad = Image.new('L', (W, H))
+    gd = ImageDraw.Draw(grad)
+    for i in range(60):
+        gd.ellipse([-500 + i * 6, -700 + i * 8, 1100 - i * 6, 700 - i * 8],
+                   fill=int(46 * (1 - i / 60)))
+    # Stacked ellipses leave a visible arc where the outermost one ends. Blur
+    # the mask, not the image: the text is drawn after this and stays crisp.
+    grad = grad.filter(ImageFilter.GaussianBlur(90))
+    im = Image.composite(glow, im, grad)
+    d = ImageDraw.Draw(im)
 
-    # The mark leads the eyebrow, the way the tab icon leads the tab title, and
-    # the name gets the width to itself underneath.
-    mark(d, pad, 84, 76)
-    tracked(d, (pad + 100, 100), 'DELTA FORCE / OPERATIONS', eyebrow, FAINT, 5.5)
+    logo = mark(64)
+    im.paste(logo, (PAD, 78), logo)
+    spaced(d, (PAD + 92, 92), 'DELTA FORCE / OPERATIONS', font('mono'), FAINT, 5.0)
 
-    # Set to the space rather than to a number: the name is as large as fits
-    # between the margins, so a longer name cannot walk off the right edge the
-    # way a hardcoded 132px did.
-    room = W - 2 * pad
-    for size in range(124, 40, -2):
-        title = font('seguibl.ttf', 'segoeuib.ttf', 'arialbd.ttf', size=size)
-        if d.textlength('WEAPON SMITH', font=title) <= room:
-            break
-    d.text((pad, 196), 'WEAPON SMITH', font=title, fill=TEXT)
+    d.text((PAD - 4, 208), 'WEAPON SMITH', font=font('title'), fill=TEXT)
 
-    d.text((pad, 372),
-           'Every weapon, round and attachment \u2014 and which',
-           font=lede, fill=DIM)
-    d.text((pad, 424), 'slot each one fits.', font=lede, fill=DIM)
+    y = 370
+    lede = font('lede')
+    for line in wrap(d, STRAPLINE, lede, W - PAD * 2):
+        d.text((PAD, y), line, font=lede, fill=DIM)
+        y += 52
 
-    # The counts are the claim: a catalogue is worth reading in proportion to
-    # how much of the game is in it. Typed here rather than read from the data
-    # because this file is regenerated by hand and a stale number on a share
-    # card is a smaller sin than a build-time dependency on the whole generator.
-    tracked(d, (pad, 516), '66 WEAPONS   89 ROUNDS   438 ATTACHMENTS',
-            foot, ACCENT, 2.0)
+    w, a, t = counts()
+    x = PAD
+    for label in (f'{w} WEAPONS', f'{a} ROUNDS', f'{t} ATTACHMENTS'):
+        x = spaced(d, (x, y + 24), label, font('mono'), ACCENT, 2.0) + 44
 
-    # A hairline of accent along the bottom, the same gesture the page's
-    # section rules make.
-    d.rectangle([0, H - 8, W, H], fill=ACCENT)
+    d.rectangle([0, H - RULE, W, H], fill=ACCENT)
 
     out = ROOT / 'og.png'
-    img.convert('RGB').save(out, optimize=True)
-    print(f'wrote {out.name} ({out.stat().st_size // 1024} KB)')
+    im.save(out, optimize=True)
+    print(f'wrote {out.name}  {W}x{H}  {out.stat().st_size // 1024} KB'
+          f'  ({w} weapons, {a} rounds, {t} attachments)')
 
 
 if __name__ == '__main__':
-    main()
+    build()

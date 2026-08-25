@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://eukyrios.github.io/weapon-smith/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Weapon Smith &mdash; the Delta Force: Operations weapon and attachment catalogue">
+<meta property="og:image:alt" content="Weapon Smith &mdash; a Delta Force: Operations weapon, ammunition and attachment library, and a build maker on top of it">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="RM277 &middot; Weapon Smith">
 <meta name="twitter:description" content="RM277 &mdash; assault rifle chambered in 6.8x51mm in Delta Force: Operations. All 22 attachment slots and every attachment that fits each one.">
@@ -39,27 +39,1328 @@
   <header>
     <span class="eyebrow">Catalogue</span>
     <h1>RM277</h1>
-    <p class="sub">Assault Rifle</p>
+    <p class="sub"><a href="../index.html#class-assault-rifle">Assault Rifle</a> &middot; <a href="../index.html#caliber-6-8x51mm">6.8x51mm</a></p>
   </header>
 
-  <section>
-    <div class="itemgrid">
-      <img class="shot" src="../gear/rm277.png" alt="" width="280" height="140" onerror="this.remove()">
-      <div class="tablewrap">
-        <table>
-          <tbody>
-          <tr><td>Class</td><td class="v"><a href="../index.html#class-assault-rifle">Assault Rifle</a></td></tr>
-          <tr><td>Caliber</td><td class="v"><a href="../index.html#caliber-6-8x51mm">6.8x51mm</a></td></tr>
-          </tbody>
-        </table>
+
+  <div class="gunsmith" style="--ar:1.8815">
+  <div class="stage" style="aspect-ratio:2032/1080">
+    <div class="wname">
+      <button class="wname__b" id="wtab" aria-expanded="false">
+        <span>RM277</span>
+        <svg viewBox="0 0 16 16" aria-hidden="true" width="15" height="15">
+          <rect x="1" y="2.5" width="14" height="2"></rect>
+          <rect x="1" y="7" width="14" height="2"></rect>
+          <rect x="1" y="11.5" width="14" height="2"></rect>
+        </svg>
+      </button>
+      <div class="wpanel" id="wpanel" hidden>
+        <p class="dlabel">Current build</p>
+        <div class="wstats"></div>
       </div>
     </div>
+    <img class="stage__gun" src="../smith/rm277.png" alt="RM277"
+         style="left:19.0945%;top:39.3519%;
+                width:59.4488%;height:32.8704%">
+    <svg class="stage__wires" viewBox="0 0 2032 1080" preserveAspectRatio="none"
+         aria-hidden="true">
+      <line x1="1008.5" y1="260.5" x2="1007" y2="475"></line>
+      <line x1="1273.5" y1="275.5" x2="1123" y2="465"></line>
+      <line x1="496.5" y1="335.5" x2="752" y2="520"></line>
+      <line x1="604.5" y1="306.5" x2="757" y2="524"></line>
+      <line x1="391.5" y1="375.5" x2="734" y2="525"></line>
+      <line x1="293.5" y1="433.5" x2="624" y2="520"></line>
+      <line x1="215.5" y1="514.5" x2="598" y2="528"></line>
+      <line x1="204.5" y1="633.5" x2="435" y2="533"></line>
+      <line x1="271.5" y1="723.5" x2="766" y2="573"></line>
+      <line x1="366.5" y1="784.5" x2="626" y2="569"></line>
+      <line x1="1343.5" y1="887.5" x2="1130" y2="687"></line>
+      <line x1="1573.5" y1="831.5" x2="1304" y2="709"></line>
+      <line x1="1710.5" y1="769.5" x2="1306" y2="659"></line>
+      <line x1="1853.5" y1="576.5" x2="1514" y2="585"></line>
+      <line x1="1718.5" y1="408.5" x2="1381" y2="494"></line>
+    </svg>
+      <a class="chip3" style="left:47.8346%;top:20.7407%;width:3.5925%;height:6.7593%" href="#slot-optics" data-slot="optics"><span class="chip3__label">Optic</span><span class="chip3__art" style="background-image:url(../smith/slot/optics.png)"></span><em>31</em></a>
+      <a class="chip3" style="left:60.8760%;top:22.1296%;width:3.5925%;height:6.7593%" href="#slot-offset-optics" data-slot="offset-optics"><span class="chip3__label">Offset Optic</span><span class="chip3__art" style="background-image:url(../smith/slot/offset-optics.png)"></span><em>5</em></a>
+      <a class="chip3" style="left:22.6378%;top:27.6852%;width:3.5925%;height:6.7593%" href="#slot-barrel" data-slot="barrel"><span class="chip3__label">Barrel</span><span class="chip3__art" style="background-image:url(../smith/slot/barrel.png)"></span><em>2</em></a>
+      <a class="chip3" style="left:27.9528%;top:25.0000%;width:3.5925%;height:6.7593%" href="#slot-right-patch" data-slot="right-patch"><span class="chip3__label">Right Patch</span><span class="chip3__art" style="background-image:url(../smith/slot/right-patch.png)"></span><em>5</em></a>
+      <a class="chip3" style="left:17.4705%;top:31.3889%;width:3.5925%;height:6.7593%" href="#slot-left-patch" data-slot="left-patch"><span class="chip3__label">Left Patch</span><span class="chip3__art" style="background-image:url(../smith/slot/left-patch.png)"></span><em>5</em></a>
+      <a class="chip3" style="left:12.6476%;top:36.7593%;width:3.5925%;height:6.7593%" href="#slot-right-rail" data-slot="right-rail"><span class="chip3__label">Right Rail</span><span class="chip3__art" style="background-image:url(../smith/slot/right-rail.png)"></span><em>13</em></a>
+      <a class="chip3" style="left:8.8091%;top:44.2593%;width:3.5925%;height:6.7593%" href="#slot-left-rail" data-slot="left-rail"><span class="chip3__label">Left Rail</span><span class="chip3__art" style="background-image:url(../smith/slot/left-rail.png)"></span><em>14</em></a>
+      <a class="chip3" style="left:8.2677%;top:55.2778%;width:3.5925%;height:6.7593%" href="#slot-muzzle" data-slot="muzzle"><span class="chip3__label">Muzzle</span><span class="chip3__art" style="background-image:url(../smith/slot/muzzle.png)"></span><em>16</em></a>
+      <a class="chip3" style="left:11.5650%;top:63.6111%;width:3.5925%;height:6.7593%" href="#slot-foregrip" data-slot="foregrip"><span class="chip3__label">Foregrip</span><span class="chip3__art" style="background-image:url(../smith/slot/foregrip.png)"></span><em>23</em></a>
+      <a class="chip3" style="left:16.2402%;top:69.2593%;width:3.5925%;height:6.7593%" href="#slot-rail-bipod" data-slot="rail-bipod"><span class="chip3__label">Rail Bipod</span><span class="chip3__art" style="background-image:url(../smith/slot/rail-bipod.png)"></span><em>1</em></a>
+      <a class="chip3" style="left:64.3209%;top:78.7963%;width:3.5925%;height:6.7593%" href="#slot-rear-grip" data-slot="rear-grip"><span class="chip3__label">Rear Grip</span><span class="chip3__art" style="background-image:url(../smith/slot/rear-grip.png)"></span><em>9</em></a>
+      <a class="chip3" style="left:75.6398%;top:73.6111%;width:3.5925%;height:6.7593%" href="#slot-mag-mount" data-slot="mag-mount"><span class="chip3__label">Mag Mount</span><span class="chip3__art" style="background-image:url(../smith/slot/mag-mount.png)"></span><em>3</em></a>
+      <a class="chip3" style="left:82.3819%;top:67.8704%;width:3.5925%;height:6.7593%" href="#slot-mag" data-slot="mag"><span class="chip3__label">Mag</span><span class="chip3__art" style="background-image:url(../smith/slot/mag.png)"></span><em>1</em></a>
+      <a class="chip3" style="left:89.4193%;top:50.0000%;width:3.5925%;height:6.7593%" href="#slot-stock-pad" data-slot="stock-pad"><span class="chip3__label">Stock Pad</span><span class="chip3__art" style="background-image:url(../smith/slot/stock-pad.png)"></span><em>1</em></a>
+      <a class="chip3" style="left:82.7756%;top:34.4444%;width:3.5925%;height:6.7593%" href="#slot-cheek-pad" data-slot="cheek-pad"><span class="chip3__label">Cheek Pad</span><span class="chip3__art" style="background-image:url(../smith/slot/cheek-pad.png)"></span><em>1</em></a>
+    <div class="pins" hidden>
+      <button class="pin" data-slot="optics" style="left:49.5571%;top:43.9815%" title="Optic"></button>
+      <button class="pin" data-slot="offset-optics" style="left:55.2657%;top:43.0556%" title="Offset Optic"></button>
+      <button class="pin" data-slot="barrel" style="left:37.0079%;top:48.1481%" title="Barrel"></button>
+      <button class="pin" data-slot="right-patch" style="left:37.2539%;top:48.5185%" title="Right Patch"></button>
+      <button class="pin" data-slot="left-patch" style="left:36.1220%;top:48.6111%" title="Left Patch"></button>
+      <button class="pin" data-slot="right-rail" style="left:30.7087%;top:48.1481%" title="Right Rail"></button>
+      <button class="pin" data-slot="left-rail" style="left:29.4291%;top:48.8889%" title="Left Rail"></button>
+      <button class="pin" data-slot="muzzle" style="left:21.4075%;top:49.3519%" title="Muzzle"></button>
+      <button class="pin" data-slot="foregrip" style="left:37.6969%;top:53.0556%" title="Foregrip"></button>
+      <button class="pin" data-slot="rail-bipod" style="left:30.8071%;top:52.6852%" title="Rail Bipod"></button>
+      <button class="pin" data-slot="rear-grip" style="left:55.6102%;top:63.6111%" title="Rear Grip"></button>
+      <button class="pin" data-slot="mag-mount" style="left:64.1732%;top:65.6481%" title="Mag Mount"></button>
+      <button class="pin" data-slot="mag" style="left:64.2717%;top:61.0185%" title="Mag"></button>
+      <button class="pin" data-slot="stock-pad" style="left:74.5079%;top:54.1667%" title="Stock Pad"></button>
+      <button class="pin" data-slot="cheek-pad" style="left:67.9626%;top:45.7407%" title="Cheek Pad"></button>
+    </div>
+
+    <aside class="panel" id="panel" hidden>
+      <div class="slotlist" id="sl-optics" hidden>
+        <div class="picks">
+          <p class="picks__h">Optics <span class="count">31</span></p>
+          <button class="pcard is-on" data-item="white-phosphor-thermal-scope" type="button"><span class="pcard__n tier-red">White Phosphor Thermal Scope</span><span class="pcard__art" style="background-image:url(../att/white-phosphor-thermal-scope.png)"></span></button>
+          <button class="pcard" data-item="advanced-thermal-fusion-holographic-sight" type="button"><span class="pcard__n tier-red">Advanced Thermal Fusion Holographic Sight</span><span class="pcard__art" style="background-image:url(../att/advanced-thermal-fusion-holographic-sight.png)"></span></button>
+          <button class="pcard" data-item="vmx-frameless-sight" type="button"><span class="pcard__n tier-purple">VMX Frameless Sight</span><span class="pcard__art" style="background-image:url(../att/vmx-frameless-sight.png)"></span></button>
+          <button class="pcard" data-item="1p-33-2-4x-scope" type="button"><span class="pcard__n tier-purple">1P-33 2/4x Scope</span><span class="pcard__art" style="background-image:url(../att/1p-33-2-4x-scope.png)"></span></button>
+          <button class="pcard" data-item="uhx-holographic-sight" type="button"><span class="pcard__n tier-purple">UHX Holographic Sight</span><span class="pcard__art" style="background-image:url(../att/uhx-holographic-sight.png)"></span></button>
+          <button class="pcard" data-item="prism-universal-2x-optic" type="button"><span class="pcard__n tier-purple">Prism Universal 2x Optic</span><span class="pcard__art" style="background-image:url(../att/prism-universal-2x-optic.png)"></span></button>
+          <button class="pcard" data-item="insight-3-7-sniper-scope" type="button"><span class="pcard__n tier-none">Insight 3/7 Sniper Scope</span><span class="pcard__art" style="background-image:url(../att/insight-3-7-sniper-scope.png)"></span></button>
+          <button class="pcard" data-item="m157-fire-control-system" type="button"><span class="pcard__n tier-purple">M157 Fire Control System</span><span class="pcard__art" style="background-image:url(../att/m157-fire-control-system.png)"></span></button>
+          <button class="pcard" data-item="viewpoint-3x-scope" type="button"><span class="pcard__n tier-none">Viewpoint 3x Scope</span><span class="pcard__art" style="background-image:url(../att/viewpoint-3x-scope.png)"></span></button>
+          <button class="pcard" data-item="1p-29-russian-3x-sight" type="button"><span class="pcard__n tier-purple">1P-29 Russian 3x Sight</span><span class="pcard__art" style="background-image:url(../att/1p-29-russian-3x-sight.png)"></span></button>
+          <button class="pcard" data-item="lpvo-scope" type="button"><span class="pcard__n tier-none">LPVO Scope</span><span class="pcard__art" style="background-image:url(../att/lpvo-scope.png)"></span></button>
+          <button class="pcard" data-item="3-7-adjustable-scope" type="button"><span class="pcard__n tier-none">3/7 Adjustable Scope</span><span class="pcard__art" style="background-image:url(../att/3-7-adjustable-scope.png)"></span></button>
+          <button class="pcard" data-item="recon-1-5-5-adjustable-scope" type="button"><span class="pcard__n tier-none">Recon 1.5/5 Adjustable Scope</span><span class="pcard__art" style="background-image:url(../att/recon-1-5-5-adjustable-scope.png)"></span></button>
+          <button class="pcard" data-item="hamr-combined-scope" type="button"><span class="pcard__n tier-none">HAMR Combined Scope</span><span class="pcard__art" style="background-image:url(../att/hamr-combined-scope.png)"></span></button>
+          <button class="pcard" data-item="meo-micro-sight-riser" type="button"><span class="pcard__n tier-blue">MEO Micro Sight Riser</span><span class="pcard__art" style="background-image:url(../att/meo-micro-sight-riser.png)"></span></button>
+          <button class="pcard" data-item="multi-purpose-tactical-riser" type="button"><span class="pcard__n tier-none">Multi-Purpose Tactical Riser</span><span class="pcard__art" style="background-image:url(../att/multi-purpose-tactical-riser.png)"></span></button>
+          <button class="pcard" data-item="micro-sight-riser" type="button"><span class="pcard__n tier-none">Micro Sight Riser</span><span class="pcard__art" style="background-image:url(../att/micro-sight-riser.png)"></span></button>
+          <button class="pcard" data-item="acog-precision-6x-scope" type="button"><span class="pcard__n tier-none">ACOG Precision 6x Scope</span><span class="pcard__art" style="background-image:url(../att/acog-precision-6x-scope.png)"></span></button>
+          <button class="pcard" data-item="osight-red-dot" type="button"><span class="pcard__n tier-none">OSIGHT Red Dot</span><span class="pcard__art" style="background-image:url(../att/osight-red-dot.png)"></span></button>
+          <button class="pcard" data-item="cobra-accuracy-sight" type="button"><span class="pcard__n tier-none">Cobra Accuracy Sight</span><span class="pcard__art" style="background-image:url(../att/cobra-accuracy-sight.png)"></span></button>
+          <button class="pcard" data-item="combat-red-dot-sight" type="button"><span class="pcard__n tier-none">Combat Red Dot Sight</span><span class="pcard__art" style="background-image:url(../att/combat-red-dot-sight.png)"></span></button>
+          <button class="pcard" data-item="mini-red-dot-sight" type="button"><span class="pcard__n tier-none">Mini Red Dot Sight</span><span class="pcard__art" style="background-image:url(../att/mini-red-dot-sight.png)"></span></button>
+          <button class="pcard" data-item="okp-7-reflex-sight" type="button"><span class="pcard__n tier-none">OKP-7 Reflex Sight</span><span class="pcard__art" style="background-image:url(../att/okp-7-reflex-sight.png)"></span></button>
+          <button class="pcard" data-item="xcog-assault-3-5x-scope" type="button"><span class="pcard__n tier-none">XCOG Assault 3.5x Scope</span><span class="pcard__art" style="background-image:url(../att/xcog-assault-3-5x-scope.png)"></span></button>
+          <button class="pcard" data-item="xro-quick-response-sight" type="button"><span class="pcard__n tier-none">XRO Quick Response Sight</span><span class="pcard__art" style="background-image:url(../att/xro-quick-response-sight.png)"></span></button>
+          <button class="pcard" data-item="panoramic-red-dot-sight" type="button"><span class="pcard__n tier-none">Panoramic Red Dot Sight</span><span class="pcard__art" style="background-image:url(../att/panoramic-red-dot-sight.png)"></span></button>
+          <button class="pcard" data-item="ap5000-reflex-sight" type="button"><span class="pcard__n tier-none">AP5000 Reflex Sight</span><span class="pcard__art" style="background-image:url(../att/ap5000-reflex-sight.png)"></span></button>
+          <button class="pcard" data-item="holographic-sight-type-ii" type="button"><span class="pcard__n tier-none">Holographic Sight Type II</span><span class="pcard__art" style="background-image:url(../att/holographic-sight-type-ii.png)"></span></button>
+          <button class="pcard" data-item="reflex-sight" type="button"><span class="pcard__n tier-none">Reflex Sight</span><span class="pcard__art" style="background-image:url(../att/reflex-sight.png)"></span></button>
+          <button class="pcard" data-item="russian-accuracy-2x-scope" type="button"><span class="pcard__n tier-none">Russian Accuracy 2x Scope</span><span class="pcard__art" style="background-image:url(../att/russian-accuracy-2x-scope.png)"></span></button>
+          <button class="pcard" data-item="holographic-sight" type="button"><span class="pcard__n tier-none">Holographic Sight</span><span class="pcard__art" style="background-image:url(../att/holographic-sight.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-white-phosphor-thermal-scope" hidden>
+          <h4><span class="tier red"></span><a href="white-phosphor-thermal-scope.html">White Phosphor Thermal Scope</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-advanced-thermal-fusion-holographic-sight" hidden>
+          <h4><span class="tier red"></span><a href="advanced-thermal-fusion-holographic-sight.html">Advanced Thermal Fusion Holographic Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-vmx-frameless-sight" hidden>
+          <h4><span class="tier purple"></span><a href="vmx-frameless-sight.html">VMX Frameless Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-1p-33-2-4x-scope" hidden>
+          <h4><span class="tier purple"></span><a href="1p-33-2-4x-scope.html">1P-33 2/4x Scope</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-uhx-holographic-sight" hidden>
+          <h4><span class="tier purple"></span><a href="uhx-holographic-sight.html">UHX Holographic Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-prism-universal-2x-optic" hidden>
+          <h4><span class="tier purple"></span><a href="prism-universal-2x-optic.html">Prism Universal 2x Optic</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-insight-3-7-sniper-scope" hidden>
+          <h4><a href="insight-3-7-sniper-scope.html">Insight 3/7 Sniper Scope</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Kill Flash</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-m157-fire-control-system" hidden>
+          <h4><span class="tier purple"></span><a href="m157-fire-control-system.html">M157 Fire Control System</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Kill Flash</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-viewpoint-3x-scope" hidden>
+          <h4><a href="viewpoint-3x-scope.html">Viewpoint 3x Scope</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-1p-29-russian-3x-sight" hidden>
+          <h4><span class="tier purple"></span><a href="1p-29-russian-3x-sight.html">1P-29 Russian 3x Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-lpvo-scope" hidden>
+          <h4><a href="lpvo-scope.html">LPVO Scope</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Kill Flash</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-3-7-adjustable-scope" hidden>
+          <h4><a href="3-7-adjustable-scope.html">3/7 Adjustable Scope</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Kill Flash</em></span><span class="stile"><em>Red Dot Optics</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-recon-1-5-5-adjustable-scope" hidden>
+          <h4><a href="recon-1-5-5-adjustable-scope.html">Recon 1.5/5 Adjustable Scope</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Kill Flash</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-hamr-combined-scope" hidden>
+          <h4><a href="hamr-combined-scope.html">HAMR Combined Scope</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-meo-micro-sight-riser" hidden>
+          <h4><span class="tier blue"></span><a href="meo-micro-sight-riser.html">MEO Micro Sight Riser</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Red Dot Optics</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-multi-purpose-tactical-riser" hidden>
+          <h4><a href="multi-purpose-tactical-riser.html">Multi-Purpose Tactical Riser</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Tactical Device</em></span><span class="stile"><em>Riser Optics</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-micro-sight-riser" hidden>
+          <h4><a href="micro-sight-riser.html">Micro Sight Riser</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Red Dot Optics</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-acog-precision-6x-scope" hidden>
+          <h4><a href="acog-precision-6x-scope.html">ACOG Precision 6x Scope</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-osight-red-dot" hidden>
+          <h4><a href="osight-red-dot.html">OSIGHT Red Dot</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-cobra-accuracy-sight" hidden>
+          <h4><a href="cobra-accuracy-sight.html">Cobra Accuracy Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-combat-red-dot-sight" hidden>
+          <h4><a href="combat-red-dot-sight.html">Combat Red Dot Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-mini-red-dot-sight" hidden>
+          <h4><a href="mini-red-dot-sight.html">Mini Red Dot Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-okp-7-reflex-sight" hidden>
+          <h4><a href="okp-7-reflex-sight.html">OKP-7 Reflex Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-xcog-assault-3-5x-scope" hidden>
+          <h4><a href="xcog-assault-3-5x-scope.html">XCOG Assault 3.5x Scope</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-xro-quick-response-sight" hidden>
+          <h4><a href="xro-quick-response-sight.html">XRO Quick Response Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-panoramic-red-dot-sight" hidden>
+          <h4><a href="panoramic-red-dot-sight.html">Panoramic Red Dot Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-ap5000-reflex-sight" hidden>
+          <h4><a href="ap5000-reflex-sight.html">AP5000 Reflex Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-holographic-sight-type-ii" hidden>
+          <h4><a href="holographic-sight-type-ii.html">Holographic Sight Type II</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-reflex-sight" hidden>
+          <h4><a href="reflex-sight.html">Reflex Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-russian-accuracy-2x-scope" hidden>
+          <h4><a href="russian-accuracy-2x-scope.html">Russian Accuracy 2x Scope</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-holographic-sight" hidden>
+          <h4><a href="holographic-sight.html">Holographic Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-offset-optics" hidden>
+        <div class="picks">
+          <p class="picks__h">Offset optics <span class="count">5</span></p>
+          <button class="pcard is-on" data-item="offset-osight-red-dot" type="button"><span class="pcard__n tier-none">Offset OSIGHT Red Dot</span><span class="pcard__art" style="background-image:url(../att/offset-osight-red-dot.png)"></span></button>
+          <button class="pcard" data-item="offset-combat-red-dot-sight" type="button"><span class="pcard__n tier-none">Offset Combat Red Dot Sight</span><span class="pcard__art" style="background-image:url(../att/offset-combat-red-dot-sight.png)"></span></button>
+          <button class="pcard" data-item="offset-mini-red-dot-sight" type="button"><span class="pcard__n tier-none">Offset Mini Red Dot Sight</span><span class="pcard__art" style="background-image:url(../att/offset-mini-red-dot-sight.png)"></span></button>
+          <button class="pcard" data-item="offset-xro-quick-response-sight" type="button"><span class="pcard__n tier-none">Offset XRO Quick Response Sight</span><span class="pcard__art" style="background-image:url(../att/offset-xro-quick-response-sight.png)"></span></button>
+          <button class="pcard" data-item="offset-panoramic-red-dot-sight" type="button"><span class="pcard__n tier-none">Offset Panoramic Red Dot Sight</span><span class="pcard__art" style="background-image:url(../att/offset-panoramic-red-dot-sight.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-offset-osight-red-dot" hidden>
+          <h4><a href="offset-osight-red-dot.html">Offset OSIGHT Red Dot</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-offset-combat-red-dot-sight" hidden>
+          <h4><a href="offset-combat-red-dot-sight.html">Offset Combat Red Dot Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-offset-mini-red-dot-sight" hidden>
+          <h4><a href="offset-mini-red-dot-sight.html">Offset Mini Red Dot Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-offset-xro-quick-response-sight" hidden>
+          <h4><a href="offset-xro-quick-response-sight.html">Offset XRO Quick Response Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-offset-panoramic-red-dot-sight" hidden>
+          <h4><a href="offset-panoramic-red-dot-sight.html">Offset Panoramic Red Dot Sight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-barrel" hidden>
+        <div class="picks">
+          <p class="picks__h">Barrel <span class="count">2</span></p>
+          <button class="pcard is-on" data-item="rm277-heavy-integral-barrel" type="button"><span class="pcard__n tier-purple">RM277 Heavy Integral Barrel</span><span class="pcard__art" style="background-image:url(../att/rm277-heavy-integral-barrel.png)"></span></button>
+          <button class="pcard" data-item="rm277-whale-shark-barrel-combo" type="button"><span class="pcard__n tier-purple">RM277 Whale Shark Barrel Combo</span><span class="pcard__art" style="background-image:url(../att/rm277-whale-shark-barrel-combo.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-rm277-heavy-integral-barrel" hidden>
+          <h4><span class="tier purple"></span><a href="rm277-heavy-integral-barrel.html">RM277 Heavy Integral Barrel</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Upper Rail</em></span></div>
+          <p class="dlabel">Occupies</p>
+          <div class="stiles"><span class="stile" style="background-image:url(../smith/slot/muzzle.png)"><em>Muzzle</em></span><span class="stile" style="background-image:url(../smith/slot/rail-bipod.png)"><em>Rail Bipod</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-rm277-whale-shark-barrel-combo" hidden>
+          <h4><span class="tier purple"></span><a href="rm277-whale-shark-barrel-combo.html">RM277 Whale Shark Barrel Combo</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Upper Rail</em></span></div>
+          <p class="dlabel">Occupies</p>
+          <div class="stiles"><span class="stile" style="background-image:url(../smith/slot/rail-bipod.png)"><em>Rail Bipod</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-right-patch" hidden>
+        <div class="picks">
+          <p class="picks__h">Right patch <span class="count">5</span></p>
+          <button class="pcard is-on" data-item="modular-handguard-panel" type="button"><span class="pcard__n tier-none">Modular Handguard Panel</span><span class="pcard__art" style="background-image:url(../att/modular-handguard-panel.png)"></span></button>
+          <button class="pcard" data-item="hornet-handguard" type="button"><span class="pcard__n tier-none">Hornet Handguard</span><span class="pcard__art" style="background-image:url(../att/hornet-handguard.png)"></span></button>
+          <button class="pcard" data-item="dd-python-handguard-panel" type="button"><span class="pcard__n tier-green">DD Python Handguard Panel</span><span class="pcard__art" style="background-image:url(../att/dd-python-handguard-panel.png)"></span></button>
+          <button class="pcard" data-item="kc-hound-handguard" type="button"><span class="pcard__n tier-none">KC Hound Handguard</span><span class="pcard__art" style="background-image:url(../att/kc-hound-handguard.png)"></span></button>
+          <button class="pcard" data-item="ranger-handguard" type="button"><span class="pcard__n tier-none">Ranger Handguard</span><span class="pcard__art" style="background-image:url(../att/ranger-handguard.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-modular-handguard-panel" hidden>
+          <h4><a href="modular-handguard-panel.html">Modular Handguard Panel</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-hornet-handguard" hidden>
+          <h4><a href="hornet-handguard.html">Hornet Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-dd-python-handguard-panel" hidden>
+          <h4><span class="tier green"></span><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-kc-hound-handguard" hidden>
+          <h4><a href="kc-hound-handguard.html">KC Hound Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-ranger-handguard" hidden>
+          <h4><a href="ranger-handguard.html">Ranger Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-left-patch" hidden>
+        <div class="picks">
+          <p class="picks__h">Left patch <span class="count">5</span></p>
+          <button class="pcard is-on" data-item="modular-handguard-panel" type="button"><span class="pcard__n tier-none">Modular Handguard Panel</span><span class="pcard__art" style="background-image:url(../att/modular-handguard-panel.png)"></span></button>
+          <button class="pcard" data-item="hornet-handguard" type="button"><span class="pcard__n tier-none">Hornet Handguard</span><span class="pcard__art" style="background-image:url(../att/hornet-handguard.png)"></span></button>
+          <button class="pcard" data-item="dd-python-handguard-panel" type="button"><span class="pcard__n tier-green">DD Python Handguard Panel</span><span class="pcard__art" style="background-image:url(../att/dd-python-handguard-panel.png)"></span></button>
+          <button class="pcard" data-item="kc-hound-handguard" type="button"><span class="pcard__n tier-none">KC Hound Handguard</span><span class="pcard__art" style="background-image:url(../att/kc-hound-handguard.png)"></span></button>
+          <button class="pcard" data-item="ranger-handguard" type="button"><span class="pcard__n tier-none">Ranger Handguard</span><span class="pcard__art" style="background-image:url(../att/ranger-handguard.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-modular-handguard-panel" hidden>
+          <h4><a href="modular-handguard-panel.html">Modular Handguard Panel</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-hornet-handguard" hidden>
+          <h4><a href="hornet-handguard.html">Hornet Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-dd-python-handguard-panel" hidden>
+          <h4><span class="tier green"></span><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-kc-hound-handguard" hidden>
+          <h4><a href="kc-hound-handguard.html">KC Hound Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-ranger-handguard" hidden>
+          <h4><a href="ranger-handguard.html">Ranger Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-right-rail" hidden>
+        <div class="picks">
+          <p class="picks__h">Right rail <span class="count">13</span></p>
+          <button class="pcard is-on" data-item="olight-warrior-3s-tactical-flashlight" type="button"><span class="pcard__n tier-purple">OLIGHT Warrior 3S Tactical Flashlight</span><span class="pcard__art" style="background-image:url(../att/olight-warrior-3s-tactical-flashlight.png)"></span></button>
+          <button class="pcard" data-item="olight-baldr-pro-r-multi-function-flashlight" type="button"><span class="pcard__n tier-none">OLIGHT Baldr Pro R Multi-Function Flashlight</span><span class="pcard__art" style="background-image:url(../att/olight-baldr-pro-r-multi-function-flashlight.png)"></span></button>
+          <button class="pcard" data-item="dbal-x2-purple-laser-light-combo" type="button"><span class="pcard__n tier-none">DBAL-X2 Purple Laser-Light Combo</span><span class="pcard__art" style="background-image:url(../att/dbal-x2-purple-laser-light-combo.png)"></span></button>
+          <button class="pcard" data-item="perst-7-blue-laser-light-combo" type="button"><span class="pcard__n tier-none">PERST-7 Blue Laser-Light Combo</span><span class="pcard__art" style="background-image:url(../att/perst-7-blue-laser-light-combo.png)"></span></button>
+          <button class="pcard" data-item="flare-tactical-flashlight" type="button"><span class="pcard__n tier-none">Flare Tactical Flashlight</span><span class="pcard__art" style="background-image:url(../att/flare-tactical-flashlight.png)"></span></button>
+          <button class="pcard" data-item="la-3c-green-laser-light-combo" type="button"><span class="pcard__n tier-none">LA-3C Green Laser-Light Combo</span><span class="pcard__art" style="background-image:url(../att/la-3c-green-laser-light-combo.png)"></span></button>
+          <button class="pcard" data-item="peq-2-red-laser-light-combo" type="button"><span class="pcard__n tier-none">PEQ-2 Red Laser-Light Combo</span><span class="pcard__art" style="background-image:url(../att/peq-2-red-laser-light-combo.png)"></span></button>
+          <button class="pcard" data-item="practical-weapon-light" type="button"><span class="pcard__n tier-none">Practical Weapon Light</span><span class="pcard__art" style="background-image:url(../att/practical-weapon-light.png)"></span></button>
+          <button class="pcard" data-item="modular-handguard-panel" type="button"><span class="pcard__n tier-none">Modular Handguard Panel</span><span class="pcard__art" style="background-image:url(../att/modular-handguard-panel.png)"></span></button>
+          <button class="pcard" data-item="hornet-handguard" type="button"><span class="pcard__n tier-none">Hornet Handguard</span><span class="pcard__art" style="background-image:url(../att/hornet-handguard.png)"></span></button>
+          <button class="pcard" data-item="dd-python-handguard-panel" type="button"><span class="pcard__n tier-green">DD Python Handguard Panel</span><span class="pcard__art" style="background-image:url(../att/dd-python-handguard-panel.png)"></span></button>
+          <button class="pcard" data-item="kc-hound-handguard" type="button"><span class="pcard__n tier-none">KC Hound Handguard</span><span class="pcard__art" style="background-image:url(../att/kc-hound-handguard.png)"></span></button>
+          <button class="pcard" data-item="ranger-handguard" type="button"><span class="pcard__n tier-none">Ranger Handguard</span><span class="pcard__art" style="background-image:url(../att/ranger-handguard.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-olight-warrior-3s-tactical-flashlight" hidden>
+          <h4><span class="tier purple"></span><a href="olight-warrior-3s-tactical-flashlight.html">OLIGHT Warrior 3S Tactical Flashlight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-olight-baldr-pro-r-multi-function-flashlight" hidden>
+          <h4><a href="olight-baldr-pro-r-multi-function-flashlight.html">OLIGHT Baldr Pro R Multi-Function Flashlight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-dbal-x2-purple-laser-light-combo" hidden>
+          <h4><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-perst-7-blue-laser-light-combo" hidden>
+          <h4><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-flare-tactical-flashlight" hidden>
+          <h4><a href="flare-tactical-flashlight.html">Flare Tactical Flashlight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-la-3c-green-laser-light-combo" hidden>
+          <h4><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-peq-2-red-laser-light-combo" hidden>
+          <h4><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-practical-weapon-light" hidden>
+          <h4><a href="practical-weapon-light.html">Practical Weapon Light</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-modular-handguard-panel" hidden>
+          <h4><a href="modular-handguard-panel.html">Modular Handguard Panel</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-hornet-handguard" hidden>
+          <h4><a href="hornet-handguard.html">Hornet Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-dd-python-handguard-panel" hidden>
+          <h4><span class="tier green"></span><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-kc-hound-handguard" hidden>
+          <h4><a href="kc-hound-handguard.html">KC Hound Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-ranger-handguard" hidden>
+          <h4><a href="ranger-handguard.html">Ranger Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-left-rail" hidden>
+        <div class="picks">
+          <p class="picks__h">Left rail <span class="count">14</span></p>
+          <button class="pcard is-on" data-item="olight-warrior-3s-tactical-flashlight" type="button"><span class="pcard__n tier-purple">OLIGHT Warrior 3S Tactical Flashlight</span><span class="pcard__art" style="background-image:url(../att/olight-warrior-3s-tactical-flashlight.png)"></span></button>
+          <button class="pcard" data-item="olight-odin-s-tactical-flashlight" type="button"><span class="pcard__n tier-purple">OLIGHT Odin S Tactical Flashlight</span><span class="pcard__art" style="background-image:url(../att/olight-odin-s-tactical-flashlight.png)"></span></button>
+          <button class="pcard" data-item="olight-baldr-pro-r-multi-function-flashlight" type="button"><span class="pcard__n tier-none">OLIGHT Baldr Pro R Multi-Function Flashlight</span><span class="pcard__art" style="background-image:url(../att/olight-baldr-pro-r-multi-function-flashlight.png)"></span></button>
+          <button class="pcard" data-item="dbal-x2-purple-laser-light-combo" type="button"><span class="pcard__n tier-none">DBAL-X2 Purple Laser-Light Combo</span><span class="pcard__art" style="background-image:url(../att/dbal-x2-purple-laser-light-combo.png)"></span></button>
+          <button class="pcard" data-item="perst-7-blue-laser-light-combo" type="button"><span class="pcard__n tier-none">PERST-7 Blue Laser-Light Combo</span><span class="pcard__art" style="background-image:url(../att/perst-7-blue-laser-light-combo.png)"></span></button>
+          <button class="pcard" data-item="flare-tactical-flashlight" type="button"><span class="pcard__n tier-none">Flare Tactical Flashlight</span><span class="pcard__art" style="background-image:url(../att/flare-tactical-flashlight.png)"></span></button>
+          <button class="pcard" data-item="la-3c-green-laser-light-combo" type="button"><span class="pcard__n tier-none">LA-3C Green Laser-Light Combo</span><span class="pcard__art" style="background-image:url(../att/la-3c-green-laser-light-combo.png)"></span></button>
+          <button class="pcard" data-item="peq-2-red-laser-light-combo" type="button"><span class="pcard__n tier-none">PEQ-2 Red Laser-Light Combo</span><span class="pcard__art" style="background-image:url(../att/peq-2-red-laser-light-combo.png)"></span></button>
+          <button class="pcard" data-item="practical-weapon-light" type="button"><span class="pcard__n tier-none">Practical Weapon Light</span><span class="pcard__art" style="background-image:url(../att/practical-weapon-light.png)"></span></button>
+          <button class="pcard" data-item="modular-handguard-panel" type="button"><span class="pcard__n tier-none">Modular Handguard Panel</span><span class="pcard__art" style="background-image:url(../att/modular-handguard-panel.png)"></span></button>
+          <button class="pcard" data-item="hornet-handguard" type="button"><span class="pcard__n tier-none">Hornet Handguard</span><span class="pcard__art" style="background-image:url(../att/hornet-handguard.png)"></span></button>
+          <button class="pcard" data-item="dd-python-handguard-panel" type="button"><span class="pcard__n tier-green">DD Python Handguard Panel</span><span class="pcard__art" style="background-image:url(../att/dd-python-handguard-panel.png)"></span></button>
+          <button class="pcard" data-item="kc-hound-handguard" type="button"><span class="pcard__n tier-none">KC Hound Handguard</span><span class="pcard__art" style="background-image:url(../att/kc-hound-handguard.png)"></span></button>
+          <button class="pcard" data-item="ranger-handguard" type="button"><span class="pcard__n tier-none">Ranger Handguard</span><span class="pcard__art" style="background-image:url(../att/ranger-handguard.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-olight-warrior-3s-tactical-flashlight" hidden>
+          <h4><span class="tier purple"></span><a href="olight-warrior-3s-tactical-flashlight.html">OLIGHT Warrior 3S Tactical Flashlight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-olight-odin-s-tactical-flashlight" hidden>
+          <h4><span class="tier purple"></span><a href="olight-odin-s-tactical-flashlight.html">OLIGHT Odin S Tactical Flashlight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-olight-baldr-pro-r-multi-function-flashlight" hidden>
+          <h4><a href="olight-baldr-pro-r-multi-function-flashlight.html">OLIGHT Baldr Pro R Multi-Function Flashlight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-dbal-x2-purple-laser-light-combo" hidden>
+          <h4><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-perst-7-blue-laser-light-combo" hidden>
+          <h4><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-flare-tactical-flashlight" hidden>
+          <h4><a href="flare-tactical-flashlight.html">Flare Tactical Flashlight</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-la-3c-green-laser-light-combo" hidden>
+          <h4><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-peq-2-red-laser-light-combo" hidden>
+          <h4><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-practical-weapon-light" hidden>
+          <h4><a href="practical-weapon-light.html">Practical Weapon Light</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-modular-handguard-panel" hidden>
+          <h4><a href="modular-handguard-panel.html">Modular Handguard Panel</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-hornet-handguard" hidden>
+          <h4><a href="hornet-handguard.html">Hornet Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-dd-python-handguard-panel" hidden>
+          <h4><span class="tier green"></span><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-kc-hound-handguard" hidden>
+          <h4><a href="kc-hound-handguard.html">KC Hound Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-ranger-handguard" hidden>
+          <h4><a href="ranger-handguard.html">Ranger Handguard</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-muzzle" hidden>
+        <div class="picks">
+          <p class="picks__h">Muzzle <span class="count">16</span></p>
+          <button class="pcard is-on" data-item="rm277-breaker-suppressor" type="button"><span class="pcard__n tier-purple">RM277 Breaker Suppressor</span><span class="pcard__art" style="background-image:url(../att/rm277-breaker-suppressor.png)"></span></button>
+          <button class="pcard" data-item="cobweb-titanium-muzzle-brake" type="button"><span class="pcard__n tier-purple">Cobweb Titanium Muzzle Brake</span><span class="pcard__art" style="background-image:url(../att/cobweb-titanium-muzzle-brake.png)"></span></button>
+          <button class="pcard" data-item="spiral-fire-flash-hider" type="button"><span class="pcard__n tier-none">Spiral Fire Flash Hider</span><span class="pcard__art" style="background-image:url(../att/spiral-fire-flash-hider.png)"></span></button>
+          <button class="pcard" data-item="advanced-multi-caliber-suppressor" type="button"><span class="pcard__n tier-none">Advanced Multi-Caliber Suppressor</span><span class="pcard__art" style="background-image:url(../att/advanced-multi-caliber-suppressor.png)"></span></button>
+          <button class="pcard" data-item="m7-practical-suppressor" type="button"><span class="pcard__n tier-none">M7 Practical Suppressor</span><span class="pcard__art" style="background-image:url(../att/m7-practical-suppressor.png)"></span></button>
+          <button class="pcard" data-item="silent-suppressor" type="button"><span class="pcard__n tier-none">Silent Suppressor</span><span class="pcard__art" style="background-image:url(../att/silent-suppressor.png)"></span></button>
+          <button class="pcard" data-item="sandstorm-vertical-compensator" type="button"><span class="pcard__n tier-none">Sandstorm Vertical Compensator</span><span class="pcard__art" style="background-image:url(../att/sandstorm-vertical-compensator.png)"></span></button>
+          <button class="pcard" data-item="bastion-horizontal-compensator" type="button"><span class="pcard__n tier-none">Bastion Horizontal Compensator</span><span class="pcard__art" style="background-image:url(../att/bastion-horizontal-compensator.png)"></span></button>
+          <button class="pcard" data-item="poseidon-flash-hider" type="button"><span class="pcard__n tier-none">Poseidon Flash Hider</span><span class="pcard__art" style="background-image:url(../att/poseidon-flash-hider.png)"></span></button>
+          <button class="pcard" data-item="whisper-tactical-suppressor" type="button"><span class="pcard__n tier-none">Whisper Tactical Suppressor</span><span class="pcard__art" style="background-image:url(../att/whisper-tactical-suppressor.png)"></span></button>
+          <button class="pcard" data-item="titanium-contest-muzzle-brake" type="button"><span class="pcard__n tier-none">Titanium Contest Muzzle Brake</span><span class="pcard__art" style="background-image:url(../att/titanium-contest-muzzle-brake.png)"></span></button>
+          <button class="pcard" data-item="blazing-fire-suppressor" type="button"><span class="pcard__n tier-none">Blazing Fire Suppressor</span><span class="pcard__art" style="background-image:url(../att/blazing-fire-suppressor.png)"></span></button>
+          <button class="pcard" data-item="steel-muzzle-brake" type="button"><span class="pcard__n tier-none">Steel Muzzle Brake</span><span class="pcard__art" style="background-image:url(../att/steel-muzzle-brake.png)"></span></button>
+          <button class="pcard" data-item="practical-suppressor" type="button"><span class="pcard__n tier-none">Practical Suppressor</span><span class="pcard__art" style="background-image:url(../att/practical-suppressor.png)"></span></button>
+          <button class="pcard" data-item="birdcage-flash-hider" type="button"><span class="pcard__n tier-none">Birdcage Flash Hider</span><span class="pcard__art" style="background-image:url(../att/birdcage-flash-hider.png)"></span></button>
+          <button class="pcard" data-item="practical-flash-hider" type="button"><span class="pcard__n tier-none">Practical Flash Hider</span><span class="pcard__art" style="background-image:url(../att/practical-flash-hider.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-rm277-breaker-suppressor" hidden>
+          <h4><span class="tier purple"></span><a href="rm277-breaker-suppressor.html">RM277 Breaker Suppressor</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-cobweb-titanium-muzzle-brake" hidden>
+          <h4><span class="tier purple"></span><a href="cobweb-titanium-muzzle-brake.html">Cobweb Titanium Muzzle Brake</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-spiral-fire-flash-hider" hidden>
+          <h4><a href="spiral-fire-flash-hider.html">Spiral Fire Flash Hider</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-advanced-multi-caliber-suppressor" hidden>
+          <h4><a href="advanced-multi-caliber-suppressor.html">Advanced Multi-Caliber Suppressor</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-m7-practical-suppressor" hidden>
+          <h4><a href="m7-practical-suppressor.html">M7 Practical Suppressor</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-silent-suppressor" hidden>
+          <h4><a href="silent-suppressor.html">Silent Suppressor</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-sandstorm-vertical-compensator" hidden>
+          <h4><a href="sandstorm-vertical-compensator.html">Sandstorm Vertical Compensator</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-bastion-horizontal-compensator" hidden>
+          <h4><a href="bastion-horizontal-compensator.html">Bastion Horizontal Compensator</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-poseidon-flash-hider" hidden>
+          <h4><a href="poseidon-flash-hider.html">Poseidon Flash Hider</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-whisper-tactical-suppressor" hidden>
+          <h4><a href="whisper-tactical-suppressor.html">Whisper Tactical Suppressor</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-titanium-contest-muzzle-brake" hidden>
+          <h4><a href="titanium-contest-muzzle-brake.html">Titanium Contest Muzzle Brake</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-blazing-fire-suppressor" hidden>
+          <h4><a href="blazing-fire-suppressor.html">Blazing Fire Suppressor</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-steel-muzzle-brake" hidden>
+          <h4><a href="steel-muzzle-brake.html">Steel Muzzle Brake</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-practical-suppressor" hidden>
+          <h4><a href="practical-suppressor.html">Practical Suppressor</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-birdcage-flash-hider" hidden>
+          <h4><a href="birdcage-flash-hider.html">Birdcage Flash Hider</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-practical-flash-hider" hidden>
+          <h4><a href="practical-flash-hider.html">Practical Flash Hider</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-foregrip" hidden>
+        <div class="picks">
+          <p class="picks__h">Foregrip <span class="count">23</span></p>
+          <button class="pcard is-on" data-item="resonant-mk-iii-grip" type="button"><span class="pcard__n tier-purple">Resonant MK III Grip</span><span class="pcard__art" style="background-image:url(../att/resonant-mk-iii-grip.png)"></span></button>
+          <button class="pcard" data-item="ec-universal-front-hand-stop" type="button"><span class="pcard__n tier-purple">EC Universal Front Hand Stop</span><span class="pcard__art" style="background-image:url(../att/ec-universal-front-hand-stop.png)"></span></button>
+          <button class="pcard" data-item="dawn-angled-flashlight-grip" type="button"><span class="pcard__n tier-none">Dawn Angled Flashlight Grip</span><span class="pcard__art" style="background-image:url(../att/dawn-angled-flashlight-grip.png)"></span></button>
+          <button class="pcard" data-item="daybreak-vertical-flashlight-grip" type="button"><span class="pcard__n tier-none">Daybreak Vertical Flashlight Grip</span><span class="pcard__art" style="background-image:url(../att/daybreak-vertical-flashlight-grip.png)"></span></button>
+          <button class="pcard" data-item="cr-prism-hand-stop" type="button"><span class="pcard__n tier-none">CR Prism Hand Stop</span><span class="pcard__art" style="background-image:url(../att/cr-prism-hand-stop.png)"></span></button>
+          <button class="pcard" data-item="resonant-mkii-foregrip" type="button"><span class="pcard__n tier-none">Resonant MKII Foregrip</span><span class="pcard__art" style="background-image:url(../att/resonant-mkii-foregrip.png)"></span></button>
+          <button class="pcard" data-item="collapsible-bipod-grip" type="button"><span class="pcard__n tier-none">Collapsible Bipod Grip</span><span class="pcard__art" style="background-image:url(../att/collapsible-bipod-grip.png)"></span></button>
+          <button class="pcard" data-item="k1-elite-bevel-foregrip" type="button"><span class="pcard__n tier-none">K1 Elite Bevel Foregrip</span><span class="pcard__art" style="background-image:url(../att/k1-elite-bevel-foregrip.png)"></span></button>
+          <button class="pcard" data-item="x25u-angled-combat-grip" type="button"><span class="pcard__n tier-none">X25U Angled Combat Grip</span><span class="pcard__art" style="background-image:url(../att/x25u-angled-combat-grip.png)"></span></button>
+          <button class="pcard" data-item="resonant-ergonomic-grip" type="button"><span class="pcard__n tier-none">Resonant Ergonomic Grip</span><span class="pcard__art" style="background-image:url(../att/resonant-ergonomic-grip.png)"></span></button>
+          <button class="pcard" data-item="phantom-vertical-foregrip" type="button"><span class="pcard__n tier-none">Phantom Vertical Foregrip</span><span class="pcard__art" style="background-image:url(../att/phantom-vertical-foregrip.png)"></span></button>
+          <button class="pcard" data-item="tactical-vertical-foregrip" type="button"><span class="pcard__n tier-none">Tactical Vertical Foregrip</span><span class="pcard__art" style="background-image:url(../att/tactical-vertical-foregrip.png)"></span></button>
+          <button class="pcard" data-item="secret-order-bevel-foregrip" type="button"><span class="pcard__n tier-none">Secret Order Bevel Foregrip</span><span class="pcard__art" style="background-image:url(../att/secret-order-bevel-foregrip.png)"></span></button>
+          <button class="pcard" data-item="rk-0-foregrip" type="button"><span class="pcard__n tier-none">RK-0 Foregrip</span><span class="pcard__art" style="background-image:url(../att/rk-0-foregrip.png)"></span></button>
+          <button class="pcard" data-item="tactical-angled-foregrip" type="button"><span class="pcard__n tier-none">Tactical Angled Foregrip</span><span class="pcard__art" style="background-image:url(../att/tactical-angled-foregrip.png)"></span></button>
+          <button class="pcard" data-item="angled-hand-stop" type="button"><span class="pcard__n tier-none">Angled Hand Stop</span><span class="pcard__art" style="background-image:url(../att/angled-hand-stop.png)"></span></button>
+          <button class="pcard" data-item="competition-hand-stop" type="button"><span class="pcard__n tier-none">Competition Hand Stop</span><span class="pcard__art" style="background-image:url(../att/competition-hand-stop.png)"></span></button>
+          <button class="pcard" data-item="phase-combat-foregrip" type="button"><span class="pcard__n tier-none">Phase Combat Foregrip</span><span class="pcard__art" style="background-image:url(../att/phase-combat-foregrip.png)"></span></button>
+          <button class="pcard" data-item="folding-grip" type="button"><span class="pcard__n tier-none">Folding Grip</span><span class="pcard__art" style="background-image:url(../att/folding-grip.png)"></span></button>
+          <button class="pcard" data-item="vfg-knight-foregrip" type="button"><span class="pcard__n tier-none">VFG Knight Foregrip</span><span class="pcard__art" style="background-image:url(../att/vfg-knight-foregrip.png)"></span></button>
+          <button class="pcard" data-item="zfsg-tactical-grip" type="button"><span class="pcard__n tier-none">ZFSG Tactical Grip</span><span class="pcard__art" style="background-image:url(../att/zfsg-tactical-grip.png)"></span></button>
+          <button class="pcard" data-item="mini-hand-stop" type="button"><span class="pcard__n tier-none">Mini Hand Stop</span><span class="pcard__art" style="background-image:url(../att/mini-hand-stop.png)"></span></button>
+          <button class="pcard" data-item="practical-vertical-foregrip" type="button"><span class="pcard__n tier-none">Practical Vertical Foregrip</span><span class="pcard__art" style="background-image:url(../att/practical-vertical-foregrip.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-resonant-mk-iii-grip" hidden>
+          <h4><span class="tier purple"></span><a href="resonant-mk-iii-grip.html">Resonant MK III Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-ec-universal-front-hand-stop" hidden>
+          <h4><span class="tier purple"></span><a href="ec-universal-front-hand-stop.html">EC Universal Front Hand Stop</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-dawn-angled-flashlight-grip" hidden>
+          <h4><a href="dawn-angled-flashlight-grip.html">Dawn Angled Flashlight Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-daybreak-vertical-flashlight-grip" hidden>
+          <h4><a href="daybreak-vertical-flashlight-grip.html">Daybreak Vertical Flashlight Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-cr-prism-hand-stop" hidden>
+          <h4><a href="cr-prism-hand-stop.html">CR Prism Hand Stop</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-resonant-mkii-foregrip" hidden>
+          <h4><a href="resonant-mkii-foregrip.html">Resonant MKII Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-collapsible-bipod-grip" hidden>
+          <h4><a href="collapsible-bipod-grip.html">Collapsible Bipod Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-k1-elite-bevel-foregrip" hidden>
+          <h4><a href="k1-elite-bevel-foregrip.html">K1 Elite Bevel Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-x25u-angled-combat-grip" hidden>
+          <h4><a href="x25u-angled-combat-grip.html">X25U Angled Combat Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-resonant-ergonomic-grip" hidden>
+          <h4><a href="resonant-ergonomic-grip.html">Resonant Ergonomic Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-phantom-vertical-foregrip" hidden>
+          <h4><a href="phantom-vertical-foregrip.html">Phantom Vertical Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-tactical-vertical-foregrip" hidden>
+          <h4><a href="tactical-vertical-foregrip.html">Tactical Vertical Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-secret-order-bevel-foregrip" hidden>
+          <h4><a href="secret-order-bevel-foregrip.html">Secret Order Bevel Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-rk-0-foregrip" hidden>
+          <h4><a href="rk-0-foregrip.html">RK-0 Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-tactical-angled-foregrip" hidden>
+          <h4><a href="tactical-angled-foregrip.html">Tactical Angled Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-angled-hand-stop" hidden>
+          <h4><a href="angled-hand-stop.html">Angled Hand Stop</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-competition-hand-stop" hidden>
+          <h4><a href="competition-hand-stop.html">Competition Hand Stop</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-phase-combat-foregrip" hidden>
+          <h4><a href="phase-combat-foregrip.html">Phase Combat Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-folding-grip" hidden>
+          <h4><a href="folding-grip.html">Folding Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-vfg-knight-foregrip" hidden>
+          <h4><a href="vfg-knight-foregrip.html">VFG Knight Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-zfsg-tactical-grip" hidden>
+          <h4><a href="zfsg-tactical-grip.html">ZFSG Tactical Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-mini-hand-stop" hidden>
+          <h4><a href="mini-hand-stop.html">Mini Hand Stop</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-practical-vertical-foregrip" hidden>
+          <h4><a href="practical-vertical-foregrip.html">Practical Vertical Foregrip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-rail-bipod" hidden>
+        <div class="picks">
+          <p class="picks__h">Rail bipod <span class="count">1</span></p>
+          <button class="pcard is-on" data-item="practical-bipod" type="button"><span class="pcard__n tier-none">Practical Bipod</span><span class="pcard__art" style="background-image:url(../att/practical-bipod.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-practical-bipod" hidden>
+          <h4><a href="practical-bipod.html">Practical Bipod</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-rear-grip" hidden>
+        <div class="picks">
+          <p class="picks__h">Rear grip <span class="count">9</span></p>
+          <button class="pcard is-on" data-item="ar-modular-rear-grip" type="button"><span class="pcard__n tier-purple">AR Modular Rear Grip</span><span class="pcard__art" style="background-image:url(../att/ar-modular-rear-grip.png)"></span></button>
+          <button class="pcard" data-item="ar-heavy-tower-grip" type="button"><span class="pcard__n tier-none">AR Heavy Tower Grip</span><span class="pcard__art" style="background-image:url(../att/ar-heavy-tower-grip.png)"></span></button>
+          <button class="pcard" data-item="invasion-rear-grip" type="button"><span class="pcard__n tier-none">Invasion Rear Grip</span><span class="pcard__art" style="background-image:url(../att/invasion-rear-grip.png)"></span></button>
+          <button class="pcard" data-item="phantom-rear-grip" type="button"><span class="pcard__n tier-none">Phantom Rear Grip</span><span class="pcard__art" style="background-image:url(../att/phantom-rear-grip.png)"></span></button>
+          <button class="pcard" data-item="ar-moe-rear-grip" type="button"><span class="pcard__n tier-blue">AR MOE Rear Grip</span><span class="pcard__art" style="background-image:url(../att/ar-moe-rear-grip.png)"></span></button>
+          <button class="pcard" data-item="marksman-d-2-rear-grip" type="button"><span class="pcard__n tier-none">Marksman D-2 Rear Grip</span><span class="pcard__art" style="background-image:url(../att/marksman-d-2-rear-grip.png)"></span></button>
+          <button class="pcard" data-item="hurricane-d-1-rear-grip" type="button"><span class="pcard__n tier-none">Hurricane D-1 Rear Grip</span><span class="pcard__art" style="background-image:url(../att/hurricane-d-1-rear-grip.png)"></span></button>
+          <button class="pcard" data-item="m7-stable-rear-grip" type="button"><span class="pcard__n tier-none">M7 Stable Rear Grip</span><span class="pcard__art" style="background-image:url(../att/m7-stable-rear-grip.png)"></span></button>
+          <button class="pcard" data-item="416-practical-rear-grip" type="button"><span class="pcard__n tier-none">416 Practical Rear Grip</span><span class="pcard__art" style="background-image:url(../att/416-practical-rear-grip.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-ar-modular-rear-grip" hidden>
+          <h4><span class="tier purple"></span><a href="ar-modular-rear-grip.html">AR Modular Rear Grip</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Rear Grip Patch</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-ar-heavy-tower-grip" hidden>
+          <h4><a href="ar-heavy-tower-grip.html">AR Heavy Tower Grip</a></h4>
+          <p class="dlabel">Adds Slots</p>
+          <div class="stiles"><span class="stile"><em>Rear Grip Mount</em></span></div>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-invasion-rear-grip" hidden>
+          <h4><a href="invasion-rear-grip.html">Invasion Rear Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-phantom-rear-grip" hidden>
+          <h4><a href="phantom-rear-grip.html">Phantom Rear Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-ar-moe-rear-grip" hidden>
+          <h4><span class="tier blue"></span><a href="ar-moe-rear-grip.html">AR MOE Rear Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-marksman-d-2-rear-grip" hidden>
+          <h4><a href="marksman-d-2-rear-grip.html">Marksman D-2 Rear Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-hurricane-d-1-rear-grip" hidden>
+          <h4><a href="hurricane-d-1-rear-grip.html">Hurricane D-1 Rear Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-m7-stable-rear-grip" hidden>
+          <h4><a href="m7-stable-rear-grip.html">M7 Stable Rear Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-416-practical-rear-grip" hidden>
+          <h4><a href="416-practical-rear-grip.html">416 Practical Rear Grip</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-mag-mount" hidden>
+        <div class="picks">
+          <p class="picks__h">Magazine mount <span class="count">3</span></p>
+          <button class="pcard is-on" data-item="grizzly-full-p-mag-assist-sand" type="button"><span class="pcard__n tier-none">Grizzly Full P. Mag Assist (Sand)</span><span class="pcard__art" style="background-image:url(../att/grizzly-full-p-mag-assist-sand.png)"></span></button>
+          <button class="pcard" data-item="grizzly-full-p-mag-assist-green" type="button"><span class="pcard__n tier-none">Grizzly Full P. Mag Assist (Green)</span><span class="pcard__art" style="background-image:url(../att/grizzly-full-p-mag-assist-green.png)"></span></button>
+          <button class="pcard" data-item="grizzly-full-p-mag-assist-black" type="button"><span class="pcard__n tier-none">Grizzly Full P. Mag Assist (Black)</span><span class="pcard__art" style="background-image:url(../att/grizzly-full-p-mag-assist-black.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-grizzly-full-p-mag-assist-sand" hidden>
+          <h4><a href="grizzly-full-p-mag-assist-sand.html">Grizzly Full P. Mag Assist (Sand)</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-grizzly-full-p-mag-assist-green" hidden>
+          <h4><a href="grizzly-full-p-mag-assist-green.html">Grizzly Full P. Mag Assist (Green)</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        <div class="detail" id="d-grizzly-full-p-mag-assist-black" hidden>
+          <h4><a href="grizzly-full-p-mag-assist-black.html">Grizzly Full P. Mag Assist (Black)</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-mag" hidden>
+        <div class="picks">
+          <p class="picks__h">Magazine <span class="count">1</span></p>
+          <button class="pcard is-on" data-item="m7-6-8-45-round-drum-mag" type="button"><span class="pcard__n tier-none">M7 6.8 45-Round Drum Mag</span><span class="pcard__art" style="background-image:url(../att/m7-6-8-45-round-drum-mag.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-m7-6-8-45-round-drum-mag" hidden>
+          <h4><a href="m7-6-8-45-round-drum-mag.html">M7 6.8 45-Round Drum Mag</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-stock-pad" hidden>
+        <div class="picks">
+          <p class="picks__h">Stock pad <span class="count">1</span></p>
+          <button class="pcard is-on" data-item="rm277-pad" type="button"><span class="pcard__n tier-purple">RM277 Pad</span><span class="pcard__art" style="background-image:url(../att/rm277-pad.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-rm277-pad" hidden>
+          <h4><span class="tier purple"></span><a href="rm277-pad.html">RM277 Pad</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <div class="slotlist" id="sl-cheek-pad" hidden>
+        <div class="picks">
+          <p class="picks__h">Cheek pad <span class="count">1</span></p>
+          <button class="pcard is-on" data-item="rm277-cheek-pad" type="button"><span class="pcard__n tier-purple">RM277 Cheek Pad</span><span class="pcard__art" style="background-image:url(../att/rm277-cheek-pad.png)"></span></button>
+        </div>
+        <div class="dpane">
+        <div class="detail" id="d-rm277-cheek-pad" hidden>
+          <h4><span class="tier purple"></span><a href="rm277-cheek-pad.html">RM277 Cheek Pad</a></h4>
+          <p class="dlabel">If fitted</p>
+          <div class="delta"></div>
+        </div>
+        </div>
+      </div>
+      <button class="panel__x" id="close" aria-label="Close">&times;</button>
+    </aside>
+    <button class="equip" id="equip" hidden></button>
+    <button class="expand" id="expand" hidden aria-label="Full screen">
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path d="M1 6V1h5M15 10v5h-5M10 1h5v5M6 15H1v-5"></path>
+      </svg>
+    </button>
+  </div>
+  </div>
+
+  <section class="placer" hidden>
+    <h2>Anchor placement</h2>
+    <p class="lede">15 of 15 placed. Drag each dot onto its
+    marker on the weapon, then copy the JSON below into
+    <code>data/gunsmith-rm277.json</code>.</p>
+    <p><button class="btn" id="copy">Copy coordinates</button></p>
+    <pre class="out" id="out"></pre>
   </section>
 
-  <section class="slots">
-    <h2>Attachment slots<span class="hint">22 slots</span></h2>
-    <div class="slots__body">
-  <section>
+  <script>
+    const WEAPON = [{"key": "Damage", "base": 41, "max": 100, "tracked": false}, {"key": "Range", "base": 55, "max": 100, "unit": "m", "tracked": true}, {"key": "Control", "base": 48, "max": 100, "tracked": true}, {"key": "Handling", "base": 50, "max": 100, "tracked": true}, {"key": "Stability", "base": 59, "max": 100, "tracked": true}, {"key": "Accuracy", "base": 44, "max": 100, "tracked": true}, {"key": "Armour penetration", "base": 42, "max": 100, "tracked": false}, {"key": "Fire rate", "base": 550, "max": 1200, "unit": " rpm", "tracked": false}, {"key": "Capacity", "base": 30, "max": 100, "from": "Holds", "mode": "set", "tracked": true}, {"key": "Muzzle velocity", "base": 650, "max": 1200, "unit": " m/s", "tracked": false}, {"key": "Gunshot heard", "base": 500, "max": 1000, "unit": " m", "tracked": false}];
+    const SPECS = [{"key": "Fire modes", "text": "Auto / Single"}];
+    const DELTA = {"white-phosphor-thermal-scope": {"Handling": -8, "Stability": -2}, "advanced-thermal-fusion-holographic-sight": {"Handling": -2, "Stability": -2}, "vmx-frameless-sight": {"Handling": -2}, "1p-33-2-4x-scope": {"Handling": -6, "Stability": 4}, "uhx-holographic-sight": {"Handling": -2}, "prism-universal-2x-optic": {"Handling": -4, "Stability": 3}, "insight-3-7-sniper-scope": {"Stability": 6, "Handling": -8}, "m157-fire-control-system": {"Handling": -6}, "viewpoint-3x-scope": {"Handling": -4}, "1p-29-russian-3x-sight": {"Handling": -4}, "lpvo-scope": {"Handling": -6}, "3-7-adjustable-scope": {"Stability": 6, "Handling": -8}, "recon-1-5-5-adjustable-scope": {"Stability": 6, "Handling": -8}, "hamr-combined-scope": {"Handling": -6}, "meo-micro-sight-riser": {"Handling": -1, "Stability": 2}, "multi-purpose-tactical-riser": {"Handling": 2}, "micro-sight-riser": {"Handling": 2}, "acog-precision-6x-scope": {"Handling": -2}, "osight-red-dot": {"Handling": -2}, "cobra-accuracy-sight": {"Handling": -2}, "combat-red-dot-sight": {"Handling": -2}, "mini-red-dot-sight": {"Handling": -2}, "okp-7-reflex-sight": {"Handling": -2}, "xcog-assault-3-5x-scope": {"Handling": -4}, "xro-quick-response-sight": {"Handling": -2}, "panoramic-red-dot-sight": {"Handling": -2}, "ap5000-reflex-sight": {"Handling": -2}, "holographic-sight-type-ii": {"Handling": -2}, "reflex-sight": {"Handling": -2}, "russian-accuracy-2x-scope": {"Handling": -2}, "holographic-sight": {"Handling": -2}, "offset-osight-red-dot": {"Handling": -2}, "offset-combat-red-dot-sight": {"Handling": -2}, "offset-mini-red-dot-sight": {"Handling": -2}, "offset-xro-quick-response-sight": {"Handling": -2}, "offset-panoramic-red-dot-sight": {"Handling": -2}, "rm277-heavy-integral-barrel": {"Range": 10, "Control": 7, "Handling": -2, "Stability": 5, "Accuracy": 12}, "rm277-whale-shark-barrel-combo": {"Range": 17, "Control": 8, "Handling": -9, "Stability": 5, "Accuracy": -12}, "modular-handguard-panel": {"Control": 1, "Stability": 1, "Handling": -2}, "hornet-handguard": {"Accuracy": 4}, "dd-python-handguard-panel": {"Handling": 1}, "kc-hound-handguard": {"Stability": 1}, "ranger-handguard": {"Control": 1}, "olight-baldr-pro-r-multi-function-flashlight": {"Handling": -5, "Accuracy": -8}, "flare-tactical-flashlight": {"Handling": -1}, "practical-weapon-light": {"Handling": -1}, "olight-odin-s-tactical-flashlight": {"Handling": -1}, "rm277-breaker-suppressor": {"Range": 10, "Control": 5, "Accuracy": -8}, "cobweb-titanium-muzzle-brake": {"Control": 7, "Stability": -2, "Accuracy": 8}, "spiral-fire-flash-hider": {"Stability": 1}, "advanced-multi-caliber-suppressor": {"Handling": -3, "Stability": -3}, "m7-practical-suppressor": {"Control": 8, "Handling": -11}, "silent-suppressor": {"Handling": -13, "Stability": -5}, "poseidon-flash-hider": {"Control": 7}, "whisper-tactical-suppressor": {"Range": 5, "Control": 5, "Handling": -5, "Stability": -4}, "titanium-contest-muzzle-brake": {"Control": 12, "Handling": -3}, "blazing-fire-suppressor": {"Control": 6, "Muzzle Flash": 1, "Handling": -1}, "steel-muzzle-brake": {"Control": 6, "Stability": -1}, "practical-suppressor": {"Control": -2, "Stability": -3}, "birdcage-flash-hider": {"Control": 2, "Stability": 1}, "practical-flash-hider": {"Control": 2}, "resonant-mk-iii-grip": {"Control": 4, "Handling": -2, "Stability": 4, "Accuracy": 8}, "ec-universal-front-hand-stop": {"Control": -4, "Handling": 6, "Stability": 2, "Accuracy": 16}, "dawn-angled-flashlight-grip": {"Handling": -6}, "daybreak-vertical-flashlight-grip": {"Control": 6, "Stability": 2, "Handling": -7}, "resonant-mkii-foregrip": {"Control": 6, "Handling": 6, "Stability": -4}, "collapsible-bipod-grip": {"Handling": 3}, "x25u-angled-combat-grip": {"Accuracy": 8, "Handling": -3, "Stability": -3}, "resonant-ergonomic-grip": {"Handling": -1}, "phantom-vertical-foregrip": {"Control": 4, "Stability": -4}, "tactical-vertical-foregrip": {"Handling": 6}, "secret-order-bevel-foregrip": {"Handling": -1}, "tactical-angled-foregrip": {"Control": 4, "Handling": 2}, "angled-hand-stop": {"Handling": 8, "Control": -2}, "competition-hand-stop": {"Handling": 5, "Accuracy": 12, "Control": -2}, "phase-combat-foregrip": {"Control": 4, "Handling": 3, "Stability": 2, "Accuracy": 4}, "folding-grip": {"Handling": 2, "Stability": 5}, "vfg-knight-foregrip": {"Handling": 4}, "zfsg-tactical-grip": {"Accuracy": 12, "Control": -1}, "mini-hand-stop": {"Handling": 2}, "practical-vertical-foregrip": {"Control": 2}, "ar-modular-rear-grip": {"Control": 2, "Handling": 2}, "ar-heavy-tower-grip": {"Control": 1, "Handling": 1, "Stability": 1, "Accuracy": 4}, "invasion-rear-grip": {"Control": 3, "Handling": 3}, "phantom-rear-grip": {"Control": 3, "Handling": 9, "Stability": -4}, "ar-moe-rear-grip": {"Control": 3, "Stability": 3}, "marksman-d-2-rear-grip": {"Stability": 4}, "hurricane-d-1-rear-grip": {"Handling": 4}, "m7-stable-rear-grip": {"Control": 2}, "416-practical-rear-grip": {"Handling": 2}, "grizzly-full-p-mag-assist-sand": {"Handling": 1}, "grizzly-full-p-mag-assist-green": {"Handling": 1}, "grizzly-full-p-mag-assist-black": {"Handling": 1}, "m7-6-8-45-round-drum-mag": {"Holds": 45, "Handling": -12}};
+
+    // Each chip is a real link to the slot's table on the weapon page, and stays
+    // one. This only intercepts the click to show the same list here instead,
+    // so the page still works with the script off and a middle-click still
+    // opens the long version in a tab.
+    const wrap = document.querySelector('.gunsmith');
+    const panel = document.getElementById('panel');
+    const lists = [...panel.querySelectorAll('.slotlist')];
+
+    const stage = document.querySelector('.stage');
+    const equipBtn = document.getElementById('equip');
+
+    // What is fitted, by slot. A page-lifetime scratch state: the point is to
+    // see what a build does, not to save one, and nothing here is written down.
+    const fitted = {};
+    let cur = {slot: null, item: null};
+
+    function chipFor(slot) {
+      return document.querySelector('.chip3[data-slot="' + slot + '"]');
+    }
+
+    // ---- the arithmetic -----------------------------------------------
+    // Everything below works from `fitted`, so the numbers always describe the
+    // build on screen. A candidate is judged against the build WITHOUT whatever
+    // currently occupies its slot, because fitting it would replace that.
+    // Catalogue stat key -> the weapon row it lands on, and how it combines.
+    const MAP = {};
+    for (const s of WEAPON) MAP[s.from || s.key] = s;
+
+    function apply(out, iid) {
+      for (const [k, v] of Object.entries(DELTA[iid] || {})) {
+        const s = MAP[k];
+        if (s && s.mode === 'set') out[s.key] = v;      // "Holds 45" is 45, not +45
+        else if (s) out[s.key] = (out[s.key] ?? 0) + v;
+        else out[k] = (out[k] ?? 0) + v;                // a stat with no row of its own
+      }
+    }
+
+    function totals(skipSlot, add) {
+      const out = {};
+      for (const s of WEAPON) out[s.key] = s.base;
+      for (const [slot, iid] of Object.entries(fitted)) {
+        if (slot === skipSlot) continue;
+        apply(out, iid);
+      }
+      if (add) apply(out, add);
+      return out;
+    }
+
+    const unit = (k) => (WEAPON.find((s) => s.key === k) || {}).unit || '';
+    const cap = (k) => (WEAPON.find((s) => s.key === k) || {}).max || 100;
+
+    function paintWeapon() {
+      const now = totals(null, null);
+      let html = '';
+      for (const s of WEAPON) {
+        const v = now[s.key];
+        const d = v - s.base;
+        const pctBase = Math.max(0, Math.min(100, Math.min(v, s.base) / s.max * 100));
+        const pctD = Math.max(0, Math.min(100, Math.abs(d) / s.max * 100));
+        const cls = d > 0 ? 'up' : 'down';
+        html += '<div class="sr"><span class="sr__n">' + s.key + '</span>'
+             + '<span class="sr__v">' + v + (s.unit || '')
+             + (d ? ' <i class="' + cls + '">' + (d > 0 ? '+' : '&minus;')
+                    + Math.abs(d) + '</i>' : '')
+             + '</span><span class="sr__bar">'
+             + '<i class="base" style="width:' + pctBase.toFixed(1) + '%"></i>'
+             + (d ? '<i class="' + cls + '" style="width:' + pctD.toFixed(1) + '%"></i>' : '')
+             + '</span></div>';
+      }
+      for (const s of SPECS) {
+        if (s.text !== undefined) {
+          html += '<div class="kv"><span>' + s.key + '</span><b>' + s.text + '</b></div>';
+          continue;
+        }
+        const pct = Math.max(0, Math.min(100, s.n / s.max * 100));
+        html += '<div class="sr"><span class="sr__n">' + s.key + '</span>'
+             + '<span class="sr__v">' + s.n + (s.unit || '') + '</span>'
+             + '<span class="sr__bar"><i class="base" style="width:'
+             + pct.toFixed(1) + '%"></i></span></div>';
+      }
+      document.querySelector('.wstats').innerHTML = html;
+    }
+
+    function paintDelta(slot, iid) {
+      // Against the build as it stands, not against the build with this slot
+      // emptied. Swapping one optic for another should read as the two or three
+      // points it actually moves, not as the whole of the new optic's effect.
+      const before = totals(null, null);
+      const after = totals(slot, iid);
+      let html = '';
+      for (const s of WEAPON) {
+        const b = before[s.key], a = after[s.key];
+        // Every stat, every time. Listing only what moves makes a short list
+        // look like a complete one, and hides that the others were considered.
+        const pctBase = Math.max(0, Math.min(100, Math.min(a, b) / s.max * 100));
+        const pctD = Math.max(0, Math.min(100, Math.abs(a - b) / s.max * 100));
+        const cls = a > b ? 'up' : 'down';
+        const same = a === b;
+        html += '<div class="sr' + (same ? ' is-flat' : '') + '">'
+             + '<span class="sr__n">' + s.key
+             + (s.tracked ? '' : ' <i class="untracked">not tracked</i>') + '</span>'
+             + '<span class="sr__v">' + a + (s.unit || '')
+             + (same ? '' : ' <i class="' + cls + '">(' + (a > b ? '+' : '&minus;')
+                            + Math.abs(a - b) + ')</i>')
+             + '</span><span class="sr__bar">'
+             + '<i class="base" style="width:' + pctBase.toFixed(1) + '%"></i>'
+             + (same ? '' : '<i class="' + cls + '" style="width:'
+                            + pctD.toFixed(1) + '%"></i>')
+             + '</span></div>';
+      }
+      // Stat lines the weapon panel has no base for — magazine capacity and the
+      // like — still matter, so they are listed as the plain change they are.
+      for (const [k, v] of Object.entries(DELTA[iid] || {})) {
+        if (MAP[k]) continue;
+        html += '<div class="sr"><span class="sr__n">' + k + '</span>'
+             + '<span class="sr__v ' + (v > 0 ? 'up' : 'down') + '">'
+             + (v > 0 ? '+' : '&minus;') + Math.abs(v) + '</span></div>';
+      }
+
+      const box = document.querySelector('#d-' + iid + ' .delta');
+      if (box) box.innerHTML = html;
+    }
+
+    function paintEquip() {
+      if (!cur.item) { equipBtn.hidden = true; return; }
+      const on = fitted[cur.slot] === cur.item;
+      equipBtn.hidden = false;
+      equipBtn.textContent = on ? 'Unequip' : 'Equip';
+      equipBtn.classList.toggle('is-fitted', on);
+    }
+
+    // One card selected at a time, and one detail block shown for it.
+    function pick(list, iid) {
+      for (const b of list.querySelectorAll('.pcard'))
+        b.classList.toggle('is-on', b.dataset.item === iid);
+      for (const d of list.querySelectorAll('.detail'))
+        d.hidden = d.id !== 'd-' + iid;
+      cur = {slot: list.id.slice(3), item: iid};
+      paintDelta(cur.slot, iid);
+      paintEquip();
+    }
+
+    equipBtn.addEventListener('click', () => {
+      if (!cur.item) return;
+      const chip = chipFor(cur.slot);
+      const card = document.querySelector(
+        '#sl-' + cur.slot + ' .pcard[data-item="' + cur.item + '"]');
+      if (fitted[cur.slot] === cur.item) {
+        delete fitted[cur.slot];
+        chip.classList.remove('has-item');
+        chip.querySelector('.chip3__art').style.backgroundImage =
+          'url(../smith/slot/' + cur.slot + '.png)';
+      } else {
+        // One thing per slot: fitting a second replaces the first.
+        const was = document.querySelector('#sl-' + cur.slot + ' .pcard.is-fitted');
+        if (was) was.classList.remove('is-fitted');
+        fitted[cur.slot] = cur.item;
+        chip.classList.add('has-item');
+        chip.querySelector('.chip3__art').style.backgroundImage =
+          'url(../att/' + cur.item + '.png)';
+      }
+      for (const b of document.querySelectorAll('#sl-' + cur.slot + ' .pcard'))
+        b.classList.toggle('is-fitted', fitted[cur.slot] === b.dataset.item);
+      paintDelta(cur.slot, cur.item);
+      paintWeapon();
+      paintEquip();
+    });
+
+    function showSlot(slot) {
+      showWeapon(false);
+      let found = null;
+      for (const l of lists) {
+        l.hidden = l.id !== 'sl-' + slot;
+        if (!l.hidden) found = l;
+      }
+      for (const c of document.querySelectorAll('.chip3'))
+        c.classList.toggle('is-on', c.dataset.slot === slot);
+      panel.hidden = !found;
+      wrap.classList.toggle('is-open', !!found);
+      stage.classList.toggle('is-focused', !!found);
+      if (found) {
+        const first = found.querySelector('.pcard');
+        if (first) pick(found, first.dataset.item);
+        found.querySelector('.picks').scrollTop = 0;
+        history.replaceState(null, '', '#' + slot);
+      }
+    }
+
+    function shut() {
+      panel.hidden = true;
+      wrap.classList.remove('is-open');
+      stage.classList.remove('is-focused');
+      cur = {slot: null, item: null};
+      equipBtn.hidden = true;
+      for (const c of document.querySelectorAll('.chip3')) c.classList.remove('is-on');
+      history.replaceState(null, '', location.pathname);
+    }
+
+    for (const l of lists) {
+      l.addEventListener('click', (e) => {
+        const b = e.target.closest('.pcard');
+        if (b) pick(l, b.dataset.item);
+      });
+    }
+
+    // With the tables folded away, following a chip's own href would jump to a
+    // heading inside a closed <details> and appear to do nothing. Opening it
+    // first is what makes the no-JS fallback and the middle-click both land.
+    const tables = document.getElementById('tables');
+    if (tables) {
+      for (const a of document.querySelectorAll('a[href^="#slot-"]'))
+        a.addEventListener('click', () => { tables.open = true; });
+      if (location.hash.startsWith('#slot-')) tables.open = true;
+    }
+
+    for (const c of document.querySelectorAll('.chip3')) {
+      c.addEventListener('click', (e) => {
+        // Modified clicks keep their normal meaning: open the weapon page.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        if (c.classList.contains('is-on')) shut();
+        else showSlot(c.dataset.slot);
+      });
+    }
+    // Full screen is offered only where the browser actually supports it —
+    // an inert button is worse than no button.
+    const expand = document.getElementById('expand');
+    if (document.fullscreenEnabled) {
+      expand.hidden = false;
+      expand.addEventListener('click', () => {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else wrap.requestFullscreen().catch(() => {});
+      });
+      document.addEventListener('fullscreenchange', () => {
+        const on = document.fullscreenElement === wrap;
+        expand.classList.toggle('is-on', on);
+        expand.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen');
+      });
+    }
+
+    const wtab = document.getElementById('wtab');
+    const wpanel = document.getElementById('wpanel');
+    function showWeapon(on) {
+      wpanel.hidden = !on;
+      wtab.setAttribute('aria-expanded', String(on));
+    }
+    // One at a time: the build panel opens where the attachment list sits, so
+    // showing both means the top one covers the other.
+    wtab.addEventListener('click', () => {
+      const opening = wpanel.hidden;
+      if (opening) shut();
+      showWeapon(opening);
+    });
+    paintWeapon();
+
+    document.getElementById('close').addEventListener('click', shut);
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') shut(); });
+
+    // Anywhere that is not the panel, a chip or the equip button closes it —
+    // including the weapon itself. The chip and equip handlers run first and
+    // are excluded here, or a chip click would open and then immediately close.
+    document.addEventListener('click', (e) => {
+      // The build panel overlays the stage, so a click anywhere but on it
+      // dismisses it — otherwise it sits over the chips and swallows them.
+      if (!e.target.closest('.wname')) showWeapon(false);
+      if (panel.hidden) return;
+      if (e.target.closest('.panel, .chip3, #equip, .pins')) return;
+      shut();
+    });
+    if (location.hash) showSlot(location.hash.slice(1));
+
+    // Placement is a maintenance mode, not a feature: ?place turns it on.
+    const place = new URLSearchParams(location.search).has('place');
+    const pins = document.querySelector('.pins');
+    if (place) {
+      pins.hidden = false;
+      document.querySelector('.placer').hidden = false;
+      stage.classList.add('is-placing');
+      const at = {};
+      let held = null;
+      const put = (el, e) => {
+        const r = stage.getBoundingClientRect();
+        const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+        const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+        el.style.left = (x * 100) + '%';
+        el.style.top = (y * 100) + '%';
+        at[el.dataset.slot] = [Math.round(x * 2032), Math.round(y * 1080)];
+      };
+      for (const p of pins.querySelectorAll('.pin')) {
+        p.addEventListener('pointerdown', (e) => {
+          held = p; p.setPointerCapture(e.pointerId); e.preventDefault();
+        });
+        p.addEventListener('pointermove', (e) => { if (held === p) put(p, e); });
+        p.addEventListener('pointerup', () => { held = null; });
+      }
+      document.getElementById('copy').addEventListener('click', () => {
+        const txt = JSON.stringify(at, null, 1);
+        document.getElementById('out').textContent = txt;
+        // The <pre> is the real output; the clipboard is a convenience and
+        // is denied outright in some contexts, so its rejection is caught.
+        if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+      });
+    }
+  </script>
+
+  <details class="deploy" id="tables">
+    <summary>Attachment slots<span class="hint">22 slots &middot; every attachment listed</span></summary>
+    <div class="deploy__body">
+  <section id="slot-optics">
     <h2><span class="n">1</span>Optics <span class="count">31</span></h2>
     <p class="lede">The base optic slot. The catalogue&rsquo;s other eleven optics belong to the offset slot or are sniper glass this rifle does not take.</p>
     <div class="tablewrap">
@@ -68,21 +1369,21 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr><td><a href="white-phosphor-thermal-scope.html">White Phosphor Thermal Scope</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="advanced-thermal-fusion-holographic-sight.html">Advanced Thermal Fusion Holographic Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="vmx-frameless-sight.html">VMX Frameless Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="1p-33-2-4x-scope.html">1P-33 2/4x Scope</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="uhx-holographic-sight.html">UHX Holographic Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="prism-universal-2x-optic.html">Prism Universal 2x Optic</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="white-phosphor-thermal-scope.html">White Phosphor Thermal Scope</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="advanced-thermal-fusion-holographic-sight.html">Advanced Thermal Fusion Holographic Sight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="vmx-frameless-sight.html">VMX Frameless Sight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="1p-33-2-4x-scope.html">1P-33 2/4x Scope</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="uhx-holographic-sight.html">UHX Holographic Sight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="prism-universal-2x-optic.html">Prism Universal 2x Optic</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="insight-3-7-sniper-scope.html">Insight 3/7 Sniper Scope</a></td><td class="slotcell">Kill Flash</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="m157-fire-control-system.html">M157 Fire Control System</a></td><td class="slotcell">Kill Flash</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="m157-fire-control-system.html">M157 Fire Control System</a> <span class="tag">#missing-info</span></td><td class="slotcell">Kill Flash</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="viewpoint-3x-scope.html">Viewpoint 3x Scope</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="1p-29-russian-3x-sight.html">1P-29 Russian 3x Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="1p-29-russian-3x-sight.html">1P-29 Russian 3x Sight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="lpvo-scope.html">LPVO Scope</a></td><td class="slotcell">Kill Flash</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="3-7-adjustable-scope.html">3/7 Adjustable Scope</a></td><td class="slotcell">Red Dot Optics &middot; Kill Flash</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="recon-1-5-5-adjustable-scope.html">Recon 1.5/5 Adjustable Scope</a></td><td class="slotcell">Kill Flash</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="hamr-combined-scope.html">HAMR Combined Scope</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="meo-micro-sight-riser.html">MEO Micro Sight Riser</a></td><td class="slotcell">Red Dot Optics</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="meo-micro-sight-riser.html">MEO Micro Sight Riser</a> <span class="tag">#missing-info</span></td><td class="slotcell">Red Dot Optics</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="multi-purpose-tactical-riser.html">Multi-Purpose Tactical Riser</a></td><td class="slotcell">Riser Optics &middot; Tactical Device</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="micro-sight-riser.html">Micro Sight Riser</a></td><td class="slotcell">Red Dot Optics</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="acog-precision-6x-scope.html">ACOG Precision 6x Scope</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
@@ -105,7 +1406,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-riser-optics">
     <h2><span class="n">2</span>Riser optics <span class="count">16</span></h2>
     <p class="lede">Opened by the Multi-Purpose Tactical Riser.</p>
     <div class="tablewrap">
@@ -114,10 +1415,10 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr><td><a href="advanced-thermal-fusion-holographic-sight.html">Advanced Thermal Fusion Holographic Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="vmx-frameless-sight.html">VMX Frameless Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="uhx-holographic-sight.html">UHX Holographic Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="meo-micro-sight-riser.html">MEO Micro Sight Riser</a></td><td class="slotcell">Red Dot Optics</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="advanced-thermal-fusion-holographic-sight.html">Advanced Thermal Fusion Holographic Sight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="vmx-frameless-sight.html">VMX Frameless Sight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="uhx-holographic-sight.html">UHX Holographic Sight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="meo-micro-sight-riser.html">MEO Micro Sight Riser</a> <span class="tag">#missing-info</span></td><td class="slotcell">Red Dot Optics</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="micro-sight-riser.html">Micro Sight Riser</a></td><td class="slotcell">Red Dot Optics</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="osight-red-dot.html">OSIGHT Red Dot</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="cobra-accuracy-sight.html">Cobra Accuracy Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
@@ -136,7 +1437,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-red-dot-optics">
     <h2><span class="n">3</span>Red dot optics <span class="count">6</span></h2>
     <p class="lede">Opened by either micro sight riser, and by the 3/7 Adjustable Scope&rsquo;s own dot mount. A subset of riser optics.</p>
     <div class="tablewrap">
@@ -145,7 +1446,7 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr><td><a href="vmx-frameless-sight.html">VMX Frameless Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="vmx-frameless-sight.html">VMX Frameless Sight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="osight-red-dot.html">OSIGHT Red Dot</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="combat-red-dot-sight.html">Combat Red Dot Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="mini-red-dot-sight.html">Mini Red Dot Sight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
@@ -157,7 +1458,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-offset-optics">
     <h2><span class="n">4</span>Offset optics <span class="count">5</span></h2>
     <p class="lede">The offset twins of the five red dots.</p>
     <div class="tablewrap">
@@ -177,7 +1478,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-kill-flash">
     <h2><span class="n">5</span>Kill flash <span class="count">1</span></h2>
     <p class="lede">Opened by any of five magnified optics: the Insight 3/7 Sniper Scope, M157 Fire Control System, LPVO Scope, 3/7 Adjustable Scope and Recon 1.5/5 Adjustable Scope. One option.</p>
     <div class="tablewrap">
@@ -193,7 +1494,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-tactical-device">
     <h2><span class="n">6</span>Tactical device <span class="count">4</span></h2>
     <p class="lede">Opened by the Multi-Purpose Tactical Riser. These four also fit all three rails.</p>
     <div class="tablewrap">
@@ -202,17 +1503,17 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr class="is-gap"><td><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
 
-  <section>
+  <section id="slot-muzzle">
     <h2><span class="n">7</span>Muzzle <span class="count">16</span></h2>
     <p class="lede">Fourteen of the catalogue&rsquo;s 37 muzzles &mdash; shotgun, pistol and AK devices are excluded.</p>
     <div class="tablewrap">
@@ -221,14 +1522,14 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr><td><a href="rm277-breaker-suppressor.html">RM277 Breaker Suppressor</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="cobweb-titanium-muzzle-brake.html">Cobweb Titanium Muzzle Brake</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="rm277-breaker-suppressor.html">RM277 Breaker Suppressor</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="cobweb-titanium-muzzle-brake.html">Cobweb Titanium Muzzle Brake</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="spiral-fire-flash-hider.html">Spiral Fire Flash Hider</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="advanced-multi-caliber-suppressor.html">Advanced Multi-Caliber Suppressor</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="m7-practical-suppressor.html">M7 Practical Suppressor</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="silent-suppressor.html">Silent Suppressor</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="sandstorm-vertical-compensator.html">Sandstorm Vertical Compensator</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="bastion-horizontal-compensator.html">Bastion Horizontal Compensator</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="sandstorm-vertical-compensator.html">Sandstorm Vertical Compensator</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="bastion-horizontal-compensator.html">Bastion Horizontal Compensator</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="poseidon-flash-hider.html">Poseidon Flash Hider</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="whisper-tactical-suppressor.html">Whisper Tactical Suppressor</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="titanium-contest-muzzle-brake.html">Titanium Contest Muzzle Brake</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
@@ -243,7 +1544,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-barrel">
     <h2><span class="n">8</span>Barrel <span class="count">2</span></h2>
     <p class="lede">Both are RM277-exclusive and absent from the catalogue. Each opens an upper rail; the integral barrel also occupies the muzzle.</p>
     <div class="tablewrap">
@@ -252,15 +1553,15 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr><td><a href="rm277-heavy-integral-barrel.html">RM277 Heavy Integral Barrel</a></td><td class="slotcell">Upper Rail</td><td class="cut">Muzzle &middot; Rail Bipod</td></tr>
-          <tr><td><a href="rm277-whale-shark-barrel-combo.html">RM277 Whale Shark Barrel Combo</a></td><td class="slotcell">Upper Rail</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="rm277-heavy-integral-barrel.html">RM277 Heavy Integral Barrel</a> <span class="tag">#missing-info</span></td><td class="slotcell">Upper Rail</td><td class="cut">Muzzle &middot; Rail Bipod</td></tr>
+          <tr class="is-gap"><td><a href="rm277-whale-shark-barrel-combo.html">RM277 Whale Shark Barrel Combo</a> <span class="tag">#missing-info</span></td><td class="slotcell">Upper Rail</td><td class="cut">Rail Bipod</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
 
-  <section>
+  <section id="slot-foregrip">
     <h2><span class="n">9</span>Foregrip <span class="count">23</span></h2>
     <p class="lede">Every foregrip in the catalogue fits, so this slot is not filtered.</p>
     <div class="tablewrap">
@@ -269,20 +1570,20 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr><td><a href="resonant-mk-iii-grip.html">Resonant MK III Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="ec-universal-front-hand-stop.html">EC Universal Front Hand Stop</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="resonant-mk-iii-grip.html">Resonant MK III Grip</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="ec-universal-front-hand-stop.html">EC Universal Front Hand Stop</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="dawn-angled-flashlight-grip.html">Dawn Angled Flashlight Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="daybreak-vertical-flashlight-grip.html">Daybreak Vertical Flashlight Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="cr-prism-hand-stop.html">CR Prism Hand Stop</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="cr-prism-hand-stop.html">CR Prism Hand Stop</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="resonant-mkii-foregrip.html">Resonant MKII Foregrip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="collapsible-bipod-grip.html">Collapsible Bipod Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="k1-elite-bevel-foregrip.html">K1 Elite Bevel Foregrip</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="k1-elite-bevel-foregrip.html">K1 Elite Bevel Foregrip</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="x25u-angled-combat-grip.html">X25U Angled Combat Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="resonant-ergonomic-grip.html">Resonant Ergonomic Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="phantom-vertical-foregrip.html">Phantom Vertical Foregrip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="tactical-vertical-foregrip.html">Tactical Vertical Foregrip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="secret-order-bevel-foregrip.html">Secret Order Bevel Foregrip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="rk-0-foregrip.html">RK-0 Foregrip</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="rk-0-foregrip.html">RK-0 Foregrip</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="tactical-angled-foregrip.html">Tactical Angled Foregrip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="angled-hand-stop.html">Angled Hand Stop</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="competition-hand-stop.html">Competition Hand Stop</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
@@ -298,7 +1599,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-left-rail">
     <h2><span class="n">10</span>Left rail <span class="count">14</span></h2>
     <p class="lede">Nine lights and lasers plus the five handguard panels.</p>
     <div class="tablewrap">
@@ -307,18 +1608,18 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr class="is-gap"><td><a href="olight-warrior-3s-tactical-flashlight.html">OLIGHT Warrior 3S Tactical Flashlight</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="olight-odin-s-tactical-flashlight.html">OLIGHT Odin S Tactical Flashlight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="olight-warrior-3s-tactical-flashlight.html">OLIGHT Warrior 3S Tactical Flashlight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="olight-odin-s-tactical-flashlight.html">OLIGHT Odin S Tactical Flashlight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="olight-baldr-pro-r-multi-function-flashlight.html">OLIGHT Baldr Pro R Multi-Function Flashlight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="flare-tactical-flashlight.html">Flare Tactical Flashlight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="practical-weapon-light.html">Practical Weapon Light</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="modular-handguard-panel.html">Modular Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="hornet-handguard.html">Hornet Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="kc-hound-handguard.html">KC Hound Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="ranger-handguard.html">Ranger Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
@@ -327,27 +1628,26 @@
   </section>
 
 
-  <section>
-    <h2><span class="n">11</span>Right rail <span class="count">14</span></h2>
-    <p class="lede">The same list as the left rail.</p>
+  <section id="slot-right-rail">
+    <h2><span class="n">11</span>Right rail <span class="count">13</span></h2>
+    <p class="lede">The left rail&rsquo;s list less the OLIGHT Odin S, which fits the left side only.</p>
     <div class="tablewrap">
       <table>
         <thead>
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr class="is-gap"><td><a href="olight-warrior-3s-tactical-flashlight.html">OLIGHT Warrior 3S Tactical Flashlight</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="olight-odin-s-tactical-flashlight.html">OLIGHT Odin S Tactical Flashlight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="olight-warrior-3s-tactical-flashlight.html">OLIGHT Warrior 3S Tactical Flashlight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="olight-baldr-pro-r-multi-function-flashlight.html">OLIGHT Baldr Pro R Multi-Function Flashlight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="flare-tactical-flashlight.html">Flare Tactical Flashlight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="practical-weapon-light.html">Practical Weapon Light</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="modular-handguard-panel.html">Modular Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="hornet-handguard.html">Hornet Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="kc-hound-handguard.html">KC Hound Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="ranger-handguard.html">Ranger Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
@@ -356,7 +1656,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-upper-rail">
     <h2><span class="n">12</span>Upper rail <span class="count">11</span></h2>
     <p class="lede">A shorter list than the side rails: no OLIGHT Odin S, OLIGHT Baldr Pro R or Practical Weapon Light.</p>
     <div class="tablewrap">
@@ -365,15 +1665,15 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr class="is-gap"><td><a href="olight-warrior-3s-tactical-flashlight.html">OLIGHT Warrior 3S Tactical Flashlight</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="olight-warrior-3s-tactical-flashlight.html">OLIGHT Warrior 3S Tactical Flashlight</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="dbal-x2-purple-laser-light-combo.html">DBAL-X2 Purple Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="perst-7-blue-laser-light-combo.html">PERST-7 Blue Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="flare-tactical-flashlight.html">Flare Tactical Flashlight</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr class="is-gap"><td><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="la-3c-green-laser-light-combo.html">LA-3C Green Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="peq-2-red-laser-light-combo.html">PEQ-2 Red Laser-Light Combo</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="modular-handguard-panel.html">Modular Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="hornet-handguard.html">Hornet Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="kc-hound-handguard.html">KC Hound Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="ranger-handguard.html">Ranger Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
@@ -382,7 +1682,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-left-patch">
     <h2><span class="n">13</span>Left patch <span class="count">5</span></h2>
     <p class="lede">Handguard panels only.</p>
     <div class="tablewrap">
@@ -393,7 +1693,7 @@
         <tbody>
           <tr><td><a href="modular-handguard-panel.html">Modular Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="hornet-handguard.html">Hornet Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="kc-hound-handguard.html">KC Hound Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="ranger-handguard.html">Ranger Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
@@ -402,7 +1702,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-right-patch">
     <h2><span class="n">14</span>Right patch <span class="count">5</span></h2>
     <p class="lede">The same five panels.</p>
     <div class="tablewrap">
@@ -413,7 +1713,7 @@
         <tbody>
           <tr><td><a href="modular-handguard-panel.html">Modular Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="hornet-handguard.html">Hornet Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="dd-python-handguard-panel.html">DD Python Handguard Panel</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="kc-hound-handguard.html">KC Hound Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="ranger-handguard.html">Ranger Handguard</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
@@ -422,7 +1722,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-mag">
     <h2><span class="n">15</span>Magazine <span class="count">1</span></h2>
     <p class="lede">The RM277 is chambered in 6.8x51mm. The catalogue also holds an M7 6.8 30-Round Mag, which was not named.</p>
     <div class="tablewrap">
@@ -438,7 +1738,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-mag-mount">
     <h2><span class="n">16</span>Magazine mount <span class="count">3</span></h2>
     <div class="tablewrap">
       <table>
@@ -455,7 +1755,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-rear-grip">
     <h2><span class="n">17</span>Rear grip <span class="count">9</span></h2>
     <p class="lede">Two of these open further slots.</p>
     <div class="tablewrap">
@@ -464,11 +1764,11 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr><td><a href="ar-modular-rear-grip.html">AR Modular Rear Grip</a></td><td class="slotcell">Rear Grip Patch</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="ar-modular-rear-grip.html">AR Modular Rear Grip</a> <span class="tag">#missing-info</span></td><td class="slotcell">Rear Grip Patch</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="ar-heavy-tower-grip.html">AR Heavy Tower Grip</a></td><td class="slotcell">Rear Grip Mount</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="invasion-rear-grip.html">Invasion Rear Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="phantom-rear-grip.html">Phantom Rear Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="ar-moe-rear-grip.html">AR MOE Rear Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="ar-moe-rear-grip.html">AR MOE Rear Grip</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="marksman-d-2-rear-grip.html">Marksman D-2 Rear Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="hurricane-d-1-rear-grip.html">Hurricane D-1 Rear Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
           <tr><td><a href="m7-stable-rear-grip.html">M7 Stable Rear Grip</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
@@ -479,7 +1779,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-rear-grip-patch">
     <h2><span class="n">18</span>Rear grip patch <span class="count">2</span></h2>
     <p class="lede">Opened by the AR Modular Rear Grip. Neither piece is in the catalogue, and nor is the grip that opens the slot.</p>
     <div class="tablewrap">
@@ -488,15 +1788,15 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr><td><a href="ar-light-grip-piece.html">AR Light Grip Piece</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
-          <tr><td><a href="ar-heavy-grip-piece.html">AR Heavy Grip Piece</a></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="ar-light-grip-piece.html">AR Light Grip Piece</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="ar-heavy-grip-piece.html">AR Heavy Grip Piece</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
 
-  <section>
+  <section id="slot-rear-grip-mount">
     <h2><span class="n">19</span>Rear grip mount <span class="count">2</span></h2>
     <p class="lede">Opened by the AR Heavy Tower Grip.</p>
     <div class="tablewrap">
@@ -513,7 +1813,7 @@
   </section>
 
 
-  <section>
+  <section id="slot-rail-bipod">
     <h2><span class="n">20</span>Rail bipod <span class="count">1</span></h2>
     <p class="lede">One option.</p>
     <div class="tablewrap">
@@ -522,14 +1822,14 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr class="is-gap"><td><a href="practical-bipod.html">Practical Bipod</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="practical-bipod.html">Practical Bipod</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
 
-  <section>
+  <section id="slot-cheek-pad">
     <h2><span class="n">21</span>Cheek pad <span class="count">1</span></h2>
     <div class="tablewrap">
       <table>
@@ -537,14 +1837,14 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr class="is-gap"><td><a href="rm277-cheek-pad.html">RM277 Cheek Pad</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="rm277-cheek-pad.html">RM277 Cheek Pad</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
 
-  <section>
+  <section id="slot-stock-pad">
     <h2><span class="n">22</span>Stock pad <span class="count">1</span></h2>
     <div class="tablewrap">
       <table>
@@ -552,7 +1852,7 @@
           <tr><th>Attachment</th><th>Opens</th><th>Occupies</th></tr>
         </thead>
         <tbody>
-          <tr class="is-gap"><td><a href="rm277-pad.html">RM277 Pad</a> <span class="tag">missing info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
+          <tr class="is-gap"><td><a href="rm277-pad.html">RM277 Pad</a> <span class="tag">#missing-info</span></td><td class="none">&mdash;</td><td class="none">&mdash;</td></tr>
         </tbody>
       </table>
     </div>
@@ -591,7 +1891,7 @@
   <rect class="g-box" x="180" y="136" width="190" height="22" rx="2"></rect><text class="g-t" x="189" y="151">Handguard</text><text class="g-n" x="361" y="151" text-anchor="end">&mdash;</text>
   <rect class="g-box" x="180" y="168" width="190" height="22" rx="2"></rect><text class="g-t" x="189" y="183">Foregrip</text><text class="g-n" x="361" y="183" text-anchor="end">23</text>
   <rect class="g-box" x="180" y="200" width="190" height="22" rx="2"></rect><text class="g-t" x="189" y="215">Left rail</text><text class="g-n" x="361" y="215" text-anchor="end">14</text>
-  <rect class="g-box" x="180" y="232" width="190" height="22" rx="2"></rect><text class="g-t" x="189" y="247">Right rail</text><text class="g-n" x="361" y="247" text-anchor="end">14</text>
+  <rect class="g-box" x="180" y="232" width="190" height="22" rx="2"></rect><text class="g-t" x="189" y="247">Right rail</text><text class="g-n" x="361" y="247" text-anchor="end">13</text>
   <rect class="g-box" x="180" y="264" width="190" height="22" rx="2"></rect><text class="g-t" x="189" y="279">Left patch</text><text class="g-n" x="361" y="279" text-anchor="end">5</text>
   <rect class="g-box" x="180" y="296" width="190" height="22" rx="2"></rect><text class="g-t" x="189" y="311">Right patch</text><text class="g-n" x="361" y="311" text-anchor="end">5</text>
   <rect class="g-box" x="180" y="328" width="190" height="22" rx="2"></rect><text class="g-t" x="189" y="343">Rail bipod</text><text class="g-n" x="361" y="343" text-anchor="end">1</text>
@@ -628,6 +1928,6 @@
     </figure>
   </section>
     </div>
-  </section>
+  </details>
 
 </div>

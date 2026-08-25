@@ -2,8 +2,8 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Weapon Smith &mdash; Delta Force attachment catalogue</title>
-<meta name="description" content="Every weapon, round and attachment in Delta Force: Operations: 66 weapons, 89 rounds and 438 attachments, with the slots each one fits and the slots it opens.">
+<title>Weapon Smith &mdash; Delta Force: Operations build maker</title>
+<meta name="description" content="Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 438 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.">
 <link rel="canonical" href="https://eukyrios.github.io/weapon-smith/">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="color-scheme" content="dark">
@@ -11,19 +11,19 @@
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Weapon Smith">
-<meta property="og:title" content="Weapon Smith &mdash; Delta Force attachment catalogue">
-<meta property="og:description" content="Every weapon, round and attachment in Delta Force: Operations: 66 weapons, 89 rounds and 438 attachments, with the slots each one fits and the slots it opens.">
+<meta property="og:title" content="Weapon Smith &mdash; Delta Force: Operations build maker">
+<meta property="og:description" content="Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 438 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.">
 <meta property="og:url" content="https://eukyrios.github.io/weapon-smith/">
 <meta property="og:image" content="https://eukyrios.github.io/weapon-smith/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Weapon Smith &mdash; the Delta Force: Operations weapon and attachment catalogue">
+<meta property="og:image:alt" content="Weapon Smith &mdash; a Delta Force: Operations weapon, ammunition and attachment library, and a build maker on top of it">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Weapon Smith &mdash; Delta Force attachment catalogue">
-<meta name="twitter:description" content="Every weapon, round and attachment in Delta Force: Operations: 66 weapons, 89 rounds and 438 attachments, with the slots each one fits and the slots it opens.">
+<meta name="twitter:title" content="Weapon Smith &mdash; Delta Force: Operations build maker">
+<meta name="twitter:description" content="Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 438 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.">
 <meta name="twitter:image" content="https://eukyrios.github.io/weapon-smith/og.png">
 
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Weapon Smith", "url": "https://eukyrios.github.io/weapon-smith/", "description": "Every weapon, round and attachment in Delta Force: Operations: 66 weapons, 89 rounds and 438 attachments, with the slots each one fits and the slots it opens.", "inLanguage": "en", "image": "https://eukyrios.github.io/weapon-smith/og.png"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Weapon Smith", "url": "https://eukyrios.github.io/weapon-smith/", "description": "Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 438 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.", "inLanguage": "en", "image": "https://eukyrios.github.io/weapon-smith/og.png"}</script>
 <style>
 /* ==========================================================================
    Weapon Smith — same room as Loadout Roulette.
@@ -168,9 +168,11 @@ td.v a:hover, td.v a:focus-visible { border-bottom-color: var(--accent); }
 .num.down { color: var(--red); }
 tr.is-gap td:first-child a { color: var(--red); }
 
+/* Printed as the token you would type, not as a caption: uppercasing it would
+   break the one thing it is for. */
 .tag {
-  font-family: var(--mono); font-size: 9px; font-weight: 600;
-  letter-spacing: 0.14em; text-transform: uppercase;
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.02em;
   color: var(--red); border: 1px solid currentColor; border-radius: 3px;
   padding: 2px 5px; margin-left: 8px; white-space: nowrap; vertical-align: middle;
 }
@@ -281,6 +283,13 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   margin-left: auto; font-family: var(--mono); font-size: 10px; font-style: normal;
   color: var(--text-faint); font-variant-numeric: tabular-nums;
 }
+/* A tag link wears the tag, so the sidebar teaches the search box's syntax
+   rather than describing it somewhere else. */
+.navlink--tag code {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.02em;
+  color: var(--text-faint);
+}
+.navlink--tag:hover code, .navlink--tag.is-on code { color: inherit; }
 .navlink:hover, .navlink:focus-visible { background: var(--surface-2); color: var(--text); }
 .navlink.is-on { background: rgba(var(--accent-rgb), 0.12); color: var(--accent); }
 .navlink.is-on em { color: var(--accent-dim); }
@@ -326,6 +335,353 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   .browse__nav { position: static; }
 }
 
+/* --------------------------------------------------------------------------
+   The gunsmith stage. Everything inside is positioned as a percentage of the
+   frame the artwork was cut from, so the weapon, the chips and the wires scale
+   together and cannot drift apart at any width.
+   -------------------------------------------------------------------------- */
+/* The slot panel, laid out as the game lays it out: the weapon fills the stage
+   and the list and its detail sit ON it, down the left. Overlaid rather than
+   beside, so opening a slot does not shrink the thing you are looking at. */
+.gunsmith { display: block; }
+.panel {
+  /* Starts below the weapon name rather than under it. */
+  position: absolute; inset: 54px auto 10px 10px; display: flex; gap: 8px;
+  max-width: calc(100% - 20px); z-index: 3;
+}
+.panel[hidden], .slotlist[hidden] { display: none; }
+.slotlist { display: flex; gap: 8px; min-height: 0; }
+
+/* Both columns scroll without showing a bar: they sit ON the weapon, and a
+   scrollbar down the middle of the picture is the one piece of chrome the game
+   does not have. Keyboard and wheel scrolling are untouched. */
+.picks, .dpane { scrollbar-width: none; -ms-overflow-style: none; }
+.picks::-webkit-scrollbar, .dpane::-webkit-scrollbar { width: 0; height: 0; }
+
+.panel__x {
+  position: absolute; top: 6px; right: 6px; z-index: 5;
+  width: 26px; height: 26px; padding: 0; font-size: 17px; line-height: 1;
+  cursor: pointer; border-radius: 4px; color: var(--text-dim);
+  background: rgba(6, 14, 19, 0.9); border: 1px solid var(--line);
+}
+.panel__x:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+.picks {
+  width: 208px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 4px;
+  overflow-y: auto; padding: 8px; border-radius: 6px;
+  background: rgba(6, 14, 19, 0.82); border: 1px solid var(--line);
+  backdrop-filter: blur(3px);
+}
+.picks__h {
+  position: sticky; top: 0; z-index: 2; margin: 0 -8px 4px; padding: 9px 10px;
+  background: var(--bg); font-size: 12px; font-weight: 800;
+  color: var(--accent); display: flex; align-items: baseline; gap: 8px;
+}
+.picks__h .count { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+
+.pcard {
+  position: relative; display: block; width: 100%; padding: 5px 5px 3px;
+  text-align: left; cursor: pointer; font: inherit; flex: 0 0 auto;
+  background: rgba(14, 26, 33, 0.9); border: 1px solid var(--line); border-radius: 4px;
+}
+.pcard__n {
+  display: inline-block; max-width: 100%; padding: 1px 6px; border-radius: 2px;
+  font-size: 11px; line-height: 1.35; color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+}
+.pcard__art {
+  display: block; height: 46px; margin-top: 3px;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+}
+.pcard:hover { border-color: var(--line-2); }
+.pcard.is-on { border-color: var(--text); background: var(--surface-2); }
+/* A fitted attachment is marked in the list, so the state is visible without
+   opening its card. */
+.pcard.is-fitted::after {
+  content: "FITTED"; position: absolute; top: 4px; right: 4px;
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em;
+  color: var(--bg); background: var(--accent); border-radius: 2px; padding: 1px 4px;
+}
+.pcard__n.tier-green  { background: rgba(42, 202, 150, 0.22); }
+.pcard__n.tier-blue   { background: rgba(88, 160, 221, 0.22); }
+.pcard__n.tier-purple { background: rgba(155, 114, 221, 0.28); }
+.pcard__n.tier-red    { background: rgba(218, 87, 88, 0.26); }
+
+.dpane {
+  width: 252px; flex: 0 0 auto; overflow-y: auto; padding: 0 12px 12px; border-radius: 6px;
+  background: rgba(6, 14, 19, 0.82); border: 1px solid var(--line);
+  backdrop-filter: blur(3px);
+}
+/* Pinned, and opaque. Padding alone does not help here: in a scrolling box the
+   padding scrolls away with everything else, so the title slid up under the
+   top edge and was cut in half. Sticking it means the rest passes behind it. */
+.detail h4 {
+  position: sticky; top: 0; z-index: 2;
+  margin: 0 0 10px; padding: 12px 30px 8px 0; font-size: 14px; font-weight: 800;
+  background: rgb(7, 15, 20);
+}
+.detail h4 a { color: var(--text); text-decoration: none; }
+.detail h4 a:hover { color: var(--accent); }
+.tier {
+  display: inline-block; width: 8px; height: 8px; margin-right: 7px;
+  transform: rotate(45deg); vertical-align: 1px; border-radius: 1px;
+}
+.tier.green  { background: rgb(42, 202, 150); }
+.tier.blue   { background: rgb(88, 160, 221); }
+.tier.purple { background: rgb(155, 114, 221); }
+.tier.red    { background: rgb(218, 87, 88); }
+
+.dlabel {
+  margin: 14px 0 6px; padding-top: 10px; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-faint);
+}
+/* Scoped to both, not to .detail: the build panel uses the same row. */
+.detail .kv, .wstats .kv {
+  display: flex; align-items: baseline; font-size: 13px; color: var(--text-dim);
+}
+.detail .kv b, .wstats .kv b {
+  margin-left: auto; font-family: var(--mono); color: var(--text);
+}
+.fx { font-size: 12px; color: var(--text-dim); padding: 2px 0 2px 12px; position: relative; }
+.fx::before {
+  content: ""; position: absolute; left: 0; top: 8px;
+  width: 5px; height: 5px; background: var(--line-2); border-radius: 1px;
+}
+.fx.none { color: var(--text-faint); font-style: italic; padding-left: 0; }
+.fx.none::before { display: none; }
+
+.stiles { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Square, and the art fills it. The icons are 70x70 crops of the game's own
+   chips — hatched ground included — so cover with a square box reproduces the
+   chip exactly rather than floating a shrunken copy on a different backing. */
+.stile {
+  position: relative; display: block; width: 62px; aspect-ratio: 1; border-radius: 3px;
+  background-color: var(--bg); background-repeat: no-repeat;
+  background-position: center; background-size: cover;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.stile em {
+  position: absolute; top: 0; left: 0; right: 0; padding: 3px 4px 4px;
+  font-family: var(--mono); font-size: 8px; font-style: normal; line-height: 1.1;
+  color: var(--text-dim);
+  background: linear-gradient(to bottom, rgba(6, 14, 19, 0.85), transparent);
+}
+
+.sr { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; margin-bottom: 7px; }
+.sr__n { font-size: 12px; color: var(--text-dim); }
+.sr__v { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.sr__v.up { color: var(--accent); }
+.sr__v.down { color: var(--red); }
+.sr__bar { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: var(--surface-2); }
+.sr__bar i { display: block; height: 100%; border-radius: 2px; }
+.sr__bar i.up { background: var(--accent); }
+.sr__bar i.down { background: var(--red); }
+
+/* The weapon's two facts, set as a line of text rather than a table. */
+/* The weapon's class and caliber live in the standfirst and are links. */
+.sub a {
+  color: var(--accent); font-weight: 600; text-decoration: none;
+  border-bottom: 1px solid var(--accent-dim);
+}
+.sub a:hover, .sub a:focus-visible { border-bottom-color: var(--accent); }
+
+/* The slot tables, folded. */
+.deploy {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+}
+.deploy > summary {
+  cursor: pointer; list-style: none; padding: 12px 16px;
+  font-size: 17px; font-weight: 800; letter-spacing: 0.01em; color: var(--accent);
+  display: flex; align-items: baseline; gap: 10px;
+}
+.deploy > summary::-webkit-details-marker { display: none; }
+.deploy > summary::before {
+  content: "\25B8"; color: var(--accent-dim); font-size: 13px;
+  transition: transform 120ms ease;
+}
+.deploy[open] > summary::before { transform: rotate(90deg); }
+.deploy > summary:hover { background: var(--surface-2); }
+.deploy > summary:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: -2px; }
+.deploy .hint {
+  margin-left: auto; font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--text-faint);
+}
+.deploy__body {
+  display: flex; flex-direction: column; gap: 28px;
+  padding: 4px 16px 20px; border-top: 1px solid var(--line);
+}
+.deploy__body h2 { font-size: 15px; }
+@media (prefers-reduced-motion: reduce) {
+  .deploy > summary::before { transition: none; }
+}
+
+/* Bottom right, in the corner the game keeps its own screen controls in — and
+   away from the card column, which fills the bottom left once a slot is open
+   and put a card's border above and below the button. */
+.expand {
+  position: absolute; right: 16px; bottom: 16px; z-index: 3;
+  width: 32px; height: 32px; padding: 0; cursor: pointer; border-radius: 4px;
+  background: rgba(6, 14, 19, 0.7); border: 1px solid var(--line);
+}
+.expand svg { fill: none; stroke: var(--text-dim); stroke-width: 1.6; }
+.expand:hover { border-color: var(--accent-dim); }
+.expand:hover svg, .expand.is-on svg { stroke: var(--accent); }
+
+/* Full screen keeps the stage's own proportions rather than stretching to the
+   monitor's. Everything inside is positioned as a percentage of the stage, so
+   letting it take a different aspect would skew the weapon and every chip on
+   it; the box is sized to the taller or wider limit and centred instead. */
+.gunsmith:fullscreen {
+  display: grid; place-items: center;
+  /* The backdrop wears the stage's own colours, so the strip left over by
+     keeping the aspect ratio reads as more room rather than as a border. */
+  background:
+    radial-gradient(120% 90% at 50% 0%, #10333d 0%, transparent 60%),
+    var(--surface);
+}
+.gunsmith:fullscreen .stage {
+  width: min(100vw, calc(100vh * var(--ar)));
+  border-radius: 0; border: 0; background: none;
+}
+
+/* The weapon name, top left of the stage, and the build panel it opens. */
+.wname { position: absolute; top: 10px; left: 10px; z-index: 4; }
+.wname__b {
+  display: flex; align-items: center; gap: 9px; padding: 6px 11px;
+  font: inherit; font-size: 17px; font-weight: 800; letter-spacing: -0.01em;
+  cursor: pointer; color: var(--text); border-radius: 5px;
+  background: rgba(6, 14, 19, 0.7); border: 1px solid var(--line);
+}
+.wname__b svg { fill: var(--text-dim); }
+.wname__b:hover, .wname__b[aria-expanded="true"] { border-color: var(--accent-dim); }
+.wname__b:hover svg, .wname__b[aria-expanded="true"] svg { fill: var(--accent); }
+.wpanel {
+  width: 258px; margin-top: 6px; padding: 12px; border-radius: 6px;
+  background: rgba(6, 14, 19, 0.9); border: 1px solid var(--line);
+  backdrop-filter: blur(3px);
+}
+.wpanel .dlabel { margin-top: 0; padding-top: 0; border-top: 0; }
+.prov {
+  display: block; margin-top: 3px; font-style: normal; text-transform: none;
+  letter-spacing: 0; color: var(--warn);
+}
+
+/* A stat bar is white up to the figure the two readings share, then a coloured
+   tail for the difference — added to the right, taken off the end. */
+.sr__bar { display: flex; }
+.sr__bar i.base { background: var(--text-dim); }
+.sr__v i { font-style: normal; }
+.sr__v i.up { color: var(--accent); }
+.sr__v i.down { color: var(--red); }
+.delta .sr:last-child { margin-bottom: 0; }
+/* A stat this attachment leaves alone is still shown, just quietly. */
+.sr.is-flat .sr__n, .sr.is-flat .sr__v { color: var(--text-faint); }
+.sr__n .untracked {
+  font-family: var(--mono); font-size: 8px; font-style: normal;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn);
+  opacity: 0.75; margin-left: 5px;
+}
+.wstats .kv { padding: 3px 0; border-top: 1px solid var(--line); }
+.wstats .kv:first-of-type { margin-top: 10px; }
+
+/* Bottom right of the stage, where the game puts INSTALL. */
+.equip {
+  position: absolute; right: 64px; bottom: 16px; z-index: 3;
+  font: inherit; font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 10px 26px; cursor: pointer;
+  color: var(--bg); background: var(--accent); border: 0; border-radius: 4px;
+}
+.equip.is-fitted { color: var(--accent); background: transparent; border: 1px solid var(--accent); }
+
+/* With a slot open the game shows only that slot's marker. */
+.chip3.is-on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+.chip3.is-on .chip3__label { color: var(--accent); }
+.chip3.has-item { border-color: var(--accent-dim); }
+.stage.is-focused .chip3 { opacity: 0.18; }
+.stage.is-focused .chip3.is-on { opacity: 1; }
+.stage.is-focused .stage__wires { opacity: 0.25; }
+
+@media (max-width: 900px) {
+  .panel { position: static; inset: auto; max-width: none; margin-top: 10px; }
+  .picks, .dpane { max-height: 52vh; }
+  .picks { width: 45%; }
+  .dpane { width: 55%; }
+  .equip { position: static; display: block; width: 100%; margin-top: 10px; }
+}
+}
+
+}
+
+.shotlink { position: relative; display: inline-block; text-decoration: none; }
+.shotlink__cue {
+  display: block; margin-top: 6px; font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint);
+}
+.shotlink:hover .shot, .shotlink:focus-visible .shot { border-color: var(--accent-dim); }
+.shotlink:hover .shotlink__cue, .shotlink:focus-visible .shotlink__cue { color: var(--accent); }
+
+.stage {
+  position: relative; width: 100%; border: 1px solid var(--line);
+  border-radius: 8px; overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #10333d 0%, transparent 60%),
+    var(--surface);
+}
+.stage__gun { position: absolute; object-fit: contain; }
+.stage__wires {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  /* vector-effect keeps the hairline a hairline once the stage is scaled down;
+     without it preserveAspectRatio="none" stretches the stroke too. */
+  stroke: var(--line-2); stroke-width: 1; fill: none;
+}
+.stage__wires line { vector-effect: non-scaling-stroke; }
+
+.chip3 {
+  position: absolute; display: block; text-decoration: none;
+  border: 1px solid var(--line-2); border-radius: 2px; background: rgba(6,14,19,.35);
+}
+.chip3__art {
+  display: block; width: 100%; height: 100%;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+}
+.chip3__label {
+  position: absolute; bottom: 100%; left: 0; margin-bottom: 3px;
+  font-size: 11px; line-height: 1; white-space: nowrap; color: var(--text-dim);
+}
+.chip3 em {
+  position: absolute; right: -1px; bottom: -1px; padding: 0 4px;
+  font-family: var(--mono); font-size: 10px; font-style: normal;
+  color: var(--bg); background: var(--accent-dim); border-radius: 2px 0 0 0;
+}
+.chip3:hover, .chip3:focus-visible {
+  border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-dim);
+}
+.chip3:hover .chip3__label, .chip3:focus-visible .chip3__label { color: var(--accent); }
+
+.pins { position: absolute; inset: 0; }
+.pin {
+  position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px;
+  padding: 0; border: 2px solid var(--warn); border-radius: 50%;
+  background: rgba(245,217,10,.25); cursor: grab; touch-action: none;
+}
+.pin:active { cursor: grabbing; }
+.stage.is-placing .chip3 { pointer-events: none; }
+
+.btn {
+  font: inherit; font-size: 13px; padding: 7px 14px; cursor: pointer;
+  color: var(--bg); background: var(--accent); border: 0; border-radius: 6px;
+}
+.out {
+  font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 12px; overflow-x: auto; max-height: 40vh;
+}
+
+@media (max-width: 700px) {
+  .chip3__label { font-size: 9px; }
+}
+
 figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .canvas {
   background: var(--surface); border: 1px solid var(--line);
@@ -366,7 +722,8 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
 
   <div class="browse">
     <aside class="browse__nav">
-      <input class="filter" type="search" placeholder="Search everything&hellip;"
+      <input class="filter" type="search"
+             placeholder="Search everything, or #missing-info&hellip;"
              aria-label="Search every weapon, round and attachment">
       <nav aria-label="Catalogue groups">
       <details class="navgroup" open>
@@ -411,18 +768,17 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <details class="navgroup">
         <summary>Attachments<span class="count">438</span></summary>
         <div class="navgroup__list">
-          <a class="navlink" href="#cat-muzzle" data-group="cat-muzzle">Muzzle<em>37</em></a>
-          <a class="navlink" href="#cat-barrel" data-group="cat-barrel">Barrel<em>109</em></a>
+          <a class="navlink" href="#cat-muzzle" data-group="cat-muzzle">Muzzle<em>39</em></a>
+          <a class="navlink" href="#cat-barrel" data-group="cat-barrel">Barrel<em>111</em></a>
           <a class="navlink" href="#cat-handguard" data-group="cat-handguard">Handguard<em>26</em></a>
-          <a class="navlink" href="#cat-foregrip" data-group="cat-foregrip">Foregrip<em>21</em></a>
-          <a class="navlink" href="#cat-rear-grip" data-group="cat-rear-grip">Rear grip<em>32</em></a>
-          <a class="navlink" href="#cat-stock" data-group="cat-stock">Stock<em>61</em></a>
+          <a class="navlink" href="#cat-foregrip" data-group="cat-foregrip">Foregrip<em>23</em></a>
+          <a class="navlink" href="#cat-rear-grip" data-group="cat-rear-grip">Rear grip<em>36</em></a>
+          <a class="navlink" href="#cat-stock" data-group="cat-stock">Stock<em>63</em></a>
           <a class="navlink" href="#cat-mag" data-group="cat-mag">Magazine<em>59</em></a>
-          <a class="navlink" href="#cat-optic" data-group="cat-optic">Optic<em>33</em></a>
-          <a class="navlink" href="#cat-functional" data-group="cat-functional">Functional<em>36</em></a>
-          <span class="navdiv">By status</span>
-          <a class="navlink" href="#status-read-off" data-group="status-read-off">Read off the game<em>21</em></a>
-          <a class="navlink" href="#status-missing" data-group="status-missing">Missing info<em>3</em></a>
+          <a class="navlink" href="#cat-optic" data-group="cat-optic">Optic<em>42</em></a>
+          <a class="navlink" href="#cat-functional" data-group="cat-functional">Functional<em>39</em></a>
+          <span class="navdiv">By tag</span>
+          <a class="navlink navlink--tag" href="#missing-info" data-tag="missing-info" title="Records still short of complete"><code>#missing-info</code><em>42</em></a>
         </div>
       </details>
       </nav>
@@ -431,107 +787,107 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
     <section class="group" id="class-assault-rifle" hidden>
       <h2>Assault Rifle <span class="count">23</span></h2>
       <div class="tiles">
-      <a class="tile" href="catalogue/gun-ak-12.html"><span class="tile__art" style="background-image:url(gear/ak-12.png)"></span><span class="tile__name">AK-12</span></a>
-      <a class="tile" href="catalogue/gun-akm.html"><span class="tile__art" style="background-image:url(gear/akm.png)"></span><span class="tile__name">AKM</span></a>
-      <a class="tile" href="catalogue/gun-aks-74.html"><span class="tile__art" style="background-image:url(gear/aks-74.png)"></span><span class="tile__name">AKS-74</span></a>
-      <a class="tile" href="catalogue/gun-ar-57.html"><span class="tile__art" style="background-image:url(gear/ar-57.png)"></span><span class="tile__name">AR-57</span></a>
-      <a class="tile" href="catalogue/gun-as-val.html"><span class="tile__art" style="background-image:url(gear/as-val.png)"></span><span class="tile__name">AS VAL</span></a>
-      <a class="tile" href="catalogue/gun-ash-12.html"><span class="tile__art" style="background-image:url(gear/ash-12.png)"></span><span class="tile__name">ASh-12</span></a>
-      <a class="tile" href="catalogue/gun-aug.html"><span class="tile__art" style="background-image:url(gear/aug.png)"></span><span class="tile__name">AUG</span></a>
-      <a class="tile" href="catalogue/gun-car-15.html"><span class="tile__art" style="background-image:url(gear/car-15.png)"></span><span class="tile__name">CAR-15</span></a>
-      <a class="tile" href="catalogue/gun-ci-19.html"><span class="tile__art" style="background-image:url(gear/ci-19.png)"></span><span class="tile__name">CI-19</span></a>
-      <a class="tile" href="catalogue/gun-g3.html"><span class="tile__art" style="background-image:url(gear/g3.png)"></span><span class="tile__name">G3</span></a>
-      <a class="tile" href="catalogue/gun-k416.html"><span class="tile__art" style="background-image:url(gear/k416.png)"></span><span class="tile__name">K416</span></a>
-      <a class="tile" href="catalogue/gun-k437.html"><span class="tile__art" style="background-image:url(gear/k437.png)"></span><span class="tile__name">K437</span></a>
-      <a class="tile" href="catalogue/gun-kc17.html"><span class="tile__art" style="background-image:url(gear/kc17.png)"></span><span class="tile__name">KC17</span></a>
-      <a class="tile" href="catalogue/gun-m16a4.html"><span class="tile__art" style="background-image:url(gear/m16a4.png)"></span><span class="tile__name">M16A4</span></a>
-      <a class="tile" href="catalogue/gun-m4a1.html"><span class="tile__art" style="background-image:url(gear/m4a1.png)"></span><span class="tile__name">M4A1</span></a>
-      <a class="tile" href="catalogue/gun-m7.html"><span class="tile__art" style="background-image:url(gear/m7.png)"></span><span class="tile__name">M7</span></a>
-      <a class="tile" href="catalogue/gun-mcx-lt.html"><span class="tile__art" style="background-image:url(gear/mcx-lt.png)"></span><span class="tile__name">MCX LT</span></a>
-      <a class="tile" href="catalogue/gun-mk47.html"><span class="tile__art" style="background-image:url(gear/mk47.png)"></span><span class="tile__name">MK47</span></a>
-      <a class="tile" href="catalogue/gun-ptr-32.html"><span class="tile__art" style="background-image:url(gear/ptr-32.png)"></span><span class="tile__name">PTR-32</span></a>
-      <a class="tile" href="catalogue/gun-qbz95-1.html"><span class="tile__art" style="background-image:url(gear/qbz95-1.png)"></span><span class="tile__name">QBZ95-1</span></a>
-      <a class="tile" href="catalogue/gun-rm277.html"><span class="tile__art" style="background-image:url(gear/rm277.png)"></span><span class="tile__name">RM277</span></a>
-      <a class="tile" href="catalogue/gun-scar-h.html"><span class="tile__art" style="background-image:url(gear/scar-h.png)"></span><span class="tile__name">SCAR-H</span></a>
-      <a class="tile" href="catalogue/gun-sg552.html"><span class="tile__art" style="background-image:url(gear/sg552.png)"></span><span class="tile__name">SG552</span></a>
+      <a class="tile" href="catalogue/gun-ak-12.html"><span class="tile__art"></span><span class="tile__name">AK-12</span></a>
+      <a class="tile" href="catalogue/gun-akm.html"><span class="tile__art"></span><span class="tile__name">AKM</span></a>
+      <a class="tile" href="catalogue/gun-aks-74.html"><span class="tile__art"></span><span class="tile__name">AKS-74</span></a>
+      <a class="tile" href="catalogue/gun-ar-57.html"><span class="tile__art"></span><span class="tile__name">AR-57</span></a>
+      <a class="tile" href="catalogue/gun-as-val.html"><span class="tile__art"></span><span class="tile__name">AS VAL</span></a>
+      <a class="tile" href="catalogue/gun-ash-12.html"><span class="tile__art"></span><span class="tile__name">ASh-12</span></a>
+      <a class="tile" href="catalogue/gun-aug.html"><span class="tile__art"></span><span class="tile__name">AUG</span></a>
+      <a class="tile" href="catalogue/gun-car-15.html"><span class="tile__art"></span><span class="tile__name">CAR-15</span></a>
+      <a class="tile" href="catalogue/gun-ci-19.html"><span class="tile__art"></span><span class="tile__name">CI-19</span></a>
+      <a class="tile" href="catalogue/gun-g3.html"><span class="tile__art"></span><span class="tile__name">G3</span></a>
+      <a class="tile" href="catalogue/gun-k416.html"><span class="tile__art"></span><span class="tile__name">K416</span></a>
+      <a class="tile" href="catalogue/gun-k437.html"><span class="tile__art"></span><span class="tile__name">K437</span></a>
+      <a class="tile" href="catalogue/gun-kc17.html"><span class="tile__art"></span><span class="tile__name">KC17</span></a>
+      <a class="tile" href="catalogue/gun-m16a4.html"><span class="tile__art"></span><span class="tile__name">M16A4</span></a>
+      <a class="tile" href="catalogue/gun-m4a1.html"><span class="tile__art"></span><span class="tile__name">M4A1</span></a>
+      <a class="tile" href="catalogue/gun-m7.html"><span class="tile__art"></span><span class="tile__name">M7</span></a>
+      <a class="tile" href="catalogue/gun-mcx-lt.html"><span class="tile__art"></span><span class="tile__name">MCX LT</span></a>
+      <a class="tile" href="catalogue/gun-mk47.html"><span class="tile__art"></span><span class="tile__name">MK47</span></a>
+      <a class="tile" href="catalogue/gun-ptr-32.html"><span class="tile__art"></span><span class="tile__name">PTR-32</span></a>
+      <a class="tile" href="catalogue/gun-qbz95-1.html"><span class="tile__art"></span><span class="tile__name">QBZ95-1</span></a>
+      <a class="tile" href="catalogue/gun-rm277.html"><span class="tile__art"></span><span class="tile__name">RM277</span></a>
+      <a class="tile" href="catalogue/gun-scar-h.html"><span class="tile__art"></span><span class="tile__name">SCAR-H</span></a>
+      <a class="tile" href="catalogue/gun-sg552.html"><span class="tile__art"></span><span class="tile__name">SG552</span></a>
       </div>
     </section>
     <section class="group" id="class-smg" hidden>
       <h2>SMG <span class="count">11</span></h2>
       <div class="tiles">
-      <a class="tile" href="catalogue/gun-bizon.html"><span class="tile__art" style="background-image:url(gear/bizon.png)"></span><span class="tile__name">Bizon</span></a>
-      <a class="tile" href="catalogue/gun-mk4.html"><span class="tile__art" style="background-image:url(gear/mk4.png)"></span><span class="tile__name">MK4</span></a>
-      <a class="tile" href="catalogue/gun-mp5.html"><span class="tile__art" style="background-image:url(gear/mp5.png)"></span><span class="tile__name">MP5</span></a>
-      <a class="tile" href="catalogue/gun-mp7.html"><span class="tile__art" style="background-image:url(gear/mp7.png)"></span><span class="tile__name">MP7</span></a>
-      <a class="tile" href="catalogue/gun-p90.html"><span class="tile__art" style="background-image:url(gear/p90.png)"></span><span class="tile__name">P90</span></a>
-      <a class="tile" href="catalogue/gun-qcq-171.html"><span class="tile__art" style="background-image:url(gear/qcq-171.png)"></span><span class="tile__name">QCQ-171</span></a>
-      <a class="tile" href="catalogue/gun-smg-45.html"><span class="tile__art" style="background-image:url(gear/smg-45.png)"></span><span class="tile__name">SMG-45</span></a>
-      <a class="tile" href="catalogue/gun-sr-3m.html"><span class="tile__art" style="background-image:url(gear/sr-3m.png)"></span><span class="tile__name">SR-3M</span></a>
-      <a class="tile" href="catalogue/gun-uzi.html"><span class="tile__art" style="background-image:url(gear/uzi.png)"></span><span class="tile__name">UZI</span></a>
-      <a class="tile" href="catalogue/gun-vector.html"><span class="tile__art" style="background-image:url(gear/vector.png)"></span><span class="tile__name">Vector</span></a>
-      <a class="tile" href="catalogue/gun-vityaz.html"><span class="tile__art" style="background-image:url(gear/vityaz.png)"></span><span class="tile__name">Vityaz</span></a>
+      <a class="tile" href="catalogue/gun-bizon.html"><span class="tile__art"></span><span class="tile__name">Bizon</span></a>
+      <a class="tile" href="catalogue/gun-mk4.html"><span class="tile__art"></span><span class="tile__name">MK4</span></a>
+      <a class="tile" href="catalogue/gun-mp5.html"><span class="tile__art"></span><span class="tile__name">MP5</span></a>
+      <a class="tile" href="catalogue/gun-mp7.html"><span class="tile__art"></span><span class="tile__name">MP7</span></a>
+      <a class="tile" href="catalogue/gun-p90.html"><span class="tile__art"></span><span class="tile__name">P90</span></a>
+      <a class="tile" href="catalogue/gun-qcq-171.html"><span class="tile__art"></span><span class="tile__name">QCQ-171</span></a>
+      <a class="tile" href="catalogue/gun-smg-45.html"><span class="tile__art"></span><span class="tile__name">SMG-45</span></a>
+      <a class="tile" href="catalogue/gun-sr-3m.html"><span class="tile__art"></span><span class="tile__name">SR-3M</span></a>
+      <a class="tile" href="catalogue/gun-uzi.html"><span class="tile__art"></span><span class="tile__name">UZI</span></a>
+      <a class="tile" href="catalogue/gun-vector.html"><span class="tile__art"></span><span class="tile__name">Vector</span></a>
+      <a class="tile" href="catalogue/gun-vityaz.html"><span class="tile__art"></span><span class="tile__name">Vityaz</span></a>
       </div>
     </section>
     <section class="group" id="class-marksman-rifle" hidden>
       <h2>Marksman Rifle <span class="count">10</span></h2>
       <div class="tiles">
-      <a class="tile" href="catalogue/gun-m14.html"><span class="tile__art" style="background-image:url(gear/m14.png)"></span><span class="tile__name">M14</span></a>
-      <a class="tile" href="catalogue/gun-marlin.html"><span class="tile__art" style="background-image:url(gear/marlin.png)"></span><span class="tile__name">Marlin Lever-action</span></a>
-      <a class="tile" href="catalogue/gun-mini-14.html"><span class="tile__art" style="background-image:url(gear/mini-14.png)"></span><span class="tile__name">Mini-14</span></a>
-      <a class="tile" href="catalogue/gun-psg-1.html"><span class="tile__art" style="background-image:url(gear/psg-1.png)"></span><span class="tile__name">PSG-1</span></a>
-      <a class="tile" href="catalogue/gun-sks.html"><span class="tile__art" style="background-image:url(gear/sks.png)"></span><span class="tile__name">SKS</span></a>
-      <a class="tile" href="catalogue/gun-sr-25.html"><span class="tile__art" style="background-image:url(gear/sr-25.png)"></span><span class="tile__name">SR-25</span></a>
-      <a class="tile" href="catalogue/gun-sr9.html"><span class="tile__art" style="background-image:url(gear/sr9.png)"></span><span class="tile__name">SR9</span></a>
-      <a class="tile" href="catalogue/gun-svch.html"><span class="tile__art" style="background-image:url(gear/svch.png)"></span><span class="tile__name">SVCH</span></a>
-      <a class="tile" href="catalogue/gun-svd.html"><span class="tile__art" style="background-image:url(gear/svd.png)"></span><span class="tile__name">SVD</span></a>
-      <a class="tile" href="catalogue/gun-vss.html"><span class="tile__art" style="background-image:url(gear/vss.png)"></span><span class="tile__name">VSS</span></a>
+      <a class="tile" href="catalogue/gun-m14.html"><span class="tile__art"></span><span class="tile__name">M14</span></a>
+      <a class="tile" href="catalogue/gun-marlin.html"><span class="tile__art"></span><span class="tile__name">Marlin Lever-action</span></a>
+      <a class="tile" href="catalogue/gun-mini-14.html"><span class="tile__art"></span><span class="tile__name">Mini-14</span></a>
+      <a class="tile" href="catalogue/gun-psg-1.html"><span class="tile__art"></span><span class="tile__name">PSG-1</span></a>
+      <a class="tile" href="catalogue/gun-sks.html"><span class="tile__art"></span><span class="tile__name">SKS</span></a>
+      <a class="tile" href="catalogue/gun-sr-25.html"><span class="tile__art"></span><span class="tile__name">SR-25</span></a>
+      <a class="tile" href="catalogue/gun-sr9.html"><span class="tile__art"></span><span class="tile__name">SR9</span></a>
+      <a class="tile" href="catalogue/gun-svch.html"><span class="tile__art"></span><span class="tile__name">SVCH</span></a>
+      <a class="tile" href="catalogue/gun-svd.html"><span class="tile__art"></span><span class="tile__name">SVD</span></a>
+      <a class="tile" href="catalogue/gun-vss.html"><span class="tile__art"></span><span class="tile__name">VSS</span></a>
       </div>
     </section>
     <section class="group" id="class-sniper-rifle" hidden>
       <h2>Sniper Rifle <span class="count">5</span></h2>
       <div class="tiles">
-      <a class="tile" href="catalogue/gun-awm.html"><span class="tile__art" style="background-image:url(gear/awm.png)"></span><span class="tile__name">AWM</span></a>
-      <a class="tile" href="catalogue/gun-m700.html"><span class="tile__art" style="background-image:url(gear/m700.png)"></span><span class="tile__name">M700</span></a>
-      <a class="tile" href="catalogue/gun-m82.html"><span class="tile__art" style="background-image:url(gear/m82.png)"></span><span class="tile__name">M82</span></a>
-      <a class="tile" href="catalogue/gun-r93.html"><span class="tile__art" style="background-image:url(gear/r93.png)"></span><span class="tile__name">R93</span></a>
-      <a class="tile" href="catalogue/gun-sv-98.html"><span class="tile__art" style="background-image:url(gear/sv-98.png)"></span><span class="tile__name">SV-98</span></a>
+      <a class="tile" href="catalogue/gun-awm.html"><span class="tile__art"></span><span class="tile__name">AWM</span></a>
+      <a class="tile" href="catalogue/gun-m700.html"><span class="tile__art"></span><span class="tile__name">M700</span></a>
+      <a class="tile" href="catalogue/gun-m82.html"><span class="tile__art"></span><span class="tile__name">M82</span></a>
+      <a class="tile" href="catalogue/gun-r93.html"><span class="tile__art"></span><span class="tile__name">R93</span></a>
+      <a class="tile" href="catalogue/gun-sv-98.html"><span class="tile__art"></span><span class="tile__name">SV-98</span></a>
       </div>
     </section>
     <section class="group" id="class-light-machinegun" hidden>
       <h2>Light Machinegun <span class="count">4</span></h2>
       <div class="tiles">
-      <a class="tile" href="catalogue/gun-m249.html"><span class="tile__art" style="background-image:url(gear/m249.png)"></span><span class="tile__name">M249</span></a>
-      <a class="tile" href="catalogue/gun-m250.html"><span class="tile__art" style="background-image:url(gear/m250.png)"></span><span class="tile__name">M250</span></a>
-      <a class="tile" href="catalogue/gun-pkm.html"><span class="tile__art" style="background-image:url(gear/pkm.png)"></span><span class="tile__name">PKM</span></a>
-      <a class="tile" href="catalogue/gun-qjb201.html"><span class="tile__art" style="background-image:url(gear/qjb201.png)"></span><span class="tile__name">QJB201</span></a>
+      <a class="tile" href="catalogue/gun-m249.html"><span class="tile__art"></span><span class="tile__name">M249</span></a>
+      <a class="tile" href="catalogue/gun-m250.html"><span class="tile__art"></span><span class="tile__name">M250</span></a>
+      <a class="tile" href="catalogue/gun-pkm.html"><span class="tile__art"></span><span class="tile__name">PKM</span></a>
+      <a class="tile" href="catalogue/gun-qjb201.html"><span class="tile__art"></span><span class="tile__name">QJB201</span></a>
       </div>
     </section>
     <section class="group" id="class-shotgun" hidden>
       <h2>Shotgun <span class="count">5</span></h2>
       <div class="tiles">
-      <a class="tile" href="catalogue/gun-725.html"><span class="tile__art" style="background-image:url(gear/725.png)"></span><span class="tile__name">725</span></a>
-      <a class="tile" href="catalogue/gun-fs-12.html"><span class="tile__art" style="background-image:url(gear/fs-12.png)"></span><span class="tile__name">FS-12</span></a>
-      <a class="tile" href="catalogue/gun-m1014.html"><span class="tile__art" style="background-image:url(gear/m1014.png)"></span><span class="tile__name">M1014</span></a>
-      <a class="tile" href="catalogue/gun-m870.html"><span class="tile__art" style="background-image:url(gear/m870.png)"></span><span class="tile__name">M870</span></a>
-      <a class="tile" href="catalogue/gun-s12k.html"><span class="tile__art" style="background-image:url(gear/s12k.png)"></span><span class="tile__name">S12K</span></a>
+      <a class="tile" href="catalogue/gun-725.html"><span class="tile__art"></span><span class="tile__name">725</span></a>
+      <a class="tile" href="catalogue/gun-fs-12.html"><span class="tile__art"></span><span class="tile__name">FS-12</span></a>
+      <a class="tile" href="catalogue/gun-m1014.html"><span class="tile__art"></span><span class="tile__name">M1014</span></a>
+      <a class="tile" href="catalogue/gun-m870.html"><span class="tile__art"></span><span class="tile__name">M870</span></a>
+      <a class="tile" href="catalogue/gun-s12k.html"><span class="tile__art"></span><span class="tile__name">S12K</span></a>
       </div>
     </section>
     <section class="group" id="class-pistol" hidden>
       <h2>Pistol <span class="count">7</span></h2>
       <div class="tiles">
-      <a class="tile" href="catalogue/gun-357-revolver.html"><span class="tile__art" style="background-image:url(gear/357-revolver.png)"></span><span class="tile__name">.357 Revolver</span></a>
-      <a class="tile" href="catalogue/gun-93r.html"><span class="tile__art" style="background-image:url(gear/93r.png)"></span><span class="tile__name">93R</span></a>
-      <a class="tile" href="catalogue/gun-desert-eagle.html"><span class="tile__art" style="background-image:url(gear/desert-eagle.png)"></span><span class="tile__name">Desert Eagle</span></a>
-      <a class="tile" href="catalogue/gun-g17.html"><span class="tile__art" style="background-image:url(gear/g17.png)"></span><span class="tile__name">G17</span></a>
-      <a class="tile" href="catalogue/gun-g18.html"><span class="tile__art" style="background-image:url(gear/g18.png)"></span><span class="tile__name">G18</span></a>
-      <a class="tile" href="catalogue/gun-m1911.html"><span class="tile__art" style="background-image:url(gear/m1911.png)"></span><span class="tile__name">M1911</span></a>
-      <a class="tile" href="catalogue/gun-qsz-92g.html"><span class="tile__art" style="background-image:url(gear/qsz-92g.png)"></span><span class="tile__name">QSZ-92G</span></a>
+      <a class="tile" href="catalogue/gun-357-revolver.html"><span class="tile__art"></span><span class="tile__name">.357 Revolver</span></a>
+      <a class="tile" href="catalogue/gun-93r.html"><span class="tile__art"></span><span class="tile__name">93R</span></a>
+      <a class="tile" href="catalogue/gun-desert-eagle.html"><span class="tile__art"></span><span class="tile__name">Desert Eagle</span></a>
+      <a class="tile" href="catalogue/gun-g17.html"><span class="tile__art"></span><span class="tile__name">G17</span></a>
+      <a class="tile" href="catalogue/gun-g18.html"><span class="tile__art"></span><span class="tile__name">G18</span></a>
+      <a class="tile" href="catalogue/gun-m1911.html"><span class="tile__art"></span><span class="tile__name">M1911</span></a>
+      <a class="tile" href="catalogue/gun-qsz-92g.html"><span class="tile__art"></span><span class="tile__name">QSZ-92G</span></a>
       </div>
     </section>
     <section class="group" id="class-special" hidden>
       <h2>Special <span class="count">1</span></h2>
       <div class="tiles">
-      <a class="tile" href="catalogue/gun-compound-bow.html"><span class="tile__art" style="background-image:url(gear/compound-bow.png)"></span><span class="tile__name">Compound Bow</span></a>
+      <a class="tile" href="catalogue/gun-compound-bow.html"><span class="tile__art"></span><span class="tile__name">Compound Bow</span></a>
       </div>
     </section>
     <section class="group" id="caliber-300-blackout" hidden>
@@ -729,15 +1085,16 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       </div>
     </section>
     <section class="group" id="cat-muzzle" hidden>
-      <h2>Muzzle <span class="count">37</span></h2>
+      <h2>Muzzle <span class="count">39</span></h2>
       <div class="tiles">
       <a class="tile" href="catalogue/ak-bravefire-suppressor.html"><span class="tile__art" style="background-image:url(att/ak-bravefire-suppressor.png)"></span><span class="tile__name">AK Bravefire Suppressor</span></a>
       <a class="tile" href="catalogue/ak-practical-compensator.html"><span class="tile__art" style="background-image:url(att/ak-practical-compensator.png)"></span><span class="tile__name">AK Practical Compensator</span></a>
       <a class="tile" href="catalogue/advanced-multi-caliber-suppressor.html"><span class="tile__art" style="background-image:url(att/advanced-multi-caliber-suppressor.png)"></span><span class="tile__name">Advanced Multi-Caliber Suppressor</span></a>
-      <a class="tile tile--gap" href="catalogue/bastion-horizontal-compensator.html"><span class="tile__art" style="background-image:url(att/bastion-horizontal-compensator.png)"></span><span class="tile__name">Bastion Horizontal Compensator</span></a>
+      <a class="tile tile--gap" href="catalogue/bastion-horizontal-compensator.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/bastion-horizontal-compensator.png)"></span><span class="tile__name">Bastion Horizontal Compensator</span></a>
       <a class="tile" href="catalogue/bell-mouth-flash-hider.html"><span class="tile__art" style="background-image:url(att/bell-mouth-flash-hider.png)"></span><span class="tile__name">Bell Mouth Flash Hider</span></a>
       <a class="tile" href="catalogue/birdcage-flash-hider.html"><span class="tile__art" style="background-image:url(att/birdcage-flash-hider.png)"></span><span class="tile__name">Birdcage Flash Hider</span></a>
       <a class="tile" href="catalogue/blazing-fire-suppressor.html"><span class="tile__art" style="background-image:url(att/blazing-fire-suppressor.png)"></span><span class="tile__name">Blazing Fire Suppressor</span></a>
+      <a class="tile tile--gap" href="catalogue/cobweb-titanium-muzzle-brake.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/cobweb-titanium-muzzle-brake.png)"></span><span class="tile__name">Cobweb Titanium Muzzle Brake</span></a>
       <a class="tile" href="catalogue/dtk-muzzle-brake.html"><span class="tile__art" style="background-image:url(att/dtk-muzzle-brake.png)"></span><span class="tile__name">DTK Muzzle Brake</span></a>
       <a class="tile" href="catalogue/elite-pistol-muzzle-brake.html"><span class="tile__art" style="background-image:url(att/elite-pistol-muzzle-brake.png)"></span><span class="tile__name">Elite Pistol Muzzle Brake</span></a>
       <a class="tile" href="catalogue/ember-suppressor.html"><span class="tile__art" style="background-image:url(att/ember-suppressor.png)"></span><span class="tile__name">Ember Suppressor</span></a>
@@ -749,11 +1106,12 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/practical-pistol-flash-hider.html"><span class="tile__art" style="background-image:url(att/practical-pistol-flash-hider.png)"></span><span class="tile__name">Practical Pistol Flash Hider</span></a>
       <a class="tile" href="catalogue/practical-suppressor.html"><span class="tile__art" style="background-image:url(att/practical-suppressor.png)"></span><span class="tile__name">Practical Suppressor</span></a>
       <a class="tile" href="catalogue/purifica-pistol-suppressor.html"><span class="tile__art" style="background-image:url(att/purifica-pistol-suppressor.png)"></span><span class="tile__name">Purifica Pistol Suppressor</span></a>
+      <a class="tile tile--gap" href="catalogue/rm277-breaker-suppressor.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/rm277-breaker-suppressor.png)"></span><span class="tile__name">RM277 Breaker Suppressor</span></a>
       <a class="tile" href="catalogue/resonant-sniper-rifle-suppressor.html"><span class="tile__art" style="background-image:url(att/resonant-sniper-rifle-suppressor.png)"></span><span class="tile__name">Resonant Sniper Rifle Suppressor</span></a>
       <a class="tile" href="catalogue/russian-smg-precision-suppressor.html"><span class="tile__art" style="background-image:url(att/russian-smg-precision-suppressor.png)"></span><span class="tile__name">Russian SMG Precision Suppressor</span></a>
       <a class="tile" href="catalogue/smg-echo-suppressor.html"><span class="tile__art" style="background-image:url(att/smg-echo-suppressor.png)"></span><span class="tile__name">SMG Echo Suppressor</span></a>
       <a class="tile" href="catalogue/sr-3m-stealth-suppressor.html"><span class="tile__art" style="background-image:url(att/sr-3m-stealth-suppressor.png)"></span><span class="tile__name">SR-3M Stealth Suppressor</span></a>
-      <a class="tile tile--gap" href="catalogue/sandstorm-vertical-compensator.html"><span class="tile__art" style="background-image:url(att/sandstorm-vertical-compensator.png)"></span><span class="tile__name">Sandstorm Vertical Compensator</span></a>
+      <a class="tile tile--gap" href="catalogue/sandstorm-vertical-compensator.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/sandstorm-vertical-compensator.png)"></span><span class="tile__name">Sandstorm Vertical Compensator</span></a>
       <a class="tile" href="catalogue/shotgun-cage-compensator.html"><span class="tile__art" style="background-image:url(att/shotgun-cage-compensator.png)"></span><span class="tile__name">Shotgun Cage Compensator</span></a>
       <a class="tile" href="catalogue/shotgun-cannon-muzzle-brake.html"><span class="tile__art" style="background-image:url(att/shotgun-cannon-muzzle-brake.png)"></span><span class="tile__name">Shotgun Cannon Muzzle Brake</span></a>
       <a class="tile" href="catalogue/shotgun-echo-suppressor.html"><span class="tile__art" style="background-image:url(att/shotgun-echo-suppressor.png)"></span><span class="tile__name">Shotgun Echo Suppressor</span></a>
@@ -771,7 +1129,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       </div>
     </section>
     <section class="group" id="cat-barrel" hidden>
-      <h2>Barrel <span class="count">109</span></h2>
+      <h2>Barrel <span class="count">111</span></h2>
       <div class="tiles">
       <a class="tile" href="catalogue/357-revolver-long-barrel.html"><span class="tile__art" style="background-image:url(att/357-revolver-long-barrel.png)"></span><span class="tile__name">.357 Revolver Long Barrel</span></a>
       <a class="tile" href="catalogue/357-revolver-zephyr-barrel.html"><span class="tile__art" style="background-image:url(att/357-revolver-zephyr-barrel.png)"></span><span class="tile__name">.357 Revolver Zephyr Barrel</span></a>
@@ -848,6 +1206,8 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/qbz95-1-practical-short-barrel.html"><span class="tile__art" style="background-image:url(att/qbz95-1-practical-short-barrel.png)"></span><span class="tile__name">QBZ95-1 Practical Short Barrel</span></a>
       <a class="tile" href="catalogue/r93-fission-long-barrel.html"><span class="tile__art" style="background-image:url(att/r93-fission-long-barrel.png)"></span><span class="tile__name">R93 Fission Long Barrel</span></a>
       <a class="tile" href="catalogue/r93-lightweight-short-barrel.html"><span class="tile__art" style="background-image:url(att/r93-lightweight-short-barrel.png)"></span><span class="tile__name">R93 Lightweight Short Barrel</span></a>
+      <a class="tile tile--gap" href="catalogue/rm277-heavy-integral-barrel.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/rm277-heavy-integral-barrel.png)"></span><span class="tile__name">RM277 Heavy Integral Barrel</span></a>
+      <a class="tile tile--gap" href="catalogue/rm277-whale-shark-barrel-combo.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/rm277-whale-shark-barrel-combo.png)"></span><span class="tile__name">RM277 Whale Shark Barrel Combo</span></a>
       <a class="tile" href="catalogue/revolver-practical-long-barrel.html"><span class="tile__art" style="background-image:url(att/revolver-practical-long-barrel.png)"></span><span class="tile__name">Revolver Practical Long Barrel</span></a>
       <a class="tile" href="catalogue/revolver-practical-short-barrel.html"><span class="tile__art" style="background-image:url(att/revolver-practical-short-barrel.png)"></span><span class="tile__name">Revolver Practical Short Barrel</span></a>
       <a class="tile" href="catalogue/s12k-breakthrough-long-barrel-combo.html"><span class="tile__art" style="background-image:url(att/s12k-breakthrough-long-barrel-combo.png)"></span><span class="tile__name">S12K Breakthrough Long Barrel Combo</span></a>
@@ -896,7 +1256,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/m14-adv-frame-system.html"><span class="tile__art" style="background-image:url(att/m14-adv-frame-system.png)"></span><span class="tile__name">M14 Adv. Frame System</span></a>
       <a class="tile" href="catalogue/m14-polymer-integral-stock.html"><span class="tile__art" style="background-image:url(att/m14-polymer-integral-stock.png)"></span><span class="tile__name">M14 Polymer Integral Stock</span></a>
       <a class="tile" href="catalogue/m14-rail-integral-stock.html"><span class="tile__art" style="background-image:url(att/m14-rail-integral-stock.png)"></span><span class="tile__name">M14 Rail Integral Stock</span></a>
-      <a class="tile tile--gap" href="catalogue/m249-bipod-handguard.html"><span class="tile__art" style="background-image:url(att/m249-bipod-handguard.png)"></span><span class="tile__name">M249 Bipod Handguard</span></a>
+      <a class="tile tile--gap" href="catalogue/m249-bipod-handguard.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/m249-bipod-handguard.png)"></span><span class="tile__name">M249 Bipod Handguard</span></a>
       <a class="tile" href="catalogue/m249-military-rail-handguard.html"><span class="tile__art" style="background-image:url(att/m249-military-rail-handguard.png)"></span><span class="tile__name">M249 Military Rail Handguard</span></a>
       <a class="tile" href="catalogue/m249-rail-handguard.html"><span class="tile__art" style="background-image:url(att/m249-rail-handguard.png)"></span><span class="tile__name">M249 Rail Handguard</span></a>
       <a class="tile" href="catalogue/m700-adv-frame-system.html"><span class="tile__art" style="background-image:url(att/m700-adv-frame-system.png)"></span><span class="tile__name">M700 Adv. Frame System</span></a>
@@ -916,22 +1276,24 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       </div>
     </section>
     <section class="group" id="cat-foregrip" hidden>
-      <h2>Foregrip <span class="count">21</span></h2>
+      <h2>Foregrip <span class="count">23</span></h2>
       <div class="tiles">
       <a class="tile" href="catalogue/angled-hand-stop.html"><span class="tile__art" style="background-image:url(att/angled-hand-stop.png)"></span><span class="tile__name">Angled Hand Stop</span></a>
-      <a class="tile tile--gap" href="catalogue/cr-prism-hand-stop.html"><span class="tile__art" style="background-image:url(att/cr-prism-hand-stop.png)"></span><span class="tile__name">CR Prism Hand Stop</span></a>
+      <a class="tile tile--gap" href="catalogue/cr-prism-hand-stop.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/cr-prism-hand-stop.png)"></span><span class="tile__name">CR Prism Hand Stop</span></a>
       <a class="tile" href="catalogue/collapsible-bipod-grip.html"><span class="tile__art" style="background-image:url(att/collapsible-bipod-grip.png)"></span><span class="tile__name">Collapsible Bipod Grip</span></a>
       <a class="tile" href="catalogue/competition-hand-stop.html"><span class="tile__art" style="background-image:url(att/competition-hand-stop.png)"></span><span class="tile__name">Competition Hand Stop</span></a>
       <a class="tile" href="catalogue/dawn-angled-flashlight-grip.html"><span class="tile__art" style="background-image:url(att/dawn-angled-flashlight-grip.png)"></span><span class="tile__name">Dawn Angled Flashlight Grip</span></a>
       <a class="tile" href="catalogue/daybreak-vertical-flashlight-grip.html"><span class="tile__art" style="background-image:url(att/daybreak-vertical-flashlight-grip.png)"></span><span class="tile__name">Daybreak Vertical Flashlight Grip</span></a>
+      <a class="tile tile--gap" href="catalogue/ec-universal-front-hand-stop.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/ec-universal-front-hand-stop.png)"></span><span class="tile__name">EC Universal Front Hand Stop</span></a>
       <a class="tile" href="catalogue/folding-grip.html"><span class="tile__art" style="background-image:url(att/folding-grip.png)"></span><span class="tile__name">Folding Grip</span></a>
-      <a class="tile tile--gap" href="catalogue/k1-elite-bevel-foregrip.html"><span class="tile__art" style="background-image:url(att/k1-elite-bevel-foregrip.png)"></span><span class="tile__name">K1 Elite Bevel Foregrip</span></a>
+      <a class="tile tile--gap" href="catalogue/k1-elite-bevel-foregrip.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/k1-elite-bevel-foregrip.png)"></span><span class="tile__name">K1 Elite Bevel Foregrip</span></a>
       <a class="tile" href="catalogue/mini-hand-stop.html"><span class="tile__art" style="background-image:url(att/mini-hand-stop.png)"></span><span class="tile__name">Mini Hand Stop</span></a>
       <a class="tile" href="catalogue/phantom-vertical-foregrip.html"><span class="tile__art" style="background-image:url(att/phantom-vertical-foregrip.png)"></span><span class="tile__name">Phantom Vertical Foregrip</span></a>
       <a class="tile" href="catalogue/phase-combat-foregrip.html"><span class="tile__art" style="background-image:url(att/phase-combat-foregrip.png)"></span><span class="tile__name">Phase Combat Foregrip</span></a>
       <a class="tile" href="catalogue/practical-vertical-foregrip.html"><span class="tile__art" style="background-image:url(att/practical-vertical-foregrip.png)"></span><span class="tile__name">Practical Vertical Foregrip</span></a>
-      <a class="tile tile--gap" href="catalogue/rk-0-foregrip.html"><span class="tile__art" style="background-image:url(att/rk-0-foregrip.png)"></span><span class="tile__name">RK-0 Foregrip</span></a>
+      <a class="tile tile--gap" href="catalogue/rk-0-foregrip.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/rk-0-foregrip.png)"></span><span class="tile__name">RK-0 Foregrip</span></a>
       <a class="tile" href="catalogue/resonant-ergonomic-grip.html"><span class="tile__art" style="background-image:url(att/resonant-ergonomic-grip.png)"></span><span class="tile__name">Resonant Ergonomic Grip</span></a>
+      <a class="tile tile--gap" href="catalogue/resonant-mk-iii-grip.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/resonant-mk-iii-grip.png)"></span><span class="tile__name">Resonant MK III Grip</span></a>
       <a class="tile" href="catalogue/resonant-mkii-foregrip.html"><span class="tile__art" style="background-image:url(att/resonant-mkii-foregrip.png)"></span><span class="tile__name">Resonant MKII Foregrip</span></a>
       <a class="tile" href="catalogue/secret-order-bevel-foregrip.html"><span class="tile__art" style="background-image:url(att/secret-order-bevel-foregrip.png)"></span><span class="tile__name">Secret Order Bevel Foregrip</span></a>
       <a class="tile" href="catalogue/tactical-angled-foregrip.html"><span class="tile__art" style="background-image:url(att/tactical-angled-foregrip.png)"></span><span class="tile__name">Tactical Angled Foregrip</span></a>
@@ -942,7 +1304,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       </div>
     </section>
     <section class="group" id="cat-rear-grip" hidden>
-      <h2>Rear grip <span class="count">32</span></h2>
+      <h2>Rear grip <span class="count">36</span></h2>
       <div class="tiles">
       <a class="tile" href="catalogue/357-revolver-zephyr-rear-grip.html"><span class="tile__art" style="background-image:url(att/357-revolver-zephyr-rear-grip.png)"></span><span class="tile__name">.357 Revolver Zephyr Rear Grip</span></a>
       <a class="tile" href="catalogue/416-practical-rear-grip.html"><span class="tile__art" style="background-image:url(att/416-practical-rear-grip.png)"></span><span class="tile__name">416 Practical Rear Grip</span></a>
@@ -950,7 +1312,11 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/ak-marksman-rear-grip.html"><span class="tile__art" style="background-image:url(att/ak-marksman-rear-grip.png)"></span><span class="tile__name">AK Marksman Rear Grip</span></a>
       <a class="tile" href="catalogue/ak-practical-rear-grip.html"><span class="tile__art" style="background-image:url(att/ak-practical-rear-grip.png)"></span><span class="tile__name">AK Practical Rear Grip</span></a>
       <a class="tile" href="catalogue/ak-stable-rear-grip.html"><span class="tile__art" style="background-image:url(att/ak-stable-rear-grip.png)"></span><span class="tile__name">AK Stable Rear Grip</span></a>
+      <a class="tile tile--gap" href="catalogue/ar-heavy-grip-piece.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/ar-heavy-grip-piece.png)"></span><span class="tile__name">AR Heavy Grip Piece</span></a>
       <a class="tile" href="catalogue/ar-heavy-tower-grip.html"><span class="tile__art" style="background-image:url(att/ar-heavy-tower-grip.png)"></span><span class="tile__name">AR Heavy Tower Grip</span></a>
+      <a class="tile tile--gap" href="catalogue/ar-light-grip-piece.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/ar-light-grip-piece.png)"></span><span class="tile__name">AR Light Grip Piece</span></a>
+      <a class="tile tile--gap" href="catalogue/ar-moe-rear-grip.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/ar-moe-rear-grip.png)"></span><span class="tile__name">AR MOE Rear Grip</span></a>
+      <a class="tile tile--gap" href="catalogue/ar-modular-rear-grip.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/ar-modular-rear-grip.png)"></span><span class="tile__name">AR Modular Rear Grip</span></a>
       <a class="tile" href="catalogue/balanced-grip-base.html"><span class="tile__art" style="background-image:url(att/balanced-grip-base.png)"></span><span class="tile__name">Balanced Grip Base</span></a>
       <a class="tile" href="catalogue/desert-eagle-competition-rear-grip.html"><span class="tile__art" style="background-image:url(att/desert-eagle-competition-rear-grip.png)"></span><span class="tile__name">Desert Eagle Competition Rear Grip</span></a>
       <a class="tile" href="catalogue/g3-rear-grip.html"><span class="tile__art" style="background-image:url(att/g3-rear-grip.png)"></span><span class="tile__name">G3 Rear Grip</span></a>
@@ -979,7 +1345,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       </div>
     </section>
     <section class="group" id="cat-stock" hidden>
-      <h2>Stock <span class="count">61</span></h2>
+      <h2>Stock <span class="count">63</span></h2>
       <div class="tiles">
       <a class="tile" href="catalogue/357-revolver-zephyr-stock.html"><span class="tile__art" style="background-image:url(att/357-revolver-zephyr-stock.png)"></span><span class="tile__name">.357 Revolver Zephyr Stock</span></a>
       <a class="tile" href="catalogue/1014-collapsible-stock-extended.html"><span class="tile__art" style="background-image:url(att/1014-collapsible-stock-extended.png)"></span><span class="tile__name">1014 Collapsible Stock (Extended)</span></a>
@@ -999,7 +1365,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/ash-12-sniper-stock.html"><span class="tile__art" style="background-image:url(att/ash-12-sniper-stock.png)"></span><span class="tile__name">ASh-12 Sniper Stock</span></a>
       <a class="tile" href="catalogue/aug-stock-pad.html"><span class="tile__art" style="background-image:url(att/aug-stock-pad.png)"></span><span class="tile__name">AUG Stock Pad</span></a>
       <a class="tile" href="catalogue/cardinal-advanced-combat-stock.html"><span class="tile__art" style="background-image:url(att/cardinal-advanced-combat-stock.png)"></span><span class="tile__name">Cardinal Advanced Combat Stock</span></a>
-      <a class="tile tile--gap" href="catalogue/cardinal-stable-stock.html"><span class="tile__art" style="background-image:url(att/cardinal-stable-stock.png)"></span><span class="tile__name">Cardinal Stable Stock</span></a>
+      <a class="tile tile--gap" href="catalogue/cardinal-stable-stock.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/cardinal-stable-stock.png)"></span><span class="tile__name">Cardinal Stable Stock</span></a>
       <a class="tile" href="catalogue/core-rail-stock.html"><span class="tile__art" style="background-image:url(att/core-rail-stock.png)"></span><span class="tile__name">Core Rail Stock</span></a>
       <a class="tile" href="catalogue/elite-light-stock.html"><span class="tile__art" style="background-image:url(att/elite-light-stock.png)"></span><span class="tile__name">Elite Light Stock</span></a>
       <a class="tile" href="catalogue/g3-collapsible-stock.html"><span class="tile__art" style="background-image:url(att/g3-collapsible-stock.png)"></span><span class="tile__name">G3 Collapsible Stock</span></a>
@@ -1023,10 +1389,12 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/pkm-zenitco-stock.html"><span class="tile__art" style="background-image:url(att/pkm-zenitco-stock.png)"></span><span class="tile__name">PKM ZenitCo Stock</span></a>
       <a class="tile" href="catalogue/pt1-spec-ops-stock.html"><span class="tile__art" style="background-image:url(att/pt1-spec-ops-stock.png)"></span><span class="tile__name">PT1 Spec Ops Stock</span></a>
       <a class="tile" href="catalogue/pt3-sacrifice-stock.html"><span class="tile__art" style="background-image:url(att/pt3-sacrifice-stock.png)"></span><span class="tile__name">PT3 Sacrifice Stock</span></a>
-      <a class="tile tile--gap" href="catalogue/practical-light-stock.html"><span class="tile__art" style="background-image:url(att/practical-light-stock.png)"></span><span class="tile__name">Practical Light Stock</span></a>
+      <a class="tile tile--gap" href="catalogue/practical-light-stock.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/practical-light-stock.png)"></span><span class="tile__name">Practical Light Stock</span></a>
       <a class="tile" href="catalogue/practical-stable-stock.html"><span class="tile__art" style="background-image:url(att/practical-stable-stock.png)"></span><span class="tile__name">Practical Stable Stock</span></a>
       <a class="tile" href="catalogue/practical-tactical-stock.html"><span class="tile__art" style="background-image:url(att/practical-tactical-stock.png)"></span><span class="tile__name">Practical Tactical Stock</span></a>
       <a class="tile" href="catalogue/qbz-cheek-pad.html"><span class="tile__art" style="background-image:url(att/qbz-cheek-pad.png)"></span><span class="tile__name">QBZ Cheek Pad</span></a>
+      <a class="tile tile--gap" href="catalogue/rm277-cheek-pad.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/rm277-cheek-pad.png)"></span><span class="tile__name">RM277 Cheek Pad</span></a>
+      <a class="tile tile--gap" href="catalogue/rm277-pad.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/rm277-pad.png)"></span><span class="tile__name">RM277 Pad</span></a>
       <a class="tile" href="catalogue/s12k-bump-stock.html"><span class="tile__art" style="background-image:url(att/s12k-bump-stock.png)"></span><span class="tile__name">S12K Bump Stock</span></a>
       <a class="tile" href="catalogue/scar-h-bolt-cover.html"><span class="tile__art" style="background-image:url(att/scar-h-bolt-cover.png)"></span><span class="tile__name">SCAR-H Bolt Cover</span></a>
       <a class="tile" href="catalogue/sg552-bolt-cover.html"><span class="tile__art" style="background-image:url(att/sg552-bolt-cover.png)"></span><span class="tile__name">SG552 Bolt Cover</span></a>
@@ -1109,12 +1477,15 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       </div>
     </section>
     <section class="group" id="cat-optic" hidden>
-      <h2>Optic <span class="count">33</span></h2>
+      <h2>Optic <span class="count">42</span></h2>
       <div class="tiles">
+      <a class="tile tile--gap" href="catalogue/1p-29-russian-3x-sight.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/1p-29-russian-3x-sight.png)"></span><span class="tile__name">1P-29 Russian 3x Sight</span></a>
+      <a class="tile tile--gap" href="catalogue/1p-33-2-4x-scope.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/1p-33-2-4x-scope.png)"></span><span class="tile__name">1P-33 2/4x Scope</span></a>
       <a class="tile" href="catalogue/3-7-adjustable-scope.html"><span class="tile__art" style="background-image:url(att/3-7-adjustable-scope.png)"></span><span class="tile__name">3/7 Adjustable Scope</span></a>
       <a class="tile" href="catalogue/6-12-expert-sniper-scope.html"><span class="tile__art" style="background-image:url(att/6-12-expert-sniper-scope.png)"></span><span class="tile__name">6/12 Expert Sniper Scope</span></a>
       <a class="tile" href="catalogue/acog-precision-6x-scope.html"><span class="tile__art" style="background-image:url(att/acog-precision-6x-scope.png)"></span><span class="tile__name">ACOG Precision 6x Scope</span></a>
       <a class="tile" href="catalogue/ap5000-reflex-sight.html"><span class="tile__art" style="background-image:url(att/ap5000-reflex-sight.png)"></span><span class="tile__name">AP5000 Reflex Sight</span></a>
+      <a class="tile tile--gap" href="catalogue/advanced-thermal-fusion-holographic-sight.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/advanced-thermal-fusion-holographic-sight.png)"></span><span class="tile__name">Advanced Thermal Fusion Holographic Sight</span></a>
       <a class="tile" href="catalogue/cobra-accuracy-sight.html"><span class="tile__art" style="background-image:url(att/cobra-accuracy-sight.png)"></span><span class="tile__name">Cobra Accuracy Sight</span></a>
       <a class="tile" href="catalogue/combat-red-dot-sight.html"><span class="tile__art" style="background-image:url(att/combat-red-dot-sight.png)"></span><span class="tile__name">Combat Red Dot Sight</span></a>
       <a class="tile" href="catalogue/hamr-combined-scope.html"><span class="tile__art" style="background-image:url(att/hamr-combined-scope.png)"></span><span class="tile__name">HAMR Combined Scope</span></a>
@@ -1123,7 +1494,9 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/insight-3-7-sniper-scope.html"><span class="tile__art" style="background-image:url(att/insight-3-7-sniper-scope.png)"></span><span class="tile__name">Insight 3/7 Sniper Scope</span></a>
       <a class="tile" href="catalogue/insight-6-12-sniper-scope.html"><span class="tile__art" style="background-image:url(att/insight-6-12-sniper-scope.png)"></span><span class="tile__name">Insight 6/12 Sniper Scope</span></a>
       <a class="tile" href="catalogue/lpvo-scope.html"><span class="tile__art" style="background-image:url(att/lpvo-scope.png)"></span><span class="tile__name">LPVO Scope</span></a>
+      <a class="tile tile--gap" href="catalogue/m157-fire-control-system.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/m157-fire-control-system.png)"></span><span class="tile__name">M157 Fire Control System</span></a>
       <a class="tile" href="catalogue/m3-sniper-scope.html"><span class="tile__art" style="background-image:url(att/m3-sniper-scope.png)"></span><span class="tile__name">M3 Sniper Scope</span></a>
+      <a class="tile tile--gap" href="catalogue/meo-micro-sight-riser.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/meo-micro-sight-riser.png)"></span><span class="tile__name">MEO Micro Sight Riser</span></a>
       <a class="tile" href="catalogue/micro-sight-riser.html"><span class="tile__art" style="background-image:url(att/micro-sight-riser.png)"></span><span class="tile__name">Micro Sight Riser</span></a>
       <a class="tile" href="catalogue/mini-red-dot-sight.html"><span class="tile__art" style="background-image:url(att/mini-red-dot-sight.png)"></span><span class="tile__name">Mini Red Dot Sight</span></a>
       <a class="tile" href="catalogue/multi-purpose-tactical-riser.html"><span class="tile__art" style="background-image:url(att/multi-purpose-tactical-riser.png)"></span><span class="tile__name">Multi-Purpose Tactical Riser</span></a>
@@ -1138,20 +1511,24 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/pso-battle-2-5x-scope.html"><span class="tile__art" style="background-image:url(att/pso-battle-2-5x-scope.png)"></span><span class="tile__name">PSO Battle 2.5x Scope</span></a>
       <a class="tile" href="catalogue/pso-sniper-8x-scope.html"><span class="tile__art" style="background-image:url(att/pso-sniper-8x-scope.png)"></span><span class="tile__name">PSO Sniper 8x Scope</span></a>
       <a class="tile" href="catalogue/panoramic-red-dot-sight.html"><span class="tile__art" style="background-image:url(att/panoramic-red-dot-sight.png)"></span><span class="tile__name">Panoramic Red Dot Sight</span></a>
+      <a class="tile tile--gap" href="catalogue/prism-universal-2x-optic.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/prism-universal-2x-optic.png)"></span><span class="tile__name">Prism Universal 2x Optic</span></a>
       <a class="tile" href="catalogue/recon-1-5-5-adjustable-scope.html"><span class="tile__art" style="background-image:url(att/recon-1-5-5-adjustable-scope.png)"></span><span class="tile__name">Recon 1.5/5 Adjustable Scope</span></a>
       <a class="tile" href="catalogue/reflex-sight.html"><span class="tile__art" style="background-image:url(att/reflex-sight.png)"></span><span class="tile__name">Reflex Sight</span></a>
       <a class="tile" href="catalogue/russian-accuracy-2x-scope.html"><span class="tile__art" style="background-image:url(att/russian-accuracy-2x-scope.png)"></span><span class="tile__name">Russian Accuracy 2x Scope</span></a>
+      <a class="tile tile--gap" href="catalogue/uhx-holographic-sight.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/uhx-holographic-sight.png)"></span><span class="tile__name">UHX Holographic Sight</span></a>
+      <a class="tile tile--gap" href="catalogue/vmx-frameless-sight.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/vmx-frameless-sight.png)"></span><span class="tile__name">VMX Frameless Sight</span></a>
       <a class="tile" href="catalogue/viewpoint-3x-scope.html"><span class="tile__art" style="background-image:url(att/viewpoint-3x-scope.png)"></span><span class="tile__name">Viewpoint 3x Scope</span></a>
+      <a class="tile tile--gap" href="catalogue/white-phosphor-thermal-scope.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/white-phosphor-thermal-scope.png)"></span><span class="tile__name">White Phosphor Thermal Scope</span></a>
       <a class="tile" href="catalogue/xcog-assault-3-5x-scope.html"><span class="tile__art" style="background-image:url(att/xcog-assault-3-5x-scope.png)"></span><span class="tile__name">XCOG Assault 3.5x Scope</span></a>
       <a class="tile" href="catalogue/xro-quick-response-sight.html"><span class="tile__art" style="background-image:url(att/xro-quick-response-sight.png)"></span><span class="tile__name">XRO Quick Response Sight</span></a>
       </div>
     </section>
     <section class="group" id="cat-functional" hidden>
-      <h2>Functional <span class="count">36</span></h2>
+      <h2>Functional <span class="count">39</span></h2>
       <div class="tiles">
-      <a class="tile tile--gap" href="catalogue/ak-12-bipod.html"><span class="tile__art" style="background-image:url(att/ak-12-bipod.png)"></span><span class="tile__name">AK-12 Bipod</span></a>
-      <a class="tile tile--gap" href="catalogue/aug-bipod.html"><span class="tile__art" style="background-image:url(att/aug-bipod.png)"></span><span class="tile__name">AUG Bipod</span></a>
-      <a class="tile tile--gap" href="catalogue/awm-bipod.html"><span class="tile__art" style="background-image:url(att/awm-bipod.png)"></span><span class="tile__name">AWM Bipod</span></a>
+      <a class="tile tile--gap" href="catalogue/ak-12-bipod.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/ak-12-bipod.png)"></span><span class="tile__name">AK-12 Bipod</span></a>
+      <a class="tile tile--gap" href="catalogue/aug-bipod.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/aug-bipod.png)"></span><span class="tile__name">AUG Bipod</span></a>
+      <a class="tile tile--gap" href="catalogue/awm-bipod.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/awm-bipod.png)"></span><span class="tile__name">AWM Bipod</span></a>
       <a class="tile" href="catalogue/badger-small-mag-assist-black.html"><span class="tile__art" style="background-image:url(att/badger-small-mag-assist-black.png)"></span><span class="tile__name">Badger Small Mag Assist (Black)</span></a>
       <a class="tile" href="catalogue/badger-small-mag-assist-green.html"><span class="tile__art" style="background-image:url(att/badger-small-mag-assist-green.png)"></span><span class="tile__name">Badger Small Mag Assist (Green)</span></a>
       <a class="tile" href="catalogue/badger-small-mag-assist-sand.html"><span class="tile__art" style="background-image:url(att/badger-small-mag-assist-sand.png)"></span><span class="tile__name">Badger Small Mag Assist (Sand)</span></a>
@@ -1159,7 +1536,8 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/coyote-medium-p-mag-assist-black.html"><span class="tile__art" style="background-image:url(att/coyote-medium-p-mag-assist-black.png)"></span><span class="tile__name">Coyote Medium P. Mag Assist (Black)</span></a>
       <a class="tile" href="catalogue/coyote-medium-p-mag-assist-green.html"><span class="tile__art" style="background-image:url(att/coyote-medium-p-mag-assist-green.png)"></span><span class="tile__name">Coyote Medium P. Mag Assist (Green)</span></a>
       <a class="tile" href="catalogue/coyote-medium-p-mag-assist-sand.html"><span class="tile__art" style="background-image:url(att/coyote-medium-p-mag-assist-sand.png)"></span><span class="tile__name">Coyote Medium P. Mag Assist (Sand)</span></a>
-      <a class="tile tile--gap" href="catalogue/dbal-x2-purple-laser-light-combo.html"><span class="tile__art" style="background-image:url(att/dbal-x2-purple-laser-light-combo.png)"></span><span class="tile__name">DBAL-X2 Purple Laser-Light Combo</span></a>
+      <a class="tile tile--gap" href="catalogue/dbal-x2-purple-laser-light-combo.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/dbal-x2-purple-laser-light-combo.png)"></span><span class="tile__name">DBAL-X2 Purple Laser-Light Combo</span></a>
+      <a class="tile tile--gap" href="catalogue/dd-python-handguard-panel.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/dd-python-handguard-panel.png)"></span><span class="tile__name">DD Python Handguard Panel</span></a>
       <a class="tile" href="catalogue/flare-tactical-flashlight.html"><span class="tile__art" style="background-image:url(att/flare-tactical-flashlight.png)"></span><span class="tile__name">Flare Tactical Flashlight</span></a>
       <a class="tile" href="catalogue/grizzly-full-p-mag-assist-black.html"><span class="tile__art" style="background-image:url(att/grizzly-full-p-mag-assist-black.png)"></span><span class="tile__name">Grizzly Full P. Mag Assist (Black)</span></a>
       <a class="tile" href="catalogue/grizzly-full-p-mag-assist-green.html"><span class="tile__art" style="background-image:url(att/grizzly-full-p-mag-assist-green.png)"></span><span class="tile__name">Grizzly Full P. Mag Assist (Green)</span></a>
@@ -1170,55 +1548,23 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="catalogue/hornet-smg-mag-assist-green.html"><span class="tile__art" style="background-image:url(att/hornet-smg-mag-assist-green.png)"></span><span class="tile__name">Hornet SMG Mag Assist (Green)</span></a>
       <a class="tile" href="catalogue/hornet-smg-mag-assist-sand.html"><span class="tile__art" style="background-image:url(att/hornet-smg-mag-assist-sand.png)"></span><span class="tile__name">Hornet SMG Mag Assist (Sand)</span></a>
       <a class="tile" href="catalogue/kc-hound-handguard.html"><span class="tile__art" style="background-image:url(att/kc-hound-handguard.png)"></span><span class="tile__name">KC Hound Handguard</span></a>
-      <a class="tile tile--gap" href="catalogue/la-3c-green-laser-light-combo.html"><span class="tile__art" style="background-image:url(att/la-3c-green-laser-light-combo.png)"></span><span class="tile__name">LA-3C Green Laser-Light Combo</span></a>
+      <a class="tile tile--gap" href="catalogue/la-3c-green-laser-light-combo.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/la-3c-green-laser-light-combo.png)"></span><span class="tile__name">LA-3C Green Laser-Light Combo</span></a>
       <a class="tile" href="catalogue/m1911-nighthawk-tactical-hammer.html"><span class="tile__art" style="background-image:url(att/m1911-nighthawk-tactical-hammer.png)"></span><span class="tile__name">M1911 Nighthawk Tactical Hammer</span></a>
       <a class="tile" href="catalogue/m1911-nighthawk-tactical-trigger.html"><span class="tile__art" style="background-image:url(att/m1911-nighthawk-tactical-trigger.png)"></span><span class="tile__name">M1911 Nighthawk Tactical Trigger</span></a>
       <a class="tile" href="catalogue/modular-handguard-panel.html"><span class="tile__art" style="background-image:url(att/modular-handguard-panel.png)"></span><span class="tile__name">Modular Handguard Panel</span></a>
       <a class="tile" href="catalogue/olight-baldr-pro-r-multi-function-flashlight.html"><span class="tile__art" style="background-image:url(att/olight-baldr-pro-r-multi-function-flashlight.png)"></span><span class="tile__name">OLIGHT Baldr Pro R Multi-Function Flashlight</span></a>
-      <a class="tile tile--gap" href="catalogue/peq-2-red-laser-light-combo.html"><span class="tile__art" style="background-image:url(att/peq-2-red-laser-light-combo.png)"></span><span class="tile__name">PEQ-2 Red Laser-Light Combo</span></a>
-      <a class="tile tile--gap" href="catalogue/perst-7-blue-laser-light-combo.html"><span class="tile__art" style="background-image:url(att/perst-7-blue-laser-light-combo.png)"></span><span class="tile__name">PERST-7 Blue Laser-Light Combo</span></a>
-      <a class="tile tile--gap" href="catalogue/pkm-bipod.html"><span class="tile__art" style="background-image:url(att/pkm-bipod.png)"></span><span class="tile__name">PKM Bipod</span></a>
+      <a class="tile tile--gap" href="catalogue/olight-odin-s-tactical-flashlight.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/olight-odin-s-tactical-flashlight.png)"></span><span class="tile__name">OLIGHT Odin S Tactical Flashlight</span></a>
+      <a class="tile tile--gap" href="catalogue/olight-warrior-3s-tactical-flashlight.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/olight-warrior-3s-tactical-flashlight.png)"></span><span class="tile__name">OLIGHT Warrior 3S Tactical Flashlight</span></a>
+      <a class="tile tile--gap" href="catalogue/peq-2-red-laser-light-combo.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/peq-2-red-laser-light-combo.png)"></span><span class="tile__name">PEQ-2 Red Laser-Light Combo</span></a>
+      <a class="tile tile--gap" href="catalogue/perst-7-blue-laser-light-combo.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/perst-7-blue-laser-light-combo.png)"></span><span class="tile__name">PERST-7 Blue Laser-Light Combo</span></a>
+      <a class="tile tile--gap" href="catalogue/pkm-bipod.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/pkm-bipod.png)"></span><span class="tile__name">PKM Bipod</span></a>
       <a class="tile" href="catalogue/psg-1-precision-trigger.html"><span class="tile__art" style="background-image:url(att/psg-1-precision-trigger.png)"></span><span class="tile__name">PSG-1 Precision Trigger</span></a>
-      <a class="tile tile--gap" href="catalogue/practical-bipod.html"><span class="tile__art" style="background-image:url(att/practical-bipod.png)"></span><span class="tile__name">Practical Bipod</span></a>
+      <a class="tile tile--gap" href="catalogue/practical-bipod.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/practical-bipod.png)"></span><span class="tile__name">Practical Bipod</span></a>
       <a class="tile" href="catalogue/practical-weapon-light.html"><span class="tile__art" style="background-image:url(att/practical-weapon-light.png)"></span><span class="tile__name">Practical Weapon Light</span></a>
       <a class="tile" href="catalogue/r93-barrel-heat-shield.html"><span class="tile__art" style="background-image:url(att/r93-barrel-heat-shield.png)"></span><span class="tile__name">R93 Barrel Heat Shield</span></a>
       <a class="tile" href="catalogue/ranger-handguard.html"><span class="tile__art" style="background-image:url(att/ranger-handguard.png)"></span><span class="tile__name">Ranger Handguard</span></a>
-      <a class="tile tile--gap" href="catalogue/sv-98-bipod.html"><span class="tile__art" style="background-image:url(att/sv-98-bipod.png)"></span><span class="tile__name">SV-98 Bipod</span></a>
+      <a class="tile tile--gap" href="catalogue/sv-98-bipod.html" data-tags="missing-info"><span class="tile__art" style="background-image:url(att/sv-98-bipod.png)"></span><span class="tile__name">SV-98 Bipod</span></a>
       <a class="tile" href="catalogue/underbarrel-pistol-light.html"><span class="tile__art" style="background-image:url(att/underbarrel-pistol-light.png)"></span><span class="tile__name">Underbarrel Pistol Light</span></a>
-      </div>
-    </section>
-    <section class="group" id="status-read-off" hidden>
-      <h2>Read off the game <span class="count">21</span></h2>
-      <div class="tiles">
-      <a class="tile" href="catalogue/1p-29-russian-3x-sight.html"><span class="tile__art" style="background-image:url(att/1p-29-russian-3x-sight.png)"></span><span class="tile__name">1P-29 Russian 3x Sight</span></a>
-      <a class="tile" href="catalogue/1p-33-2-4x-scope.html"><span class="tile__art" style="background-image:url(att/1p-33-2-4x-scope.png)"></span><span class="tile__name">1P-33 2/4x Scope</span></a>
-      <a class="tile" href="catalogue/ar-heavy-grip-piece.html"><span class="tile__art" style="background-image:url(att/ar-heavy-grip-piece.png)"></span><span class="tile__name">AR Heavy Grip Piece</span></a>
-      <a class="tile" href="catalogue/ar-light-grip-piece.html"><span class="tile__art" style="background-image:url(att/ar-light-grip-piece.png)"></span><span class="tile__name">AR Light Grip Piece</span></a>
-      <a class="tile" href="catalogue/ar-moe-rear-grip.html"><span class="tile__art" style="background-image:url(att/ar-moe-rear-grip.png)"></span><span class="tile__name">AR MOE Rear Grip</span></a>
-      <a class="tile" href="catalogue/ar-modular-rear-grip.html"><span class="tile__art" style="background-image:url(att/ar-modular-rear-grip.png)"></span><span class="tile__name">AR Modular Rear Grip</span></a>
-      <a class="tile" href="catalogue/advanced-thermal-fusion-holographic-sight.html"><span class="tile__art" style="background-image:url(att/advanced-thermal-fusion-holographic-sight.png)"></span><span class="tile__name">Advanced Thermal Fusion Holographic Sight</span></a>
-      <a class="tile" href="catalogue/cobweb-titanium-muzzle-brake.html"><span class="tile__art" style="background-image:url(att/cobweb-titanium-muzzle-brake.png)"></span><span class="tile__name">Cobweb Titanium Muzzle Brake</span></a>
-      <a class="tile" href="catalogue/dd-python-handguard-panel.html"><span class="tile__art" style="background-image:url(att/dd-python-handguard-panel.png)"></span><span class="tile__name">DD Python Handguard Panel</span></a>
-      <a class="tile" href="catalogue/ec-universal-front-hand-stop.html"><span class="tile__art" style="background-image:url(att/ec-universal-front-hand-stop.png)"></span><span class="tile__name">EC Universal Front Hand Stop</span></a>
-      <a class="tile" href="catalogue/m157-fire-control-system.html"><span class="tile__art" style="background-image:url(att/m157-fire-control-system.png)"></span><span class="tile__name">M157 Fire Control System</span></a>
-      <a class="tile" href="catalogue/meo-micro-sight-riser.html"><span class="tile__art" style="background-image:url(att/meo-micro-sight-riser.png)"></span><span class="tile__name">MEO Micro Sight Riser</span></a>
-      <a class="tile" href="catalogue/olight-odin-s-tactical-flashlight.html"><span class="tile__art" style="background-image:url(att/olight-odin-s-tactical-flashlight.png)"></span><span class="tile__name">OLIGHT Odin S Tactical Flashlight</span></a>
-      <a class="tile" href="catalogue/prism-universal-2x-optic.html"><span class="tile__art" style="background-image:url(att/prism-universal-2x-optic.png)"></span><span class="tile__name">Prism Universal 2x Optic</span></a>
-      <a class="tile" href="catalogue/rm277-breaker-suppressor.html"><span class="tile__art" style="background-image:url(att/rm277-breaker-suppressor.png)"></span><span class="tile__name">RM277 Breaker Suppressor</span></a>
-      <a class="tile" href="catalogue/rm277-heavy-integral-barrel.html"><span class="tile__art" style="background-image:url(att/rm277-heavy-integral-barrel.png)"></span><span class="tile__name">RM277 Heavy Integral Barrel</span></a>
-      <a class="tile" href="catalogue/rm277-whale-shark-barrel-combo.html"><span class="tile__art" style="background-image:url(att/rm277-whale-shark-barrel-combo.png)"></span><span class="tile__name">RM277 Whale Shark Barrel Combo</span></a>
-      <a class="tile" href="catalogue/resonant-mk-iii-grip.html"><span class="tile__art" style="background-image:url(att/resonant-mk-iii-grip.png)"></span><span class="tile__name">Resonant MK III Grip</span></a>
-      <a class="tile" href="catalogue/uhx-holographic-sight.html"><span class="tile__art" style="background-image:url(att/uhx-holographic-sight.png)"></span><span class="tile__name">UHX Holographic Sight</span></a>
-      <a class="tile" href="catalogue/vmx-frameless-sight.html"><span class="tile__art" style="background-image:url(att/vmx-frameless-sight.png)"></span><span class="tile__name">VMX Frameless Sight</span></a>
-      <a class="tile" href="catalogue/white-phosphor-thermal-scope.html"><span class="tile__art" style="background-image:url(att/white-phosphor-thermal-scope.png)"></span><span class="tile__name">White Phosphor Thermal Scope</span></a>
-      </div>
-    </section>
-    <section class="group" id="status-missing" hidden>
-      <h2>Missing info <span class="count">3</span></h2>
-      <div class="tiles">
-      <a class="tile tile--gap" href="catalogue/olight-warrior-3s-tactical-flashlight.html"><span class="tile__art" style="background-image:url(att/olight-warrior-3s-tactical-flashlight.png)"></span><span class="tile__name">OLIGHT Warrior 3S Tactical Flashlight</span></a>
-      <a class="tile tile--gap" href="catalogue/rm277-cheek-pad.html"><span class="tile__art" style="background-image:url(att/rm277-cheek-pad.png)"></span><span class="tile__name">RM277 Cheek Pad</span></a>
-      <a class="tile tile--gap" href="catalogue/rm277-pad.html"><span class="tile__art" style="background-image:url(att/rm277-pad.png)"></span><span class="tile__name">RM277 Pad</span></a>
       </div>
     </section>
       <p class="lede" id="noresults" hidden>Nothing matches that.</p>
@@ -1233,8 +1579,10 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
 
     // Picking a group is display only — nothing is fetched, so the back button
     // and a pasted #hash both work with no extra machinery.
+    let current = groups[0].id;
     function show(id) {
       let found = false;
+      if (groups.some((g) => g.id === id)) current = id;
       for (const g of groups) { g.hidden = g.id !== id; found ||= g.id === id; }
       for (const a of links) a.classList.toggle('is-on', a.dataset.group === id);
       for (const t of main.querySelectorAll('.tile')) t.hidden = false;
@@ -1247,34 +1595,77 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
     }
 
     // Search reaches every group at once: the point of one box over three.
+    //
+    // A word beginning with # is a tag rather than a name. Tags and words
+    // combine, and every tag has to match, so "#missing-info rm277" is the
+    // RM277 parts still short of their stats. Tags are the only way to ask a
+    // question about the record rather than about the part, which is why they
+    // are not just another group in the sidebar.
     function search(v) {
+      const tags = [], words = [];
+      for (const tok of v.split(/\s+/)) {
+        if (!tok) continue;
+        if (tok[0] === '#') { if (tok.length > 1) tags.push(tok.slice(1)); }
+        else words.push(tok);
+      }
+      const text = words.join(' ');
       let hits = 0;
       for (const g of groups) {
         let shown = 0;
         for (const t of g.querySelectorAll('.tile')) {
-          const hit = t.textContent.toLowerCase().includes(v);
+          const has = (t.dataset.tags || '').split(' ');
+          const hit = tags.every((x) => has.includes(x))
+                   && (!text || t.textContent.toLowerCase().includes(text));
           t.hidden = !hit;
           if (hit) shown++;
         }
         g.hidden = shown === 0;
         hits += shown;
       }
-      for (const a of links) a.classList.remove('is-on');
+      for (const a of links) {
+        a.classList.toggle('is-on',
+          tags.length === 1 && !text && a.dataset.tag === tags[0]);
+      }
       empty.hidden = hits > 0;
     }
 
     q.addEventListener('input', () => {
       const v = q.value.trim().toLowerCase();
-      if (v) search(v);
-      else show(location.hash.slice(1) || groups[0].id);
+      if (v) { search(v); return; }
+      // Emptying the box means "stop filtering". The tag is still in the
+      // address bar at that point, and re-reading it here typed itself back
+      // in the moment the last character went: the box could not be cleared.
+      // Clearing the hash first is what makes the delete key work.
+      if (TAGS.includes(decodeURIComponent(location.hash.slice(1)))) {
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+      show(current);
     });
 
-    for (const a of links) a.addEventListener('click', () => { q.value = ''; });
-    addEventListener('hashchange', () => {
+    // #optic is a group and #missing-info is a tag, and both arrive the same
+    // way — as a hash somebody pasted or a sidebar link they clicked. One
+    // router decides which it is, so a tag link is as linkable as a group.
+    const TAGS = [...document.querySelectorAll('[data-tag]')]
+                   .map((a) => a.dataset.tag);
+    function route() {
+      const h = decodeURIComponent(location.hash.slice(1));
+      if (TAGS.includes(h)) {
+        q.value = '#' + h;
+        for (const g of groups) g.hidden = false;
+        const on = document.querySelector(`[data-tag="${h}"]`);
+        if (on) on.closest('details').open = true;
+        search('#' + h);
+        return;
+      }
       q.value = '';
-      show(location.hash.slice(1) || groups[0].id);
-    });
-    if (!show(location.hash.slice(1))) show(groups[0].id);
+      if (!show(h)) show(groups[0].id);
+    }
+
+    for (const a of links) {
+      if (!a.dataset.tag) a.addEventListener('click', () => { q.value = ''; });
+    }
+    addEventListener('hashchange', route);
+    route();
   </script>
 
 </div>

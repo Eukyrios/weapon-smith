@@ -136,6 +136,19 @@ def is_gap(iid):
     return not stats_for(iid)
 
 
+def needs_info(iid):
+    """Is this item's record still short of complete? The #missing-info tag.
+
+    Two ways to be short, and the reader's question is the same for both, so
+    one tag covers both. Either there are no stat lines at all, or the record
+    never came from the catalogue: those two dozen were dictated off the game's
+    own cards a few lines at a time, so they carry what was read and nothing
+    else — a rear grip with control and handling on it and no answer about
+    anything further down the card.
+    """
+    return is_gap(iid) or iid not in BY_ID
+
+
 # Rows that are named in a transcript but absent from the catalogue, keyed by
 # the slot they belong to, with the index they occupy in the dictated order.
 MISSING = {
@@ -151,8 +164,9 @@ MISSING = {
     'barrel': [(0, 'RM277 Heavy Integral Barrel'), (1, 'RM277 Whale Shark Barrel Combo')],
     'left-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'), (1, 'OLIGHT Odin S Tactical Flashlight'),
                   (11, 'DD Python Handguard Panel')],
-    'right-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'), (1, 'OLIGHT Odin S Tactical Flashlight'),
-                   (11, 'DD Python Handguard Panel')],
+    # No Odin S here: it fits the left rail and not this one.
+    'right-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'),
+                   (10, 'DD Python Handguard Panel')],
     'left-patch': [(2, 'DD Python Handguard Panel')],
     'right-patch': [(2, 'DD Python Handguard Panel')],
     'upper-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'), (8, 'DD Python Handguard Panel')],
@@ -201,7 +215,7 @@ SECTIONS = [
     ('barrel', 'Barrel', 'Both are RM277-exclusive and absent from the catalogue. Each opens an upper rail; the integral barrel also occupies the muzzle.'),
     ('foregrip', 'Foregrip', 'Every foregrip in the catalogue fits, so this slot is not filtered.'),
     ('left-rail', 'Left rail', 'Nine lights and lasers plus the five handguard panels.'),
-    ('right-rail', 'Right rail', 'The same list as the left rail.'),
+    ('right-rail', 'Right rail', 'The left rail&rsquo;s list less the OLIGHT Odin S, which fits the left side only.'),
     ('upper-rail', 'Upper rail', 'A shorter list than the side rails: no OLIGHT Odin S, OLIGHT Baldr Pro R or Practical Weapon Light.'),
     ('left-patch', 'Left patch', 'Handguard panels only.'),
     ('right-patch', 'Right patch', 'The same five panels.'),
@@ -220,13 +234,13 @@ def rows_for(slot):
     out = [nm(i) for i in FITS.get(slot, [])]
     for idx, name in MISSING.get(slot, []):
         out.insert(idx, name)
-    return [(name, is_gap(item_id(name))) for name in out]
+    return [(name, needs_info(item_id(name))) for name in out]
 
 
 def table(slot, prefix='catalogue/'):
     body = ''
     for name, missing in rows_for(slot):
-        tag = ' <span class="tag">missing info</span>' if missing else ''
+        tag = ' <span class="tag">#missing-info</span>' if missing else ''
         cls = ' class="is-gap"' if missing else ''
         adds = ADDS.get(name, '')
         blocks = BLOCKS.get(name, '')
@@ -243,7 +257,8 @@ def table(slot, prefix='catalogue/'):
 
 def section(n, slot, title, lede, prefix='catalogue/'):
     total = len(rows_for(slot))
-    head = f'  <section>\n    <h2><span class="n">{n}</span>{title} <span class="count">{total}</span></h2>\n'
+    head = (f'  <section id="slot-{slot}">\n    <h2><span class="n">{n}</span>'
+            f'{title} <span class="count">{total}</span></h2>\n')
     if lede:
         head += f'    <p class="lede">{lede}</p>\n'
     return head + table(slot, prefix) + '  </section>\n\n'
@@ -393,17 +408,50 @@ CAT_LABEL = {'muzzle': 'Muzzle', 'barrel': 'Barrel', 'handguard': 'Handguard',
              'mag': 'Magazine', 'optic': 'Optic', 'functional': 'Functional'}
 
 
+# The four slots with no catalogued member of their own: the RM277's two
+# barrels, both pads and the rear grip patch. Every other slot has catalogued
+# items in it, and those are better evidence than anything typed here — so the
+# category of an uncatalogued item is read off its slot-mates below and only
+# falls back to this list where there are none. Note the panels: the game files
+# a handguard panel under Functional, not Handguard, which is exactly the sort
+# of thing a hand-written map gets wrong.
+SLOT_CAT_FALLBACK = {'barrel': 'barrel', 'cheek-pad': 'stock',
+                     'stock-pad': 'stock', 'rear-grip-patch': 'rear grip'}
+
+
+def slot_category(slot):
+    """What an item in this slot is, judged by the catalogued items beside it.
+
+    A slot whose members disagree stops the build rather than picking one: it
+    would mean the slot draws on two categories, and then filing an
+    uncatalogued row by its slot is the wrong idea rather than a wrong answer.
+    """
+    cats = {BY_ID[i]['cat'] for i in FITS.get(slot, []) if i in BY_ID}
+    if len(cats) > 1:
+        raise SystemExit(f'{slot}: catalogued members span {sorted(cats)}')
+    return cats.pop() if cats else SLOT_CAT_FALLBACK[slot]
+
+
 def catalogue_items():
     """Every item: the 414 from the catalogue, plus everything a transcript
     named that the catalogue does not carry. The second group is why this page
-    exists — an item with no stats is still an item that fits somewhere."""
+    exists — an item with no stats is still an item that fits somewhere.
+
+    The uncatalogued ones get a category too, so they file under Optic or
+    Muzzle with everything else rather than into a bin of their own. What they
+    are and what we still owe them are two different facts; the second is a
+    search tag now, not a category.
+    """
     items = {a['id']: dict(a, known=True) for a in ATTACH}
     for slot, misses in MISSING.items():
+        cat = slot_category(slot)
         for _, name in misses:
             sid = BY_NAME[name]['id'] if name in BY_NAME else slug(name)
             if sid not in items:
-                items[sid] = {'id': sid, 'name': name, 'cat': None, 'price': None,
+                items[sid] = {'id': sid, 'name': name, 'cat': cat, 'price': None,
                               'stats': {}, 'traits': [], 'known': False}
+            elif not items[sid]['known'] and items[sid]['cat'] != cat:
+                raise SystemExit(f'{name}: {items[sid]["cat"]} here, {cat} in {slot}')
     return items
 
 
@@ -493,7 +541,7 @@ def item_page(item, accepted_in):
 
 {slots_html}"""
 
-    tag = ' <span class="tag">missing info</span>' if is_gap(item['id']) else ''
+    tag = ' <span class="tag">#missing-info</span>' if needs_info(item['id']) else ''
     kind = CAT_LABEL.get(item['cat'], item['cat']) if item['cat'] else ''
     # The description says what this page can answer. An item whose stats are
     # not read yet says that instead of implying numbers it does not have.
@@ -530,38 +578,43 @@ def gun_page(w):
         facts.append(('Caliber',
                       f'<a href="../index.html#{anchor("caliber", w["caliber"])}">'
                       f'{w["caliber"]}</a>'))
-    rows = ''.join(f'          <tr><td>{k}</td><td class="v">{v}</td></tr>\n'
-                   for k, v in facts)
+    # The standfirst carries them. It already said the class; now it says the
+    # class and the caliber, and both are the way into the catalogue. A table
+    # drew a bordered box around four words and repeated what was directly
+    # above it.
+    sub = ' &middot; '.join(v for _k, v in facts)
 
-    img = (f'      <img class="shot" src="../gear/{w["id"]}.png" alt="" '
-           'width="280" height="140" onerror="this.remove()">\n')
+    smith = ''
+    if w['id'] in GUNSMITHS:
+        smith = gunsmith_body()
+        # The stage shows the weapon at full size; a thumbnail above it as well
+        # would be the same picture twice.
+        img = ''
+    else:
+        img = (f'      <img class="shot" src="../gear/{w["id"]}.png" alt="" '
+               'width="280" height="140" onerror="this.remove()">\n')
 
-    # The slot tables sit open on the page. They were behind a disclosure for a
-    # while, which cost a click to reach the thing the page is actually for and
-    # kept them out of the browser's find-on-page.
+    # Folded away again. It was opened out when the tables were the whole page;
+    # now the editor above answers most of what they answer and is what anyone
+    # arrives for. Opened, they read exactly as before — same rows_for(), same
+    # order — and the chips link straight into them.
     if w['id'] in DOCUMENTED:
-        slots = (f'''  <section class="slots">
-    <h2>Attachment slots<span class="hint">{len(SECTIONS)} slots</span></h2>
-    <div class="slots__body">
+        slots = (f'''  <details class="deploy" id="tables">
+    <summary>Attachment slots<span class="hint">{len(SECTIONS)} slots &middot; every attachment listed</span></summary>
+    <div class="deploy__body">
 {weapon_sections('')}    </div>
-  </section>
+  </details>
 ''')
     else:
         slots = ('  <section>\n    <h2>Attachment slots</h2>\n'
                  '    <p class="lede">Not transcribed yet. Slot lists are done '
                  'one weapon at a time.</p>\n  </section>\n')
 
-    body = f"""  <section>
-    <div class="itemgrid">
-{img}      <div class="tablewrap">
-        <table>
-          <tbody>
-{rows}          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+    head = ('' if not img else
+            f'  <section>\n    <div class="itemgrid">\n{img}    </div>\n  </section>\n')
 
+    body = f"""{head}
+{smith}
 {slots}"""
     cal = f" chambered in {w['caliber']}" if w.get('caliber') else ''
     if w['id'] in DOCUMENTED:
@@ -573,7 +626,7 @@ def gun_page(w):
                 'Operations. Its slot list is not transcribed yet; the '
                 'catalogue holds the attachments it will draw from.')
     return shell(f"{w['name']} &middot; Weapon Smith", 'Catalogue', w['name'],
-                 w['cls'], body, NAV.format(up='../', back='Weapon Smith'),
+                 sub, body, NAV.format(up='../', back='Weapon Smith'),
                  '../smith.css',
                  desc=desc, path=f'catalogue/{gun_file(w["id"])}',
                  crumb=w['name'])
@@ -651,11 +704,17 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
     to `#class-assault-rifle` still lands on the right group — which matters,
     because the weapon pages link into here by exactly those ids.
     """
-    def tile(href, name, pic, gap=False):
-        """One item: its picture, with its name laid over the bottom of it."""
+    def tile(href, name, pic, gap=False, tags=()):
+        """One item: its picture, with its name laid over the bottom of it.
+
+        `tags` are what the search box's #words match on. They are not printed:
+        a tile is 96px wide and the tag is a property of the record rather than
+        of the thing, so it lives in the markup and surfaces when asked for.
+        """
         cls = 'tile tile--gap' if gap else 'tile'
         bg = (f' style="background-image:url({art}{pic})"' if pic else '')
-        return (f'      <a class="{cls}" href="{pages}{href}">'
+        tg = f' data-tags="{" ".join(tags)}"' if tags else ''
+        return (f'      <a class="{cls}" href="{pages}{href}"{tg}>'
                 f'<span class="tile__art"{bg}></span>'
                 f'<span class="tile__name">{name}</span></a>\n')
 
@@ -677,6 +736,17 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
     def nav_link(gid, label, n):
         return (f'          <a class="navlink" href="#{gid}" data-group="{gid}">'
                 f'{label}<em>{n}</em></a>\n')
+
+    def tag_link(tag, label, n):
+        """A status is not a group any more, so its link runs the search.
+
+        Written as the tag itself rather than as prose, because the point is
+        that the reader can then type it: the link and the thing you type into
+        the box are the same six characters.
+        """
+        return (f'          <a class="navlink navlink--tag" href="#{tag}" '
+                f'data-tag="{tag}" title="{label}">'
+                f'<code>#{tag}</code><em>{n}</em></a>\n')
 
     # --- weapons, by class ---------------------------------------------------
     by_cls = {}
@@ -719,21 +789,25 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
     # pad and the stock pad), and half the slots exist only because something
     # else opened them. SLOT_TYPES is the other list; this is not it.
     #
-    # Under the nine sit two more entries that are a third thing again: not what
-    # a part is or where it goes, but what we still owe it. They are kept below
-    # a divider so the list does not read as eleven categories, and they exist
-    # because an item the catalogue never had has no category to be filed under
-    # and would otherwise fall off the page.
+    # Nine categories and nine only. What we still owe an item — its stats not
+    # read yet, or its whole record coming off the game's cards rather than the
+    # catalogue — used to sit here as two more entries, which read as eleven
+    # categories and hid two dozen items from the category they belong to. It
+    # is a tag now: every item files under Optic or Muzzle with the rest, and
+    # #missing-info in the search box gathers the other axis.
     by_cat = {}
     for i in items.values():
-        if i['known']:
-            by_cat.setdefault(i['cat'], []).append(i)
+        by_cat.setdefault(i['cat'], []).append(i)
+
+    def item_tags(i):
+        """The fact that is about the record rather than about the part."""
+        return ('missing-info',) if needs_info(i['id']) else ()
 
     def att_tile(i):
         return tile(f'{i["id"]}.html', i['name'],
                     f'att/{i["id"]}.png'
                     if (i['known'] or has_art('att', i['id'])) else None,
-                    gap=is_gap(i['id']))
+                    gap=needs_info(i['id']), tags=item_tags(i))
 
     links = ''
     for cat in ['muzzle', 'barrel', 'handguard', 'foregrip', 'rear grip',
@@ -745,27 +819,15 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         group(gid, CAT_LABEL[cat], ''.join(att_tile(i) for i in rows), len(rows))
         links += nav_link(gid, CAT_LABEL[cat], len(rows))
 
-    read_off = sorted((i for i in items.values()
-                       if not i['known'] and not is_gap(i['id'])),
-                      key=lambda x: x['name'])
-    homeless = sorted((i for i in items.values()
-                       if not i['known'] and is_gap(i['id'])),
-                      key=lambda x: x['name'])
-    if read_off or homeless:
-        links += ('          <span class="navdiv">By status</span>\n')
-    if read_off:
-        group('status-read-off', 'Read off the game',
-              ''.join(att_tile(i) for i in read_off), len(read_off))
-        links += nav_link('status-read-off', 'Read off the game', len(read_off))
-    if homeless:
-        group('status-missing', 'Missing info',
-              ''.join(att_tile(i) for i in homeless), len(homeless))
-        links += nav_link('status-missing', 'Missing info', len(homeless))
+    n_gap = sum(1 for i in items.values() if item_tags(i))
+    links += '          <span class="navdiv">By tag</span>\n'
+    links += tag_link('missing-info', 'Records still short of complete', n_gap)
     nav_group('Attachments', len(items), links)
 
     body = [f"""  <div class="browse">
     <aside class="browse__nav">
-      <input class="filter" type="search" placeholder="Search everything&hellip;"
+      <input class="filter" type="search"
+             placeholder="Search everything, or #missing-info&hellip;"
              aria-label="Search every weapon, round and attachment">
       <nav aria-label="Catalogue groups">
 {''.join(nav)}      </nav>
@@ -785,8 +847,10 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
 
     // Picking a group is display only — nothing is fetched, so the back button
     // and a pasted #hash both work with no extra machinery.
+    let current = groups[0].id;
     function show(id) {
       let found = false;
+      if (groups.some((g) => g.id === id)) current = id;
       for (const g of groups) { g.hidden = g.id !== id; found ||= g.id === id; }
       for (const a of links) a.classList.toggle('is-on', a.dataset.group === id);
       for (const t of main.querySelectorAll('.tile')) t.hidden = false;
@@ -799,38 +863,608 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
     }
 
     // Search reaches every group at once: the point of one box over three.
+    //
+    // A word beginning with # is a tag rather than a name. Tags and words
+    // combine, and every tag has to match, so "#missing-info rm277" is the
+    // RM277 parts still short of their stats. Tags are the only way to ask a
+    // question about the record rather than about the part, which is why they
+    // are not just another group in the sidebar.
     function search(v) {
+      const tags = [], words = [];
+      for (const tok of v.split(/\\s+/)) {
+        if (!tok) continue;
+        if (tok[0] === '#') { if (tok.length > 1) tags.push(tok.slice(1)); }
+        else words.push(tok);
+      }
+      const text = words.join(' ');
       let hits = 0;
       for (const g of groups) {
         let shown = 0;
         for (const t of g.querySelectorAll('.tile')) {
-          const hit = t.textContent.toLowerCase().includes(v);
+          const has = (t.dataset.tags || '').split(' ');
+          const hit = tags.every((x) => has.includes(x))
+                   && (!text || t.textContent.toLowerCase().includes(text));
           t.hidden = !hit;
           if (hit) shown++;
         }
         g.hidden = shown === 0;
         hits += shown;
       }
-      for (const a of links) a.classList.remove('is-on');
+      for (const a of links) {
+        a.classList.toggle('is-on',
+          tags.length === 1 && !text && a.dataset.tag === tags[0]);
+      }
       empty.hidden = hits > 0;
     }
 
     q.addEventListener('input', () => {
       const v = q.value.trim().toLowerCase();
-      if (v) search(v);
-      else show(location.hash.slice(1) || groups[0].id);
+      if (v) { search(v); return; }
+      // Emptying the box means "stop filtering". The tag is still in the
+      // address bar at that point, and re-reading it here typed itself back
+      // in the moment the last character went: the box could not be cleared.
+      // Clearing the hash first is what makes the delete key work.
+      if (TAGS.includes(decodeURIComponent(location.hash.slice(1)))) {
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+      show(current);
     });
 
-    for (const a of links) a.addEventListener('click', () => { q.value = ''; });
-    addEventListener('hashchange', () => {
+    // #optic is a group and #missing-info is a tag, and both arrive the same
+    // way — as a hash somebody pasted or a sidebar link they clicked. One
+    // router decides which it is, so a tag link is as linkable as a group.
+    const TAGS = [...document.querySelectorAll('[data-tag]')]
+                   .map((a) => a.dataset.tag);
+    function route() {
+      const h = decodeURIComponent(location.hash.slice(1));
+      if (TAGS.includes(h)) {
+        q.value = '#' + h;
+        for (const g of groups) g.hidden = false;
+        const on = document.querySelector(`[data-tag="${h}"]`);
+        if (on) on.closest('details').open = true;
+        search('#' + h);
+        return;
+      }
       q.value = '';
-      show(location.hash.slice(1) || groups[0].id);
-    });
-    if (!show(location.hash.slice(1))) show(groups[0].id);
+      if (!show(h)) show(groups[0].id);
+    }
+
+    for (const a of links) {
+      if (!a.dataset.tag) a.addEventListener('click', () => { q.value = ''; });
+    }
+    addEventListener('hashchange', route);
+    route();
   </script>
 """)
 
     return ''.join(body)
+GUNSMITH = ROOT / 'data/gunsmith-rm277.json'
+
+
+def stat_bar(name, delta):
+    """One stat line: the change, and a bar the size of it.
+
+    The game prints the resulting value with the change beside it — "42 (-8)".
+    We only hold the change, never the weapon's base figures, so only the change
+    is shown. Inventing the total to complete the picture would be inventing
+    numbers, and the bar carries the same comparison honestly.
+    """
+    cls = 'up' if delta > 0 else 'down'
+    w = min(100, abs(delta) * 100 / 20)      # 20 is the widest change on record
+    return (f'            <div class="sr">'
+            f'<span class="sr__n">{name}</span>'
+            f'<span class="sr__v {cls}">{"+" if delta > 0 else "&minus;"}'
+            f'{abs(delta)}</span>'
+            f'<span class="sr__bar"><i class="{cls}" style="width:{w:.0f}%"></i>'
+            f'</span></div>\n')
+
+
+def slot_tile(sid):
+    """A slot as the game draws it in "Adds Slots": named box with its icon."""
+    icon = (f' style="background-image:url(../smith/slot/{sid}.png)"'
+            if (ROOT / 'smith' / 'slot' / f'{sid}.png').is_file() else '')
+    return (f'<span class="stile"{icon}>'
+            f'<em>{SLOT_LABEL.get(sid, sid)}</em></span>')
+
+
+def pick_detail(name):
+    """The right-hand card: what fitting this thing does."""
+    iid = item_id(name)
+    item = BY_ID.get(iid)
+    rule = RULES.get(iid, {})
+    card = CARD_FACTS.get(iid) or {}
+
+    tier = card.get('tier')
+    dot = f'<span class="tier {tier}"></span>' if tier else ''
+    head = (f'          <h4>{dot}<a href="{iid}.html">{name}</a></h4>\n')
+
+    # No price. It is a market snapshot rather than a property of the thing,
+    # it drifts, and it is not what this screen is for — the item's own page
+    # still carries it.
+    rows = ''
+
+    # No effects list. The catalogue's trait strings are clipped on import —
+    # "High Optical" for "High Optical Zoom", "Moderate Glint" for "Moderate
+    # Glint on ADS" — so the section printed half-sentences and read as though
+    # the data were complete.
+    fx = ''
+
+    adds = ''
+    if rule.get('grants'):
+        adds += ('          <p class="dlabel">Adds Slots</p>\n'
+                 '          <div class="stiles">'
+                 + ''.join(slot_tile(s) for s in rule['grants']) + '</div>\n')
+    if rule.get('conflictSlots'):
+        adds += ('          <p class="dlabel">Occupies</p>\n'
+                 '          <div class="stiles">'
+                 + ''.join(slot_tile(s) for s in rule['conflictSlots'])
+                 + '</div>\n')
+
+    # No stat block here. What a change is worth depends on what is already
+    # fitted, so the numbers are computed in the page against the live build
+    # rather than baked in against nothing.
+    return (f'        <div class="detail" id="d-{iid}" hidden>\n'
+            + head + rows + fx + adds
+            + '          <p class="dlabel">If fitted</p>\n'
+            + '          <div class="delta"></div>\n'
+            + '        </div>\n')
+
+
+def slot_panel(slot, label):
+    """One slot: every attachment that fits it, and what the chosen one does.
+
+    Laid out as the game lays it out — a column of cards, then a panel of
+    detail for whichever is selected — because that is the thing being
+    reproduced. The rows come from the same rows_for() the weapon page's tables
+    use, so the two cannot disagree about what fits.
+    """
+    cards, details = '', ''
+    for i, (name, missing) in enumerate(rows_for(slot)):
+        iid = item_id(name)
+        tier = (CARD_FACTS.get(iid) or {}).get('tier') or 'none'
+        art = (f' style="background-image:url(../att/{iid}.png)"'
+               if has_art('att', iid) or iid in BY_ID else '')
+        cards += (f'          <button class="pcard{" is-on" if i == 0 else ""}" '
+                  f'data-item="{iid}" type="button">'
+                  f'<span class="pcard__n tier-{tier}">{name}</span>'
+                  f'<span class="pcard__art"{art}></span></button>\n')
+        details += pick_detail(name)
+
+    n = len(rows_for(slot))
+    return (f'      <div class="slotlist" id="sl-{slot}" hidden>\n'
+            f'        <div class="picks">\n'
+            f'          <p class="picks__h">{label} <span class="count">{n}</span></p>\n'
+            f'{cards}        </div>\n'
+            f'        <div class="dpane">\n{details}        </div>\n'
+            '      </div>\n')
+
+
+def gunsmith_body():
+    """The editor: the weapon, its slots around it, a leader line to each.
+
+    Returns a body fragment, not a page. It is the top half of the weapon's own
+    catalogue entry now — reaching it used to mean clicking the picture through
+    to a second URL, which put the interesting half of a weapon page somewhere
+    nobody would guess at.
+
+    Rebuilt from the game's own screen rather than invented, because the point
+    of it is recognition — someone who has used the gunsmith should see the
+    same picture. The artwork is cut from a screen recording by
+    tools/cut-gunsmith.py; this only lays it out.
+
+    Everything is positioned in the coordinates of the frame the art came from
+    and scaled as one unit, so the chips, the weapon and the lines cannot drift
+    apart at any window size. A slot with no anchor recorded yet simply gets no
+    line, which is why the page is useful before all fifteen are placed.
+    """
+    d = json.loads(GUNSMITH.read_text(encoding='utf-8'))
+    fw, fh = d['frame']['w'], d['frame']['h']
+    g, C = d['gun'], d['chip']
+    pc = lambda v, tot: f'{v / tot * 100:.4f}%'
+
+    chips, lines, dots, panels = [], [], [], []
+    for s in d['slots']:
+        cx, cy = s['x'] + C / 2, s['y'] + C / 2
+        label = SLOT_TITLE.get(s['slot'], s['label'])
+        n = len(rows_for(s['slot'])) if s['slot'] in dict(
+            (k, 1) for k, _, _ in SECTIONS) else 0
+        chips.append(
+            f'      <a class="chip3" style="left:{pc(s["x"], fw)};'
+            f'top:{pc(s["y"], fh)};width:{pc(C, fw)};height:{pc(C, fh)}" '
+            f'href="#slot-{s["slot"]}" '
+            f'data-slot="{s["slot"]}">'
+            f'<span class="chip3__label">{s["label"]}</span>'
+            f'<span class="chip3__art" style="background-image:'
+            f'url(../smith/slot/{s["slot"]}.png)"></span>'
+            + (f'<em>{n}</em>' if n else '') + '</a>\n')
+        panels.append(slot_panel(s['slot'], label))
+        if s.get('ax') is not None:
+            lines.append(f'      <line x1="{cx}" y1="{cy}" '
+                         f'x2="{s["ax"]}" y2="{s["ay"]}"></line>\n')
+        ax = s['ax'] if s.get('ax') is not None else round(cx)
+        ay = s['ay'] if s.get('ay') is not None else round(cy)
+        dots.append(f'      <button class="pin" data-slot="{s["slot"]}" '
+                    f'style="left:{pc(ax, fw)};top:{pc(ay, fh)}" '
+                    f'title="{s["label"]}"></button>\n')
+
+    placed = sum(1 for s in d['slots'] if s.get('ax') is not None)
+    prov = (' <em class="prov">derived, unconfirmed</em>'
+            if d['weapon'].get('derived') else '')
+    # Every stat line the page might need to add up, by item, so the arithmetic
+    # happens against the build the reader has assembled rather than against a
+    # blank rifle.
+    deltas = {}
+    for s in d['slots']:
+        for name, _m in rows_for(s['slot']):
+            iid = item_id(name)
+            st = stats_for(iid)
+            if st:
+                deltas[iid] = st
+    # Which stats anything we hold can actually move. A row nobody modifies is
+    # shown as untracked rather than as unchanged: a suppressor plainly alters
+    # how far the shot carries, and printing "500 m, no change" would be a
+    # claim about the game rather than a note about our data.
+    seen = {k for st in deltas.values() for k in st}
+    for st in d['weapon']['stats']:
+        st['tracked'] = (st.get('from') or st['key']) in seen
+    body = f"""  <div class="gunsmith" style="--ar:{fw / fh:.4f}">
+  <div class="stage" style="aspect-ratio:{fw}/{fh}">
+    <div class="wname">
+      <button class="wname__b" id="wtab" aria-expanded="false">
+        <span>{d['weapon']['name']}</span>
+        <svg viewBox="0 0 16 16" aria-hidden="true" width="15" height="15">
+          <rect x="1" y="2.5" width="14" height="2"></rect>
+          <rect x="1" y="7" width="14" height="2"></rect>
+          <rect x="1" y="11.5" width="14" height="2"></rect>
+        </svg>
+      </button>
+      <div class="wpanel" id="wpanel" hidden>
+        <p class="dlabel">Current build{prov}</p>
+        <div class="wstats"></div>
+      </div>
+    </div>
+    <img class="stage__gun" src="../smith/rm277.png" alt="RM277"
+         style="left:{pc(g['x'], fw)};top:{pc(g['y'], fh)};
+                width:{pc(g['w'], fw)};height:{pc(g['h'], fh)}">
+    <svg class="stage__wires" viewBox="0 0 {fw} {fh}" preserveAspectRatio="none"
+         aria-hidden="true">
+{''.join(lines)}    </svg>
+{''.join(chips)}    <div class="pins" hidden>
+{''.join(dots)}    </div>
+
+    <aside class="panel" id="panel" hidden>
+{''.join(panels)}      <button class="panel__x" id="close" aria-label="Close">&times;</button>
+    </aside>
+    <button class="equip" id="equip" hidden></button>
+    <button class="expand" id="expand" hidden aria-label="Full screen">
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path d="M1 6V1h5M15 10v5h-5M10 1h5v5M6 15H1v-5"></path>
+      </svg>
+    </button>
+  </div>
+  </div>
+
+  <section class="placer" hidden>
+    <h2>Anchor placement</h2>
+    <p class="lede">{placed} of {len(d['slots'])} placed. Drag each dot onto its
+    marker on the weapon, then copy the JSON below into
+    <code>data/gunsmith-rm277.json</code>.</p>
+    <p><button class="btn" id="copy">Copy coordinates</button></p>
+    <pre class="out" id="out"></pre>
+  </section>
+
+  <script>
+    const WEAPON = {json.dumps(d['weapon']['stats'])};
+    const SPECS = {json.dumps(d['weapon'].get('specs', []))};
+    const DELTA = {json.dumps(deltas)};
+
+    // Each chip is a real link to the slot's table on the weapon page, and stays
+    // one. This only intercepts the click to show the same list here instead,
+    // so the page still works with the script off and a middle-click still
+    // opens the long version in a tab.
+    const wrap = document.querySelector('.gunsmith');
+    const panel = document.getElementById('panel');
+    const lists = [...panel.querySelectorAll('.slotlist')];
+
+    const stage = document.querySelector('.stage');
+    const equipBtn = document.getElementById('equip');
+
+    // What is fitted, by slot. A page-lifetime scratch state: the point is to
+    // see what a build does, not to save one, and nothing here is written down.
+    const fitted = {{}};
+    let cur = {{slot: null, item: null}};
+
+    function chipFor(slot) {{
+      return document.querySelector('.chip3[data-slot="' + slot + '"]');
+    }}
+
+    // ---- the arithmetic -----------------------------------------------
+    // Everything below works from `fitted`, so the numbers always describe the
+    // build on screen. A candidate is judged against the build WITHOUT whatever
+    // currently occupies its slot, because fitting it would replace that.
+    // Catalogue stat key -> the weapon row it lands on, and how it combines.
+    const MAP = {{}};
+    for (const s of WEAPON) MAP[s.from || s.key] = s;
+
+    function apply(out, iid) {{
+      for (const [k, v] of Object.entries(DELTA[iid] || {{}})) {{
+        const s = MAP[k];
+        if (s && s.mode === 'set') out[s.key] = v;      // "Holds 45" is 45, not +45
+        else if (s) out[s.key] = (out[s.key] ?? 0) + v;
+        else out[k] = (out[k] ?? 0) + v;                // a stat with no row of its own
+      }}
+    }}
+
+    function totals(skipSlot, add) {{
+      const out = {{}};
+      for (const s of WEAPON) out[s.key] = s.base;
+      for (const [slot, iid] of Object.entries(fitted)) {{
+        if (slot === skipSlot) continue;
+        apply(out, iid);
+      }}
+      if (add) apply(out, add);
+      return out;
+    }}
+
+    const unit = (k) => (WEAPON.find((s) => s.key === k) || {{}}).unit || '';
+    const cap = (k) => (WEAPON.find((s) => s.key === k) || {{}}).max || 100;
+
+    function paintWeapon() {{
+      const now = totals(null, null);
+      let html = '';
+      for (const s of WEAPON) {{
+        const v = now[s.key];
+        const d = v - s.base;
+        const pctBase = Math.max(0, Math.min(100, Math.min(v, s.base) / s.max * 100));
+        const pctD = Math.max(0, Math.min(100, Math.abs(d) / s.max * 100));
+        const cls = d > 0 ? 'up' : 'down';
+        html += '<div class="sr"><span class="sr__n">' + s.key + '</span>'
+             + '<span class="sr__v">' + v + (s.unit || '')
+             + (d ? ' <i class="' + cls + '">' + (d > 0 ? '+' : '&minus;')
+                    + Math.abs(d) + '</i>' : '')
+             + '</span><span class="sr__bar">'
+             + '<i class="base" style="width:' + pctBase.toFixed(1) + '%"></i>'
+             + (d ? '<i class="' + cls + '" style="width:' + pctD.toFixed(1) + '%"></i>' : '')
+             + '</span></div>';
+      }}
+      for (const s of SPECS) {{
+        if (s.text !== undefined) {{
+          html += '<div class="kv"><span>' + s.key + '</span><b>' + s.text + '</b></div>';
+          continue;
+        }}
+        const pct = Math.max(0, Math.min(100, s.n / s.max * 100));
+        html += '<div class="sr"><span class="sr__n">' + s.key + '</span>'
+             + '<span class="sr__v">' + s.n + (s.unit || '') + '</span>'
+             + '<span class="sr__bar"><i class="base" style="width:'
+             + pct.toFixed(1) + '%"></i></span></div>';
+      }}
+      document.querySelector('.wstats').innerHTML = html;
+    }}
+
+    function paintDelta(slot, iid) {{
+      // Against the build as it stands, not against the build with this slot
+      // emptied. Swapping one optic for another should read as the two or three
+      // points it actually moves, not as the whole of the new optic's effect.
+      const before = totals(null, null);
+      const after = totals(slot, iid);
+      let html = '';
+      for (const s of WEAPON) {{
+        const b = before[s.key], a = after[s.key];
+        // Every stat, every time. Listing only what moves makes a short list
+        // look like a complete one, and hides that the others were considered.
+        const pctBase = Math.max(0, Math.min(100, Math.min(a, b) / s.max * 100));
+        const pctD = Math.max(0, Math.min(100, Math.abs(a - b) / s.max * 100));
+        const cls = a > b ? 'up' : 'down';
+        const same = a === b;
+        html += '<div class="sr' + (same ? ' is-flat' : '') + '">'
+             + '<span class="sr__n">' + s.key
+             + (s.tracked ? '' : ' <i class="untracked">not tracked</i>') + '</span>'
+             + '<span class="sr__v">' + a + (s.unit || '')
+             + (same ? '' : ' <i class="' + cls + '">(' + (a > b ? '+' : '&minus;')
+                            + Math.abs(a - b) + ')</i>')
+             + '</span><span class="sr__bar">'
+             + '<i class="base" style="width:' + pctBase.toFixed(1) + '%"></i>'
+             + (same ? '' : '<i class="' + cls + '" style="width:'
+                            + pctD.toFixed(1) + '%"></i>')
+             + '</span></div>';
+      }}
+      // Stat lines the weapon panel has no base for — magazine capacity and the
+      // like — still matter, so they are listed as the plain change they are.
+      for (const [k, v] of Object.entries(DELTA[iid] || {{}})) {{
+        if (MAP[k]) continue;
+        html += '<div class="sr"><span class="sr__n">' + k + '</span>'
+             + '<span class="sr__v ' + (v > 0 ? 'up' : 'down') + '">'
+             + (v > 0 ? '+' : '&minus;') + Math.abs(v) + '</span></div>';
+      }}
+
+      const box = document.querySelector('#d-' + iid + ' .delta');
+      if (box) box.innerHTML = html;
+    }}
+
+    function paintEquip() {{
+      if (!cur.item) {{ equipBtn.hidden = true; return; }}
+      const on = fitted[cur.slot] === cur.item;
+      equipBtn.hidden = false;
+      equipBtn.textContent = on ? 'Unequip' : 'Equip';
+      equipBtn.classList.toggle('is-fitted', on);
+    }}
+
+    // One card selected at a time, and one detail block shown for it.
+    function pick(list, iid) {{
+      for (const b of list.querySelectorAll('.pcard'))
+        b.classList.toggle('is-on', b.dataset.item === iid);
+      for (const d of list.querySelectorAll('.detail'))
+        d.hidden = d.id !== 'd-' + iid;
+      cur = {{slot: list.id.slice(3), item: iid}};
+      paintDelta(cur.slot, iid);
+      paintEquip();
+    }}
+
+    equipBtn.addEventListener('click', () => {{
+      if (!cur.item) return;
+      const chip = chipFor(cur.slot);
+      const card = document.querySelector(
+        '#sl-' + cur.slot + ' .pcard[data-item="' + cur.item + '"]');
+      if (fitted[cur.slot] === cur.item) {{
+        delete fitted[cur.slot];
+        chip.classList.remove('has-item');
+        chip.querySelector('.chip3__art').style.backgroundImage =
+          'url(../smith/slot/' + cur.slot + '.png)';
+      }} else {{
+        // One thing per slot: fitting a second replaces the first.
+        const was = document.querySelector('#sl-' + cur.slot + ' .pcard.is-fitted');
+        if (was) was.classList.remove('is-fitted');
+        fitted[cur.slot] = cur.item;
+        chip.classList.add('has-item');
+        chip.querySelector('.chip3__art').style.backgroundImage =
+          'url(../att/' + cur.item + '.png)';
+      }}
+      for (const b of document.querySelectorAll('#sl-' + cur.slot + ' .pcard'))
+        b.classList.toggle('is-fitted', fitted[cur.slot] === b.dataset.item);
+      paintDelta(cur.slot, cur.item);
+      paintWeapon();
+      paintEquip();
+    }});
+
+    function showSlot(slot) {{
+      showWeapon(false);
+      let found = null;
+      for (const l of lists) {{
+        l.hidden = l.id !== 'sl-' + slot;
+        if (!l.hidden) found = l;
+      }}
+      for (const c of document.querySelectorAll('.chip3'))
+        c.classList.toggle('is-on', c.dataset.slot === slot);
+      panel.hidden = !found;
+      wrap.classList.toggle('is-open', !!found);
+      stage.classList.toggle('is-focused', !!found);
+      if (found) {{
+        const first = found.querySelector('.pcard');
+        if (first) pick(found, first.dataset.item);
+        found.querySelector('.picks').scrollTop = 0;
+        history.replaceState(null, '', '#' + slot);
+      }}
+    }}
+
+    function shut() {{
+      panel.hidden = true;
+      wrap.classList.remove('is-open');
+      stage.classList.remove('is-focused');
+      cur = {{slot: null, item: null}};
+      equipBtn.hidden = true;
+      for (const c of document.querySelectorAll('.chip3')) c.classList.remove('is-on');
+      history.replaceState(null, '', location.pathname);
+    }}
+
+    for (const l of lists) {{
+      l.addEventListener('click', (e) => {{
+        const b = e.target.closest('.pcard');
+        if (b) pick(l, b.dataset.item);
+      }});
+    }}
+
+    // With the tables folded away, following a chip's own href would jump to a
+    // heading inside a closed <details> and appear to do nothing. Opening it
+    // first is what makes the no-JS fallback and the middle-click both land.
+    const tables = document.getElementById('tables');
+    if (tables) {{
+      for (const a of document.querySelectorAll('a[href^="#slot-"]'))
+        a.addEventListener('click', () => {{ tables.open = true; }});
+      if (location.hash.startsWith('#slot-')) tables.open = true;
+    }}
+
+    for (const c of document.querySelectorAll('.chip3')) {{
+      c.addEventListener('click', (e) => {{
+        // Modified clicks keep their normal meaning: open the weapon page.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        if (c.classList.contains('is-on')) shut();
+        else showSlot(c.dataset.slot);
+      }});
+    }}
+    // Full screen is offered only where the browser actually supports it —
+    // an inert button is worse than no button.
+    const expand = document.getElementById('expand');
+    if (document.fullscreenEnabled) {{
+      expand.hidden = false;
+      expand.addEventListener('click', () => {{
+        if (document.fullscreenElement) document.exitFullscreen();
+        else wrap.requestFullscreen().catch(() => {{}});
+      }});
+      document.addEventListener('fullscreenchange', () => {{
+        const on = document.fullscreenElement === wrap;
+        expand.classList.toggle('is-on', on);
+        expand.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen');
+      }});
+    }}
+
+    const wtab = document.getElementById('wtab');
+    const wpanel = document.getElementById('wpanel');
+    function showWeapon(on) {{
+      wpanel.hidden = !on;
+      wtab.setAttribute('aria-expanded', String(on));
+    }}
+    // One at a time: the build panel opens where the attachment list sits, so
+    // showing both means the top one covers the other.
+    wtab.addEventListener('click', () => {{
+      const opening = wpanel.hidden;
+      if (opening) shut();
+      showWeapon(opening);
+    }});
+    paintWeapon();
+
+    document.getElementById('close').addEventListener('click', shut);
+    addEventListener('keydown', (e) => {{ if (e.key === 'Escape') shut(); }});
+
+    // Anywhere that is not the panel, a chip or the equip button closes it —
+    // including the weapon itself. The chip and equip handlers run first and
+    // are excluded here, or a chip click would open and then immediately close.
+    document.addEventListener('click', (e) => {{
+      // The build panel overlays the stage, so a click anywhere but on it
+      // dismisses it — otherwise it sits over the chips and swallows them.
+      if (!e.target.closest('.wname')) showWeapon(false);
+      if (panel.hidden) return;
+      if (e.target.closest('.panel, .chip3, #equip, .pins')) return;
+      shut();
+    }});
+    if (location.hash) showSlot(location.hash.slice(1));
+
+    // Placement is a maintenance mode, not a feature: ?place turns it on.
+    const place = new URLSearchParams(location.search).has('place');
+    const pins = document.querySelector('.pins');
+    if (place) {{
+      pins.hidden = false;
+      document.querySelector('.placer').hidden = false;
+      stage.classList.add('is-placing');
+      const at = {{}};
+      let held = null;
+      const put = (el, e) => {{
+        const r = stage.getBoundingClientRect();
+        const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+        const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+        el.style.left = (x * 100) + '%';
+        el.style.top = (y * 100) + '%';
+        at[el.dataset.slot] = [Math.round(x * {fw}), Math.round(y * {fh})];
+      }};
+      for (const p of pins.querySelectorAll('.pin')) {{
+        p.addEventListener('pointerdown', (e) => {{
+          held = p; p.setPointerCapture(e.pointerId); e.preventDefault();
+        }});
+        p.addEventListener('pointermove', (e) => {{ if (held === p) put(p, e); }});
+        p.addEventListener('pointerup', () => {{ held = null; }});
+      }}
+      document.getElementById('copy').addEventListener('click', () => {{
+        const txt = JSON.stringify(at, null, 1);
+        document.getElementById('out').textContent = txt;
+        // The <pre> is the real output; the clipboard is a convenience and
+        // is denied outright in some contexts, so its rejection is caught.
+        if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {{}});
+      }});
+    }}
+  </script>
+"""
+    return body
+
 CSS = """
 /* ==========================================================================
    Weapon Smith — same room as Loadout Roulette.
@@ -975,9 +1609,11 @@ td.v a:hover, td.v a:focus-visible { border-bottom-color: var(--accent); }
 .num.down { color: var(--red); }
 tr.is-gap td:first-child a { color: var(--red); }
 
+/* Printed as the token you would type, not as a caption: uppercasing it would
+   break the one thing it is for. */
 .tag {
-  font-family: var(--mono); font-size: 9px; font-weight: 600;
-  letter-spacing: 0.14em; text-transform: uppercase;
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.02em;
   color: var(--red); border: 1px solid currentColor; border-radius: 3px;
   padding: 2px 5px; margin-left: 8px; white-space: nowrap; vertical-align: middle;
 }
@@ -1088,6 +1724,13 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   margin-left: auto; font-family: var(--mono); font-size: 10px; font-style: normal;
   color: var(--text-faint); font-variant-numeric: tabular-nums;
 }
+/* A tag link wears the tag, so the sidebar teaches the search box's syntax
+   rather than describing it somewhere else. */
+.navlink--tag code {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.02em;
+  color: var(--text-faint);
+}
+.navlink--tag:hover code, .navlink--tag.is-on code { color: inherit; }
 .navlink:hover, .navlink:focus-visible { background: var(--surface-2); color: var(--text); }
 .navlink.is-on { background: rgba(var(--accent-rgb), 0.12); color: var(--accent); }
 .navlink.is-on em { color: var(--accent-dim); }
@@ -1133,6 +1776,353 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   .browse__nav { position: static; }
 }
 
+/* --------------------------------------------------------------------------
+   The gunsmith stage. Everything inside is positioned as a percentage of the
+   frame the artwork was cut from, so the weapon, the chips and the wires scale
+   together and cannot drift apart at any width.
+   -------------------------------------------------------------------------- */
+/* The slot panel, laid out as the game lays it out: the weapon fills the stage
+   and the list and its detail sit ON it, down the left. Overlaid rather than
+   beside, so opening a slot does not shrink the thing you are looking at. */
+.gunsmith { display: block; }
+.panel {
+  /* Starts below the weapon name rather than under it. */
+  position: absolute; inset: 54px auto 10px 10px; display: flex; gap: 8px;
+  max-width: calc(100% - 20px); z-index: 3;
+}
+.panel[hidden], .slotlist[hidden] { display: none; }
+.slotlist { display: flex; gap: 8px; min-height: 0; }
+
+/* Both columns scroll without showing a bar: they sit ON the weapon, and a
+   scrollbar down the middle of the picture is the one piece of chrome the game
+   does not have. Keyboard and wheel scrolling are untouched. */
+.picks, .dpane { scrollbar-width: none; -ms-overflow-style: none; }
+.picks::-webkit-scrollbar, .dpane::-webkit-scrollbar { width: 0; height: 0; }
+
+.panel__x {
+  position: absolute; top: 6px; right: 6px; z-index: 5;
+  width: 26px; height: 26px; padding: 0; font-size: 17px; line-height: 1;
+  cursor: pointer; border-radius: 4px; color: var(--text-dim);
+  background: rgba(6, 14, 19, 0.9); border: 1px solid var(--line);
+}
+.panel__x:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+.picks {
+  width: 208px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 4px;
+  overflow-y: auto; padding: 8px; border-radius: 6px;
+  background: rgba(6, 14, 19, 0.82); border: 1px solid var(--line);
+  backdrop-filter: blur(3px);
+}
+.picks__h {
+  position: sticky; top: 0; z-index: 2; margin: 0 -8px 4px; padding: 9px 10px;
+  background: var(--bg); font-size: 12px; font-weight: 800;
+  color: var(--accent); display: flex; align-items: baseline; gap: 8px;
+}
+.picks__h .count { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+
+.pcard {
+  position: relative; display: block; width: 100%; padding: 5px 5px 3px;
+  text-align: left; cursor: pointer; font: inherit; flex: 0 0 auto;
+  background: rgba(14, 26, 33, 0.9); border: 1px solid var(--line); border-radius: 4px;
+}
+.pcard__n {
+  display: inline-block; max-width: 100%; padding: 1px 6px; border-radius: 2px;
+  font-size: 11px; line-height: 1.35; color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+}
+.pcard__art {
+  display: block; height: 46px; margin-top: 3px;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+}
+.pcard:hover { border-color: var(--line-2); }
+.pcard.is-on { border-color: var(--text); background: var(--surface-2); }
+/* A fitted attachment is marked in the list, so the state is visible without
+   opening its card. */
+.pcard.is-fitted::after {
+  content: "FITTED"; position: absolute; top: 4px; right: 4px;
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.1em;
+  color: var(--bg); background: var(--accent); border-radius: 2px; padding: 1px 4px;
+}
+.pcard__n.tier-green  { background: rgba(42, 202, 150, 0.22); }
+.pcard__n.tier-blue   { background: rgba(88, 160, 221, 0.22); }
+.pcard__n.tier-purple { background: rgba(155, 114, 221, 0.28); }
+.pcard__n.tier-red    { background: rgba(218, 87, 88, 0.26); }
+
+.dpane {
+  width: 252px; flex: 0 0 auto; overflow-y: auto; padding: 0 12px 12px; border-radius: 6px;
+  background: rgba(6, 14, 19, 0.82); border: 1px solid var(--line);
+  backdrop-filter: blur(3px);
+}
+/* Pinned, and opaque. Padding alone does not help here: in a scrolling box the
+   padding scrolls away with everything else, so the title slid up under the
+   top edge and was cut in half. Sticking it means the rest passes behind it. */
+.detail h4 {
+  position: sticky; top: 0; z-index: 2;
+  margin: 0 0 10px; padding: 12px 30px 8px 0; font-size: 14px; font-weight: 800;
+  background: rgb(7, 15, 20);
+}
+.detail h4 a { color: var(--text); text-decoration: none; }
+.detail h4 a:hover { color: var(--accent); }
+.tier {
+  display: inline-block; width: 8px; height: 8px; margin-right: 7px;
+  transform: rotate(45deg); vertical-align: 1px; border-radius: 1px;
+}
+.tier.green  { background: rgb(42, 202, 150); }
+.tier.blue   { background: rgb(88, 160, 221); }
+.tier.purple { background: rgb(155, 114, 221); }
+.tier.red    { background: rgb(218, 87, 88); }
+
+.dlabel {
+  margin: 14px 0 6px; padding-top: 10px; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-faint);
+}
+/* Scoped to both, not to .detail: the build panel uses the same row. */
+.detail .kv, .wstats .kv {
+  display: flex; align-items: baseline; font-size: 13px; color: var(--text-dim);
+}
+.detail .kv b, .wstats .kv b {
+  margin-left: auto; font-family: var(--mono); color: var(--text);
+}
+.fx { font-size: 12px; color: var(--text-dim); padding: 2px 0 2px 12px; position: relative; }
+.fx::before {
+  content: ""; position: absolute; left: 0; top: 8px;
+  width: 5px; height: 5px; background: var(--line-2); border-radius: 1px;
+}
+.fx.none { color: var(--text-faint); font-style: italic; padding-left: 0; }
+.fx.none::before { display: none; }
+
+.stiles { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Square, and the art fills it. The icons are 70x70 crops of the game's own
+   chips — hatched ground included — so cover with a square box reproduces the
+   chip exactly rather than floating a shrunken copy on a different backing. */
+.stile {
+  position: relative; display: block; width: 62px; aspect-ratio: 1; border-radius: 3px;
+  background-color: var(--bg); background-repeat: no-repeat;
+  background-position: center; background-size: cover;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.stile em {
+  position: absolute; top: 0; left: 0; right: 0; padding: 3px 4px 4px;
+  font-family: var(--mono); font-size: 8px; font-style: normal; line-height: 1.1;
+  color: var(--text-dim);
+  background: linear-gradient(to bottom, rgba(6, 14, 19, 0.85), transparent);
+}
+
+.sr { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; margin-bottom: 7px; }
+.sr__n { font-size: 12px; color: var(--text-dim); }
+.sr__v { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.sr__v.up { color: var(--accent); }
+.sr__v.down { color: var(--red); }
+.sr__bar { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: var(--surface-2); }
+.sr__bar i { display: block; height: 100%; border-radius: 2px; }
+.sr__bar i.up { background: var(--accent); }
+.sr__bar i.down { background: var(--red); }
+
+/* The weapon's two facts, set as a line of text rather than a table. */
+/* The weapon's class and caliber live in the standfirst and are links. */
+.sub a {
+  color: var(--accent); font-weight: 600; text-decoration: none;
+  border-bottom: 1px solid var(--accent-dim);
+}
+.sub a:hover, .sub a:focus-visible { border-bottom-color: var(--accent); }
+
+/* The slot tables, folded. */
+.deploy {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+}
+.deploy > summary {
+  cursor: pointer; list-style: none; padding: 12px 16px;
+  font-size: 17px; font-weight: 800; letter-spacing: 0.01em; color: var(--accent);
+  display: flex; align-items: baseline; gap: 10px;
+}
+.deploy > summary::-webkit-details-marker { display: none; }
+.deploy > summary::before {
+  content: "\\25B8"; color: var(--accent-dim); font-size: 13px;
+  transition: transform 120ms ease;
+}
+.deploy[open] > summary::before { transform: rotate(90deg); }
+.deploy > summary:hover { background: var(--surface-2); }
+.deploy > summary:focus-visible { outline: 2px solid var(--accent-dim); outline-offset: -2px; }
+.deploy .hint {
+  margin-left: auto; font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--text-faint);
+}
+.deploy__body {
+  display: flex; flex-direction: column; gap: 28px;
+  padding: 4px 16px 20px; border-top: 1px solid var(--line);
+}
+.deploy__body h2 { font-size: 15px; }
+@media (prefers-reduced-motion: reduce) {
+  .deploy > summary::before { transition: none; }
+}
+
+/* Bottom right, in the corner the game keeps its own screen controls in — and
+   away from the card column, which fills the bottom left once a slot is open
+   and put a card's border above and below the button. */
+.expand {
+  position: absolute; right: 16px; bottom: 16px; z-index: 3;
+  width: 32px; height: 32px; padding: 0; cursor: pointer; border-radius: 4px;
+  background: rgba(6, 14, 19, 0.7); border: 1px solid var(--line);
+}
+.expand svg { fill: none; stroke: var(--text-dim); stroke-width: 1.6; }
+.expand:hover { border-color: var(--accent-dim); }
+.expand:hover svg, .expand.is-on svg { stroke: var(--accent); }
+
+/* Full screen keeps the stage's own proportions rather than stretching to the
+   monitor's. Everything inside is positioned as a percentage of the stage, so
+   letting it take a different aspect would skew the weapon and every chip on
+   it; the box is sized to the taller or wider limit and centred instead. */
+.gunsmith:fullscreen {
+  display: grid; place-items: center;
+  /* The backdrop wears the stage's own colours, so the strip left over by
+     keeping the aspect ratio reads as more room rather than as a border. */
+  background:
+    radial-gradient(120% 90% at 50% 0%, #10333d 0%, transparent 60%),
+    var(--surface);
+}
+.gunsmith:fullscreen .stage {
+  width: min(100vw, calc(100vh * var(--ar)));
+  border-radius: 0; border: 0; background: none;
+}
+
+/* The weapon name, top left of the stage, and the build panel it opens. */
+.wname { position: absolute; top: 10px; left: 10px; z-index: 4; }
+.wname__b {
+  display: flex; align-items: center; gap: 9px; padding: 6px 11px;
+  font: inherit; font-size: 17px; font-weight: 800; letter-spacing: -0.01em;
+  cursor: pointer; color: var(--text); border-radius: 5px;
+  background: rgba(6, 14, 19, 0.7); border: 1px solid var(--line);
+}
+.wname__b svg { fill: var(--text-dim); }
+.wname__b:hover, .wname__b[aria-expanded="true"] { border-color: var(--accent-dim); }
+.wname__b:hover svg, .wname__b[aria-expanded="true"] svg { fill: var(--accent); }
+.wpanel {
+  width: 258px; margin-top: 6px; padding: 12px; border-radius: 6px;
+  background: rgba(6, 14, 19, 0.9); border: 1px solid var(--line);
+  backdrop-filter: blur(3px);
+}
+.wpanel .dlabel { margin-top: 0; padding-top: 0; border-top: 0; }
+.prov {
+  display: block; margin-top: 3px; font-style: normal; text-transform: none;
+  letter-spacing: 0; color: var(--warn);
+}
+
+/* A stat bar is white up to the figure the two readings share, then a coloured
+   tail for the difference — added to the right, taken off the end. */
+.sr__bar { display: flex; }
+.sr__bar i.base { background: var(--text-dim); }
+.sr__v i { font-style: normal; }
+.sr__v i.up { color: var(--accent); }
+.sr__v i.down { color: var(--red); }
+.delta .sr:last-child { margin-bottom: 0; }
+/* A stat this attachment leaves alone is still shown, just quietly. */
+.sr.is-flat .sr__n, .sr.is-flat .sr__v { color: var(--text-faint); }
+.sr__n .untracked {
+  font-family: var(--mono); font-size: 8px; font-style: normal;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn);
+  opacity: 0.75; margin-left: 5px;
+}
+.wstats .kv { padding: 3px 0; border-top: 1px solid var(--line); }
+.wstats .kv:first-of-type { margin-top: 10px; }
+
+/* Bottom right of the stage, where the game puts INSTALL. */
+.equip {
+  position: absolute; right: 64px; bottom: 16px; z-index: 3;
+  font: inherit; font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 10px 26px; cursor: pointer;
+  color: var(--bg); background: var(--accent); border: 0; border-radius: 4px;
+}
+.equip.is-fitted { color: var(--accent); background: transparent; border: 1px solid var(--accent); }
+
+/* With a slot open the game shows only that slot's marker. */
+.chip3.is-on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+.chip3.is-on .chip3__label { color: var(--accent); }
+.chip3.has-item { border-color: var(--accent-dim); }
+.stage.is-focused .chip3 { opacity: 0.18; }
+.stage.is-focused .chip3.is-on { opacity: 1; }
+.stage.is-focused .stage__wires { opacity: 0.25; }
+
+@media (max-width: 900px) {
+  .panel { position: static; inset: auto; max-width: none; margin-top: 10px; }
+  .picks, .dpane { max-height: 52vh; }
+  .picks { width: 45%; }
+  .dpane { width: 55%; }
+  .equip { position: static; display: block; width: 100%; margin-top: 10px; }
+}
+}
+
+}
+
+.shotlink { position: relative; display: inline-block; text-decoration: none; }
+.shotlink__cue {
+  display: block; margin-top: 6px; font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-faint);
+}
+.shotlink:hover .shot, .shotlink:focus-visible .shot { border-color: var(--accent-dim); }
+.shotlink:hover .shotlink__cue, .shotlink:focus-visible .shotlink__cue { color: var(--accent); }
+
+.stage {
+  position: relative; width: 100%; border: 1px solid var(--line);
+  border-radius: 8px; overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #10333d 0%, transparent 60%),
+    var(--surface);
+}
+.stage__gun { position: absolute; object-fit: contain; }
+.stage__wires {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  /* vector-effect keeps the hairline a hairline once the stage is scaled down;
+     without it preserveAspectRatio="none" stretches the stroke too. */
+  stroke: var(--line-2); stroke-width: 1; fill: none;
+}
+.stage__wires line { vector-effect: non-scaling-stroke; }
+
+.chip3 {
+  position: absolute; display: block; text-decoration: none;
+  border: 1px solid var(--line-2); border-radius: 2px; background: rgba(6,14,19,.35);
+}
+.chip3__art {
+  display: block; width: 100%; height: 100%;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+}
+.chip3__label {
+  position: absolute; bottom: 100%; left: 0; margin-bottom: 3px;
+  font-size: 11px; line-height: 1; white-space: nowrap; color: var(--text-dim);
+}
+.chip3 em {
+  position: absolute; right: -1px; bottom: -1px; padding: 0 4px;
+  font-family: var(--mono); font-size: 10px; font-style: normal;
+  color: var(--bg); background: var(--accent-dim); border-radius: 2px 0 0 0;
+}
+.chip3:hover, .chip3:focus-visible {
+  border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-dim);
+}
+.chip3:hover .chip3__label, .chip3:focus-visible .chip3__label { color: var(--accent); }
+
+.pins { position: absolute; inset: 0; }
+.pin {
+  position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px;
+  padding: 0; border: 2px solid var(--warn); border-radius: 50%;
+  background: rgba(245,217,10,.25); cursor: grab; touch-action: none;
+}
+.pin:active { cursor: grabbing; }
+.stage.is-placing .chip3 { pointer-events: none; }
+
+.btn {
+  font: inherit; font-size: 13px; padding: 7px 14px; cursor: pointer;
+  color: var(--bg); background: var(--accent); border: 0; border-radius: 6px;
+}
+.out {
+  font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  padding: 12px; overflow-x: auto; max-height: 40vh;
+}
+
+@media (max-width: 700px) {
+  .chip3__label { font-size: 9px; }
+}
+
 figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .canvas {
   background: var(--surface); border: 1px solid var(--line);
@@ -1164,6 +2154,8 @@ WEAPONS = json.loads((ROOT / 'data/weapons.json').read_text(encoding='utf-8'))
 AMMO = json.loads((ROOT / 'data/ammo.json').read_text(encoding='utf-8'))
 WEAPON_NAME = {w['id']: w['name'] for w in WEAPONS}
 DOCUMENTED = {'rm277'}
+# Weapons whose gunsmith layout has been traced from the game.
+GUNSMITHS = {'rm277'}
 PAGES = ['catalogue/gun-rm277.html']   # documented weapons, for the sitemap
 SITE = 'https://eukyrios.github.io/weapon-smith/'
 
@@ -1196,8 +2188,8 @@ LOGO = ('<svg class="mark" viewBox="0 0 64 64" aria-hidden="true" '
         'focusable="false">' + ' '.join(_MARK.split()) + '</svg>')
 
 OG = SITE + 'og.png'
-OG_ALT = ('Weapon Smith &mdash; the Delta Force: Operations weapon and '
-          'attachment catalogue')
+OG_ALT = ('Weapon Smith &mdash; a Delta Force: Operations weapon, ammunition '
+          'and attachment library, and a build maker on top of it')
 
 
 def attr(text):
@@ -1358,12 +2350,17 @@ def index_page(items, by_caliber):
     The front page carries no back link: there is nothing above it on this
     site, and it is not a page of the sibling site to be returned from.
     """
-    desc = (f'Every weapon, round and attachment in Delta Force: '
-            f'Operations: {len(WEAPONS)} weapons, {len(AMMO)} rounds and '
-            f'{len(items)} attachments, with the slots each one fits and the '
-            'slots it opens.')
+    # What the site is FOR, then what it holds. The optimiser is written as
+    # coming rather than working, because it is: the banner on every page says
+    # early days and a description that oversells it would be the one place on
+    # the site that lies about the state of it.
+    desc = (f'Build Delta Force: Operations loadouts. A library of '
+            f'{len(WEAPONS)} weapons, {len(AMMO)} rounds and {len(items)} '
+            'attachments, with every slot on a gun, what it accepts and which '
+            'attachments open more &mdash; and a build optimiser in progress '
+            'that picks the parts maximising the stat you choose.')
     return shell(
-        'Weapon Smith &mdash; Delta Force attachment catalogue',
+        'Weapon Smith &mdash; Delta Force: Operations build maker',
         'Delta Force &middot; Operations', LOGO + 'Weapon Smith', '',
         catalogue_browser(items, by_caliber, pages='catalogue/', art=''), '',
         desc=desc, path='')
@@ -1490,6 +2487,15 @@ if __name__ == '__main__':
     for w in WEAPONS:
         (cat / gun_file(w['id'])).write_text(
             gun_page(w), encoding='utf-8')
+    # The editor moved into the weapon page; this was its address for a while.
+    for wid in sorted(GUNSMITHS):
+        (cat / f'smith-{wid}.html').write_text(
+            f'<title>{WEAPON_NAME.get(wid, wid)} Gunsmith &middot; Weapon Smith</title>\n'
+            f'<meta http-equiv="refresh" content="0; url={gun_file(wid)}">\n'
+            f'<link rel="canonical" href="{SITE}catalogue/{gun_file(wid)}">\n'
+            '<p>The gunsmith is part of the weapon page now. '
+            f'<a href="{gun_file(wid)}">{WEAPON_NAME.get(wid, wid)} &rarr;</a></p>\n',
+            encoding='utf-8')
     for a in AMMO:
         (cat / ammo_file(a['id'])).write_text(
             ammo_page(a, guns_by_caliber.get(a['caliber'], [])), encoding='utf-8')

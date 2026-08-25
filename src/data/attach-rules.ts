@@ -326,14 +326,19 @@ export const CATEGORY_FITS: Record<string, string[]> = {
   ],
 
   /**
-   * Right rail — dictated as identical to the left, and written out in full
-   * rather than aliased to it. Two slots that agree today are still two slots;
-   * sharing one array makes a future divergence unrepresentable and hides that
-   * both were actually checked.
+   * Right rail — 13 named, 11 resolve. NOT the same list as the left: the
+   * OLIGHT Odin S fits the left rail and not this one.
+   *
+   * Dictated as identical to the left at first, and written out in full rather
+   * than aliased to it on the grounds that two slots which agree today are
+   * still two slots. That turned out to be the right call sooner than expected
+   * — sharing one array would have made this difference unrepresentable, and
+   * correcting it would have silently changed the left rail too.
    */
   'right-rail': [
     // 'olight-warrior-3s-tactical-flashlight',  <- named, absent
-    // 'olight-odin-s-tactical-flashlight',      <- named, absent
+    // The Odin S is a left-rail-only light. It is also absent from the upper
+    // rail, so the left rail is the exception rather than this one.
     'olight-baldr-pro-r-multi-function-flashlight',
     'dbal-x2-purple-laser-light-combo',
     'perst-7-blue-laser-light-combo', // transcribed "Burst ST-7"
@@ -678,8 +683,12 @@ export const PENDING_RULES: Record<string, AttachRule & { name: string }> = {
   'rm277-whale-shark-barrel-combo': {
     name: 'RM277 Whale Shark Barrel Combo',
     grants: ['upper-rail'],
-    // No slot conflicts were listed. Absence of a statement, not a statement of
-    // absence — if this one also blocks the bipod, nothing here would know.
+    // It does block the bipod, confirmed later than the rest of the rule. The
+    // note that used to sit here said no conflict had been *stated* and warned
+    // that silence was not the same as none — which is exactly how it turned
+    // out. Only the bipod: unlike the Heavy Integral Barrel this one has not
+    // been seen to take the muzzle, so the muzzle is not listed.
+    conflictSlots: ['rail-bipod'],
   },
 };
 
