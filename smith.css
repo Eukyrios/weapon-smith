@@ -679,6 +679,16 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .devbar b { letter-spacing: 0.08em; text-transform: uppercase; font-size: 10px; }
 .devbar em { margin-left: auto; font-style: normal; font-family: var(--mono); }
+.devtabs { display: flex; flex-wrap: wrap; gap: 6px; grid-column: 1 / -1; }
+.devtab {
+  font: inherit; font-size: 12px; padding: 5px 10px; cursor: pointer;
+  color: var(--text-dim); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 5px;
+}
+.devtab:hover { border-color: var(--line-2); color: var(--text); }
+.devtab.is-on {
+  color: var(--bg); background: var(--warn); border-color: var(--warn);
+}
 .devout { margin-top: 14px; }
 .devout .dlabel { margin-top: 0; padding-top: 0; border-top: 0; }
 .devout textarea {

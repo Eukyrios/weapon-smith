@@ -1688,27 +1688,24 @@
       paintEquip();
     }
 
-    equipBtn.addEventListener('click', () => {
-      if (!cur.item) return;
-      const chip = chipFor(cur.slot);
-      const card = document.querySelector(
-        '#sl-' + cur.slot + ' .pcard[data-item="' + cur.item + '"]');
-      if (fitted[cur.slot] === cur.item) {
-        delete fitted[cur.slot];
-        chip.classList.remove('has-item');
-        chip.querySelector('.chip3__art').style.backgroundImage =
-          'url(../smith/slot/' + cur.slot + '.png)';
-      } else {
-        // One thing per slot: fitting a second replaces the first.
-        const was = document.querySelector('#sl-' + cur.slot + ' .pcard.is-fitted');
-        if (was) was.classList.remove('is-fitted');
-        fitted[cur.slot] = cur.item;
+    // One thing per slot: fitting a second replaces the first.
+    function fit(slot, iid) {
+      const chip = chipFor(slot);
+      fitted[slot] = iid;
+      if (chip) {
         chip.classList.add('has-item');
         chip.querySelector('.chip3__art').style.backgroundImage =
-          'url(../att/' + cur.item + '.png)';
+          'url(../att/' + iid + '.png)';
       }
-      for (const b of document.querySelectorAll('#sl-' + cur.slot + ' .pcard'))
-        b.classList.toggle('is-fitted', fitted[cur.slot] === b.dataset.item);
+      for (const b of document.querySelectorAll('#sl-' + slot + ' .pcard'))
+        b.classList.toggle('is-fitted', iid === b.dataset.item);
+      relayout();
+    }
+
+    equipBtn.addEventListener('click', () => {
+      if (!cur.item) return;
+      if (fitted[cur.slot] === cur.item) unfit(cur.slot);
+      else fit(cur.slot, cur.item);
       relayout();
       paintDelta(cur.slot, cur.item);
       paintWeapon();
@@ -1855,7 +1852,50 @@
       document.body.classList.add('is-dev');
       const bar = document.createElement('div');
       bar.className = 'devbar';
+      const tabs = document.createElement('div');
+      tabs.className = 'devtabs';
       document.querySelector('.gunsmith').prepend(bar);
+      bar.after(tabs);
+
+      // Half the slots are not on the bare rifle, so half of them cannot be
+      // dragged until whatever opens them is fitted. These buttons fit it:
+      // each one puts on the parts of a recorded arrangement, which is also
+      // the only honest way to show one — the layout IS what is fitted, so
+      // drawing it any other way would be drawing something the game does not.
+      const shown = (iid) => {
+        const n = document.querySelector(
+          '.pcard[data-item="' + iid + '"] .pcard__n');
+        return n ? n.textContent.trim() : iid.replace(/-/g, ' ');
+      };
+      function wear(by) {
+        for (const slot of Object.keys(fitted)) unfit(slot);
+        relayout();
+        // In order: a part can sit in a slot an earlier one opened. And when
+        // it fits in two, the opened one wins — a micro sight riser is in the
+        // optic list as well as the riser-optic list, and putting it in the
+        // first would replace the riser that made the second exist.
+        for (const iid of by) {
+          const open = lists.filter((l) => {
+            const chip = chipFor(l.id.slice(3));
+            return chip && !chip.hidden
+                && l.querySelector('.pcard[data-item="' + iid + '"]');
+          });
+          const list = open.find((l) => !BASE_SLOTS.has(l.id.slice(3))) || open[0];
+          if (list) fit(list.id.slice(3), iid);
+        }
+        paintWeapon();
+        say('');
+      }
+      const configs = [{by: [], name: 'Bare rifle'}].concat(
+        (doc.layouts || []).map((l) => ({by: l.by, name: l.by.map(shown).join(' + ')})));
+      for (const c of configs) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'devtab';
+        btn.textContent = c.name;
+        btn.addEventListener('click', () => wear(c.by));
+        tabs.appendChild(btn);
+      }
 
       const out = document.createElement('div');
       out.className = 'devout';
@@ -1872,6 +1912,8 @@
         const {grants, blocks} = openSlots();
         const exact = LAYOUTS.find(
           (l) => sameSet(grants, l.when) && sameSet(blocks, l.blocks));
+        const i = exact ? LAYOUTS.indexOf(exact) : -1;
+        [...tabs.children].forEach((b, n) => b.classList.toggle('is-on', n === i));
         bar.innerHTML = '<b>Dev</b> <span>' + (exact
           ? 'editing the layout for: ' + (exact.when.length
               ? exact.when.join(', ') : 'the bare rifle')
@@ -1916,7 +1958,8 @@
         const slot = (pin || chip).dataset.slot;
         const where = homes(slot, !!pin);
         if (!where.length) { say('nothing to write that to'); return; }
-        drag = {slot, anchor: !!pin, where, moved: false};
+        drag = {slot, anchor: !!pin, where, moved: false,
+                wasOpen: (pin || chip).classList.contains('is-on')};
         stage.setPointerCapture(e.pointerId);
         e.preventDefault();
       });
@@ -1934,8 +1977,14 @@
             + x + ', ' + y);
       });
       stage.addEventListener('pointerup', () => {
-        // A drag that never moved was a click, and a click on a chip opens it.
-        if (drag && !drag.moved) showSlot(drag.slot);
+        // A drag that never moved was a click, and a click on a chip still
+        // opens its list. It has to wait a tick: capturing the pointer on the
+        // stage retargets the click there too, and the page's own handler reads
+        // that as a click on the background and closes whatever is open.
+        if (drag && !drag.moved && !drag.wasOpen) {
+          const slot = drag.slot;
+          setTimeout(() => showSlot(slot), 0);
+        }
         drag = null;
       });
 
