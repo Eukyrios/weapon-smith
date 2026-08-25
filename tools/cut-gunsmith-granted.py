@@ -1,10 +1,10 @@
 """Find the slots a fitted part opens, and where the gunsmith draws them.
 
-Source: six screen recordings of the RM277's gunsmith, each with one part
-fitted -- a tactical riser, a micro sight riser on top of it, two rear grips and
-two barrels. Between them they cover every slot the bare rifle does not have
-except the kill flash, which no clip shows. Produces the extra icons in
-smith/slot/ and the `layouts` block of data/gunsmith-rm277.json.
+Source: seven screen recordings of the RM277's gunsmith, each with one part
+fitted -- a tactical riser, a micro sight riser on top of it, two rear grips,
+two barrels and a sniper scope. Between them they cover every slot the bare
+rifle does not have. Produces the extra icons in smith/slot/ and the `layouts`
+block of data/gunsmith-rm277.json.
 
 Three things have to come out of each frame, and each is read a different way.
 
@@ -59,7 +59,7 @@ DY = 16                              # label top to chip top, measured on base
 NAMES = {
     'optics': 'Optic', 'offset-optics': 'Offset Optic',
     'riser-optics': 'Riser Optic', 'red-dot-optics': 'Red Dot Optic',
-    'tactical-device': 'Tactical Device', 'kill-flash': 'Kill Flash',
+    'tactical-device': 'Tactical Device', 'kill-flash': 'Killflash',
     'upper-rail': 'Upper Rail', 'barrel': 'Barrel', 'muzzle': 'Muzzle',
     'foregrip': 'Foregrip', 'rail-bipod': 'Rail Bipod',
     'left-rail': 'Left Rail', 'right-rail': 'Right Rail',
@@ -97,6 +97,13 @@ CLIPS = [
          items=['rm277-heavy-integral-barrel'],
          grants=['upper-rail'], occupies=['muzzle', 'rail-bipod'],
          seed={'upper-rail': (333, 351)}),
+    # The clip is filed under the muzzle brake but fits an Insight 3/7, whose
+    # card prints "Adds Slots: Killflash" -- which is the rule, arrived at from
+    # the footage rather than from the rules file.
+    dict(key='killflash', frame='S_killflash.png',
+         items=['insight-3-7-sniper-scope'],
+         grants=['kill-flash'], occupies=[],
+         seed={'kill-flash': (670, 250), 'left-patch': (347, 342)}),
     dict(key='whale', frame='S_whale.png',
          items=['rm277-whale-shark-barrel-combo'],
          grants=['upper-rail'], occupies=['rail-bipod'],
@@ -108,7 +115,8 @@ CLIPS = [
 # the picture is the slot's own rather than whatever is fitted in it.
 ICON_FROM = {'tactical-device': 'riser', 'riser-optics': 'riser',
              'red-dot-optics': 'reddot', 'rear-grip-patch': 'modular',
-             'rear-grip-mount': 'tower', 'upper-rail': 'integral'}
+             'rear-grip-mount': 'tower', 'upper-rail': 'integral',
+             'kill-flash': 'killflash'}
 
 
 # --- reading the labels ----------------------------------------------------
@@ -288,6 +296,14 @@ def main():
     base_anchor = {s['slot']: (s.get('ax'), s.get('ay')) for s in d['slots']}
     base_label = {s['slot']: s['label'] for s in d['slots']}
 
+    # What the file already says, keyed the way a layout is keyed. An anchor in
+    # here stays: it may have been dragged into place by hand in the editor's
+    # dev mode, and a tool that silently undid that on the next run would make
+    # every hand correction worthless. Only a slot with no anchor anywhere gets
+    # one traced.
+    was = {(tuple(l['when']), tuple(l['blocks'])): l['chips']
+           for l in d.get('layouts', [])}
+
     layouts, icons = [], {}
     for c in CLIPS:
         path = str(FRAMES / c['frame'])
@@ -308,15 +324,21 @@ def main():
         if missing:
             raise SystemExit(f'{c["key"]}: no chip found for {missing}')
 
+        before = was.get((tuple(sorted(c['grants'])),
+                          tuple(sorted(c['occupies'])))) or {}
         chips = {}
         for sid, (x, y) in sorted(got.items(), key=lambda kv: kv[1]):
-            if base_anchor.get(sid, (None,))[0] is not None:
+            kept = before.get(sid) or {}
+            if kept.get('ax') is not None:
+                ax, ay = kept['ax'], kept['ay']
+            elif base_anchor.get(sid, (None,))[0] is not None:
                 ax, ay = base_anchor[sid]
             else:
                 p = trace(g, x + S//2, y + S//2)
                 if p is None:
                     raise SystemExit(f'{c["key"]}/{sid}: no leader line')
                 ax, ay = p
+                print(f'  traced {c["key"]}/{sid} -> {ax},{ay}')
             chips[sid] = dict(x=x, y=y, ax=ax, ay=ay,
                               label=NAMES.get(sid) or base_label[sid])
         layouts.append(dict(when=sorted(c['grants']),

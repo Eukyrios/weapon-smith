@@ -161,7 +161,7 @@ export const SLOT_TYPES: SlotType[] = [
   { id: 'offset-optics', label: 'Offset Optics', kind: 'base' },
   // Hangs off magnified glass rather than off the gun: five of the scopes in
   // the base optic list open it, and nothing else does.
-  { id: 'kill-flash', label: 'Kill Flash', kind: 'granted', cat: 'functional' },
+  { id: 'kill-flash', label: 'Killflash', kind: 'granted', cat: 'functional' },
   { id: 'tactical-device', label: 'Tactical Device', kind: 'granted' },
 
   { id: 'mag', label: 'Magazine', kind: 'base', cat: 'mag' },

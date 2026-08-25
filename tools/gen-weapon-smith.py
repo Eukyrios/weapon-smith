@@ -209,7 +209,7 @@ SECTIONS = [
     ('riser-optics', 'Riser optics', 'Opened by the Multi-Purpose Tactical Riser.'),
     ('red-dot-optics', 'Red dot optics', 'Opened by either micro sight riser, and by the 3/7 Adjustable Scope&rsquo;s own dot mount. A subset of riser optics.'),
     ('offset-optics', 'Offset optics', 'The offset twins of the five red dots.'),
-    ('kill-flash', 'Kill flash', 'Opened by any of five magnified optics: the Insight 3/7 Sniper Scope, M157 Fire Control System, LPVO Scope, 3/7 Adjustable Scope and Recon 1.5/5 Adjustable Scope. One option.'),
+    ('kill-flash', 'Killflash', 'Opened by any of five magnified optics: the Insight 3/7 Sniper Scope, M157 Fire Control System, LPVO Scope, 3/7 Adjustable Scope and Recon 1.5/5 Adjustable Scope. One option.'),
     ('tactical-device', 'Tactical device', 'Opened by the Multi-Purpose Tactical Riser. These four also fit all three rails.'),
     ('muzzle', 'Muzzle', 'Fourteen of the catalogue&rsquo;s 37 muzzles &mdash; shotgun, pistol and AK devices are excluded.'),
     ('barrel', 'Barrel', 'Both are RM277-exclusive and absent from the catalogue. Each opens an upper rail; the integral barrel also occupies the muzzle.'),
@@ -1374,6 +1374,15 @@ def gunsmith_body():
               && l.blocks.every((s) => blocks.has(s)))
             Object.assign(chips, DIFFS[i]);
         }});
+        // A slot can be open without any single layout covering it: the 3/7
+        // Adjustable Scope opens a kill flash and a red dot at once, and the
+        // clips have those two apart. An open slot always gets a chip, from
+        // wherever it was last seen; separate() sorts out where it lands.
+        for (const slot of grants) {{
+          if (chips[slot]) continue;
+          const src = LAYOUTS.find((l) => l.chips[slot]);
+          if (src) chips[slot] = src.chips[slot];
+        }}
       }}
       for (const slot of blocks) delete chips[slot];
       for (const slot of Object.keys(chips))
