@@ -986,8 +986,8 @@ FORGE_CTRL = '''
     // ---- smithing ---------------------------------------------------------
     // The search runs in a worker built from a string, so there is no second
     // file to serve and nothing is fetched. It does not start until asked: a
-    // reader who wants the slot lists should not pay for a search they did not
-    // run.
+    // reader who came for the slot lists should not pay for a search they did
+    // not run.
     const forge = {
       go: document.getElementById('forge-go'),
       work: document.getElementById('forge-work'),
@@ -995,15 +995,24 @@ FORGE_CTRL = '''
       log: document.getElementById('forge-log'),
       out: document.getElementById('forge-out'),
       sort: document.getElementById('forge-sort'),
+      mins: document.getElementById('forge-mins'),
+      tally: document.getElementById('forge-tally'),
       list: document.getElementById('forge-list'),
-      more: document.getElementById('forge-more'),
+      pager: document.getElementById('forge-pager'),
+      none: document.getElementById('forge-none'),
+      reset: document.getElementById('forge-reset'),
     };
     // Only the stats something on record actually moves. The rest are not
-    // unchanged, they are unread, and sorting a list by a column of zeroes
-    // would say the opposite.
+    // unchanged, they are unread, and a slider on a column of zeroes would say
+    // the opposite.
     const FKEYS = WEAPON.filter((s) => s.tracked && s.mode !== 'set')
                         .map((s) => s.key);
-    let found = [], shown = 0, sortBy = FKEYS[0], picked = -1;
+    const FBASE = {};
+    for (const k of FKEYS) FBASE[k] = WEAPON.find((s) => s.key === k).base;
+    const PER = 24;
+
+    let found = [], shortlist = [], sortBy = FKEYS[0], page = 0;
+    let picked = null, floors = {}, sliders = {};
 
     function note(text, dim) {
       const li = document.createElement('li');
@@ -1013,53 +1022,137 @@ FORGE_CTRL = '''
       forge.log.scrollTop = forge.log.scrollHeight;
     }
 
-    function fitBuild(fitList) {
+    const value = (b, k) => FBASE[k] + b.v[FKEYS.indexOf(k)];
+
+    function fitBuild(list) {
       for (const slot of Object.keys(fitted)) unfit(slot);
       relayout();
-      for (const [slot, iid] of fitList) fit(slot, iid);
+      for (const [slot, iid] of list) fit(slot, iid);
       paintWeapon();
       relayout();
     }
 
-    function row(b, n) {
+    function card(b) {
       const el = document.createElement('button');
       el.type = 'button';
-      el.className = 'fbuild' + (n === picked ? ' is-on' : '');
-      el.dataset.n = n;
+      el.className = 'fbuild' + (b === picked ? ' is-on' : '');
       let html = '<span class="fbuild__s">';
-      for (let i = 0; i < FKEYS.length; i++) {
-        const s = WEAPON.find((w) => w.key === FKEYS[i]);
-        const v = s.base + b.v[i];
-        const cls = b.v[i] > 0 ? 'up' : b.v[i] < 0 ? 'down' : '';
-        html += '<i><b class="' + cls + '">' + v + '</b>'
-             + FKEYS[i].slice(0, 4).toLowerCase() + '</i>';
+      for (const k of FKEYS) {
+        const d = b.v[FKEYS.indexOf(k)];
+        const cls = d > 0 ? 'up' : d < 0 ? 'down' : '';
+        html += '<i><b class="' + cls + '">' + value(b, k) + '</b>'
+             + k.slice(0, 4).toLowerCase() + '</i>';
       }
       el.innerHTML = html + '</span><span class="fbuild__n">'
         + b.fit.length + ' parts</span>';
+      el.addEventListener('click', () => {
+        picked = b;
+        for (const o of forge.list.children) o.classList.remove('is-on');
+        el.classList.add('is-on');
+        fitBuild(b.fit);
+        document.querySelector('.gunsmith').scrollIntoView(
+          {behavior: 'smooth', block: 'start'});
+      });
       return el;
     }
 
-    function paintList(reset) {
-      if (reset) { forge.list.innerHTML = ''; shown = 0; }
-      const i = FKEYS.indexOf(sortBy);
-      if (reset) found.sort((a, b) => b.v[i] - a.v[i]);
-      const upto = Math.min(found.length, shown + 60);
-      for (; shown < upto; shown++) forge.list.appendChild(row(found[shown], shown));
-      forge.more.hidden = shown >= found.length;
-      forge.more.textContent = 'Show more (' + (found.length - shown) + ' left)';
+    // Pages rather than a growing list: seven thousand rows appended to a
+    // page is a page nobody can scroll, and a page number is a place you can
+    // come back to.
+    function pager(pages) {
+      forge.pager.innerHTML = '';
+      if (pages < 2) return;
+      const go = (n, text, on, dead) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'fpage' + (on ? ' is-on' : '');
+        b.textContent = text;
+        if (dead) b.disabled = true;
+        else b.addEventListener('click', () => { page = n; paintList(); });
+        forge.pager.appendChild(b);
+      };
+      const gap = () => {
+        const s = document.createElement('span');
+        s.className = 'fgap';
+        s.textContent = '\\u2026';
+        forge.pager.appendChild(s);
+      };
+      go(page - 1, '\\u2039', false, page === 0);
+      const near = [0, pages - 1, page, page - 1, page + 1]
+        .filter((n) => n >= 0 && n < pages);
+      let last = -1;
+      for (const n of [...new Set(near)].sort((a, b) => a - b)) {
+        if (n > last + 1) gap();
+        go(n, String(n + 1), n === page);
+        last = n;
+      }
+      go(page + 1, '\\u203a', false, page === pages - 1);
     }
 
-    forge.list.addEventListener('click', (e) => {
-      const el = e.target.closest('.fbuild');
-      if (!el) return;
-      picked = +el.dataset.n;
-      for (const o of forge.list.querySelectorAll('.fbuild'))
-        o.classList.toggle('is-on', o === el);
-      fitBuild(found[picked].fit);
-      document.querySelector('.gunsmith').scrollIntoView(
-        {behavior: 'smooth', block: 'start'});
+    function paintList() {
+      const i = FKEYS.indexOf(sortBy);
+      shortlist = found.filter((b) => FKEYS.every((k) => value(b, k) >= floors[k]));
+      shortlist.sort((a, b) => b.v[i] - a.v[i]);
+      const pages = Math.ceil(shortlist.length / PER);
+      page = Math.min(page, Math.max(0, pages - 1));
+      forge.list.innerHTML = '';
+      for (const b of shortlist.slice(page * PER, page * PER + PER))
+        forge.list.appendChild(card(b));
+      forge.none.hidden = shortlist.length > 0;
+      forge.tally.textContent = shortlist.length === found.length
+        ? shortlist.length.toLocaleString()
+        : shortlist.length.toLocaleString() + ' of '
+          + found.length.toLocaleString();
+      pager(pages);
+      // What each slider could still be moved to without emptying the list.
+      for (const k of FKEYS) {
+        const others = found.filter((b) => FKEYS.every(
+          (o) => o === k || value(b, o) >= floors[o]));
+        const top = others.length ? Math.max(...others.map((b) => value(b, k))) : null;
+        sliders[k].note.textContent = top === null ? 'nothing left'
+          : top < floors[k] ? 'too high \\u2014 best here is ' + top
+          : 'up to ' + top;
+        sliders[k].note.classList.toggle('is-over', top !== null && top < floors[k]);
+      }
+    }
+
+    function buildSliders() {
+      forge.mins.innerHTML = '';
+      sliders = {};
+      for (const k of FKEYS) {
+        const vals = found.map((b) => value(b, k));
+        const lo = Math.min(...vals), hi = Math.max(...vals);
+        floors[k] = lo;
+        const row = document.createElement('label');
+        row.className = 'fmin';
+        row.innerHTML = '<span class="fmin__k">' + k + '</span>'
+          + '<b class="fmin__v"></b>'
+          + '<input type="range" min="' + lo + '" max="' + hi + '" value="' + lo + '">'
+          + '<em class="fmin__n"></em>';
+        const input = row.querySelector('input');
+        const out = row.querySelector('.fmin__v');
+        out.textContent = lo;
+        input.addEventListener('input', () => {
+          floors[k] = +input.value;
+          out.textContent = input.value;
+          page = 0;
+          paintList();
+        });
+        forge.mins.appendChild(row);
+        sliders[k] = {input, out, note: row.querySelector('.fmin__n')};
+      }
+    }
+
+    forge.reset.addEventListener('click', () => {
+      for (const k of FKEYS) {
+        const s = sliders[k];
+        s.input.value = s.input.min;
+        floors[k] = +s.input.min;
+        s.out.textContent = s.input.min;
+      }
+      page = 0;
+      paintList();
     });
-    forge.more.addEventListener('click', () => paintList(false));
 
     forge.go.addEventListener('click', () => {
       forge.go.disabled = true;
@@ -1070,13 +1163,12 @@ FORGE_CTRL = '''
       forge.fill.style.width = '0%';
 
       // Everything the search needs, read off the page rather than shipped a
-      // second time: the slot lists are already in the panel, the rules and the
+      // second time: the slot lists are already in the panel, and the rules and
       // stat lines are already here for the build panel.
       const pool = {};
-      for (const l of lists) {
-        const slot = l.id.slice(3);
-        pool[slot] = [...l.querySelectorAll('.pcard')].map((c) => c.dataset.item);
-      }
+      for (const l of lists)
+        pool[l.id.slice(3)] = [...l.querySelectorAll('.pcard')]
+                                .map((c) => c.dataset.item);
       const delta = {};
       for (const [iid, st] of Object.entries(DELTA))
         delta[iid] = FKEYS.map((k) => {
@@ -1087,6 +1179,11 @@ FORGE_CTRL = '''
       const w = new Worker(URL.createObjectURL(
         new Blob([FORGE_SRC], {type: 'text/javascript'})));
       const t0 = performance.now();
+      w.onerror = (e) => {
+        note('The search stopped: ' + e.message);
+        forge.go.disabled = false;
+        forge.go.textContent = 'Try again';
+      };
       w.onmessage = ({data}) => {
         if (data.say) return note(data.say);
         if (data.total !== undefined)
@@ -1097,8 +1194,8 @@ FORGE_CTRL = '''
           return note(data.idle
             ? 'Skipping ' + what + ' \\u2014 nothing on record moves a stat'
             : 'Fitting ' + what + ' \\u2014 ' + data.raw.toLocaleString()
-              + ' tried, ' + data.kept.toLocaleString()
-              + ' still worth keeping', true);
+              + ' tried, ' + data.kept.toLocaleString() + ' still worth keeping',
+            true);
         }
         if (data.done) {
           found = data.done;
@@ -1107,8 +1204,10 @@ FORGE_CTRL = '''
           forge.go.textContent = 'Smith again';
           forge.go.disabled = false;
           forge.out.hidden = false;
-          picked = -1;
-          paintList(true);
+          picked = null;
+          page = 0;
+          buildSliders();
+          paintList();
           w.terminate();
         }
       };
@@ -1124,8 +1223,8 @@ FORGE_CTRL = '''
       b.addEventListener('click', () => {
         sortBy = k;
         for (const o of forge.sort.children) o.classList.toggle('is-on', o === b);
-        picked = -1;
-        paintList(true);
+        page = 0;
+        paintList();
       });
       forge.sort.appendChild(b);
     }
@@ -1546,8 +1645,10 @@ def gunsmith_body():
     <p class="lede">Work out every build this rifle can be, then throw away the
     ones that are simply worse. What is left is every gun worth considering:
     each one is the best there is at something, and no other build beats it on
-    everything at once. Sort by whichever stat you are after and click a row to
-    fit it on the weapon above.</p>
+    everything at once. Sort by the stat you are after, set a floor under the
+    ones you refuse to give up, and click a build to fit it on the weapon
+    above. Only the five stats something on record actually moves are here
+    &mdash; the others have no numbers against them yet.</p>
     <p><button class="btn" id="forge-go" type="button">Start smithing</button>
        <em class="forge__note">Runs here, in this tab. A few seconds.</em></p>
     <div class="forge__work" id="forge-work" hidden>
@@ -1555,11 +1656,23 @@ def gunsmith_body():
       <ol class="forge__log" id="forge-log"></ol>
     </div>
     <div class="forge__out" id="forge-out" hidden>
-      <p class="dlabel">Sort by</p>
-      <div class="forge__sort" id="forge-sort"></div>
+      <div class="forge__ctl">
+        <div>
+          <p class="dlabel">Sort by</p>
+          <div class="forge__sort" id="forge-sort"></div>
+        </div>
+        <div>
+          <p class="dlabel">Nothing below
+            <button class="devx" id="forge-reset" type="button">reset</button>
+          </p>
+          <div class="forge__mins" id="forge-mins"></div>
+        </div>
+      </div>
+      <p class="dlabel">Builds <span class="count" id="forge-tally"></span></p>
       <div class="forge__list" id="forge-list"></div>
-      <p><button class="btn btn--ghost" id="forge-more" type="button"
-                hidden>Show more</button></p>
+      <p class="lede" id="forge-none" hidden>Nothing is that good at everything
+      at once. Pull a slider back down.</p>
+      <div class="forge__pager" id="forge-pager"></div>
     </div>
   </section>
 
@@ -3052,7 +3165,13 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .forge__log::-webkit-scrollbar { width: 0; height: 0; }
 .forge__log { scrollbar-width: none; }
 
-.forge__sort { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.forge__ctl {
+  display: grid; gap: 18px 28px; margin-bottom: 18px;
+  grid-template-columns: minmax(0, auto) minmax(18rem, 1fr);
+  align-items: start;
+}
+@media (max-width: 700px) { .forge__ctl { grid-template-columns: 1fr; } }
+.forge__sort { display: flex; flex-wrap: wrap; gap: 6px; }
 /* The buttons are the dev bar's, but this is not dev mode: the chosen one
    takes the site's own green rather than the workbench's warning yellow. */
 .forge__sort .devtab.is-on {
@@ -3085,6 +3204,37 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   margin-left: auto; font-family: var(--mono); font-size: 10px;
   color: var(--text-faint); white-space: nowrap;
 }
+
+/* A floor per stat. The number left of the slider is where it is set; the note
+   right of it is how far it could go before the list empties, which is the
+   thing you actually want to know while dragging. */
+.forge__mins { display: grid; gap: 5px; }
+.fmin {
+  display: grid; align-items: center; gap: 0 10px;
+  grid-template-columns: 6.5rem 2.2rem minmax(6rem, 1fr) 7.5rem;
+  font-size: 12px; color: var(--text-dim);
+}
+.fmin__v {
+  font-family: var(--mono); font-size: 13px; color: var(--text);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+.fmin__n {
+  font-family: var(--mono); font-size: 10px; font-style: normal;
+  color: var(--text-faint);
+}
+.fmin__n.is-over { color: var(--red); }
+.fmin input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+.forge__pager { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 14px; }
+.fpage {
+  min-width: 2rem; padding: 5px 8px; font: inherit; font-size: 12px;
+  font-family: var(--mono); cursor: pointer; color: var(--text-dim);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+}
+.fpage:hover:not(:disabled) { border-color: var(--line-2); color: var(--text); }
+.fpage.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.fpage:disabled { opacity: 0.35; cursor: default; }
+.fgap { padding: 5px 2px; color: var(--text-faint); }
 
 /* --------------------------------------------------------------------------
    Dev mode: #dev on the end of the hash. None of this is reachable from the

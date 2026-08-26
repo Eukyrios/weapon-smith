@@ -715,7 +715,13 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .forge__log::-webkit-scrollbar { width: 0; height: 0; }
 .forge__log { scrollbar-width: none; }
 
-.forge__sort { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.forge__ctl {
+  display: grid; gap: 18px 28px; margin-bottom: 18px;
+  grid-template-columns: minmax(0, auto) minmax(18rem, 1fr);
+  align-items: start;
+}
+@media (max-width: 700px) { .forge__ctl { grid-template-columns: 1fr; } }
+.forge__sort { display: flex; flex-wrap: wrap; gap: 6px; }
 /* The buttons are the dev bar's, but this is not dev mode: the chosen one
    takes the site's own green rather than the workbench's warning yellow. */
 .forge__sort .devtab.is-on {
@@ -748,6 +754,37 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   margin-left: auto; font-family: var(--mono); font-size: 10px;
   color: var(--text-faint); white-space: nowrap;
 }
+
+/* A floor per stat. The number left of the slider is where it is set; the note
+   right of it is how far it could go before the list empties, which is the
+   thing you actually want to know while dragging. */
+.forge__mins { display: grid; gap: 5px; }
+.fmin {
+  display: grid; align-items: center; gap: 0 10px;
+  grid-template-columns: 6.5rem 2.2rem minmax(6rem, 1fr) 7.5rem;
+  font-size: 12px; color: var(--text-dim);
+}
+.fmin__v {
+  font-family: var(--mono); font-size: 13px; color: var(--text);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+.fmin__n {
+  font-family: var(--mono); font-size: 10px; font-style: normal;
+  color: var(--text-faint);
+}
+.fmin__n.is-over { color: var(--red); }
+.fmin input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+.forge__pager { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 14px; }
+.fpage {
+  min-width: 2rem; padding: 5px 8px; font: inherit; font-size: 12px;
+  font-family: var(--mono); cursor: pointer; color: var(--text-dim);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+}
+.fpage:hover:not(:disabled) { border-color: var(--line-2); color: var(--text); }
+.fpage.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.fpage:disabled { opacity: 0.35; cursor: default; }
+.fgap { padding: 5px 2px; color: var(--text-faint); }
 
 /* --------------------------------------------------------------------------
    Dev mode: #dev on the end of the hash. None of this is reachable from the
