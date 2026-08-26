@@ -155,6 +155,45 @@
       </div>
     </div>
 
+    <aside class="fside" id="forge-out" hidden aria-label="Smithing">
+      <header class="fside__top">
+        <h2>Smithing</h2>
+        <p class="fside__n" id="forge-tally"></p>
+        <button class="fside__x" id="forge-close" type="button"
+                aria-label="Close">&times;</button>
+      </header>
+      <p class="fside__lede">Each of these is the best there is at something and
+      beaten by nothing at everything. Click one to fit it.</p>
+
+      <div class="freq">
+        <div class="freq__bar">
+          <select id="forge-type" aria-label="Attachment type">
+            <option value="">Any type</option>
+          </select>
+          <div class="fsearch">
+            <input type="search" id="forge-find" autocomplete="off"
+                   placeholder="Name a part it must have&hellip;">
+            <div class="fsug" id="forge-sug" hidden></div>
+          </div>
+        </div>
+        <button class="freq__t" id="forge-fold" type="button" aria-expanded="true">
+          <span>Required</span><em id="forge-count">none</em>
+        </button>
+        <div class="fchips" id="forge-chips" hidden></div>
+      </div>
+
+      <div class="ftabs" id="forge-sort" role="tablist"></div>
+      <div class="forge__list" id="forge-list"></div>
+      <p class="fside__none" id="forge-none" hidden></p>
+      <div class="forge__pager" id="forge-pager"></div>
+
+      <div class="fmins">
+        <p class="dlabel">Nothing below
+          <button class="freset" id="forge-reset" type="button">reset</button></p>
+        <div class="forge__mins" id="forge-mins"></div>
+      </div>
+    </aside>
+
     <aside class="panel" id="panel" hidden>
       <div class="slotlist" id="sl-optics" hidden>
         <div class="picks">
@@ -1385,45 +1424,6 @@
   </div>
   </div>
 
-  <aside class="fside" id="forge-out" hidden aria-label="Smithing">
-    <header class="fside__top">
-      <h2>Smithing</h2>
-      <p class="fside__n" id="forge-tally"></p>
-      <button class="fside__x" id="forge-close" type="button"
-              aria-label="Close">&times;</button>
-    </header>
-    <p class="fside__lede">Every build here is the best there is at something,
-    and none of them is beaten by another on all five at once. Pick the stat
-    you are after, then click a build to fit it on the weapon.</p>
-
-    <div class="freq">
-      <div class="freq__bar">
-        <select id="forge-type" aria-label="Attachment type">
-          <option value="">Any type</option>
-        </select>
-        <div class="fsearch">
-          <input type="search" id="forge-find" autocomplete="off"
-                 placeholder="Name a part it must have&hellip;">
-          <div class="fsug" id="forge-sug" hidden></div>
-        </div>
-      </div>
-      <button class="freq__t" id="forge-fold" type="button" aria-expanded="true">
-        <span>Required</span><em id="forge-count">none</em>
-      </button>
-      <div class="fchips" id="forge-chips" hidden></div>
-    </div>
-
-    <div class="ftabs" id="forge-sort" role="tablist"></div>
-    <div class="forge__list" id="forge-list"></div>
-    <p class="fside__none" id="forge-none" hidden></p>
-    <div class="forge__pager" id="forge-pager"></div>
-
-    <div class="fmins">
-      <p class="dlabel">Nothing below
-        <button class="freset" id="forge-reset" type="button">reset</button></p>
-      <div class="forge__mins" id="forge-mins"></div>
-    </div>
-  </aside>
 
   <script>
     const WEAPON = [{"key": "Damage", "base": 41, "max": 100, "tracked": false}, {"key": "Range", "base": 55, "max": 100, "unit": "m", "tracked": true}, {"key": "Control", "base": 48, "max": 100, "tracked": true}, {"key": "Handling", "base": 50, "max": 100, "tracked": true}, {"key": "Stability", "base": 59, "max": 100, "tracked": true}, {"key": "Accuracy", "base": 44, "max": 100, "tracked": true}, {"key": "Armour penetration", "base": 42, "max": 100, "tracked": false}, {"key": "Fire rate", "base": 550, "max": 1200, "unit": " rpm", "tracked": false}, {"key": "Capacity", "base": 30, "max": 100, "from": "Holds", "mode": "set", "tracked": true}, {"key": "Muzzle velocity", "base": 650, "max": 1200, "unit": " m/s", "tracked": false}, {"key": "Gunshot heard", "base": 500, "max": 1000, "unit": " m", "tracked": false}];
@@ -1934,7 +1934,7 @@
                         .map((s) => s.key);
     const FBASE = {};
     for (const k of FKEYS) FBASE[k] = WEAPON.find((s) => s.key === k).base;
-    const PER = 8;
+    const PER = 5;
 
     let found = [], shortlist = [], sortBy = FKEYS[0], page = 0;
     let picked = null, floors = {}, sliders = {};
@@ -1966,11 +1966,13 @@
 
     function openPanel() {
       forge.work.hidden = true;
+      forge.go.hidden = true;
       forge.out.hidden = false;
       requestAnimationFrame(() => forge.out.classList.add('is-open'));
     }
 
     function shutPanel() {
+      forge.go.hidden = false;
       forge.out.classList.remove('is-open');
       setTimeout(() => { forge.out.hidden = true; }, 240);
     }

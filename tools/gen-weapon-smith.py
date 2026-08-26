@@ -1017,7 +1017,7 @@ FORGE_CTRL = '''
                         .map((s) => s.key);
     const FBASE = {};
     for (const k of FKEYS) FBASE[k] = WEAPON.find((s) => s.key === k).base;
-    const PER = 8;
+    const PER = 5;
 
     let found = [], shortlist = [], sortBy = FKEYS[0], page = 0;
     let picked = null, floors = {}, sliders = {};
@@ -1049,11 +1049,13 @@ FORGE_CTRL = '''
 
     function openPanel() {
       forge.work.hidden = true;
+      forge.go.hidden = true;
       forge.out.hidden = false;
       requestAnimationFrame(() => forge.out.classList.add('is-open'));
     }
 
     function shutPanel() {
+      forge.go.hidden = false;
       forge.out.classList.remove('is-open');
       setTimeout(() => { forge.out.hidden = true; }, 240);
     }
@@ -1891,6 +1893,45 @@ def gunsmith_body():
       </div>
     </div>
 
+    <aside class="fside" id="forge-out" hidden aria-label="Smithing">
+      <header class="fside__top">
+        <h2>Smithing</h2>
+        <p class="fside__n" id="forge-tally"></p>
+        <button class="fside__x" id="forge-close" type="button"
+                aria-label="Close">&times;</button>
+      </header>
+      <p class="fside__lede">Each of these is the best there is at something and
+      beaten by nothing at everything. Click one to fit it.</p>
+
+      <div class="freq">
+        <div class="freq__bar">
+          <select id="forge-type" aria-label="Attachment type">
+            <option value="">Any type</option>
+          </select>
+          <div class="fsearch">
+            <input type="search" id="forge-find" autocomplete="off"
+                   placeholder="Name a part it must have&hellip;">
+            <div class="fsug" id="forge-sug" hidden></div>
+          </div>
+        </div>
+        <button class="freq__t" id="forge-fold" type="button" aria-expanded="true">
+          <span>Required</span><em id="forge-count">none</em>
+        </button>
+        <div class="fchips" id="forge-chips" hidden></div>
+      </div>
+
+      <div class="ftabs" id="forge-sort" role="tablist"></div>
+      <div class="forge__list" id="forge-list"></div>
+      <p class="fside__none" id="forge-none" hidden></p>
+      <div class="forge__pager" id="forge-pager"></div>
+
+      <div class="fmins">
+        <p class="dlabel">Nothing below
+          <button class="freset" id="forge-reset" type="button">reset</button></p>
+        <div class="forge__mins" id="forge-mins"></div>
+      </div>
+    </aside>
+
     <aside class="panel" id="panel" hidden>
 {''.join(panels)}      <button class="panel__x" id="close" aria-label="Close">&times;</button>
     </aside>
@@ -1903,45 +1944,6 @@ def gunsmith_body():
   </div>
   </div>
 
-  <aside class="fside" id="forge-out" hidden aria-label="Smithing">
-    <header class="fside__top">
-      <h2>Smithing</h2>
-      <p class="fside__n" id="forge-tally"></p>
-      <button class="fside__x" id="forge-close" type="button"
-              aria-label="Close">&times;</button>
-    </header>
-    <p class="fside__lede">Every build here is the best there is at something,
-    and none of them is beaten by another on all five at once. Pick the stat
-    you are after, then click a build to fit it on the weapon.</p>
-
-    <div class="freq">
-      <div class="freq__bar">
-        <select id="forge-type" aria-label="Attachment type">
-          <option value="">Any type</option>
-        </select>
-        <div class="fsearch">
-          <input type="search" id="forge-find" autocomplete="off"
-                 placeholder="Name a part it must have&hellip;">
-          <div class="fsug" id="forge-sug" hidden></div>
-        </div>
-      </div>
-      <button class="freq__t" id="forge-fold" type="button" aria-expanded="true">
-        <span>Required</span><em id="forge-count">none</em>
-      </button>
-      <div class="fchips" id="forge-chips" hidden></div>
-    </div>
-
-    <div class="ftabs" id="forge-sort" role="tablist"></div>
-    <div class="forge__list" id="forge-list"></div>
-    <p class="fside__none" id="forge-none" hidden></p>
-    <div class="forge__pager" id="forge-pager"></div>
-
-    <div class="fmins">
-      <p class="dlabel">Nothing below
-        <button class="freset" id="forge-reset" type="button">reset</button></p>
-      <div class="forge__mins" id="forge-mins"></div>
-    </div>
-  </aside>
 
   <script>
     const WEAPON = {json.dumps(d['weapon']['stats'])};
@@ -3485,9 +3487,20 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   70% { opacity: 0.9; transform: scale(1); }
   92%, 100% { opacity: 0; transform: scale(1.7); }
 }
+/* Reduced motion means a smaller swing, not a still picture. A loading mark
+   that does not move says the page has hung, which is the one thing it must
+   not say, so the ring keeps turning and the hammer keeps time -- it just
+   stops sweeping across a third of the frame, and the blow lands without the
+   sparks or the shake. */
 @media (prefers-reduced-motion: reduce) {
-  .fanvil__h, .fanvil__a, .fanvil__k, .fring__s { animation: none; }
-  .fring__s { stroke-dasharray: none; opacity: 0.35; }
+  .fanvil__h { animation-name: fnudge; }
+  .fanvil__a, .fanvil__k { animation: none; }
+}
+@keyframes fnudge {
+  0% { transform: rotate(1deg); }
+  45% { transform: rotate(-7deg); }
+  70% { transform: rotate(2deg); }
+  100% { transform: rotate(1deg); }
 }
 .fwork__bar {
   height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden;
@@ -3507,15 +3520,22 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 /* The drawer. Fixed to the window rather than the page, so the weapon stays
    where it is and a build can be read against the gun it would make. */
 .fside {
-  position: fixed; top: 0; right: 0; z-index: 40;
-  display: flex; flex-direction: column; gap: 14px;
-  width: min(430px, 94vw); height: 100dvh; padding: 16px 18px 26px;
+  position: absolute; top: 0; right: 0; bottom: 0; z-index: 8;
+  display: flex; flex-direction: column; gap: 11px;
+  width: min(400px, 44%); padding: 13px 15px 16px;
   overflow-y: auto; overscroll-behavior: contain;
-  background: var(--surface); border-left: 1px solid var(--line-2);
-  box-shadow: -18px 0 44px rgba(0, 0, 0, 0.5);
-  transform: translateX(100%); transition: transform 220ms ease;
+  background: rgba(6, 14, 19, 0.94); backdrop-filter: blur(4px);
+  border-left: 1px solid var(--line-2);
+  box-shadow: -20px 0 44px rgba(0, 0, 0, 0.45);
+  /* It comes in on the spot rather than sliding in from off the stage: there
+     is no off the stage to slide in from, and clipping the stage to make one
+     would cut the weapon name's panel off at the bottom. */
+  opacity: 0; transform: translateX(14px);
+  transition: opacity 190ms ease, transform 190ms ease;
 }
-.fside.is-open { transform: none; }
+.fside.is-open { opacity: 1; transform: none; }
+.fside::-webkit-scrollbar { width: 6px; }
+.fside::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
 @media (prefers-reduced-motion: reduce) { .fside { transition: none; } }
 .fside__top { display: flex; flex-direction: row; align-items: baseline; gap: 10px; }
 .fside__top h2 { margin: 0; font-size: 17px; }
@@ -3609,7 +3629,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .forge__list { display: grid; gap: 4px; }
 .fbuild {
   display: flex; align-items: center; gap: 12px; width: 100%;
-  padding: 8px 12px; font: inherit; text-align: left; cursor: pointer;
+  padding: 6px 11px; font: inherit; text-align: left; cursor: pointer;
   color: var(--text); background: var(--surface-2);
   border: 1px solid var(--line); border-radius: 5px;
 }
@@ -3676,8 +3696,10 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .fmin__n.is-over { color: var(--red); }
 .fmin input[type="range"] { width: 100%; accent-color: var(--accent); }
 
-@media (max-width: 560px) {
-  .fside { width: 100vw; border-left: 0; }
+/* On a narrow stage there is no room to sit beside the gun, so it takes the
+   whole of it -- which is what closing it is for. */
+@media (max-width: 760px) {
+  .fside { width: 100%; border-left: 0; }
   .freq__bar { grid-template-columns: 1fr; }
 }
 
