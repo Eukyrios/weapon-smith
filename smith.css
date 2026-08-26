@@ -690,6 +690,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   border-color: var(--accent-dim); color: var(--accent);
 }
 .smith:disabled { cursor: default; color: var(--text-faint); }
+.smith.is-on { color: var(--accent); border-color: var(--accent); }
 .smith svg { display: block; }
 .smith:hover:not(:disabled) svg .h { fill: var(--accent); }
 

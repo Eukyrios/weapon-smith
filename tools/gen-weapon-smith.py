@@ -1047,15 +1047,20 @@ FORGE_CTRL = '''
       tick();
     }
 
+    // One panel at a time. Three of them want the same stage -- the weapon's
+    // build, a slot's attachments, and this -- and two open at once is two
+    // things claiming to be what you are looking at.
     function openPanel() {
+      shut();
+      showWeapon(false);
       forge.work.hidden = true;
-      forge.go.hidden = true;
       forge.out.hidden = false;
+      forge.go.classList.add('is-on');
       requestAnimationFrame(() => forge.out.classList.add('is-open'));
     }
 
     function shutPanel() {
-      forge.go.hidden = false;
+      forge.go.classList.remove('is-on');
       forge.out.classList.remove('is-open');
       setTimeout(() => { forge.out.hidden = true; }, 240);
     }
@@ -1064,6 +1069,14 @@ FORGE_CTRL = '''
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !forge.out.hidden
           && !forge.find.value) shutPanel();
+    });
+    // Anywhere off the panel puts it away -- a chip, the weapon, the empty
+    // stage. The button is excluded because it is the panel's own switch and
+    // would otherwise close what it had just been pressed to open.
+    document.addEventListener('click', (e) => {
+      if (forge.out.hidden) return;
+      if (e.target.closest('.fside, #forge-go')) return;
+      shutPanel();
     });
 
     const value = (b, k) => FBASE[k] + b.v[FKEYS.indexOf(k)];
@@ -1239,8 +1252,10 @@ FORGE_CTRL = '''
 
     forge.go.addEventListener('click', () => {
       // Nothing about the answer changes between runs, so once it has been
-      // worked out the button is a way back to it rather than a second search.
-      if (found.length) return openPanel();
+      // worked out the button is the panel's switch rather than a second
+      // search: press it to bring the builds back, press it again to put
+      // them away.
+      if (found.length) return forge.out.hidden ? openPanel() : shutPanel();
 
       forge.go.disabled = true;
       forge.go.classList.add('is-busy');
@@ -3435,6 +3450,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   border-color: var(--accent-dim); color: var(--accent);
 }
 .smith:disabled { cursor: default; color: var(--text-faint); }
+.smith.is-on { color: var(--accent); border-color: var(--accent); }
 .smith svg { display: block; }
 .smith:hover:not(:disabled) svg .h { fill: var(--accent); }
 
