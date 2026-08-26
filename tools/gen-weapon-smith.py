@@ -990,10 +990,12 @@ FORGE_CTRL = '''
     // not run.
     const forge = {
       go: document.getElementById('forge-go'),
+      goLabel: document.querySelector('#forge-go span'),
       work: document.getElementById('forge-work'),
       fill: document.getElementById('forge-fill'),
-      log: document.getElementById('forge-log'),
+      say: document.getElementById('forge-say'),
       out: document.getElementById('forge-out'),
+      shut: document.getElementById('forge-close'),
       sort: document.getElementById('forge-sort'),
       mins: document.getElementById('forge-mins'),
       tally: document.getElementById('forge-tally'),
@@ -1002,8 +1004,11 @@ FORGE_CTRL = '''
       none: document.getElementById('forge-none'),
       reset: document.getElementById('forge-reset'),
       find: document.getElementById('forge-find'),
+      type: document.getElementById('forge-type'),
       sug: document.getElementById('forge-sug'),
       chips: document.getElementById('forge-chips'),
+      fold: document.getElementById('forge-fold'),
+      count: document.getElementById('forge-count'),
     };
     // Only the stats something on record actually moves. The rest are not
     // unchanged, they are unread, and a slider on a column of zeroes would say
@@ -1012,18 +1017,52 @@ FORGE_CTRL = '''
                         .map((s) => s.key);
     const FBASE = {};
     for (const k of FKEYS) FBASE[k] = WEAPON.find((s) => s.key === k).base;
-    const PER = 24;
+    const PER = 8;
 
     let found = [], shortlist = [], sortBy = FKEYS[0], page = 0;
     let picked = null, floors = {}, sliders = {};
 
-    function note(text, dim) {
-      const li = document.createElement('li');
-      if (dim) li.className = 'is-dim';
-      li.textContent = text;
-      forge.log.appendChild(li);
-      forge.log.scrollTop = forge.log.scrollHeight;
+    // The worker talks faster than anyone can read. Its messages are queued and
+    // shown one at a time, each for long enough to be read; when the search
+    // finishes ahead of the queue the queue is cut short rather than made to
+    // hold the results back.
+    let sayQ = [], sayT = null, sayGap = 320;
+
+    function pump() {
+      if (!sayQ.length) { sayT = null; return; }
+      forge.say.textContent = sayQ.shift();
+      forge.say.classList.remove('is-new');
+      void forge.say.offsetWidth;
+      forge.say.classList.add('is-new');
+      sayT = setTimeout(pump, sayGap);
     }
+
+    function note(text) {
+      sayQ.push(text);
+      if (sayT === null) pump();
+    }
+
+    function drained(fn) {
+      const tick = () => (sayQ.length ? setTimeout(tick, 60) : setTimeout(fn, 420));
+      tick();
+    }
+
+    function openPanel() {
+      forge.work.hidden = true;
+      forge.out.hidden = false;
+      requestAnimationFrame(() => forge.out.classList.add('is-open'));
+    }
+
+    function shutPanel() {
+      forge.out.classList.remove('is-open');
+      setTimeout(() => { forge.out.hidden = true; }, 240);
+    }
+
+    forge.shut.addEventListener('click', shutPanel);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !forge.out.hidden
+          && !forge.find.value) shutPanel();
+    });
 
     const value = (b, k) => FBASE[k] + b.v[FKEYS.indexOf(k)];
 
@@ -1042,7 +1081,8 @@ FORGE_CTRL = '''
       let html = '<span class="fbuild__s">';
       for (const k of FKEYS) {
         const d = b.v[FKEYS.indexOf(k)];
-        const cls = d > 0 ? 'up' : d < 0 ? 'down' : '';
+        const cls = (d > 0 ? 'up' : d < 0 ? 'down' : '')
+                  + (k === sortBy ? ' key' : '');
         html += '<i><b class="' + cls + '">' + value(b, k) + '</b>'
              + k.slice(0, 4).toLowerCase() + '</i>';
       }
@@ -1117,7 +1157,7 @@ FORGE_CTRL = '''
             : 'Nothing is that good at everything at once. Pull a slider back down.';
       }
       forge.tally.textContent = shortlist.length === found.length
-        ? shortlist.length.toLocaleString()
+        ? shortlist.length.toLocaleString() + ' builds'
         : shortlist.length.toLocaleString() + ' of '
           + found.length.toLocaleString();
       pager(pages);
@@ -1160,6 +1200,28 @@ FORGE_CTRL = '''
       }
     }
 
+    function buildTabs() {
+      forge.sort.innerHTML = '';
+      for (const k of FKEYS) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.role = 'tab';
+        b.className = 'ftab' + (k === sortBy ? ' is-on' : '');
+        b.setAttribute('aria-selected', String(k === sortBy));
+        b.textContent = k;
+        b.addEventListener('click', () => {
+          sortBy = k;
+          for (const o of forge.sort.children) {
+            o.classList.toggle('is-on', o === b);
+            o.setAttribute('aria-selected', String(o === b));
+          }
+          page = 0;
+          paintList();
+        });
+        forge.sort.appendChild(b);
+      }
+    }
+
     forge.reset.addEventListener('click', () => {
       must = [];
       chips();
@@ -1174,12 +1236,22 @@ FORGE_CTRL = '''
     });
 
     forge.go.addEventListener('click', () => {
+      // Nothing about the answer changes between runs, so once it has been
+      // worked out the button is a way back to it rather than a second search.
+      if (found.length) return openPanel();
+
       forge.go.disabled = true;
-      forge.go.textContent = 'Smithing\\u2026';
+      forge.go.classList.add('is-busy');
+      forge.goLabel.textContent = 'Smithing\\u2026';
       forge.work.hidden = false;
       forge.out.hidden = true;
-      forge.log.innerHTML = '';
+      forge.out.classList.remove('is-open');
       forge.fill.style.width = '0%';
+      sayQ = [];
+      clearTimeout(sayT);
+      sayT = null;
+      sayGap = 320;
+      forge.say.textContent = '';
 
       // Everything the search needs, read off the page rather than shipped a
       // second time: the slot lists are already in the panel, and the rules and
@@ -1199,9 +1271,11 @@ FORGE_CTRL = '''
         new Blob([FORGE_SRC], {type: 'text/javascript'})));
       const t0 = performance.now();
       w.onerror = (e) => {
-        note('The search stopped: ' + e.message);
+        sayQ = [];
+        forge.say.textContent = 'The search stopped: ' + e.message;
         forge.go.disabled = false;
-        forge.go.textContent = 'Try again';
+        forge.go.classList.remove('is-busy');
+        forge.goLabel.textContent = 'Try again';
       };
       w.onmessage = ({data}) => {
         if (data.say) return note(data.say);
@@ -1213,24 +1287,30 @@ FORGE_CTRL = '''
           return note(data.idle
             ? 'Skipping ' + what + ' \\u2014 nothing on record moves a stat'
             : 'Fitting ' + what + ' \\u2014 ' + data.raw.toLocaleString()
-              + ' tried, ' + data.kept.toLocaleString() + ' still worth keeping',
-            true);
+              + ' tried, ' + data.kept.toLocaleString() + ' still worth keeping');
         }
         if (data.done) {
           found = data.done;
+          w.terminate();
+          // The queue is behind by now. Keep the last couple of lines so the
+          // panel does not appear mid-sentence, and run them out quickly.
+          if (sayQ.length > 2) sayQ = sayQ.slice(-2);
+          sayGap = 110;
           note(found.length.toLocaleString() + ' builds nothing else beats, in '
             + ((performance.now() - t0) / 1000).toFixed(1) + 's');
-          forge.go.textContent = 'Smith again';
+          forge.fill.style.width = '100%';
+          forge.goLabel.textContent = 'Builds';
           forge.go.disabled = false;
-          forge.out.hidden = false;
+          forge.go.classList.remove('is-busy');
           picked = null;
           page = 0;
           must = [];
           countUses();
           chips();
+          buildTabs();
           buildSliders();
           paintList();
-          w.terminate();
+          drained(openPanel);
         }
       };
       w.postMessage({pool, delta, opens: OPENS,
@@ -1253,7 +1333,28 @@ FORGE_CTRL = '''
       const n = c.querySelector('.pcard__n');
       if (n) NAMEOF[c.dataset.item] = n.textContent.trim();
     }
-    let must = [], usage = {};
+    // Which lists a part turns up in, so the type box can narrow the search to
+    // one kind of part. A part can be in more than one list -- the micro sight
+    // riser is an optic and a mount for one -- so this is a list, not a value.
+    const SLOTOF = {}, TYPES = [];
+    for (const l of lists) {
+      const sid = l.id.slice(3);
+      const label = (SLOTS.find((s) => s.id === sid) || {}).label || sid;
+      if (!TYPES.includes(label)) TYPES.push(label);
+      for (const c of l.querySelectorAll('.pcard')) {
+        const iid = c.dataset.item;
+        SLOTOF[iid] = SLOTOF[iid] || [];
+        if (!SLOTOF[iid].includes(label)) SLOTOF[iid].push(label);
+      }
+    }
+    for (const t of TYPES.slice().sort((a, b) => a.localeCompare(b))) {
+      const o = document.createElement('option');
+      o.value = t;
+      o.textContent = t;
+      forge.type.appendChild(o);
+    }
+
+    let must = [], usage = {}, folded = false;
 
     function countUses() {
       usage = {};
@@ -1285,14 +1386,27 @@ FORGE_CTRL = '''
         el.appendChild(x);
         forge.chips.appendChild(el);
       }
+      forge.count.textContent = must.length
+        ? must.length + (must.length === 1 ? ' part' : ' parts') : 'none';
+      forge.chips.hidden = folded || !must.length;
     }
+
+    forge.fold.addEventListener('click', () => {
+      folded = !folded;
+      forge.fold.setAttribute('aria-expanded', String(!folded));
+      forge.chips.hidden = folded || !must.length;
+    });
 
     function suggest() {
       const q = forge.find.value.trim().toLowerCase();
+      const kind = forge.type.value;
       forge.sug.innerHTML = '';
-      if (!q) { forge.sug.hidden = true; return; }
+      // With neither a name nor a type there is nothing to narrow: the whole
+      // catalogue is not a suggestion.
+      if (!q && !kind) { forge.sug.hidden = true; return; }
       const hits = Object.keys(NAMEOF)
         .filter((id) => !must.includes(id)
+                     && (!kind || (SLOTOF[id] || []).includes(kind))
                      && NAMEOF[id].toLowerCase().includes(q))
         .sort((a, b) => (usage[b] || 0) - (usage[a] || 0)
                      || NAMEOF[a].localeCompare(NAMEOF[b]))
@@ -1309,6 +1423,8 @@ FORGE_CTRL = '''
           must.push(id);
           forge.find.value = '';
           forge.sug.hidden = true;
+          folded = false;
+          forge.fold.setAttribute('aria-expanded', 'true');
           chips();
           page = 0;
           paintList();
@@ -1319,6 +1435,8 @@ FORGE_CTRL = '''
     }
 
     forge.find.addEventListener('input', suggest);
+    forge.find.addEventListener('focus', suggest);
+    forge.type.addEventListener('change', suggest);
     forge.find.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -1328,24 +1446,9 @@ FORGE_CTRL = '''
       if (e.key === 'Escape') { forge.find.value = ''; forge.sug.hidden = true; }
     });
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.fsearch')) forge.sug.hidden = true;
+      if (!e.target.closest('.freq__bar')) forge.sug.hidden = true;
     });
-
-    for (const k of FKEYS) {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'devtab' + (k === sortBy ? ' is-on' : '');
-      b.textContent = k;
-      b.addEventListener('click', () => {
-        sortBy = k;
-        for (const o of forge.sort.children) o.classList.toggle('is-on', o === b);
-        page = 0;
-        paintList();
-      });
-      forge.sort.appendChild(b);
-    }
 '''
-
 
 FORGE_JS = r"""
 // Which slots exist depends on what is fitted, so a slot has to be visited
@@ -1736,6 +1839,17 @@ def gunsmith_body():
         <div class="wstats"></div>
       </div>
     </div>
+    <button class="smith" id="forge-go" type="button">
+      <svg viewBox="0 0 64 64" width="17" height="17" aria-hidden="true">
+        <g fill="#95a8b4">
+          <path d="M13 34h36v6H13l-6-3z"></path>
+          <path d="M24 46h14l7 7H17z"></path>
+        </g>
+        <path class="h" d="M31 33l7 2 9-9-2-7-7 2z" fill="#0ff796"></path>
+        <path class="h" d="M33 30l5-5-16-16-5 5z" fill="#0a8f57"></path>
+      </svg>
+      <span>Smith</span>
+    </button>
     <img class="stage__gun" src="../smith/rm277.png" alt="RM277"
          style="left:{pc(g['x'], fw)};top:{pc(g['y'], fh)};
                 width:{pc(g['w'], fw)};height:{pc(g['h'], fh)}">
@@ -1743,6 +1857,39 @@ def gunsmith_body():
          aria-hidden="true">
 {''.join(lines)}    </svg>
 {''.join(chips)}    <div class="pins" hidden></div>
+
+    <div class="fwork" id="forge-work" hidden>
+      <div class="fwork__box">
+        <div class="fwork__art">
+          <svg class="fring" viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="fring__t" cx="50" cy="50" r="45"></circle>
+            <circle class="fring__s" cx="50" cy="50" r="45"></circle>
+          </svg>
+          <svg class="fanvil" viewBox="0 0 64 64" role="img" aria-label="Smithing">
+            <g class="fanvil__a">
+              <g fill="#95a8b4">
+                <path d="M13 34h36v6H13l-6-3z"></path>
+                <path d="M24 46h14l7 7H17z"></path>
+                <rect x="15" y="52.4" width="34" height="3.6" rx="1.4"></rect>
+              </g>
+              <path d="M19 40h24l-5 6H24z" fill="#5e7381"></path>
+            </g>
+            <g class="fanvil__h">
+              <path d="M33 30l5-5-16-16-5 5z" fill="#0a8f57"></path>
+              <path d="M31 33l7 2 9-9-2-7-7 2z" fill="#0ff796"></path>
+            </g>
+            <g class="fanvil__k" stroke="#0ff796" stroke-width="2"
+               stroke-linecap="round" fill="none">
+              <path d="M41 31l7-3"></path>
+              <path d="M40 35l6 3"></path>
+              <path d="M40 27l3-6"></path>
+            </g>
+          </svg>
+        </div>
+        <div class="fwork__bar"><i id="forge-fill"></i></div>
+        <p class="fwork__say" id="forge-say"></p>
+      </div>
+    </div>
 
     <aside class="panel" id="panel" hidden>
 {''.join(panels)}      <button class="panel__x" id="close" aria-label="Close">&times;</button>
@@ -1756,50 +1903,45 @@ def gunsmith_body():
   </div>
   </div>
 
-  <section class="forge" id="forge">
-    <h2>Smithing</h2>
-    <p class="lede">Work out every build this rifle can be, then throw away the
-    ones that are simply worse. What is left is every gun worth considering:
-    each one is the best there is at something, and no other build beats it on
-    everything at once. Sort by the stat you are after, set a floor under the
-    ones you refuse to give up, and click a build to fit it on the weapon
-    above. Only the five stats something on record actually moves are here
-    &mdash; the others have no numbers against them yet.</p>
-    <p><button class="btn" id="forge-go" type="button">Start smithing</button>
-       <em class="forge__note">Runs here, in this tab. A few seconds.</em></p>
-    <div class="forge__work" id="forge-work" hidden>
-      <div class="forge__bar"><i id="forge-fill"></i></div>
-      <ol class="forge__log" id="forge-log"></ol>
-    </div>
-    <div class="forge__out" id="forge-out" hidden>
-      <div class="forge__ctl">
-        <div>
-          <p class="dlabel">Sort by</p>
-          <div class="forge__sort" id="forge-sort"></div>
-        </div>
-        <div>
-          <p class="dlabel">Nothing below
-            <button class="devx" id="forge-reset" type="button">reset</button>
-          </p>
-          <div class="forge__mins" id="forge-mins"></div>
-        </div>
-        <div class="forge__must">
-          <p class="dlabel">Must include</p>
-          <div class="fsearch">
-            <input type="search" id="forge-find" autocomplete="off"
-                   placeholder="Name an attachment it has to have&hellip;">
-            <div class="fsug" id="forge-sug" hidden></div>
-          </div>
-          <div class="fchips" id="forge-chips"></div>
+  <aside class="fside" id="forge-out" hidden aria-label="Smithing">
+    <header class="fside__top">
+      <h2>Smithing</h2>
+      <p class="fside__n" id="forge-tally"></p>
+      <button class="fside__x" id="forge-close" type="button"
+              aria-label="Close">&times;</button>
+    </header>
+    <p class="fside__lede">Every build here is the best there is at something,
+    and none of them is beaten by another on all five at once. Pick the stat
+    you are after, then click a build to fit it on the weapon.</p>
+
+    <div class="freq">
+      <div class="freq__bar">
+        <select id="forge-type" aria-label="Attachment type">
+          <option value="">Any type</option>
+        </select>
+        <div class="fsearch">
+          <input type="search" id="forge-find" autocomplete="off"
+                 placeholder="Name a part it must have&hellip;">
+          <div class="fsug" id="forge-sug" hidden></div>
         </div>
       </div>
-      <p class="dlabel">Builds <span class="count" id="forge-tally"></span></p>
-      <div class="forge__list" id="forge-list"></div>
-      <p class="lede" id="forge-none" hidden>Nothing is that good at everything
-      at once. Pull a slider back down.</p>
-      <div class="forge__pager" id="forge-pager"></div>
+      <button class="freq__t" id="forge-fold" type="button" aria-expanded="true">
+        <span>Required</span><em id="forge-count">none</em>
+      </button>
+      <div class="fchips" id="forge-chips" hidden></div>
     </div>
-  </section>
+
+    <div class="ftabs" id="forge-sort" role="tablist"></div>
+    <div class="forge__list" id="forge-list"></div>
+    <p class="fside__none" id="forge-none" hidden></p>
+    <div class="forge__pager" id="forge-pager"></div>
+
+    <div class="fmins">
+      <p class="dlabel">Nothing below
+        <button class="freset" id="forge-reset" type="button">reset</button></p>
+      <div class="forge__mins" id="forge-mins"></div>
+    </div>
+  </aside>
 
   <script>
     const WEAPON = {json.dumps(d['weapon']['stats'])};
@@ -3271,98 +3413,150 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .pin:active { cursor: grabbing; }
 
 /* --------------------------------------------------------------------------
-   Smithing: the search, and the builds it finds.
+   Smithing: the button in the corner, the mark that hammers while it thinks,
+   and the drawer of builds it opens.
    -------------------------------------------------------------------------- */
-.forge__note { font-size: 12px; font-style: normal; color: var(--text-faint); }
-.forge__bar {
-  height: 4px; border-radius: 2px; background: var(--surface-2);
-  overflow: hidden; margin-bottom: 12px;
+/* Top right of the stage, in the corner opposite the weapon's name, so the
+   two things you can do to the gun sit on the same line as the gun. */
+.smith {
+  position: absolute; top: 10px; right: 10px; z-index: 4;
+  display: flex; align-items: center; gap: 8px; padding: 7px 12px;
+  font: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; cursor: pointer; color: var(--text);
+  border-radius: 5px; background: rgba(6, 14, 19, 0.7);
+  border: 1px solid var(--line);
 }
-.forge__bar i {
+.smith:hover:not(:disabled), .smith:focus-visible {
+  border-color: var(--accent-dim); color: var(--accent);
+}
+.smith:disabled { cursor: default; color: var(--text-faint); }
+.smith svg { display: block; }
+.smith:hover:not(:disabled) svg .h { fill: var(--accent); }
+
+/* The working overlay: the site's own mark, hammering, over the stage it is
+   working on. There is nothing else to look at while it runs. */
+.fwork {
+  position: absolute; inset: 0; z-index: 6; display: grid; place-items: center;
+  background: rgba(4, 10, 14, 0.84);
+}
+.fwork__box { width: min(340px, 80%); text-align: center; }
+.fwork__art { position: relative; width: 118px; height: 118px; margin: 0 auto 20px; }
+.fring { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fring circle { fill: none; stroke-width: 2.5; }
+.fring__t { stroke: var(--line-2); }
+.fring__s {
+  stroke: var(--accent); stroke-linecap: round; stroke-dasharray: 66 210;
+  transform-origin: 50% 50%; animation: fspin 1.15s linear infinite;
+}
+@keyframes fspin { to { transform: rotate(360deg); } }
+.fanvil {
+  position: absolute; inset: 19px;
+  width: calc(100% - 38px); height: calc(100% - 38px);
+}
+/* The hammer swings from the far end of its handle, where a hand would hold
+   it, so the head travels and the grip stays put. */
+.fanvil__h {
+  transform-box: view-box; transform-origin: 19.5px 11.5px;
+  animation: fstrike 900ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.fanvil__a {
+  transform-box: view-box; transform-origin: 32px 44px;
+  animation: fshake 900ms linear infinite;
+}
+.fanvil__k {
+  transform-box: view-box; transform-origin: 40px 30px; opacity: 0;
+  animation: fspark 900ms linear infinite;
+}
+@keyframes fstrike {
+  0% { transform: rotate(2deg); }
+  40% { transform: rotate(-34deg); }
+  52% { transform: rotate(-37deg); }
+  66% { transform: rotate(5deg); }
+  74% { transform: rotate(-2deg); }
+  100% { transform: rotate(2deg); }
+}
+@keyframes fshake {
+  0%, 62% { transform: translateY(0); }
+  68% { transform: translateY(1.4px); }
+  82%, 100% { transform: translateY(0); }
+}
+@keyframes fspark {
+  0%, 62% { opacity: 0; transform: scale(0.3); }
+  70% { opacity: 0.9; transform: scale(1); }
+  92%, 100% { opacity: 0; transform: scale(1.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fanvil__h, .fanvil__a, .fanvil__k, .fring__s { animation: none; }
+  .fring__s { stroke-dasharray: none; opacity: 0.35; }
+}
+.fwork__bar {
+  height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden;
+}
+.fwork__bar i {
   display: block; height: 100%; width: 0;
   background: var(--accent); transition: width 200ms ease;
 }
-.forge__log {
-  margin: 0; padding: 0 0 0 2px; list-style: none;
-  max-height: 190px; overflow-y: auto;
-  font-family: var(--mono); font-size: 11px; line-height: 1.7;
-  color: var(--text);
+.fwork__say {
+  margin: 12px 0 0; min-height: 3.2em; font-family: var(--mono); font-size: 11px;
+  line-height: 1.6; color: var(--text-dim);
 }
-.forge__log li.is-dim { color: var(--text-faint); }
-.forge__log::-webkit-scrollbar { width: 0; height: 0; }
-.forge__log { scrollbar-width: none; }
+.fwork__say.is-new { animation: ffade 280ms ease; }
+@keyframes ffade { from { opacity: 0; transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { .fwork__say.is-new { animation: none; } }
 
-.forge__ctl {
-  display: grid; gap: 18px 28px; margin-bottom: 18px;
-  grid-template-columns: minmax(0, auto) minmax(18rem, 1fr);
-  align-items: start;
+/* The drawer. Fixed to the window rather than the page, so the weapon stays
+   where it is and a build can be read against the gun it would make. */
+.fside {
+  position: fixed; top: 0; right: 0; z-index: 40;
+  display: flex; flex-direction: column; gap: 14px;
+  width: min(430px, 94vw); height: 100dvh; padding: 16px 18px 26px;
+  overflow-y: auto; overscroll-behavior: contain;
+  background: var(--surface); border-left: 1px solid var(--line-2);
+  box-shadow: -18px 0 44px rgba(0, 0, 0, 0.5);
+  transform: translateX(100%); transition: transform 220ms ease;
 }
-@media (max-width: 700px) { .forge__ctl { grid-template-columns: 1fr; } }
-.forge__sort { display: flex; flex-wrap: wrap; gap: 6px; }
-/* The buttons are the dev bar's, but this is not dev mode: the chosen one
-   takes the site's own green rather than the workbench's warning yellow. */
-.forge__sort .devtab.is-on {
-  color: var(--bg); background: var(--accent); border-color: var(--accent);
+.fside.is-open { transform: none; }
+@media (prefers-reduced-motion: reduce) { .fside { transition: none; } }
+.fside__top { display: flex; flex-direction: row; align-items: baseline; gap: 10px; }
+.fside__top h2 { margin: 0; font-size: 17px; }
+.fside__n {
+  margin: 0; font-family: var(--mono); font-size: 11px; color: var(--text-faint);
 }
-.forge__list {
-  display: grid; gap: 4px;
-  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+.fside__x {
+  margin-left: auto; padding: 0 2px; font: inherit; font-size: 22px; line-height: 1;
+  cursor: pointer; color: var(--text-faint); background: none; border: 0;
 }
-.fbuild {
-  display: flex; align-items: center; gap: 12px; width: 100%;
-  padding: 8px 12px; font: inherit; text-align: left; cursor: pointer;
-  color: var(--text); background: var(--surface);
+.fside__x:hover { color: var(--accent); }
+.fside__lede { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-dim); }
+.fside__none { margin: 0; font-size: 12px; line-height: 1.6; color: var(--warn); }
+
+/* Required parts: a type to narrow to, a name to search, and a chip per part
+   asked for. The chips fold away, because the answer to "what did I ask for"
+   is only wanted now and then and the list of builds is wanted always. */
+.freq { display: grid; gap: 8px; }
+.freq__bar {
+  position: relative; display: grid; gap: 6px;
+  grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr);
+}
+.freq__bar select, .fsearch input {
+  width: 100%; font: inherit; font-size: 12px; padding: 7px 9px;
+  color: var(--text); background: var(--surface-2);
   border: 1px solid var(--line); border-radius: 5px;
 }
-.fbuild:hover { border-color: var(--line-2); }
-.fbuild.is-on { border-color: var(--accent); background: var(--surface-2); }
-.fbuild__s { display: flex; gap: 10px; }
-/* Each stat as a figure over its name, so a column of builds reads down as
-   well as across and the numbers line up under the sort you chose. */
-.fbuild__s i {
-  display: flex; flex-direction: column; font-style: normal;
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--text-faint);
+.freq__bar select:focus, .fsearch input:focus {
+  outline: none; border-color: var(--accent-dim);
 }
-.fbuild__s b { font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--text); }
-.fbuild__s b.up { color: var(--accent); }
-.fbuild__s b.down { color: var(--red); }
-.fbuild__n {
-  margin-left: auto; font-family: var(--mono); font-size: 10px;
-  color: var(--text-faint); white-space: nowrap;
+.freq__t {
+  display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 0;
+  font: inherit; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; text-align: left; cursor: pointer;
+  color: var(--text-faint); background: none; border: 0;
 }
-
-/* A floor per stat. The number left of the slider is where it is set; the note
-   right of it is how far it could go before the list empties, which is the
-   thing you actually want to know while dragging. */
-.forge__mins { display: grid; gap: 5px; }
-.fmin {
-  display: grid; align-items: center; gap: 0 10px;
-  grid-template-columns: 6.5rem 2.2rem minmax(6rem, 1fr) 7.5rem;
-  font-size: 12px; color: var(--text-dim);
-}
-.fmin__v {
-  font-family: var(--mono); font-size: 13px; color: var(--text);
-  text-align: right; font-variant-numeric: tabular-nums;
-}
-.fmin__n {
-  font-family: var(--mono); font-size: 10px; font-style: normal;
-  color: var(--text-faint);
-}
-.fmin__n.is-over { color: var(--red); }
-.fmin input[type="range"] { width: 100%; accent-color: var(--accent); }
-
-/* Required parts: a box to name one, and a chip per one named. A part that no
-   build worth keeping wears is marked rather than silently emptying the list --
-   it means every build using it is beaten by one that is not. */
-.forge__must { grid-column: 1 / -1; }
-.fsearch { position: relative; max-width: 26rem; }
-.fsearch input {
-  width: 100%; font: inherit; font-size: 13px; padding: 7px 11px;
-  color: var(--text); background: var(--surface);
-  border: 1px solid var(--line); border-radius: 5px;
-}
-.fsearch input:focus { outline: none; border-color: var(--accent-dim); }
+.freq__t::before { content: "\\25BE"; font-size: 9px; }
+.freq__t[aria-expanded="false"]::before { content: "\\25B8"; }
+.freq__t:hover { color: var(--accent); }
+.freq__t em { margin-left: auto; font-style: normal; color: var(--text-dim); }
+.fsearch { position: relative; }
 .fsug {
   position: absolute; z-index: 5; top: calc(100% + 3px); left: 0; right: 0;
   display: flex; flex-direction: column; overflow: hidden;
@@ -3381,7 +3575,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .fsug__i.is-empty span, .fsug__i.is-empty em { color: var(--red); }
 
-.fchips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.fchips { display: flex; flex-wrap: wrap; gap: 5px; }
 .fchip {
   display: inline-flex; align-items: baseline; gap: 8px;
   padding: 4px 4px 4px 10px; font-size: 12px; color: var(--text);
@@ -3400,16 +3594,92 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .fchip__x:hover { color: var(--red); }
 
-.forge__pager { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 14px; }
+/* One tab per stat. The tab is the sort: "show me the best handling" is the
+   only question anyone opens this for, so it is the only control on top. */
+.ftabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+.ftab {
+  flex: 1; margin-bottom: -1px; padding: 7px 3px 8px;
+  font: inherit; font-size: 11px; font-weight: 700; white-space: nowrap;
+  cursor: pointer; color: var(--text-faint); background: none;
+  border: 0; border-bottom: 2px solid transparent;
+}
+.ftab:hover { color: var(--text); }
+.ftab.is-on { color: var(--accent); border-bottom-color: var(--accent); }
+
+.forge__list { display: grid; gap: 4px; }
+.fbuild {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 8px 12px; font: inherit; text-align: left; cursor: pointer;
+  color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 5px;
+}
+.fbuild:hover { border-color: var(--line-2); }
+.fbuild.is-on { border-color: var(--accent); background: var(--surface-2); }
+.fbuild__s { display: flex; gap: 10px; }
+/* Each stat as a figure over its name, so a column of builds reads down as
+   well as across and the numbers line up under the tab you chose. */
+.fbuild__s i {
+  display: flex; flex-direction: column; font-style: normal;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+.fbuild__s b { font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--text); }
+.fbuild__s b.up { color: var(--accent); }
+.fbuild__s b.down { color: var(--red); }
+.fbuild__s b.key { text-decoration: underline; text-underline-offset: 3px; }
+.fbuild__n {
+  margin-left: auto; font-family: var(--mono); font-size: 10px;
+  color: var(--text-faint); white-space: nowrap;
+}
+
+.forge__pager { display: flex; flex-wrap: wrap; gap: 4px; }
 .fpage {
   min-width: 2rem; padding: 5px 8px; font: inherit; font-size: 12px;
   font-family: var(--mono); cursor: pointer; color: var(--text-dim);
-  background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px;
 }
 .fpage:hover:not(:disabled) { border-color: var(--line-2); color: var(--text); }
 .fpage.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
 .fpage:disabled { opacity: 0.35; cursor: default; }
 .fgap { padding: 5px 2px; color: var(--text-faint); }
+
+/* A floor per stat, below the list because it is the thing you reach for
+   second: first look, then rule out. The number left of the slider is where it
+   is set; the note under it is how far it could go before the list empties,
+   which is the thing you actually want to know while dragging. */
+.fmins { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
+.fmins .dlabel { margin-top: 0; padding-top: 0; border-top: 0; }
+/* The dev bar's little clear button, but this one is for readers, so it is not
+   one of the dev bar's classes -- a page that ships .devx to everyone makes
+   "does this page carry any of the workbench" impossible to ask. */
+.freset {
+  font: inherit; font-size: 10px; margin-left: 8px; padding: 1px 6px;
+  cursor: pointer; color: var(--red); background: transparent;
+  border: 1px solid currentColor; border-radius: 3px;
+}
+.freset:hover { color: var(--bg); background: var(--red); }
+.forge__mins { display: grid; gap: 4px; }
+.fmin {
+  display: grid; align-items: center; gap: 0 10px;
+  grid-template-columns: 5.6rem 2.2rem minmax(0, 1fr);
+  font-size: 12px; color: var(--text-dim);
+}
+.fmin__v {
+  font-family: var(--mono); font-size: 13px; color: var(--text);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+.fmin__n {
+  grid-column: 2 / -1; margin-bottom: 3px; text-align: right;
+  font-family: var(--mono); font-size: 10px; font-style: normal;
+  color: var(--text-faint);
+}
+.fmin__n.is-over { color: var(--red); }
+.fmin input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+@media (max-width: 560px) {
+  .fside { width: 100vw; border-left: 0; }
+  .freq__bar { grid-template-columns: 1fr; }
+}
 
 /* --------------------------------------------------------------------------
    Dev mode: #dev on the end of the hash. None of this is reachable from the

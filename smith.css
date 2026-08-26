@@ -670,98 +670,150 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .pin:active { cursor: grabbing; }
 
 /* --------------------------------------------------------------------------
-   Smithing: the search, and the builds it finds.
+   Smithing: the button in the corner, the mark that hammers while it thinks,
+   and the drawer of builds it opens.
    -------------------------------------------------------------------------- */
-.forge__note { font-size: 12px; font-style: normal; color: var(--text-faint); }
-.forge__bar {
-  height: 4px; border-radius: 2px; background: var(--surface-2);
-  overflow: hidden; margin-bottom: 12px;
+/* Top right of the stage, in the corner opposite the weapon's name, so the
+   two things you can do to the gun sit on the same line as the gun. */
+.smith {
+  position: absolute; top: 10px; right: 10px; z-index: 4;
+  display: flex; align-items: center; gap: 8px; padding: 7px 12px;
+  font: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; cursor: pointer; color: var(--text);
+  border-radius: 5px; background: rgba(6, 14, 19, 0.7);
+  border: 1px solid var(--line);
 }
-.forge__bar i {
+.smith:hover:not(:disabled), .smith:focus-visible {
+  border-color: var(--accent-dim); color: var(--accent);
+}
+.smith:disabled { cursor: default; color: var(--text-faint); }
+.smith svg { display: block; }
+.smith:hover:not(:disabled) svg .h { fill: var(--accent); }
+
+/* The working overlay: the site's own mark, hammering, over the stage it is
+   working on. There is nothing else to look at while it runs. */
+.fwork {
+  position: absolute; inset: 0; z-index: 6; display: grid; place-items: center;
+  background: rgba(4, 10, 14, 0.84);
+}
+.fwork__box { width: min(340px, 80%); text-align: center; }
+.fwork__art { position: relative; width: 118px; height: 118px; margin: 0 auto 20px; }
+.fring { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fring circle { fill: none; stroke-width: 2.5; }
+.fring__t { stroke: var(--line-2); }
+.fring__s {
+  stroke: var(--accent); stroke-linecap: round; stroke-dasharray: 66 210;
+  transform-origin: 50% 50%; animation: fspin 1.15s linear infinite;
+}
+@keyframes fspin { to { transform: rotate(360deg); } }
+.fanvil {
+  position: absolute; inset: 19px;
+  width: calc(100% - 38px); height: calc(100% - 38px);
+}
+/* The hammer swings from the far end of its handle, where a hand would hold
+   it, so the head travels and the grip stays put. */
+.fanvil__h {
+  transform-box: view-box; transform-origin: 19.5px 11.5px;
+  animation: fstrike 900ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.fanvil__a {
+  transform-box: view-box; transform-origin: 32px 44px;
+  animation: fshake 900ms linear infinite;
+}
+.fanvil__k {
+  transform-box: view-box; transform-origin: 40px 30px; opacity: 0;
+  animation: fspark 900ms linear infinite;
+}
+@keyframes fstrike {
+  0% { transform: rotate(2deg); }
+  40% { transform: rotate(-34deg); }
+  52% { transform: rotate(-37deg); }
+  66% { transform: rotate(5deg); }
+  74% { transform: rotate(-2deg); }
+  100% { transform: rotate(2deg); }
+}
+@keyframes fshake {
+  0%, 62% { transform: translateY(0); }
+  68% { transform: translateY(1.4px); }
+  82%, 100% { transform: translateY(0); }
+}
+@keyframes fspark {
+  0%, 62% { opacity: 0; transform: scale(0.3); }
+  70% { opacity: 0.9; transform: scale(1); }
+  92%, 100% { opacity: 0; transform: scale(1.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fanvil__h, .fanvil__a, .fanvil__k, .fring__s { animation: none; }
+  .fring__s { stroke-dasharray: none; opacity: 0.35; }
+}
+.fwork__bar {
+  height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden;
+}
+.fwork__bar i {
   display: block; height: 100%; width: 0;
   background: var(--accent); transition: width 200ms ease;
 }
-.forge__log {
-  margin: 0; padding: 0 0 0 2px; list-style: none;
-  max-height: 190px; overflow-y: auto;
-  font-family: var(--mono); font-size: 11px; line-height: 1.7;
-  color: var(--text);
+.fwork__say {
+  margin: 12px 0 0; min-height: 3.2em; font-family: var(--mono); font-size: 11px;
+  line-height: 1.6; color: var(--text-dim);
 }
-.forge__log li.is-dim { color: var(--text-faint); }
-.forge__log::-webkit-scrollbar { width: 0; height: 0; }
-.forge__log { scrollbar-width: none; }
+.fwork__say.is-new { animation: ffade 280ms ease; }
+@keyframes ffade { from { opacity: 0; transform: translateY(3px); } }
+@media (prefers-reduced-motion: reduce) { .fwork__say.is-new { animation: none; } }
 
-.forge__ctl {
-  display: grid; gap: 18px 28px; margin-bottom: 18px;
-  grid-template-columns: minmax(0, auto) minmax(18rem, 1fr);
-  align-items: start;
+/* The drawer. Fixed to the window rather than the page, so the weapon stays
+   where it is and a build can be read against the gun it would make. */
+.fside {
+  position: fixed; top: 0; right: 0; z-index: 40;
+  display: flex; flex-direction: column; gap: 14px;
+  width: min(430px, 94vw); height: 100dvh; padding: 16px 18px 26px;
+  overflow-y: auto; overscroll-behavior: contain;
+  background: var(--surface); border-left: 1px solid var(--line-2);
+  box-shadow: -18px 0 44px rgba(0, 0, 0, 0.5);
+  transform: translateX(100%); transition: transform 220ms ease;
 }
-@media (max-width: 700px) { .forge__ctl { grid-template-columns: 1fr; } }
-.forge__sort { display: flex; flex-wrap: wrap; gap: 6px; }
-/* The buttons are the dev bar's, but this is not dev mode: the chosen one
-   takes the site's own green rather than the workbench's warning yellow. */
-.forge__sort .devtab.is-on {
-  color: var(--bg); background: var(--accent); border-color: var(--accent);
+.fside.is-open { transform: none; }
+@media (prefers-reduced-motion: reduce) { .fside { transition: none; } }
+.fside__top { display: flex; flex-direction: row; align-items: baseline; gap: 10px; }
+.fside__top h2 { margin: 0; font-size: 17px; }
+.fside__n {
+  margin: 0; font-family: var(--mono); font-size: 11px; color: var(--text-faint);
 }
-.forge__list {
-  display: grid; gap: 4px;
-  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+.fside__x {
+  margin-left: auto; padding: 0 2px; font: inherit; font-size: 22px; line-height: 1;
+  cursor: pointer; color: var(--text-faint); background: none; border: 0;
 }
-.fbuild {
-  display: flex; align-items: center; gap: 12px; width: 100%;
-  padding: 8px 12px; font: inherit; text-align: left; cursor: pointer;
-  color: var(--text); background: var(--surface);
+.fside__x:hover { color: var(--accent); }
+.fside__lede { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-dim); }
+.fside__none { margin: 0; font-size: 12px; line-height: 1.6; color: var(--warn); }
+
+/* Required parts: a type to narrow to, a name to search, and a chip per part
+   asked for. The chips fold away, because the answer to "what did I ask for"
+   is only wanted now and then and the list of builds is wanted always. */
+.freq { display: grid; gap: 8px; }
+.freq__bar {
+  position: relative; display: grid; gap: 6px;
+  grid-template-columns: minmax(0, 8.5rem) minmax(0, 1fr);
+}
+.freq__bar select, .fsearch input {
+  width: 100%; font: inherit; font-size: 12px; padding: 7px 9px;
+  color: var(--text); background: var(--surface-2);
   border: 1px solid var(--line); border-radius: 5px;
 }
-.fbuild:hover { border-color: var(--line-2); }
-.fbuild.is-on { border-color: var(--accent); background: var(--surface-2); }
-.fbuild__s { display: flex; gap: 10px; }
-/* Each stat as a figure over its name, so a column of builds reads down as
-   well as across and the numbers line up under the sort you chose. */
-.fbuild__s i {
-  display: flex; flex-direction: column; font-style: normal;
-  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--text-faint);
+.freq__bar select:focus, .fsearch input:focus {
+  outline: none; border-color: var(--accent-dim);
 }
-.fbuild__s b { font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--text); }
-.fbuild__s b.up { color: var(--accent); }
-.fbuild__s b.down { color: var(--red); }
-.fbuild__n {
-  margin-left: auto; font-family: var(--mono); font-size: 10px;
-  color: var(--text-faint); white-space: nowrap;
+.freq__t {
+  display: flex; align-items: baseline; gap: 8px; width: 100%; padding: 0;
+  font: inherit; font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; text-align: left; cursor: pointer;
+  color: var(--text-faint); background: none; border: 0;
 }
-
-/* A floor per stat. The number left of the slider is where it is set; the note
-   right of it is how far it could go before the list empties, which is the
-   thing you actually want to know while dragging. */
-.forge__mins { display: grid; gap: 5px; }
-.fmin {
-  display: grid; align-items: center; gap: 0 10px;
-  grid-template-columns: 6.5rem 2.2rem minmax(6rem, 1fr) 7.5rem;
-  font-size: 12px; color: var(--text-dim);
-}
-.fmin__v {
-  font-family: var(--mono); font-size: 13px; color: var(--text);
-  text-align: right; font-variant-numeric: tabular-nums;
-}
-.fmin__n {
-  font-family: var(--mono); font-size: 10px; font-style: normal;
-  color: var(--text-faint);
-}
-.fmin__n.is-over { color: var(--red); }
-.fmin input[type="range"] { width: 100%; accent-color: var(--accent); }
-
-/* Required parts: a box to name one, and a chip per one named. A part that no
-   build worth keeping wears is marked rather than silently emptying the list --
-   it means every build using it is beaten by one that is not. */
-.forge__must { grid-column: 1 / -1; }
-.fsearch { position: relative; max-width: 26rem; }
-.fsearch input {
-  width: 100%; font: inherit; font-size: 13px; padding: 7px 11px;
-  color: var(--text); background: var(--surface);
-  border: 1px solid var(--line); border-radius: 5px;
-}
-.fsearch input:focus { outline: none; border-color: var(--accent-dim); }
+.freq__t::before { content: "\25BE"; font-size: 9px; }
+.freq__t[aria-expanded="false"]::before { content: "\25B8"; }
+.freq__t:hover { color: var(--accent); }
+.freq__t em { margin-left: auto; font-style: normal; color: var(--text-dim); }
+.fsearch { position: relative; }
 .fsug {
   position: absolute; z-index: 5; top: calc(100% + 3px); left: 0; right: 0;
   display: flex; flex-direction: column; overflow: hidden;
@@ -780,7 +832,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .fsug__i.is-empty span, .fsug__i.is-empty em { color: var(--red); }
 
-.fchips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.fchips { display: flex; flex-wrap: wrap; gap: 5px; }
 .fchip {
   display: inline-flex; align-items: baseline; gap: 8px;
   padding: 4px 4px 4px 10px; font-size: 12px; color: var(--text);
@@ -799,16 +851,92 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .fchip__x:hover { color: var(--red); }
 
-.forge__pager { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 14px; }
+/* One tab per stat. The tab is the sort: "show me the best handling" is the
+   only question anyone opens this for, so it is the only control on top. */
+.ftabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+.ftab {
+  flex: 1; margin-bottom: -1px; padding: 7px 3px 8px;
+  font: inherit; font-size: 11px; font-weight: 700; white-space: nowrap;
+  cursor: pointer; color: var(--text-faint); background: none;
+  border: 0; border-bottom: 2px solid transparent;
+}
+.ftab:hover { color: var(--text); }
+.ftab.is-on { color: var(--accent); border-bottom-color: var(--accent); }
+
+.forge__list { display: grid; gap: 4px; }
+.fbuild {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 8px 12px; font: inherit; text-align: left; cursor: pointer;
+  color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--line); border-radius: 5px;
+}
+.fbuild:hover { border-color: var(--line-2); }
+.fbuild.is-on { border-color: var(--accent); background: var(--surface-2); }
+.fbuild__s { display: flex; gap: 10px; }
+/* Each stat as a figure over its name, so a column of builds reads down as
+   well as across and the numbers line up under the tab you chose. */
+.fbuild__s i {
+  display: flex; flex-direction: column; font-style: normal;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+.fbuild__s b { font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--text); }
+.fbuild__s b.up { color: var(--accent); }
+.fbuild__s b.down { color: var(--red); }
+.fbuild__s b.key { text-decoration: underline; text-underline-offset: 3px; }
+.fbuild__n {
+  margin-left: auto; font-family: var(--mono); font-size: 10px;
+  color: var(--text-faint); white-space: nowrap;
+}
+
+.forge__pager { display: flex; flex-wrap: wrap; gap: 4px; }
 .fpage {
   min-width: 2rem; padding: 5px 8px; font: inherit; font-size: 12px;
   font-family: var(--mono); cursor: pointer; color: var(--text-dim);
-  background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+  background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px;
 }
 .fpage:hover:not(:disabled) { border-color: var(--line-2); color: var(--text); }
 .fpage.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
 .fpage:disabled { opacity: 0.35; cursor: default; }
 .fgap { padding: 5px 2px; color: var(--text-faint); }
+
+/* A floor per stat, below the list because it is the thing you reach for
+   second: first look, then rule out. The number left of the slider is where it
+   is set; the note under it is how far it could go before the list empties,
+   which is the thing you actually want to know while dragging. */
+.fmins { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
+.fmins .dlabel { margin-top: 0; padding-top: 0; border-top: 0; }
+/* The dev bar's little clear button, but this one is for readers, so it is not
+   one of the dev bar's classes -- a page that ships .devx to everyone makes
+   "does this page carry any of the workbench" impossible to ask. */
+.freset {
+  font: inherit; font-size: 10px; margin-left: 8px; padding: 1px 6px;
+  cursor: pointer; color: var(--red); background: transparent;
+  border: 1px solid currentColor; border-radius: 3px;
+}
+.freset:hover { color: var(--bg); background: var(--red); }
+.forge__mins { display: grid; gap: 4px; }
+.fmin {
+  display: grid; align-items: center; gap: 0 10px;
+  grid-template-columns: 5.6rem 2.2rem minmax(0, 1fr);
+  font-size: 12px; color: var(--text-dim);
+}
+.fmin__v {
+  font-family: var(--mono); font-size: 13px; color: var(--text);
+  text-align: right; font-variant-numeric: tabular-nums;
+}
+.fmin__n {
+  grid-column: 2 / -1; margin-bottom: 3px; text-align: right;
+  font-family: var(--mono); font-size: 10px; font-style: normal;
+  color: var(--text-faint);
+}
+.fmin__n.is-over { color: var(--red); }
+.fmin input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+@media (max-width: 560px) {
+  .fside { width: 100vw; border-left: 0; }
+  .freq__bar { grid-template-columns: 1fr; }
+}
 
 /* --------------------------------------------------------------------------
    Dev mode: #dev on the end of the hash. None of this is reachable from the

@@ -59,6 +59,17 @@
         <div class="wstats"></div>
       </div>
     </div>
+    <button class="smith" id="forge-go" type="button">
+      <svg viewBox="0 0 64 64" width="17" height="17" aria-hidden="true">
+        <g fill="#95a8b4">
+          <path d="M13 34h36v6H13l-6-3z"></path>
+          <path d="M24 46h14l7 7H17z"></path>
+        </g>
+        <path class="h" d="M31 33l7 2 9-9-2-7-7 2z" fill="#0ff796"></path>
+        <path class="h" d="M33 30l5-5-16-16-5 5z" fill="#0a8f57"></path>
+      </svg>
+      <span>Smith</span>
+    </button>
     <img class="stage__gun" src="../smith/rm277.png" alt="RM277"
          style="left:19.0945%;top:39.3519%;
                 width:59.4488%;height:32.8704%">
@@ -110,6 +121,39 @@
       <a class="chip3 is-granted" style="left:36.4173%;top:22.1296%;width:3.5925%;height:6.7593%" href="#slot-tactical-device" data-slot="tactical-device" title="Tactical Device" hidden><span class="chip3__label">Tactical Device</span><span class="chip3__art" style="background-image:url(../smith/slot/tactical-device.png)"></span><em>4</em></a>
       <a class="chip3 is-granted" style="left:16.3878%;top:32.5000%;width:3.5925%;height:6.7593%" href="#slot-upper-rail" data-slot="upper-rail" title="Upper Rail" hidden><span class="chip3__label">Upper Rail</span><span class="chip3__art" style="background-image:url(../smith/slot/upper-rail.png)"></span><em>11</em></a>
     <div class="pins" hidden></div>
+
+    <div class="fwork" id="forge-work" hidden>
+      <div class="fwork__box">
+        <div class="fwork__art">
+          <svg class="fring" viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="fring__t" cx="50" cy="50" r="45"></circle>
+            <circle class="fring__s" cx="50" cy="50" r="45"></circle>
+          </svg>
+          <svg class="fanvil" viewBox="0 0 64 64" role="img" aria-label="Smithing">
+            <g class="fanvil__a">
+              <g fill="#95a8b4">
+                <path d="M13 34h36v6H13l-6-3z"></path>
+                <path d="M24 46h14l7 7H17z"></path>
+                <rect x="15" y="52.4" width="34" height="3.6" rx="1.4"></rect>
+              </g>
+              <path d="M19 40h24l-5 6H24z" fill="#5e7381"></path>
+            </g>
+            <g class="fanvil__h">
+              <path d="M33 30l5-5-16-16-5 5z" fill="#0a8f57"></path>
+              <path d="M31 33l7 2 9-9-2-7-7 2z" fill="#0ff796"></path>
+            </g>
+            <g class="fanvil__k" stroke="#0ff796" stroke-width="2"
+               stroke-linecap="round" fill="none">
+              <path d="M41 31l7-3"></path>
+              <path d="M40 35l6 3"></path>
+              <path d="M40 27l3-6"></path>
+            </g>
+          </svg>
+        </div>
+        <div class="fwork__bar"><i id="forge-fill"></i></div>
+        <p class="fwork__say" id="forge-say"></p>
+      </div>
+    </div>
 
     <aside class="panel" id="panel" hidden>
       <div class="slotlist" id="sl-optics" hidden>
@@ -1341,50 +1385,45 @@
   </div>
   </div>
 
-  <section class="forge" id="forge">
-    <h2>Smithing</h2>
-    <p class="lede">Work out every build this rifle can be, then throw away the
-    ones that are simply worse. What is left is every gun worth considering:
-    each one is the best there is at something, and no other build beats it on
-    everything at once. Sort by the stat you are after, set a floor under the
-    ones you refuse to give up, and click a build to fit it on the weapon
-    above. Only the five stats something on record actually moves are here
-    &mdash; the others have no numbers against them yet.</p>
-    <p><button class="btn" id="forge-go" type="button">Start smithing</button>
-       <em class="forge__note">Runs here, in this tab. A few seconds.</em></p>
-    <div class="forge__work" id="forge-work" hidden>
-      <div class="forge__bar"><i id="forge-fill"></i></div>
-      <ol class="forge__log" id="forge-log"></ol>
-    </div>
-    <div class="forge__out" id="forge-out" hidden>
-      <div class="forge__ctl">
-        <div>
-          <p class="dlabel">Sort by</p>
-          <div class="forge__sort" id="forge-sort"></div>
-        </div>
-        <div>
-          <p class="dlabel">Nothing below
-            <button class="devx" id="forge-reset" type="button">reset</button>
-          </p>
-          <div class="forge__mins" id="forge-mins"></div>
-        </div>
-        <div class="forge__must">
-          <p class="dlabel">Must include</p>
-          <div class="fsearch">
-            <input type="search" id="forge-find" autocomplete="off"
-                   placeholder="Name an attachment it has to have&hellip;">
-            <div class="fsug" id="forge-sug" hidden></div>
-          </div>
-          <div class="fchips" id="forge-chips"></div>
+  <aside class="fside" id="forge-out" hidden aria-label="Smithing">
+    <header class="fside__top">
+      <h2>Smithing</h2>
+      <p class="fside__n" id="forge-tally"></p>
+      <button class="fside__x" id="forge-close" type="button"
+              aria-label="Close">&times;</button>
+    </header>
+    <p class="fside__lede">Every build here is the best there is at something,
+    and none of them is beaten by another on all five at once. Pick the stat
+    you are after, then click a build to fit it on the weapon.</p>
+
+    <div class="freq">
+      <div class="freq__bar">
+        <select id="forge-type" aria-label="Attachment type">
+          <option value="">Any type</option>
+        </select>
+        <div class="fsearch">
+          <input type="search" id="forge-find" autocomplete="off"
+                 placeholder="Name a part it must have&hellip;">
+          <div class="fsug" id="forge-sug" hidden></div>
         </div>
       </div>
-      <p class="dlabel">Builds <span class="count" id="forge-tally"></span></p>
-      <div class="forge__list" id="forge-list"></div>
-      <p class="lede" id="forge-none" hidden>Nothing is that good at everything
-      at once. Pull a slider back down.</p>
-      <div class="forge__pager" id="forge-pager"></div>
+      <button class="freq__t" id="forge-fold" type="button" aria-expanded="true">
+        <span>Required</span><em id="forge-count">none</em>
+      </button>
+      <div class="fchips" id="forge-chips" hidden></div>
     </div>
-  </section>
+
+    <div class="ftabs" id="forge-sort" role="tablist"></div>
+    <div class="forge__list" id="forge-list"></div>
+    <p class="fside__none" id="forge-none" hidden></p>
+    <div class="forge__pager" id="forge-pager"></div>
+
+    <div class="fmins">
+      <p class="dlabel">Nothing below
+        <button class="freset" id="forge-reset" type="button">reset</button></p>
+      <div class="forge__mins" id="forge-mins"></div>
+    </div>
+  </aside>
 
   <script>
     const WEAPON = [{"key": "Damage", "base": 41, "max": 100, "tracked": false}, {"key": "Range", "base": 55, "max": 100, "unit": "m", "tracked": true}, {"key": "Control", "base": 48, "max": 100, "tracked": true}, {"key": "Handling", "base": 50, "max": 100, "tracked": true}, {"key": "Stability", "base": 59, "max": 100, "tracked": true}, {"key": "Accuracy", "base": 44, "max": 100, "tracked": true}, {"key": "Armour penetration", "base": 42, "max": 100, "tracked": false}, {"key": "Fire rate", "base": 550, "max": 1200, "unit": " rpm", "tracked": false}, {"key": "Capacity", "base": 30, "max": 100, "from": "Holds", "mode": "set", "tracked": true}, {"key": "Muzzle velocity", "base": 650, "max": 1200, "unit": " m/s", "tracked": false}, {"key": "Gunshot heard", "base": 500, "max": 1000, "unit": " m", "tracked": false}];
@@ -1868,10 +1907,12 @@
     // not run.
     const forge = {
       go: document.getElementById('forge-go'),
+      goLabel: document.querySelector('#forge-go span'),
       work: document.getElementById('forge-work'),
       fill: document.getElementById('forge-fill'),
-      log: document.getElementById('forge-log'),
+      say: document.getElementById('forge-say'),
       out: document.getElementById('forge-out'),
+      shut: document.getElementById('forge-close'),
       sort: document.getElementById('forge-sort'),
       mins: document.getElementById('forge-mins'),
       tally: document.getElementById('forge-tally'),
@@ -1880,8 +1921,11 @@
       none: document.getElementById('forge-none'),
       reset: document.getElementById('forge-reset'),
       find: document.getElementById('forge-find'),
+      type: document.getElementById('forge-type'),
       sug: document.getElementById('forge-sug'),
       chips: document.getElementById('forge-chips'),
+      fold: document.getElementById('forge-fold'),
+      count: document.getElementById('forge-count'),
     };
     // Only the stats something on record actually moves. The rest are not
     // unchanged, they are unread, and a slider on a column of zeroes would say
@@ -1890,18 +1934,52 @@
                         .map((s) => s.key);
     const FBASE = {};
     for (const k of FKEYS) FBASE[k] = WEAPON.find((s) => s.key === k).base;
-    const PER = 24;
+    const PER = 8;
 
     let found = [], shortlist = [], sortBy = FKEYS[0], page = 0;
     let picked = null, floors = {}, sliders = {};
 
-    function note(text, dim) {
-      const li = document.createElement('li');
-      if (dim) li.className = 'is-dim';
-      li.textContent = text;
-      forge.log.appendChild(li);
-      forge.log.scrollTop = forge.log.scrollHeight;
+    // The worker talks faster than anyone can read. Its messages are queued and
+    // shown one at a time, each for long enough to be read; when the search
+    // finishes ahead of the queue the queue is cut short rather than made to
+    // hold the results back.
+    let sayQ = [], sayT = null, sayGap = 320;
+
+    function pump() {
+      if (!sayQ.length) { sayT = null; return; }
+      forge.say.textContent = sayQ.shift();
+      forge.say.classList.remove('is-new');
+      void forge.say.offsetWidth;
+      forge.say.classList.add('is-new');
+      sayT = setTimeout(pump, sayGap);
     }
+
+    function note(text) {
+      sayQ.push(text);
+      if (sayT === null) pump();
+    }
+
+    function drained(fn) {
+      const tick = () => (sayQ.length ? setTimeout(tick, 60) : setTimeout(fn, 420));
+      tick();
+    }
+
+    function openPanel() {
+      forge.work.hidden = true;
+      forge.out.hidden = false;
+      requestAnimationFrame(() => forge.out.classList.add('is-open'));
+    }
+
+    function shutPanel() {
+      forge.out.classList.remove('is-open');
+      setTimeout(() => { forge.out.hidden = true; }, 240);
+    }
+
+    forge.shut.addEventListener('click', shutPanel);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !forge.out.hidden
+          && !forge.find.value) shutPanel();
+    });
 
     const value = (b, k) => FBASE[k] + b.v[FKEYS.indexOf(k)];
 
@@ -1920,7 +1998,8 @@
       let html = '<span class="fbuild__s">';
       for (const k of FKEYS) {
         const d = b.v[FKEYS.indexOf(k)];
-        const cls = d > 0 ? 'up' : d < 0 ? 'down' : '';
+        const cls = (d > 0 ? 'up' : d < 0 ? 'down' : '')
+                  + (k === sortBy ? ' key' : '');
         html += '<i><b class="' + cls + '">' + value(b, k) + '</b>'
              + k.slice(0, 4).toLowerCase() + '</i>';
       }
@@ -1995,7 +2074,7 @@
             : 'Nothing is that good at everything at once. Pull a slider back down.';
       }
       forge.tally.textContent = shortlist.length === found.length
-        ? shortlist.length.toLocaleString()
+        ? shortlist.length.toLocaleString() + ' builds'
         : shortlist.length.toLocaleString() + ' of '
           + found.length.toLocaleString();
       pager(pages);
@@ -2038,6 +2117,28 @@
       }
     }
 
+    function buildTabs() {
+      forge.sort.innerHTML = '';
+      for (const k of FKEYS) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.role = 'tab';
+        b.className = 'ftab' + (k === sortBy ? ' is-on' : '');
+        b.setAttribute('aria-selected', String(k === sortBy));
+        b.textContent = k;
+        b.addEventListener('click', () => {
+          sortBy = k;
+          for (const o of forge.sort.children) {
+            o.classList.toggle('is-on', o === b);
+            o.setAttribute('aria-selected', String(o === b));
+          }
+          page = 0;
+          paintList();
+        });
+        forge.sort.appendChild(b);
+      }
+    }
+
     forge.reset.addEventListener('click', () => {
       must = [];
       chips();
@@ -2052,12 +2153,22 @@
     });
 
     forge.go.addEventListener('click', () => {
+      // Nothing about the answer changes between runs, so once it has been
+      // worked out the button is a way back to it rather than a second search.
+      if (found.length) return openPanel();
+
       forge.go.disabled = true;
-      forge.go.textContent = 'Smithing\u2026';
+      forge.go.classList.add('is-busy');
+      forge.goLabel.textContent = 'Smithing\u2026';
       forge.work.hidden = false;
       forge.out.hidden = true;
-      forge.log.innerHTML = '';
+      forge.out.classList.remove('is-open');
       forge.fill.style.width = '0%';
+      sayQ = [];
+      clearTimeout(sayT);
+      sayT = null;
+      sayGap = 320;
+      forge.say.textContent = '';
 
       // Everything the search needs, read off the page rather than shipped a
       // second time: the slot lists are already in the panel, and the rules and
@@ -2077,9 +2188,11 @@
         new Blob([FORGE_SRC], {type: 'text/javascript'})));
       const t0 = performance.now();
       w.onerror = (e) => {
-        note('The search stopped: ' + e.message);
+        sayQ = [];
+        forge.say.textContent = 'The search stopped: ' + e.message;
         forge.go.disabled = false;
-        forge.go.textContent = 'Try again';
+        forge.go.classList.remove('is-busy');
+        forge.goLabel.textContent = 'Try again';
       };
       w.onmessage = ({data}) => {
         if (data.say) return note(data.say);
@@ -2091,24 +2204,30 @@
           return note(data.idle
             ? 'Skipping ' + what + ' \u2014 nothing on record moves a stat'
             : 'Fitting ' + what + ' \u2014 ' + data.raw.toLocaleString()
-              + ' tried, ' + data.kept.toLocaleString() + ' still worth keeping',
-            true);
+              + ' tried, ' + data.kept.toLocaleString() + ' still worth keeping');
         }
         if (data.done) {
           found = data.done;
+          w.terminate();
+          // The queue is behind by now. Keep the last couple of lines so the
+          // panel does not appear mid-sentence, and run them out quickly.
+          if (sayQ.length > 2) sayQ = sayQ.slice(-2);
+          sayGap = 110;
           note(found.length.toLocaleString() + ' builds nothing else beats, in '
             + ((performance.now() - t0) / 1000).toFixed(1) + 's');
-          forge.go.textContent = 'Smith again';
+          forge.fill.style.width = '100%';
+          forge.goLabel.textContent = 'Builds';
           forge.go.disabled = false;
-          forge.out.hidden = false;
+          forge.go.classList.remove('is-busy');
           picked = null;
           page = 0;
           must = [];
           countUses();
           chips();
+          buildTabs();
           buildSliders();
           paintList();
-          w.terminate();
+          drained(openPanel);
         }
       };
       w.postMessage({pool, delta, opens: OPENS,
@@ -2131,7 +2250,28 @@
       const n = c.querySelector('.pcard__n');
       if (n) NAMEOF[c.dataset.item] = n.textContent.trim();
     }
-    let must = [], usage = {};
+    // Which lists a part turns up in, so the type box can narrow the search to
+    // one kind of part. A part can be in more than one list -- the micro sight
+    // riser is an optic and a mount for one -- so this is a list, not a value.
+    const SLOTOF = {}, TYPES = [];
+    for (const l of lists) {
+      const sid = l.id.slice(3);
+      const label = (SLOTS.find((s) => s.id === sid) || {}).label || sid;
+      if (!TYPES.includes(label)) TYPES.push(label);
+      for (const c of l.querySelectorAll('.pcard')) {
+        const iid = c.dataset.item;
+        SLOTOF[iid] = SLOTOF[iid] || [];
+        if (!SLOTOF[iid].includes(label)) SLOTOF[iid].push(label);
+      }
+    }
+    for (const t of TYPES.slice().sort((a, b) => a.localeCompare(b))) {
+      const o = document.createElement('option');
+      o.value = t;
+      o.textContent = t;
+      forge.type.appendChild(o);
+    }
+
+    let must = [], usage = {}, folded = false;
 
     function countUses() {
       usage = {};
@@ -2163,14 +2303,27 @@
         el.appendChild(x);
         forge.chips.appendChild(el);
       }
+      forge.count.textContent = must.length
+        ? must.length + (must.length === 1 ? ' part' : ' parts') : 'none';
+      forge.chips.hidden = folded || !must.length;
     }
+
+    forge.fold.addEventListener('click', () => {
+      folded = !folded;
+      forge.fold.setAttribute('aria-expanded', String(!folded));
+      forge.chips.hidden = folded || !must.length;
+    });
 
     function suggest() {
       const q = forge.find.value.trim().toLowerCase();
+      const kind = forge.type.value;
       forge.sug.innerHTML = '';
-      if (!q) { forge.sug.hidden = true; return; }
+      // With neither a name nor a type there is nothing to narrow: the whole
+      // catalogue is not a suggestion.
+      if (!q && !kind) { forge.sug.hidden = true; return; }
       const hits = Object.keys(NAMEOF)
         .filter((id) => !must.includes(id)
+                     && (!kind || (SLOTOF[id] || []).includes(kind))
                      && NAMEOF[id].toLowerCase().includes(q))
         .sort((a, b) => (usage[b] || 0) - (usage[a] || 0)
                      || NAMEOF[a].localeCompare(NAMEOF[b]))
@@ -2187,6 +2340,8 @@
           must.push(id);
           forge.find.value = '';
           forge.sug.hidden = true;
+          folded = false;
+          forge.fold.setAttribute('aria-expanded', 'true');
           chips();
           page = 0;
           paintList();
@@ -2197,6 +2352,8 @@
     }
 
     forge.find.addEventListener('input', suggest);
+    forge.find.addEventListener('focus', suggest);
+    forge.type.addEventListener('change', suggest);
     forge.find.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -2206,22 +2363,8 @@
       if (e.key === 'Escape') { forge.find.value = ''; forge.sug.hidden = true; }
     });
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.fsearch')) forge.sug.hidden = true;
+      if (!e.target.closest('.freq__bar')) forge.sug.hidden = true;
     });
-
-    for (const k of FKEYS) {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'devtab' + (k === sortBy ? ' is-on' : '');
-      b.textContent = k;
-      b.addEventListener('click', () => {
-        sortBy = k;
-        for (const o of forge.sort.children) o.classList.toggle('is-on', o === b);
-        page = 0;
-        paintList();
-      });
-      forge.sort.appendChild(b);
-    }
 
 
     // Typing #dev onto a page that is already open only changes the hash, and
