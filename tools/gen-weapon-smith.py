@@ -1017,7 +1017,7 @@ FORGE_CTRL = '''
                         .map((s) => s.key);
     const FBASE = {};
     for (const k of FKEYS) FBASE[k] = WEAPON.find((s) => s.key === k).base;
-    const PER = 5;
+    const PER = 4;
 
     let found = [], shortlist = [], sortBy = FKEYS[0], page = 0;
     let picked = null, floors = {}, sliders = {};
@@ -3091,9 +3091,12 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .panel__x:hover { color: var(--accent); border-color: var(--accent-dim); }
 
+/* No padding along the top edge: the header is stuck to it, and any padding
+   there is a gap the cards scroll up into and show through above the header.
+   The header carries that space in its own padding instead. */
 .picks {
   width: 208px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 4px;
-  overflow-y: auto; padding: 8px; border-radius: 6px;
+  overflow-y: auto; padding: 0 8px 8px; border-radius: 6px;
   background: rgba(6, 14, 19, 0.82); border: 1px solid var(--line);
   backdrop-filter: blur(3px);
 }
@@ -3142,7 +3145,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
    top edge and was cut in half. Sticking it means the rest passes behind it. */
 .detail h4 {
   position: sticky; top: 0; z-index: 2;
-  margin: 0 0 10px; padding: 12px 30px 8px 0; font-size: 14px; font-weight: 800;
+  margin: 0 -12px 10px; padding: 12px 30px 8px 12px; font-size: 14px; font-weight: 800;
   background: rgb(7, 15, 20);
 }
 .detail h4 a { color: var(--text); text-decoration: none; }
@@ -3439,7 +3442,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
    working on. There is nothing else to look at while it runs. */
 .fwork {
   position: absolute; inset: 0; z-index: 6; display: grid; place-items: center;
-  background: rgba(4, 10, 14, 0.84);
+  background: rgba(4, 10, 14, 0.72); backdrop-filter: blur(3px);
 }
 .fwork__box { width: min(340px, 80%); text-align: center; }
 .fwork__art { position: relative; width: 118px; height: 118px; margin: 0 auto 20px; }
@@ -3520,24 +3523,34 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 /* The drawer. Fixed to the window rather than the page, so the weapon stays
    where it is and a build can be read against the gun it would make. */
 .fside {
-  position: absolute; top: 0; right: 0; bottom: 0; z-index: 8;
-  display: flex; flex-direction: column; gap: 11px;
-  width: min(400px, 44%); padding: 13px 15px 16px;
+  /* The mirror of the attachment column: same inset from the stage, same
+     glass, same border. One side of the gun lists the parts, the other lists
+     the guns they make, and neither should look like a different program. */
+  position: absolute; inset: 54px 10px 10px auto; z-index: 8;
+  display: flex; flex-direction: column; gap: 9px;
+  width: min(400px, 44%); padding: 0 12px 12px;
   overflow-y: auto; overscroll-behavior: contain;
-  background: rgba(6, 14, 19, 0.94); backdrop-filter: blur(4px);
-  border-left: 1px solid var(--line-2);
-  box-shadow: -20px 0 44px rgba(0, 0, 0, 0.45);
+  scrollbar-width: none; -ms-overflow-style: none;
+  background: rgba(6, 14, 19, 0.82); backdrop-filter: blur(3px);
+  border: 1px solid var(--line); border-radius: 6px;
   /* It comes in on the spot rather than sliding in from off the stage: there
      is no off the stage to slide in from, and clipping the stage to make one
      would cut the weapon name's panel off at the bottom. */
-  opacity: 0; transform: translateX(14px);
+  opacity: 0; transform: translateX(10px);
   transition: opacity 190ms ease, transform 190ms ease;
 }
 .fside.is-open { opacity: 1; transform: none; }
-.fside::-webkit-scrollbar { width: 6px; }
-.fside::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 3px; }
+.fside::-webkit-scrollbar { width: 0; height: 0; }
 @media (prefers-reduced-motion: reduce) { .fside { transition: none; } }
-.fside__top { display: flex; flex-direction: row; align-items: baseline; gap: 10px; }
+/* Pinned to the top of the panel, and opaque, so the count is readable while
+   you page through and the title does not slide up under the edge and get cut
+   in half. Same reason the slot list's header is pinned, same shape of fix:
+   the panel has no padding along the top, and the header carries it. */
+.fside__top {
+  position: sticky; top: 0; z-index: 3;
+  display: flex; flex-direction: row; align-items: baseline; gap: 10px;
+  margin: 0 -12px; padding: 9px 12px 7px; background: var(--bg);
+}
 .fside__top h2 { margin: 0; font-size: 17px; }
 .fside__n {
   margin: 0; font-family: var(--mono); font-size: 11px; color: var(--text-faint);
@@ -3560,7 +3573,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .freq__bar select, .fsearch input {
   width: 100%; font: inherit; font-size: 12px; padding: 7px 9px;
-  color: var(--text); background: var(--surface-2);
+  color: var(--text); background: rgba(14, 26, 33, 0.9);
   border: 1px solid var(--line); border-radius: 5px;
 }
 .freq__bar select:focus, .fsearch input:focus {
@@ -3630,7 +3643,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .fbuild {
   display: flex; align-items: center; gap: 12px; width: 100%;
   padding: 6px 11px; font: inherit; text-align: left; cursor: pointer;
-  color: var(--text); background: var(--surface-2);
+  color: var(--text); background: rgba(14, 26, 33, 0.9);
   border: 1px solid var(--line); border-radius: 5px;
 }
 .fbuild:hover { border-color: var(--line-2); }
@@ -3656,7 +3669,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .fpage {
   min-width: 2rem; padding: 5px 8px; font: inherit; font-size: 12px;
   font-family: var(--mono); cursor: pointer; color: var(--text-dim);
-  background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px;
+  background: rgba(14, 26, 33, 0.9); border: 1px solid var(--line); border-radius: 4px;
 }
 .fpage:hover:not(:disabled) { border-color: var(--line-2); color: var(--text); }
 .fpage.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
@@ -3699,7 +3712,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 /* On a narrow stage there is no room to sit beside the gun, so it takes the
    whole of it -- which is what closing it is for. */
 @media (max-width: 760px) {
-  .fside { width: 100%; border-left: 0; }
+  .fside { inset: 54px 10px 10px 10px; width: auto; }
   .freq__bar { grid-template-columns: 1fr; }
 }
 
