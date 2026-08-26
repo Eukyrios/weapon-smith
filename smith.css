@@ -1,4 +1,13 @@
 
+/* Hidden means hidden. The browser's own rule for [hidden] is the weakest
+   there is, so any element given a display of its own quietly ignores it --
+   and an invisible element that still takes its space and still swallows
+   clicks is a bug that looks like nothing at all. This cost four separate
+   fixes before it was worth one line: the panel, the slot lists, the chips,
+   and the search suggestions, each found by a click landing on nothing.
+   -------------------------------------------------------------------------- */
+[hidden] { display: none !important; }
+
 /* ==========================================================================
    Weapon Smith — same room as Loadout Roulette.
    Ebony ground, Spring Green accent, Alabaster text. Dark only: the sibling
@@ -173,7 +182,6 @@ tr.is-gap td:first-child a { color: var(--red); }
   font-family: var(--mono); font-size: 10px; font-style: normal;
   letter-spacing: 0.06em; color: var(--text-faint); white-space: nowrap;
 }
-.card[hidden], section[hidden] { display: none; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
@@ -302,7 +310,6 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .tile:hover, .tile:focus-visible { border-color: var(--accent-dim); }
 .tile:hover .tile__name, .tile:focus-visible .tile__name { color: var(--accent); }
 .tile--gap .tile__name { color: var(--red); }
-.tile[hidden], .group[hidden] { display: none; }
 
 @media (max-width: 760px) {
   .browse { grid-template-columns: 1fr; }
@@ -323,7 +330,6 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   position: absolute; inset: 54px auto 10px 10px; display: flex; gap: 8px;
   max-width: calc(100% - 20px); z-index: 3;
 }
-.panel[hidden], .slotlist[hidden] { display: none; }
 .slotlist { display: flex; gap: 8px; min-height: 0; }
 
 /* Both columns scroll without showing a bar: they sit ON the weapon, and a
@@ -620,10 +626,6 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
      makes it read as the same chip. */
   transition: left 220ms ease, top 220ms ease;
 }
-/* `display: block` above outranks the browser's own rule for [hidden], so a
-   chip for a slot nothing has opened yet stays laid out and swallows the
-   clicks meant for the chip underneath it. */
-.chip3[hidden] { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .chip3 { transition: none; }
 }
@@ -748,6 +750,54 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .fmin__n.is-over { color: var(--red); }
 .fmin input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+/* Required parts: a box to name one, and a chip per one named. A part that no
+   build worth keeping wears is marked rather than silently emptying the list --
+   it means every build using it is beaten by one that is not. */
+.forge__must { grid-column: 1 / -1; }
+.fsearch { position: relative; max-width: 26rem; }
+.fsearch input {
+  width: 100%; font: inherit; font-size: 13px; padding: 7px 11px;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 5px;
+}
+.fsearch input:focus { outline: none; border-color: var(--accent-dim); }
+.fsug {
+  position: absolute; z-index: 5; top: calc(100% + 3px); left: 0; right: 0;
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line-2);
+  border-radius: 5px; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+}
+.fsug__i {
+  display: flex; align-items: baseline; gap: 10px; padding: 7px 11px;
+  font: inherit; font-size: 12px; text-align: left; cursor: pointer;
+  color: var(--text); background: none; border: 0;
+}
+.fsug__i:hover { background: var(--surface-2); }
+.fsug__i em {
+  margin-left: auto; font-style: normal; font-family: var(--mono);
+  font-size: 10px; color: var(--text-faint); white-space: nowrap;
+}
+.fsug__i.is-empty span, .fsug__i.is-empty em { color: var(--red); }
+
+.fchips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.fchip {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  padding: 4px 4px 4px 10px; font-size: 12px; color: var(--text);
+  background: var(--surface-2); border: 1px solid var(--line-2);
+  border-radius: 4px;
+}
+.fchip em {
+  font-style: normal; font-family: var(--mono); font-size: 10px;
+  color: var(--text-faint);
+}
+.fchip.is-empty { border-color: var(--red); }
+.fchip.is-empty em { color: var(--red); }
+.fchip__x {
+  font: inherit; font-size: 13px; line-height: 1; padding: 1px 5px;
+  cursor: pointer; color: var(--text-faint); background: none; border: 0;
+}
+.fchip__x:hover { color: var(--red); }
 
 .forge__pager { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 14px; }
 .fpage {

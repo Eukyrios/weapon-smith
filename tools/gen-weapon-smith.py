@@ -1001,6 +1001,9 @@ FORGE_CTRL = '''
       pager: document.getElementById('forge-pager'),
       none: document.getElementById('forge-none'),
       reset: document.getElementById('forge-reset'),
+      find: document.getElementById('forge-find'),
+      sug: document.getElementById('forge-sug'),
+      chips: document.getElementById('forge-chips'),
     };
     // Only the stats something on record actually moves. The rest are not
     // unchanged, they are unread, and a slider on a column of zeroes would say
@@ -1091,7 +1094,9 @@ FORGE_CTRL = '''
 
     function paintList() {
       const i = FKEYS.indexOf(sortBy);
-      shortlist = found.filter((b) => FKEYS.every((k) => value(b, k) >= floors[k]));
+      shortlist = found.filter((b) =>
+        FKEYS.every((k) => value(b, k) >= floors[k])
+        && must.every((id) => b.has.has(id)));
       shortlist.sort((a, b) => b.v[i] - a.v[i]);
       const pages = Math.ceil(shortlist.length / PER);
       page = Math.min(page, Math.max(0, pages - 1));
@@ -1099,6 +1104,18 @@ FORGE_CTRL = '''
       for (const b of shortlist.slice(page * PER, page * PER + PER))
         forge.list.appendChild(card(b));
       forge.none.hidden = shortlist.length > 0;
+      if (!shortlist.length) {
+        // Two different reasons for an empty list, and the difference matters:
+        // a floor set too high is yours to lower, a part in none of the builds
+        // is a fact about the part.
+        const dead = must.filter((id) => !usage[id]).map((id) => NAMEOF[id]);
+        forge.none.textContent = dead.length
+          ? 'Every build wearing ' + dead.join(' and ')
+            + ' is beaten by one that is not, so none of them are here.'
+          : must.length
+            ? 'Nothing with those parts is that good at everything at once.'
+            : 'Nothing is that good at everything at once. Pull a slider back down.';
+      }
       forge.tally.textContent = shortlist.length === found.length
         ? shortlist.length.toLocaleString()
         : shortlist.length.toLocaleString() + ' of '
@@ -1144,6 +1161,8 @@ FORGE_CTRL = '''
     }
 
     forge.reset.addEventListener('click', () => {
+      must = [];
+      chips();
       for (const k of FKEYS) {
         const s = sliders[k];
         s.input.value = s.input.min;
@@ -1206,6 +1225,9 @@ FORGE_CTRL = '''
           forge.out.hidden = false;
           picked = null;
           page = 0;
+          must = [];
+          countUses();
+          chips();
           buildSliders();
           paintList();
           w.terminate();
@@ -1213,6 +1235,100 @@ FORGE_CTRL = '''
       };
       w.postMessage({pool, delta, opens: OPENS,
                      base: [...BASE_SLOTS], keys: FKEYS});
+    });
+
+
+    // ---- required parts ---------------------------------------------------
+    // A floor says how good the gun has to be. This says what has to be on it,
+    // which is the other half of the question: the optimiser does not know you
+    // already own a particular scope, or that you will not run a build without
+    // a suppressor.
+    //
+    // A part can be asked for and turn out to be in none of the builds worth
+    // keeping. That is worth saying rather than leaving as an empty list: it
+    // means every build wearing it is beaten by one that is not, which is a
+    // fact about the part.
+    const NAMEOF = {};
+    for (const c of document.querySelectorAll('.pcard')) {
+      const n = c.querySelector('.pcard__n');
+      if (n) NAMEOF[c.dataset.item] = n.textContent.trim();
+    }
+    let must = [], usage = {};
+
+    function countUses() {
+      usage = {};
+      for (const b of found) {
+        b.has = new Set(b.fit.map((f) => f[1]));
+        for (const id of b.has) usage[id] = (usage[id] || 0) + 1;
+      }
+    }
+
+    function chips() {
+      forge.chips.innerHTML = '';
+      for (const id of must) {
+        const el = document.createElement('span');
+        el.className = 'fchip' + (usage[id] ? '' : ' is-empty');
+        el.innerHTML = '<b></b><em></em>';
+        el.querySelector('b').textContent = NAMEOF[id] || id;
+        el.querySelector('em').textContent = usage[id]
+          ? usage[id].toLocaleString() : 'in none of them';
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'fchip__x';
+        x.textContent = '\\u00d7';
+        x.addEventListener('click', () => {
+          must = must.filter((m) => m !== id);
+          chips();
+          page = 0;
+          paintList();
+        });
+        el.appendChild(x);
+        forge.chips.appendChild(el);
+      }
+    }
+
+    function suggest() {
+      const q = forge.find.value.trim().toLowerCase();
+      forge.sug.innerHTML = '';
+      if (!q) { forge.sug.hidden = true; return; }
+      const hits = Object.keys(NAMEOF)
+        .filter((id) => !must.includes(id)
+                     && NAMEOF[id].toLowerCase().includes(q))
+        .sort((a, b) => (usage[b] || 0) - (usage[a] || 0)
+                     || NAMEOF[a].localeCompare(NAMEOF[b]))
+        .slice(0, 8);
+      for (const id of hits) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'fsug__i' + (usage[id] ? '' : ' is-empty');
+        b.innerHTML = '<span></span><em></em>';
+        b.querySelector('span').textContent = NAMEOF[id];
+        b.querySelector('em').textContent = usage[id]
+          ? 'in ' + usage[id].toLocaleString() : 'in none';
+        b.addEventListener('click', () => {
+          must.push(id);
+          forge.find.value = '';
+          forge.sug.hidden = true;
+          chips();
+          page = 0;
+          paintList();
+        });
+        forge.sug.appendChild(b);
+      }
+      forge.sug.hidden = !hits.length;
+    }
+
+    forge.find.addEventListener('input', suggest);
+    forge.find.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const first = forge.sug.querySelector('.fsug__i');
+        if (first) first.click();
+      }
+      if (e.key === 'Escape') { forge.find.value = ''; forge.sug.hidden = true; }
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.fsearch')) forge.sug.hidden = true;
     });
 
     for (const k of FKEYS) {
@@ -1666,6 +1782,15 @@ def gunsmith_body():
             <button class="devx" id="forge-reset" type="button">reset</button>
           </p>
           <div class="forge__mins" id="forge-mins"></div>
+        </div>
+        <div class="forge__must">
+          <p class="dlabel">Must include</p>
+          <div class="fsearch">
+            <input type="search" id="forge-find" autocomplete="off"
+                   placeholder="Name an attachment it has to have&hellip;">
+            <div class="fsug" id="forge-sug" hidden></div>
+          </div>
+          <div class="fchips" id="forge-chips"></div>
         </div>
       </div>
       <p class="dlabel">Builds <span class="count" id="forge-tally"></span></p>
@@ -2475,6 +2600,15 @@ def gunsmith_body():
     return body
 
 CSS = """
+/* Hidden means hidden. The browser's own rule for [hidden] is the weakest
+   there is, so any element given a display of its own quietly ignores it --
+   and an invisible element that still takes its space and still swallows
+   clicks is a bug that looks like nothing at all. This cost four separate
+   fixes before it was worth one line: the panel, the slot lists, the chips,
+   and the search suggestions, each found by a click landing on nothing.
+   -------------------------------------------------------------------------- */
+[hidden] { display: none !important; }
+
 /* ==========================================================================
    Weapon Smith — same room as Loadout Roulette.
    Ebony ground, Spring Green accent, Alabaster text. Dark only: the sibling
@@ -2649,7 +2783,6 @@ tr.is-gap td:first-child a { color: var(--red); }
   font-family: var(--mono); font-size: 10px; font-style: normal;
   letter-spacing: 0.06em; color: var(--text-faint); white-space: nowrap;
 }
-.card[hidden], section[hidden] { display: none; }
 
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
@@ -2778,7 +2911,6 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .tile:hover, .tile:focus-visible { border-color: var(--accent-dim); }
 .tile:hover .tile__name, .tile:focus-visible .tile__name { color: var(--accent); }
 .tile--gap .tile__name { color: var(--red); }
-.tile[hidden], .group[hidden] { display: none; }
 
 @media (max-width: 760px) {
   .browse { grid-template-columns: 1fr; }
@@ -2799,7 +2931,6 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   position: absolute; inset: 54px auto 10px 10px; display: flex; gap: 8px;
   max-width: calc(100% - 20px); z-index: 3;
 }
-.panel[hidden], .slotlist[hidden] { display: none; }
 .slotlist { display: flex; gap: 8px; min-height: 0; }
 
 /* Both columns scroll without showing a bar: they sit ON the weapon, and a
@@ -3096,10 +3227,6 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
      makes it read as the same chip. */
   transition: left 220ms ease, top 220ms ease;
 }
-/* `display: block` above outranks the browser's own rule for [hidden], so a
-   chip for a slot nothing has opened yet stays laid out and swallows the
-   clicks meant for the chip underneath it. */
-.chip3[hidden] { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .chip3 { transition: none; }
 }
@@ -3224,6 +3351,54 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 }
 .fmin__n.is-over { color: var(--red); }
 .fmin input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+/* Required parts: a box to name one, and a chip per one named. A part that no
+   build worth keeping wears is marked rather than silently emptying the list --
+   it means every build using it is beaten by one that is not. */
+.forge__must { grid-column: 1 / -1; }
+.fsearch { position: relative; max-width: 26rem; }
+.fsearch input {
+  width: 100%; font: inherit; font-size: 13px; padding: 7px 11px;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 5px;
+}
+.fsearch input:focus { outline: none; border-color: var(--accent-dim); }
+.fsug {
+  position: absolute; z-index: 5; top: calc(100% + 3px); left: 0; right: 0;
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line-2);
+  border-radius: 5px; box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+}
+.fsug__i {
+  display: flex; align-items: baseline; gap: 10px; padding: 7px 11px;
+  font: inherit; font-size: 12px; text-align: left; cursor: pointer;
+  color: var(--text); background: none; border: 0;
+}
+.fsug__i:hover { background: var(--surface-2); }
+.fsug__i em {
+  margin-left: auto; font-style: normal; font-family: var(--mono);
+  font-size: 10px; color: var(--text-faint); white-space: nowrap;
+}
+.fsug__i.is-empty span, .fsug__i.is-empty em { color: var(--red); }
+
+.fchips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.fchip {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  padding: 4px 4px 4px 10px; font-size: 12px; color: var(--text);
+  background: var(--surface-2); border: 1px solid var(--line-2);
+  border-radius: 4px;
+}
+.fchip em {
+  font-style: normal; font-family: var(--mono); font-size: 10px;
+  color: var(--text-faint);
+}
+.fchip.is-empty { border-color: var(--red); }
+.fchip.is-empty em { color: var(--red); }
+.fchip__x {
+  font: inherit; font-size: 13px; line-height: 1; padding: 1px 5px;
+  cursor: pointer; color: var(--text-faint); background: none; border: 0;
+}
+.fchip__x:hover { color: var(--red); }
 
 .forge__pager { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 14px; }
 .fpage {
