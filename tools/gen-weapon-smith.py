@@ -971,6 +971,335 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
 GUNSMITH = ROOT / 'data/gunsmith-rm277.json'
 
 
+# The search, as a worker. It runs off the main thread because it takes a few
+# seconds, and a frozen page during those seconds reads as a broken one — and
+# because the point of the exercise is to watch it work.
+#
+# The whole trick is prune(). Carrying every part-way build would mean carrying
+# billions; carrying only the ones nothing else beats means carrying a few
+# thousand. That is allowed because two part-way builds in the same state — the
+# same slots still open, the same slots still taken — have exactly the same
+# futures available to them, so if one already beats the other on every stat it
+# will still beat it whatever gets added next. The loser can go now instead of
+# at the end, and the answer is the same one.
+FORGE_CTRL = '''
+    // ---- smithing ---------------------------------------------------------
+    // The search runs in a worker built from a string, so there is no second
+    // file to serve and nothing is fetched. It does not start until asked: a
+    // reader who wants the slot lists should not pay for a search they did not
+    // run.
+    const forge = {
+      go: document.getElementById('forge-go'),
+      work: document.getElementById('forge-work'),
+      fill: document.getElementById('forge-fill'),
+      log: document.getElementById('forge-log'),
+      out: document.getElementById('forge-out'),
+      sort: document.getElementById('forge-sort'),
+      list: document.getElementById('forge-list'),
+      more: document.getElementById('forge-more'),
+    };
+    // Only the stats something on record actually moves. The rest are not
+    // unchanged, they are unread, and sorting a list by a column of zeroes
+    // would say the opposite.
+    const FKEYS = WEAPON.filter((s) => s.tracked && s.mode !== 'set')
+                        .map((s) => s.key);
+    let found = [], shown = 0, sortBy = FKEYS[0], picked = -1;
+
+    function note(text, dim) {
+      const li = document.createElement('li');
+      if (dim) li.className = 'is-dim';
+      li.textContent = text;
+      forge.log.appendChild(li);
+      forge.log.scrollTop = forge.log.scrollHeight;
+    }
+
+    function fitBuild(fitList) {
+      for (const slot of Object.keys(fitted)) unfit(slot);
+      relayout();
+      for (const [slot, iid] of fitList) fit(slot, iid);
+      paintWeapon();
+      relayout();
+    }
+
+    function row(b, n) {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'fbuild' + (n === picked ? ' is-on' : '');
+      el.dataset.n = n;
+      let html = '<span class="fbuild__s">';
+      for (let i = 0; i < FKEYS.length; i++) {
+        const s = WEAPON.find((w) => w.key === FKEYS[i]);
+        const v = s.base + b.v[i];
+        const cls = b.v[i] > 0 ? 'up' : b.v[i] < 0 ? 'down' : '';
+        html += '<i><b class="' + cls + '">' + v + '</b>'
+             + FKEYS[i].slice(0, 4).toLowerCase() + '</i>';
+      }
+      el.innerHTML = html + '</span><span class="fbuild__n">'
+        + b.fit.length + ' parts</span>';
+      return el;
+    }
+
+    function paintList(reset) {
+      if (reset) { forge.list.innerHTML = ''; shown = 0; }
+      const i = FKEYS.indexOf(sortBy);
+      if (reset) found.sort((a, b) => b.v[i] - a.v[i]);
+      const upto = Math.min(found.length, shown + 60);
+      for (; shown < upto; shown++) forge.list.appendChild(row(found[shown], shown));
+      forge.more.hidden = shown >= found.length;
+      forge.more.textContent = 'Show more (' + (found.length - shown) + ' left)';
+    }
+
+    forge.list.addEventListener('click', (e) => {
+      const el = e.target.closest('.fbuild');
+      if (!el) return;
+      picked = +el.dataset.n;
+      for (const o of forge.list.querySelectorAll('.fbuild'))
+        o.classList.toggle('is-on', o === el);
+      fitBuild(found[picked].fit);
+      document.querySelector('.gunsmith').scrollIntoView(
+        {behavior: 'smooth', block: 'start'});
+    });
+    forge.more.addEventListener('click', () => paintList(false));
+
+    forge.go.addEventListener('click', () => {
+      forge.go.disabled = true;
+      forge.go.textContent = 'Smithing\\u2026';
+      forge.work.hidden = false;
+      forge.out.hidden = true;
+      forge.log.innerHTML = '';
+      forge.fill.style.width = '0%';
+
+      // Everything the search needs, read off the page rather than shipped a
+      // second time: the slot lists are already in the panel, the rules and the
+      // stat lines are already here for the build panel.
+      const pool = {};
+      for (const l of lists) {
+        const slot = l.id.slice(3);
+        pool[slot] = [...l.querySelectorAll('.pcard')].map((c) => c.dataset.item);
+      }
+      const delta = {};
+      for (const [iid, st] of Object.entries(DELTA))
+        delta[iid] = FKEYS.map((k) => {
+          const w = WEAPON.find((s) => s.key === k);
+          return st[w.from || k] || 0;
+        });
+
+      const w = new Worker(URL.createObjectURL(
+        new Blob([FORGE_SRC], {type: 'text/javascript'})));
+      const t0 = performance.now();
+      w.onmessage = ({data}) => {
+        if (data.say) return note(data.say);
+        if (data.total !== undefined)
+          return note(data.total.toLocaleString() + ' builds to get through');
+        if (data.step) {
+          forge.fill.style.width = (data.step / data.of * 100) + '%';
+          const what = data.slot.replace(/-/g, ' ');
+          return note(data.idle
+            ? 'Skipping ' + what + ' \\u2014 nothing on record moves a stat'
+            : 'Fitting ' + what + ' \\u2014 ' + data.raw.toLocaleString()
+              + ' tried, ' + data.kept.toLocaleString()
+              + ' still worth keeping', true);
+        }
+        if (data.done) {
+          found = data.done;
+          note(found.length.toLocaleString() + ' builds nothing else beats, in '
+            + ((performance.now() - t0) / 1000).toFixed(1) + 's');
+          forge.go.textContent = 'Smith again';
+          forge.go.disabled = false;
+          forge.out.hidden = false;
+          picked = -1;
+          paintList(true);
+          w.terminate();
+        }
+      };
+      w.postMessage({pool, delta, opens: OPENS,
+                     base: [...BASE_SLOTS], keys: FKEYS});
+    });
+
+    for (const k of FKEYS) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'devtab' + (k === sortBy ? ' is-on' : '');
+      b.textContent = k;
+      b.addEventListener('click', () => {
+        sortBy = k;
+        for (const o of forge.sort.children) o.classList.toggle('is-on', o === b);
+        picked = -1;
+        paintList(true);
+      });
+      forge.sort.appendChild(b);
+    }
+'''
+
+
+FORGE_JS = r"""
+// Which slots exist depends on what is fitted, so a slot has to be visited
+// after anything that can open or shut it. Sorted here rather than written
+// down: the rules already say who opens what.
+function order(pool, opens, base) {
+  const slots = Object.keys(pool);
+  const slotOf = {};
+  for (const s of slots)
+    for (const i of pool[s]) (slotOf[i] = slotOf[i] || []).push(s);
+  const after = {};
+  for (const s of slots) after[s] = new Set();
+  for (const [iid, r] of Object.entries(opens))
+    for (const home of slotOf[iid] || [])
+      for (const t of (r.grants || []).concat(r.blocks || []))
+        if (after[t]) after[t].add(home);
+  // One at a time, and the moment a slot places, place everything it just
+  // unlocked. Taking them in waves instead -- every base slot, then every
+  // granted one -- leaves the state split all the way to the end, and the set
+  // being carried grows fourteen times bigger before it collapses.
+  const out = [], done = new Set();
+  const ready = (s) => !done.has(s)
+    && [...after[s]].every((d) => done.has(d) || d === s);
+  const place = (s) => {
+    out.push(s);
+    done.add(s);
+    for (const t of slots) if (ready(t) && after[t].size) place(t);
+  };
+  // And take the slots that open or shut something before the ones that do
+  // not. Every branch in the state is resolved early that way, so the merge
+  // fires early and the big slots -- the foregrip and the rails, where the
+  // options are -- are worked through once instead of once per branch.
+  const opener = new Set();
+  for (const [iid, r] of Object.entries(opens))
+    if ((r.grants || []).length || (r.blocks || []).length)
+      for (const home of slotOf[iid] || []) opener.add(home);
+  const first = slots.filter((s) => opener.has(s));
+  for (const s of first) if (ready(s)) place(s);
+  for (const s of slots) if (ready(s)) place(s);
+  for (const s of slots) if (!done.has(s)) place(s);   // cycles cannot hang it
+  return out;
+}
+
+const has = (set, slot) => set.includes('|' + slot + '|');
+
+function step(open_, blocked, iid, opens) {
+  const r = opens[iid] || {};
+  let o = open_, b = blocked;
+  for (const g of r.grants || []) if (!has(o, g)) o += g + '|';
+  for (const x of r.blocks || []) if (!has(b, x)) b += x + '|';
+  return [o, b];
+}
+
+// How many builds there are, which is not the same as how many are worth
+// looking at. Counted exactly, by remembering the count per state rather than
+// by visiting anything.
+function census(ORDER, pool, opens, base) {
+  const memo = new Map();
+  function go(k, open_, blocked) {
+    if (k === ORDER.length) return 1;
+    const key = k + open_ + ' ' + blocked;
+    const hit = memo.get(key);
+    if (hit !== undefined) return hit;
+    const slot = ORDER[k];
+    let n = go(k + 1, open_, blocked);
+    if ((base.has(slot) || has(open_, slot)) && !has(blocked, slot))
+      for (const iid of pool[slot]) {
+        const [o, b] = step(open_, blocked, iid, opens);
+        n += go(k + 1, o, b);
+      }
+    memo.set(key, n);
+    return n;
+  }
+  return go(0, '|', '|');
+}
+
+// Keep the rows nothing else beats. Sorting by the total first means the
+// strong rows are tested against almost nothing and the weak ones die against
+// the first thing they meet, which is what keeps this quick in practice.
+function prune(rows, D) {
+  rows.sort((a, b) => b.sum - a.sum);
+  const keep = [];
+  outer:
+  for (const r of rows) {
+    for (const k of keep) {
+      let beats = true;
+      for (let d = 0; d < D; d++) if (k.v[d] < r.v[d]) { beats = false; break; }
+      if (beats) continue outer;        // equal counts as beaten: no repeats
+    }
+    keep.push(r);
+  }
+  return keep;
+}
+
+onmessage = ({data}) => {
+  const {pool, delta, opens, base, keys} = data;
+  const D = keys.length;
+  const BASE = new Set(base);
+  const ORDER = order(pool, opens, BASE);
+  const cares = new Set();
+  for (const r of Object.values(opens))
+    for (const s of (r.grants || []).concat(r.blocks || [])) cares.add(s);
+
+  postMessage({say: 'Counting what there is to look through'});
+  postMessage({total: census(ORDER, pool, opens, BASE)});
+
+  // A slot where nothing on record moves anything, and which opens and shuts
+  // nothing either, cannot change the answer -- so it is said out loud and
+  // stepped over. Said out loud because a slot with no numbers against it is a
+  // gap in the reading, not a slot that does nothing.
+  const idle = (slot) => pool[slot].every((i) =>
+    !opens[i] && (delta[i] || []).every((x) => !x));
+
+  let cur = new Map([['| |', [{v: new Int16Array(D), sum: 0, fit: []}]]]);
+  for (let k = 0; k < ORDER.length; k++) {
+    const slot = ORDER[k];
+    if (idle(slot)) {
+      postMessage({step: k + 1, of: ORDER.length, slot, idle: true});
+      continue;
+    }
+    const next = new Map();
+    let raw = 0;
+    for (const [st, rows] of cur) {
+      const [open_, blocked] = st.split(' ');
+      const live = (BASE.has(slot) || has(open_, slot)) && !has(blocked, slot);
+      for (const iid of [null].concat(live ? pool[slot] : [])) {
+        const [o, b] = iid ? step(open_, blocked, iid, opens) : [open_, blocked];
+        const key = o + ' ' + b;
+        let bucket = next.get(key);
+        if (!bucket) next.set(key, bucket = []);
+        const dv = iid ? delta[iid] : null;
+        for (const row of rows) {
+          raw++;
+          if (!dv) { bucket.push(row); continue; }
+          const v = new Int16Array(row.v);
+          let sum = row.sum;
+          for (let d = 0; d < D; d++) { v[d] += dv[d]; sum += dv[d]; }
+          bucket.push({v, sum, fit: row.fit.concat([[slot, iid]])});
+        }
+      }
+    }
+    // Once nothing left can be opened or taken away, the states are the same
+    // story told twice and can be merged into one.
+    let merged = next;
+    if (!ORDER.slice(k + 1).some((s) => cares.has(s))) {
+      // Concatenated, not spread: pushing thirty thousand arguments at once
+      // is thirty thousand stack slots, and the browser says so.
+      let all = [];
+      for (const rows of next.values()) all = all.concat(rows);
+      merged = new Map([['| |', all]]);
+    }
+    let kept = 0;
+    for (const [key, rows] of merged) {
+      const cut = prune(rows, D);
+      merged.set(key, cut);
+      kept += cut.length;
+    }
+    cur = merged;
+    postMessage({step: k + 1, of: ORDER.length, slot, raw, kept});
+  }
+
+  let all = [];
+  for (const rows of cur.values()) all = all.concat(rows);
+  postMessage({done: prune(all, D).map((r) => ({v: [...r.v], fit: r.fit}))});
+};
+"""
+
+
+
 def stat_bar(name, delta):
     """One stat line: the change, and a bar the size of it.
 
@@ -1212,6 +1541,27 @@ def gunsmith_body():
   </div>
   </div>
 
+  <section class="forge" id="forge">
+    <h2>Smithing</h2>
+    <p class="lede">Work out every build this rifle can be, then throw away the
+    ones that are simply worse. What is left is every gun worth considering:
+    each one is the best there is at something, and no other build beats it on
+    everything at once. Sort by whichever stat you are after and click a row to
+    fit it on the weapon above.</p>
+    <p><button class="btn" id="forge-go" type="button">Start smithing</button>
+       <em class="forge__note">Runs here, in this tab. A few seconds.</em></p>
+    <div class="forge__work" id="forge-work" hidden>
+      <div class="forge__bar"><i id="forge-fill"></i></div>
+      <ol class="forge__log" id="forge-log"></ol>
+    </div>
+    <div class="forge__out" id="forge-out" hidden>
+      <p class="dlabel">Sort by</p>
+      <div class="forge__sort" id="forge-sort"></div>
+      <div class="forge__list" id="forge-list"></div>
+      <p><button class="btn btn--ghost" id="forge-more" type="button"
+                hidden>Show more</button></p>
+    </div>
+  </section>
 
   <script>
     const WEAPON = {json.dumps(d['weapon']['stats'])};
@@ -1221,6 +1571,7 @@ def gunsmith_body():
     const LAYOUTS = {json.dumps(lays)};
     const FW = {fw}, FH = {fh}, CHIP = {C};
     const SLOTS = {json.dumps([{'id': s['id'], 'label': SLOT_LABEL.get(s['id'], s['id'])} for s in SLOT_TYPES])};
+    const FORGE_SRC = {json.dumps(FORGE_JS)};
 
     // The hash carries two things: which slot to open, and whether the editor
     // is in dev mode. Written as #right-patch#dev because that is one string to
@@ -1686,6 +2037,7 @@ def gunsmith_body():
       shut();
     }});
     if (location.hash) showSlot(HASH[0]);
+{FORGE_CTRL}
 
     // Typing #dev onto a page that is already open only changes the hash, and
     // dev mode is decided at load. Reload for it, or the address bar and the
@@ -2677,6 +3029,62 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   background: rgba(245,217,10,.25); cursor: grab; touch-action: none;
 }
 .pin:active { cursor: grabbing; }
+
+/* --------------------------------------------------------------------------
+   Smithing: the search, and the builds it finds.
+   -------------------------------------------------------------------------- */
+.forge__note { font-size: 12px; font-style: normal; color: var(--text-faint); }
+.forge__bar {
+  height: 4px; border-radius: 2px; background: var(--surface-2);
+  overflow: hidden; margin-bottom: 12px;
+}
+.forge__bar i {
+  display: block; height: 100%; width: 0;
+  background: var(--accent); transition: width 200ms ease;
+}
+.forge__log {
+  margin: 0; padding: 0 0 0 2px; list-style: none;
+  max-height: 190px; overflow-y: auto;
+  font-family: var(--mono); font-size: 11px; line-height: 1.7;
+  color: var(--text);
+}
+.forge__log li.is-dim { color: var(--text-faint); }
+.forge__log::-webkit-scrollbar { width: 0; height: 0; }
+.forge__log { scrollbar-width: none; }
+
+.forge__sort { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+/* The buttons are the dev bar's, but this is not dev mode: the chosen one
+   takes the site's own green rather than the workbench's warning yellow. */
+.forge__sort .devtab.is-on {
+  color: var(--bg); background: var(--accent); border-color: var(--accent);
+}
+.forge__list {
+  display: grid; gap: 4px;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+}
+.fbuild {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 8px 12px; font: inherit; text-align: left; cursor: pointer;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 5px;
+}
+.fbuild:hover { border-color: var(--line-2); }
+.fbuild.is-on { border-color: var(--accent); background: var(--surface-2); }
+.fbuild__s { display: flex; gap: 10px; }
+/* Each stat as a figure over its name, so a column of builds reads down as
+   well as across and the numbers line up under the sort you chose. */
+.fbuild__s i {
+  display: flex; flex-direction: column; font-style: normal;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+.fbuild__s b { font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--text); }
+.fbuild__s b.up { color: var(--accent); }
+.fbuild__s b.down { color: var(--red); }
+.fbuild__n {
+  margin-left: auto; font-family: var(--mono); font-size: 10px;
+  color: var(--text-faint); white-space: nowrap;
+}
 
 /* --------------------------------------------------------------------------
    Dev mode: #dev on the end of the hash. None of this is reachable from the

@@ -1341,6 +1341,27 @@
   </div>
   </div>
 
+  <section class="forge" id="forge">
+    <h2>Smithing</h2>
+    <p class="lede">Work out every build this rifle can be, then throw away the
+    ones that are simply worse. What is left is every gun worth considering:
+    each one is the best there is at something, and no other build beats it on
+    everything at once. Sort by whichever stat you are after and click a row to
+    fit it on the weapon above.</p>
+    <p><button class="btn" id="forge-go" type="button">Start smithing</button>
+       <em class="forge__note">Runs here, in this tab. A few seconds.</em></p>
+    <div class="forge__work" id="forge-work" hidden>
+      <div class="forge__bar"><i id="forge-fill"></i></div>
+      <ol class="forge__log" id="forge-log"></ol>
+    </div>
+    <div class="forge__out" id="forge-out" hidden>
+      <p class="dlabel">Sort by</p>
+      <div class="forge__sort" id="forge-sort"></div>
+      <div class="forge__list" id="forge-list"></div>
+      <p><button class="btn btn--ghost" id="forge-more" type="button"
+                hidden>Show more</button></p>
+    </div>
+  </section>
 
   <script>
     const WEAPON = [{"key": "Damage", "base": 41, "max": 100, "tracked": false}, {"key": "Range", "base": 55, "max": 100, "unit": "m", "tracked": true}, {"key": "Control", "base": 48, "max": 100, "tracked": true}, {"key": "Handling", "base": 50, "max": 100, "tracked": true}, {"key": "Stability", "base": 59, "max": 100, "tracked": true}, {"key": "Accuracy", "base": 44, "max": 100, "tracked": true}, {"key": "Armour penetration", "base": 42, "max": 100, "tracked": false}, {"key": "Fire rate", "base": 550, "max": 1200, "unit": " rpm", "tracked": false}, {"key": "Capacity", "base": 30, "max": 100, "from": "Holds", "mode": "set", "tracked": true}, {"key": "Muzzle velocity", "base": 650, "max": 1200, "unit": " m/s", "tracked": false}, {"key": "Gunshot heard", "base": 500, "max": 1000, "unit": " m", "tracked": false}];
@@ -1350,6 +1371,7 @@
     const LAYOUTS = [{"when": [], "blocks": [], "chips": {"optics": {"x": 972, "y": 224, "ax": 1007, "ay": 475}, "offset-optics": {"x": 1237, "y": 239, "ax": 1123, "ay": 465}, "barrel": {"x": 460, "y": 299, "ax": 752, "ay": 520}, "right-patch": {"x": 568, "y": 270, "ax": 757, "ay": 524}, "left-patch": {"x": 355, "y": 339, "ax": 734, "ay": 525}, "right-rail": {"x": 257, "y": 397, "ax": 624, "ay": 520}, "left-rail": {"x": 179, "y": 478, "ax": 598, "ay": 528}, "muzzle": {"x": 168, "y": 597, "ax": 435, "ay": 533}, "foregrip": {"x": 235, "y": 687, "ax": 766, "ay": 573}, "rail-bipod": {"x": 330, "y": 748, "ax": 626, "ay": 569}, "rear-grip": {"x": 1307, "y": 851, "ax": 1130, "ay": 687}, "mag-mount": {"x": 1537, "y": 795, "ax": 1304, "ay": 709}, "mag": {"x": 1674, "y": 733, "ax": 1306, "ay": 659}, "stock-pad": {"x": 1817, "y": 540, "ax": 1514, "ay": 585}, "cheek-pad": {"x": 1682, "y": 372, "ax": 1381, "ay": 494}}}, {"when": ["riser-optics", "tactical-device"], "blocks": [], "chips": {"muzzle": {"x": 165, "y": 588, "ax": 435, "ay": 533}, "left-rail": {"x": 185, "y": 471, "ax": 598, "ay": 528}, "foregrip": {"x": 228, "y": 680, "ax": 766, "ay": 573}, "right-rail": {"x": 264, "y": 392, "ax": 624, "ay": 520}, "rail-bipod": {"x": 321, "y": 744, "ax": 626, "ay": 569}, "left-patch": {"x": 363, "y": 336, "ax": 734, "ay": 525}, "barrel": {"x": 467, "y": 296, "ax": 752, "ay": 520}, "right-patch": {"x": 576, "y": 268, "ax": 757, "ay": 524}, "tactical-device": {"x": 740, "y": 239, "ax": 933, "ay": 480}, "optics": {"x": 889, "y": 226, "ax": 1007, "ay": 475}, "riser-optics": {"x": 992, "y": 224, "ax": 1033, "ay": 476}, "offset-optics": {"x": 1237, "y": 239, "ax": 1123, "ay": 465}, "rear-grip": {"x": 1320, "y": 849, "ax": 1130, "ay": 687}, "mag-mount": {"x": 1546, "y": 792, "ax": 1304, "ay": 709}, "cheek-pad": {"x": 1676, "y": 368, "ax": 1381, "ay": 494}, "mag": {"x": 1685, "y": 727, "ax": 1306, "ay": 659}, "stock-pad": {"x": 1816, "y": 533, "ax": 1514, "ay": 585}}}, {"when": ["red-dot-optics", "riser-optics", "tactical-device"], "blocks": [], "chips": {"muzzle": {"x": 165, "y": 588, "ax": 435, "ay": 533}, "left-rail": {"x": 185, "y": 471, "ax": 598, "ay": 528}, "foregrip": {"x": 228, "y": 680, "ax": 766, "ay": 573}, "right-rail": {"x": 264, "y": 391, "ax": 624, "ay": 520}, "rail-bipod": {"x": 321, "y": 744, "ax": 626, "ay": 569}, "left-patch": {"x": 363, "y": 336, "ax": 734, "ay": 525}, "barrel": {"x": 467, "y": 296, "ax": 752, "ay": 520}, "right-patch": {"x": 576, "y": 268, "ax": 757, "ay": 524}, "tactical-device": {"x": 740, "y": 239, "ax": 933, "ay": 480}, "optics": {"x": 869, "y": 227, "ax": 1007, "ay": 475}, "riser-optics": {"x": 980, "y": 224, "ax": 1033, "ay": 476}, "red-dot-optics": {"x": 1063, "y": 225, "ax": 1002, "ay": 477}, "offset-optics": {"x": 1237, "y": 239, "ax": 1123, "ay": 465}, "rear-grip": {"x": 1320, "y": 849, "ax": 1130, "ay": 687}, "mag-mount": {"x": 1546, "y": 791, "ax": 1304, "ay": 709}, "cheek-pad": {"x": 1676, "y": 368, "ax": 1381, "ay": 494}, "mag": {"x": 1685, "y": 727, "ax": 1306, "ay": 659}, "stock-pad": {"x": 1816, "y": 533, "ax": 1514, "ay": 585}}}, {"when": ["rear-grip-patch"], "blocks": [], "chips": {"muzzle": {"x": 165, "y": 588, "ax": 435, "ay": 533}, "left-rail": {"x": 185, "y": 471, "ax": 598, "ay": 528}, "foregrip": {"x": 228, "y": 680, "ax": 766, "ay": 573}, "right-rail": {"x": 264, "y": 391, "ax": 624, "ay": 520}, "rail-bipod": {"x": 321, "y": 744, "ax": 626, "ay": 569}, "left-patch": {"x": 363, "y": 336, "ax": 734, "ay": 525}, "barrel": {"x": 467, "y": 296, "ax": 752, "ay": 520}, "right-patch": {"x": 576, "y": 268, "ax": 757, "ay": 524}, "optics": {"x": 978, "y": 224, "ax": 1007, "ay": 475}, "offset-optics": {"x": 1237, "y": 239, "ax": 1123, "ay": 465}, "rear-grip": {"x": 1393, "y": 835, "ax": 1130, "ay": 687}, "mag-mount": {"x": 1504, "y": 806, "ax": 1304, "ay": 709}, "rear-grip-patch": {"x": 1609, "y": 766, "ax": 1345, "ay": 698}, "cheek-pad": {"x": 1676, "y": 368, "ax": 1381, "ay": 494}, "mag": {"x": 1709, "y": 711, "ax": 1306, "ay": 659}, "stock-pad": {"x": 1816, "y": 533, "ax": 1514, "ay": 585}}}, {"when": ["rear-grip-mount"], "blocks": [], "chips": {"muzzle": {"x": 165, "y": 588, "ax": 435, "ay": 533}, "left-rail": {"x": 185, "y": 471, "ax": 598, "ay": 528}, "foregrip": {"x": 228, "y": 680, "ax": 766, "ay": 573}, "right-rail": {"x": 264, "y": 391, "ax": 624, "ay": 520}, "rail-bipod": {"x": 321, "y": 744, "ax": 626, "ay": 569}, "left-patch": {"x": 363, "y": 336, "ax": 734, "ay": 525}, "barrel": {"x": 467, "y": 296, "ax": 752, "ay": 520}, "right-patch": {"x": 576, "y": 268, "ax": 757, "ay": 524}, "optics": {"x": 978, "y": 224, "ax": 1007, "ay": 475}, "rear-grip-mount": {"x": 1224, "y": 862, "ax": 1145, "ay": 735}, "offset-optics": {"x": 1237, "y": 239, "ax": 1123, "ay": 465}, "rear-grip": {"x": 1387, "y": 836, "ax": 1130, "ay": 687}, "mag-mount": {"x": 1546, "y": 791, "ax": 1304, "ay": 709}, "cheek-pad": {"x": 1676, "y": 368, "ax": 1381, "ay": 494}, "mag": {"x": 1685, "y": 727, "ax": 1306, "ay": 659}, "stock-pad": {"x": 1816, "y": 533, "ax": 1514, "ay": 585}}}, {"when": ["upper-rail"], "blocks": ["muzzle", "rail-bipod"], "chips": {"right-rail": {"x": 169, "y": 500, "ax": 624, "ay": 520}, "left-rail": {"x": 178, "y": 619, "ax": 598, "ay": 528}, "left-patch": {"x": 238, "y": 411, "ax": 734, "ay": 525}, "foregrip": {"x": 254, "y": 702, "ax": 766, "ay": 573}, "upper-rail": {"x": 333, "y": 351, "ax": 537, "ay": 475}, "barrel": {"x": 437, "y": 307, "ax": 752, "ay": 520}, "right-patch": {"x": 547, "y": 275, "ax": 757, "ay": 524}, "optics": {"x": 990, "y": 224, "ax": 1007, "ay": 475}, "offset-optics": {"x": 1245, "y": 240, "ax": 1123, "ay": 465}, "rear-grip": {"x": 1329, "y": 847, "ax": 1130, "ay": 687}, "mag-mount": {"x": 1549, "y": 790, "ax": 1304, "ay": 709}, "cheek-pad": {"x": 1679, "y": 370, "ax": 1381, "ay": 494}, "mag": {"x": 1686, "y": 726, "ax": 1306, "ay": 659}, "stock-pad": {"x": 1816, "y": 533, "ax": 1514, "ay": 585}}}, {"when": ["kill-flash"], "blocks": [], "chips": {"muzzle": {"x": 171, "y": 603, "ax": 435, "ay": 533}, "left-rail": {"x": 176, "y": 484, "ax": 598, "ay": 528}, "foregrip": {"x": 241, "y": 691, "ax": 766, "ay": 573}, "right-rail": {"x": 251, "y": 401, "ax": 624, "ay": 520}, "rail-bipod": {"x": 336, "y": 751, "ax": 626, "ay": 569}, "left-patch": {"x": 348, "y": 343, "ax": 734, "ay": 525}, "barrel": {"x": 452, "y": 301, "ax": 752, "ay": 520}, "right-patch": {"x": 560, "y": 271, "ax": 757, "ay": 524}, "kill-flash": {"x": 670, "y": 250, "ax": 807, "ay": 476}, "optics": {"x": 951, "y": 225, "ax": 1007, "ay": 475}, "offset-optics": {"x": 1238, "y": 239, "ax": 1123, "ay": 465}, "rear-grip": {"x": 1313, "y": 850, "ax": 1130, "ay": 687}, "mag-mount": {"x": 1540, "y": 792, "ax": 1304, "ay": 709}, "cheek-pad": {"x": 1679, "y": 370, "ax": 1381, "ay": 494}, "mag": {"x": 1679, "y": 730, "ax": 1306, "ay": 659}, "stock-pad": {"x": 1816, "y": 535, "ax": 1514, "ay": 585}}}, {"when": ["upper-rail"], "blocks": ["rail-bipod"], "chips": {"left-rail": {"x": 161, "y": 530, "ax": 598, "ay": 528}, "muzzle": {"x": 195, "y": 645, "ax": 435, "ay": 533}, "right-rail": {"x": 214, "y": 433, "ax": 624, "ay": 520}, "foregrip": {"x": 280, "y": 719, "ax": 766, "ay": 573}, "barrel": {"x": 305, "y": 365, "ax": 752, "ay": 520}, "left-patch": {"x": 407, "y": 317, "ax": 734, "ay": 525}, "right-patch": {"x": 514, "y": 283, "ax": 757, "ay": 524}, "upper-rail": {"x": 623, "y": 257, "ax": 696, "ay": 466}, "optics": {"x": 1039, "y": 225, "ax": 1007, "ay": 475}, "offset-optics": {"x": 1310, "y": 249, "ax": 1123, "ay": 465}, "rear-grip": {"x": 1399, "y": 833, "ax": 1130, "ay": 687}, "mag-mount": {"x": 1577, "y": 780, "ax": 1304, "ay": 709}, "cheek-pad": {"x": 1693, "y": 379, "ax": 1381, "ay": 494}, "mag": {"x": 1703, "y": 714, "ax": 1306, "ay": 659}, "stock-pad": {"x": 1816, "y": 534, "ax": 1514, "ay": 585}}}];
     const FW = 2032, FH = 1080, CHIP = 73;
     const SLOTS = [{"id": "muzzle", "label": "Muzzle"}, {"id": "barrel", "label": "Barrel"}, {"id": "handguard", "label": "Handguard"}, {"id": "foregrip", "label": "Foregrip"}, {"id": "upper-rail", "label": "Upper Rail"}, {"id": "left-rail", "label": "Left Rail"}, {"id": "right-rail", "label": "Right Rail"}, {"id": "left-patch", "label": "Left Patch"}, {"id": "right-patch", "label": "Right Patch"}, {"id": "rail-bipod", "label": "Rail Bipod"}, {"id": "optics", "label": "Optics"}, {"id": "riser-optics", "label": "Riser Optics"}, {"id": "red-dot-optics", "label": "Red Dot Optics"}, {"id": "offset-optics", "label": "Offset Optics"}, {"id": "kill-flash", "label": "Killflash"}, {"id": "tactical-device", "label": "Tactical Device"}, {"id": "mag", "label": "Magazine"}, {"id": "mag-mount", "label": "Magazine Mount"}, {"id": "rear-grip", "label": "Rear Grip"}, {"id": "rear-grip-patch", "label": "Rear Grip Patch"}, {"id": "rear-grip-mount", "label": "Rear Grip Mount"}, {"id": "stock", "label": "Stock"}, {"id": "cheek-pad", "label": "Cheek Pad"}, {"id": "stock-pad", "label": "Stock Pad"}, {"id": "functional", "label": "Functional"}];
+    const FORGE_SRC = "\n// Which slots exist depends on what is fitted, so a slot has to be visited\n// after anything that can open or shut it. Sorted here rather than written\n// down: the rules already say who opens what.\nfunction order(pool, opens, base) {\n  const slots = Object.keys(pool);\n  const slotOf = {};\n  for (const s of slots)\n    for (const i of pool[s]) (slotOf[i] = slotOf[i] || []).push(s);\n  const after = {};\n  for (const s of slots) after[s] = new Set();\n  for (const [iid, r] of Object.entries(opens))\n    for (const home of slotOf[iid] || [])\n      for (const t of (r.grants || []).concat(r.blocks || []))\n        if (after[t]) after[t].add(home);\n  // One at a time, and the moment a slot places, place everything it just\n  // unlocked. Taking them in waves instead -- every base slot, then every\n  // granted one -- leaves the state split all the way to the end, and the set\n  // being carried grows fourteen times bigger before it collapses.\n  const out = [], done = new Set();\n  const ready = (s) => !done.has(s)\n    && [...after[s]].every((d) => done.has(d) || d === s);\n  const place = (s) => {\n    out.push(s);\n    done.add(s);\n    for (const t of slots) if (ready(t) && after[t].size) place(t);\n  };\n  // And take the slots that open or shut something before the ones that do\n  // not. Every branch in the state is resolved early that way, so the merge\n  // fires early and the big slots -- the foregrip and the rails, where the\n  // options are -- are worked through once instead of once per branch.\n  const opener = new Set();\n  for (const [iid, r] of Object.entries(opens))\n    if ((r.grants || []).length || (r.blocks || []).length)\n      for (const home of slotOf[iid] || []) opener.add(home);\n  const first = slots.filter((s) => opener.has(s));\n  for (const s of first) if (ready(s)) place(s);\n  for (const s of slots) if (ready(s)) place(s);\n  for (const s of slots) if (!done.has(s)) place(s);   // cycles cannot hang it\n  return out;\n}\n\nconst has = (set, slot) => set.includes('|' + slot + '|');\n\nfunction step(open_, blocked, iid, opens) {\n  const r = opens[iid] || {};\n  let o = open_, b = blocked;\n  for (const g of r.grants || []) if (!has(o, g)) o += g + '|';\n  for (const x of r.blocks || []) if (!has(b, x)) b += x + '|';\n  return [o, b];\n}\n\n// How many builds there are, which is not the same as how many are worth\n// looking at. Counted exactly, by remembering the count per state rather than\n// by visiting anything.\nfunction census(ORDER, pool, opens, base) {\n  const memo = new Map();\n  function go(k, open_, blocked) {\n    if (k === ORDER.length) return 1;\n    const key = k + open_ + ' ' + blocked;\n    const hit = memo.get(key);\n    if (hit !== undefined) return hit;\n    const slot = ORDER[k];\n    let n = go(k + 1, open_, blocked);\n    if ((base.has(slot) || has(open_, slot)) && !has(blocked, slot))\n      for (const iid of pool[slot]) {\n        const [o, b] = step(open_, blocked, iid, opens);\n        n += go(k + 1, o, b);\n      }\n    memo.set(key, n);\n    return n;\n  }\n  return go(0, '|', '|');\n}\n\n// Keep the rows nothing else beats. Sorting by the total first means the\n// strong rows are tested against almost nothing and the weak ones die against\n// the first thing they meet, which is what keeps this quick in practice.\nfunction prune(rows, D) {\n  rows.sort((a, b) => b.sum - a.sum);\n  const keep = [];\n  outer:\n  for (const r of rows) {\n    for (const k of keep) {\n      let beats = true;\n      for (let d = 0; d < D; d++) if (k.v[d] < r.v[d]) { beats = false; break; }\n      if (beats) continue outer;        // equal counts as beaten: no repeats\n    }\n    keep.push(r);\n  }\n  return keep;\n}\n\nonmessage = ({data}) => {\n  const {pool, delta, opens, base, keys} = data;\n  const D = keys.length;\n  const BASE = new Set(base);\n  const ORDER = order(pool, opens, BASE);\n  const cares = new Set();\n  for (const r of Object.values(opens))\n    for (const s of (r.grants || []).concat(r.blocks || [])) cares.add(s);\n\n  postMessage({say: 'Counting what there is to look through'});\n  postMessage({total: census(ORDER, pool, opens, BASE)});\n\n  // A slot where nothing on record moves anything, and which opens and shuts\n  // nothing either, cannot change the answer -- so it is said out loud and\n  // stepped over. Said out loud because a slot with no numbers against it is a\n  // gap in the reading, not a slot that does nothing.\n  const idle = (slot) => pool[slot].every((i) =>\n    !opens[i] && (delta[i] || []).every((x) => !x));\n\n  let cur = new Map([['| |', [{v: new Int16Array(D), sum: 0, fit: []}]]]);\n  for (let k = 0; k < ORDER.length; k++) {\n    const slot = ORDER[k];\n    if (idle(slot)) {\n      postMessage({step: k + 1, of: ORDER.length, slot, idle: true});\n      continue;\n    }\n    const next = new Map();\n    let raw = 0;\n    for (const [st, rows] of cur) {\n      const [open_, blocked] = st.split(' ');\n      const live = (BASE.has(slot) || has(open_, slot)) && !has(blocked, slot);\n      for (const iid of [null].concat(live ? pool[slot] : [])) {\n        const [o, b] = iid ? step(open_, blocked, iid, opens) : [open_, blocked];\n        const key = o + ' ' + b;\n        let bucket = next.get(key);\n        if (!bucket) next.set(key, bucket = []);\n        const dv = iid ? delta[iid] : null;\n        for (const row of rows) {\n          raw++;\n          if (!dv) { bucket.push(row); continue; }\n          const v = new Int16Array(row.v);\n          let sum = row.sum;\n          for (let d = 0; d < D; d++) { v[d] += dv[d]; sum += dv[d]; }\n          bucket.push({v, sum, fit: row.fit.concat([[slot, iid]])});\n        }\n      }\n    }\n    // Once nothing left can be opened or taken away, the states are the same\n    // story told twice and can be merged into one.\n    let merged = next;\n    if (!ORDER.slice(k + 1).some((s) => cares.has(s))) {\n      // Concatenated, not spread: pushing thirty thousand arguments at once\n      // is thirty thousand stack slots, and the browser says so.\n      let all = [];\n      for (const rows of next.values()) all = all.concat(rows);\n      merged = new Map([['| |', all]]);\n    }\n    let kept = 0;\n    for (const [key, rows] of merged) {\n      const cut = prune(rows, D);\n      merged.set(key, cut);\n      kept += cut.length;\n    }\n    cur = merged;\n    postMessage({step: k + 1, of: ORDER.length, slot, raw, kept});\n  }\n\n  let all = [];\n  for (const rows of cur.values()) all = all.concat(rows);\n  postMessage({done: prune(all, D).map((r) => ({v: [...r.v], fit: r.fit}))});\n};\n";
 
     // The hash carries two things: which slot to open, and whether the editor
     // is in dev mode. Written as #right-patch#dev because that is one string to
@@ -1815,6 +1837,154 @@
       shut();
     });
     if (location.hash) showSlot(HASH[0]);
+
+    // ---- smithing ---------------------------------------------------------
+    // The search runs in a worker built from a string, so there is no second
+    // file to serve and nothing is fetched. It does not start until asked: a
+    // reader who wants the slot lists should not pay for a search they did not
+    // run.
+    const forge = {
+      go: document.getElementById('forge-go'),
+      work: document.getElementById('forge-work'),
+      fill: document.getElementById('forge-fill'),
+      log: document.getElementById('forge-log'),
+      out: document.getElementById('forge-out'),
+      sort: document.getElementById('forge-sort'),
+      list: document.getElementById('forge-list'),
+      more: document.getElementById('forge-more'),
+    };
+    // Only the stats something on record actually moves. The rest are not
+    // unchanged, they are unread, and sorting a list by a column of zeroes
+    // would say the opposite.
+    const FKEYS = WEAPON.filter((s) => s.tracked && s.mode !== 'set')
+                        .map((s) => s.key);
+    let found = [], shown = 0, sortBy = FKEYS[0], picked = -1;
+
+    function note(text, dim) {
+      const li = document.createElement('li');
+      if (dim) li.className = 'is-dim';
+      li.textContent = text;
+      forge.log.appendChild(li);
+      forge.log.scrollTop = forge.log.scrollHeight;
+    }
+
+    function fitBuild(fitList) {
+      for (const slot of Object.keys(fitted)) unfit(slot);
+      relayout();
+      for (const [slot, iid] of fitList) fit(slot, iid);
+      paintWeapon();
+      relayout();
+    }
+
+    function row(b, n) {
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'fbuild' + (n === picked ? ' is-on' : '');
+      el.dataset.n = n;
+      let html = '<span class="fbuild__s">';
+      for (let i = 0; i < FKEYS.length; i++) {
+        const s = WEAPON.find((w) => w.key === FKEYS[i]);
+        const v = s.base + b.v[i];
+        const cls = b.v[i] > 0 ? 'up' : b.v[i] < 0 ? 'down' : '';
+        html += '<i><b class="' + cls + '">' + v + '</b>'
+             + FKEYS[i].slice(0, 4).toLowerCase() + '</i>';
+      }
+      el.innerHTML = html + '</span><span class="fbuild__n">'
+        + b.fit.length + ' parts</span>';
+      return el;
+    }
+
+    function paintList(reset) {
+      if (reset) { forge.list.innerHTML = ''; shown = 0; }
+      const i = FKEYS.indexOf(sortBy);
+      if (reset) found.sort((a, b) => b.v[i] - a.v[i]);
+      const upto = Math.min(found.length, shown + 60);
+      for (; shown < upto; shown++) forge.list.appendChild(row(found[shown], shown));
+      forge.more.hidden = shown >= found.length;
+      forge.more.textContent = 'Show more (' + (found.length - shown) + ' left)';
+    }
+
+    forge.list.addEventListener('click', (e) => {
+      const el = e.target.closest('.fbuild');
+      if (!el) return;
+      picked = +el.dataset.n;
+      for (const o of forge.list.querySelectorAll('.fbuild'))
+        o.classList.toggle('is-on', o === el);
+      fitBuild(found[picked].fit);
+      document.querySelector('.gunsmith').scrollIntoView(
+        {behavior: 'smooth', block: 'start'});
+    });
+    forge.more.addEventListener('click', () => paintList(false));
+
+    forge.go.addEventListener('click', () => {
+      forge.go.disabled = true;
+      forge.go.textContent = 'Smithing\u2026';
+      forge.work.hidden = false;
+      forge.out.hidden = true;
+      forge.log.innerHTML = '';
+      forge.fill.style.width = '0%';
+
+      // Everything the search needs, read off the page rather than shipped a
+      // second time: the slot lists are already in the panel, the rules and the
+      // stat lines are already here for the build panel.
+      const pool = {};
+      for (const l of lists) {
+        const slot = l.id.slice(3);
+        pool[slot] = [...l.querySelectorAll('.pcard')].map((c) => c.dataset.item);
+      }
+      const delta = {};
+      for (const [iid, st] of Object.entries(DELTA))
+        delta[iid] = FKEYS.map((k) => {
+          const w = WEAPON.find((s) => s.key === k);
+          return st[w.from || k] || 0;
+        });
+
+      const w = new Worker(URL.createObjectURL(
+        new Blob([FORGE_SRC], {type: 'text/javascript'})));
+      const t0 = performance.now();
+      w.onmessage = ({data}) => {
+        if (data.say) return note(data.say);
+        if (data.total !== undefined)
+          return note(data.total.toLocaleString() + ' builds to get through');
+        if (data.step) {
+          forge.fill.style.width = (data.step / data.of * 100) + '%';
+          const what = data.slot.replace(/-/g, ' ');
+          return note(data.idle
+            ? 'Skipping ' + what + ' \u2014 nothing on record moves a stat'
+            : 'Fitting ' + what + ' \u2014 ' + data.raw.toLocaleString()
+              + ' tried, ' + data.kept.toLocaleString()
+              + ' still worth keeping', true);
+        }
+        if (data.done) {
+          found = data.done;
+          note(found.length.toLocaleString() + ' builds nothing else beats, in '
+            + ((performance.now() - t0) / 1000).toFixed(1) + 's');
+          forge.go.textContent = 'Smith again';
+          forge.go.disabled = false;
+          forge.out.hidden = false;
+          picked = -1;
+          paintList(true);
+          w.terminate();
+        }
+      };
+      w.postMessage({pool, delta, opens: OPENS,
+                     base: [...BASE_SLOTS], keys: FKEYS});
+    });
+
+    for (const k of FKEYS) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'devtab' + (k === sortBy ? ' is-on' : '');
+      b.textContent = k;
+      b.addEventListener('click', () => {
+        sortBy = k;
+        for (const o of forge.sort.children) o.classList.toggle('is-on', o === b);
+        picked = -1;
+        paintList(true);
+      });
+      forge.sort.appendChild(b);
+    }
+
 
     // Typing #dev onto a page that is already open only changes the hash, and
     // dev mode is decided at load. Reload for it, or the address bar and the

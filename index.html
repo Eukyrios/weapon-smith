@@ -694,6 +694,62 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .pin:active { cursor: grabbing; }
 
 /* --------------------------------------------------------------------------
+   Smithing: the search, and the builds it finds.
+   -------------------------------------------------------------------------- */
+.forge__note { font-size: 12px; font-style: normal; color: var(--text-faint); }
+.forge__bar {
+  height: 4px; border-radius: 2px; background: var(--surface-2);
+  overflow: hidden; margin-bottom: 12px;
+}
+.forge__bar i {
+  display: block; height: 100%; width: 0;
+  background: var(--accent); transition: width 200ms ease;
+}
+.forge__log {
+  margin: 0; padding: 0 0 0 2px; list-style: none;
+  max-height: 190px; overflow-y: auto;
+  font-family: var(--mono); font-size: 11px; line-height: 1.7;
+  color: var(--text);
+}
+.forge__log li.is-dim { color: var(--text-faint); }
+.forge__log::-webkit-scrollbar { width: 0; height: 0; }
+.forge__log { scrollbar-width: none; }
+
+.forge__sort { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+/* The buttons are the dev bar's, but this is not dev mode: the chosen one
+   takes the site's own green rather than the workbench's warning yellow. */
+.forge__sort .devtab.is-on {
+  color: var(--bg); background: var(--accent); border-color: var(--accent);
+}
+.forge__list {
+  display: grid; gap: 4px;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+}
+.fbuild {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 8px 12px; font: inherit; text-align: left; cursor: pointer;
+  color: var(--text); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 5px;
+}
+.fbuild:hover { border-color: var(--line-2); }
+.fbuild.is-on { border-color: var(--accent); background: var(--surface-2); }
+.fbuild__s { display: flex; gap: 10px; }
+/* Each stat as a figure over its name, so a column of builds reads down as
+   well as across and the numbers line up under the sort you chose. */
+.fbuild__s i {
+  display: flex; flex-direction: column; font-style: normal;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+.fbuild__s b { font-size: 14px; font-weight: 700; letter-spacing: 0; color: var(--text); }
+.fbuild__s b.up { color: var(--accent); }
+.fbuild__s b.down { color: var(--red); }
+.fbuild__n {
+  margin-left: auto; font-family: var(--mono); font-size: 10px;
+  color: var(--text-faint); white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
    Dev mode: #dev on the end of the hash. None of this is reachable from the
    site, and the script that builds it does not run without the hash, so a
    reader carries the rules and nothing else.
