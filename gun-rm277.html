@@ -1612,9 +1612,12 @@
         const line = document.querySelector(
           '.stage__wires line[data-slot="' + slot + '"]');
         c.hidden = !p;
-        // SVG has no hidden attribute worth relying on, so the line is hidden
-        // the way the browser cannot argue with.
-        if (line) line.style.display = p && p.ax != null ? '' : 'none';
+        // The attribute, not an inline display. This used to set style.display
+        // because [hidden] on an SVG element did nothing; the sheet now carries
+        // one [hidden] display-none-important rule for the whole page, and an
+        // inline display of '' cannot argue with an !important one -- so every
+        // granted slot's line stayed invisible however good its anchor was.
+        if (line) line.toggleAttribute('hidden', !(p && p.ax != null));
         if (!p) continue;
         c.style.left = (p.x / FW * 100).toFixed(4) + '%';
         c.style.top = (p.y / FH * 100).toFixed(4) + '%';
