@@ -19,6 +19,15 @@ import json, re, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+# Every page sits at the root, so nothing has to climb out of a folder to reach
+# an asset or another page. One name rather than a hundred literals of '../',
+# so a move back down a level stays one line rather than a hunt.
+UP = ''
+
+# What the last run wrote, so this one can take away what it no longer writes
+# without reaching for anything it did not put there. See the end of the run.
+MANIFEST = ROOT / 'data/generated-pages.txt'
+
 FITS = json.loads((ROOT / 'data/fits.json').read_text(encoding='utf-8'))
 ATTACH = json.loads((ROOT / 'data/attachments.json').read_text(encoding='utf-8'))
 
@@ -87,7 +96,7 @@ def thumb(folder, iid, show=True):
     if not show:
         return '<span class="thumb" aria-hidden="true"></span>'
     return (f'<span class="thumb" aria-hidden="true" '
-            f'style="background-image:url(../{folder}/{iid}.png)"></span>')
+            f'style="background-image:url({UP}{folder}/{iid}.png)"></span>')
 
 
 def anchor(kind, value):
@@ -266,7 +275,7 @@ def rows_for(slot):
     return [(name, needs_info(item_id(name))) for name in out]
 
 
-def table(slot, prefix='catalogue/'):
+def table(slot, prefix=UP):
     body = ''
     for name, missing in rows_for(slot):
         tag = ' <span class="tag">#missing-info</span>' if missing else ''
@@ -285,7 +294,7 @@ def table(slot, prefix='catalogue/'):
             '        </tbody>\n      </table>\n    </div>\n')
 
 
-def section(n, slot, title, lede, prefix='catalogue/'):
+def section(n, slot, title, lede, prefix=UP):
     total = len(rows_for(slot))
     head = (f'  <section id="slot-{slot}">\n    <h2><span class="n">{n}</span>'
             f'{title} <span class="count">{total}</span></h2>\n')
@@ -294,7 +303,7 @@ def section(n, slot, title, lede, prefix='catalogue/'):
     return head + table(slot, prefix) + '  </section>\n\n'
 
 
-def weapon_sections(prefix='catalogue/'):
+def weapon_sections(prefix=UP):
     """Every slot table for the weapon, plus the tree.
 
     Shared by the standalone weapon page and the panel folded into its
@@ -541,7 +550,7 @@ def item_page(item, accepted_in):
         # Every mirrored picture is a 512x256 canvas, so a square frame spent
         # half its height on nothing and showed the art at a fifth of the
         # pixels it has. The frame matches the canvas instead.
-        img = (f'      <img class="shot" src="../att/{item["id"]}.png" alt="" '
+        img = (f'      <img class="shot" src="{UP}att/{item["id"]}.png" alt="" '
                'width="280" height="140" onerror="this.remove()">\n')
 
     slots_html = ''
@@ -587,8 +596,8 @@ def item_page(item, accepted_in):
     return shell(f"{item['name']} &middot; Weapon Smith",
                  'Catalogue', item['name'] + tag,
                  kind if kind else 'Named in a slot list.',
-                 body, NAV.format(up='../', back='Weapon Smith'), '../smith.css',
-                 desc=desc, path=f"catalogue/{item['id']}.html",
+                 body, NAV.format(up=UP, back='Weapon Smith'), UP + 'smith.css',
+                 desc=desc, path=f"{item['id']}.html",
                  crumb=item['name'])
 
 
@@ -602,11 +611,11 @@ def gun_page(w):
     # Both facts are also how the catalogue groups things, so both are a way in
     # rather than a dead end: the class lands on every weapon of that class, the
     # caliber on every round that fits.
-    facts = [('Class', f'<a href="../index.html#{anchor("class", w["cls"])}">'
+    facts = [('Class', f'<a href="{UP}index.html#{anchor("class", w["cls"])}">'
                        f'{w["cls"]}</a>')]
     if w.get('caliber'):
         facts.append(('Caliber',
-                      f'<a href="../index.html#{anchor("caliber", w["caliber"])}">'
+                      f'<a href="{UP}index.html#{anchor("caliber", w["caliber"])}">'
                       f'{w["caliber"]}</a>'))
     # The standfirst carries them. It already said the class; now it says the
     # class and the caliber, and both are the way into the catalogue. A table
@@ -621,7 +630,7 @@ def gun_page(w):
         # would be the same picture twice.
         img = ''
     else:
-        img = (f'      <img class="shot" src="../gear/{w["id"]}.png" alt="" '
+        img = (f'      <img class="shot" src="{UP}gear/{w["id"]}.png" alt="" '
                'width="280" height="140" onerror="this.remove()">\n')
 
     # Folded away again. It was opened out when the tables were the whole page;
@@ -656,9 +665,9 @@ def gun_page(w):
                 'Operations. Its slot list is not transcribed yet; the '
                 'catalogue holds the attachments it will draw from.')
     return shell(f"{w['name']} &middot; Weapon Smith", 'Catalogue', w['name'],
-                 sub, body, NAV.format(up='../', back='Weapon Smith'),
-                 '../smith.css',
-                 desc=desc, path=f'catalogue/{gun_file(w["id"])}',
+                 sub, body, NAV.format(up=UP, back='Weapon Smith'),
+                 UP + 'smith.css',
+                 desc=desc, path=gun_file(w['id']),
                  crumb=w['name'])
 
 
@@ -671,7 +680,7 @@ def ammo_page(a, guns):
     rows = ''.join(f'          <tr><td>{k}</td><td class="v">{v}</td></tr>\n'
                    for k, v in facts)
 
-    img = (f'      <img class="shot" src="../ammo/{a["id"]}.png" alt="" '
+    img = (f'      <img class="shot" src="{UP}ammo/{a["id"]}.png" alt="" '
            'width="280" height="140" onerror="this.remove()">\n')
 
     chambers = ''
@@ -709,9 +718,9 @@ def ammo_page(a, guns):
              f"chamber{'s' if n == 1 else ''} it." if guns
              else 'No weapon in the catalogue chambers it yet.')
     return shell(f"{a['name']} &middot; Weapon Smith", 'Catalogue', a['name'],
-                 a['caliber'], body, NAV.format(up='../', back='Weapon Smith'),
-                 '../smith.css',
-                 desc=desc, path=f'catalogue/{ammo_file(a["id"])}',
+                 a['caliber'], body, NAV.format(up=UP, back='Weapon Smith'),
+                 UP + 'smith.css',
+                 desc=desc, path=ammo_file(a['id']),
                  crumb=a['name'])
 
 
@@ -1071,11 +1080,14 @@ FORGE_CTRL = '''
           && !forge.find.value) shutPanel();
     });
     // Anywhere off the panel puts it away -- a chip, the weapon, the empty
-    // stage. The button is excluded because it is the panel's own switch and
-    // would otherwise close what it had just been pressed to open.
+    // stage. Three exceptions: the button is the panel's own switch and would
+    // otherwise close what it had just been pressed to open, and the two
+    // controls along the foot of the stage act on the stage rather than
+    // instead of it -- going full screen with the builds up is going full
+    // screen to read them.
     document.addEventListener('click', (e) => {
       if (forge.out.hidden) return;
-      if (e.target.closest('.fside, #forge-go')) return;
+      if (e.target.closest('.fside, #forge-go, .expand, #equip')) return;
       shutPanel();
     });
 
@@ -1655,7 +1667,7 @@ def stat_bar(name, delta):
 
 def slot_tile(sid):
     """A slot as the game draws it in "Adds Slots": named box with its icon."""
-    icon = (f' style="background-image:url(../smith/slot/{sid}.png)"'
+    icon = (f' style="background-image:url({UP}smith/slot/{sid}.png)"'
             if (ROOT / 'smith' / 'slot' / f'{sid}.png').is_file() else '')
     return (f'<span class="stile"{icon}>'
             f'<em>{SLOT_LABEL.get(sid, sid)}</em></span>')
@@ -1716,7 +1728,7 @@ def slot_panel(slot, label):
     for i, (name, missing) in enumerate(rows_for(slot)):
         iid = item_id(name)
         tier = (CARD_FACTS.get(iid) or {}).get('tier') or 'none'
-        art = (f' style="background-image:url(../att/{iid}.png)"'
+        art = (f' style="background-image:url({UP}att/{iid}.png)"'
                if has_art('att', iid) or iid in BY_ID else '')
         cards += (f'          <button class="pcard{" is-on" if i == 0 else ""}" '
                   f'data-item="{iid}" type="button">'
@@ -1785,7 +1797,7 @@ def gunsmith_body():
             f'{" hidden" if granted else ""}>'
             f'<span class="chip3__label">{s["label"]}</span>'
             f'<span class="chip3__art" style="background-image:'
-            f'url(../smith/slot/{s["slot"]}.png)"></span>'
+            f'url({UP}smith/slot/{s["slot"]}.png)"></span>'
             + (f'<em>{n}</em>' if n else '') + '</a>\n')
         panels.append(slot_panel(s['slot'], label))
         if s.get('ax') is not None:
@@ -1867,7 +1879,7 @@ def gunsmith_body():
       </svg>
       <span>Smith</span>
     </button>
-    <img class="stage__gun" src="../smith/rm277.png" alt="RM277"
+    <img class="stage__gun" src="{UP}smith/rm277.png" alt="RM277"
          style="left:{pc(g['x'], fw)};top:{pc(g['y'], fh)};
                 width:{pc(g['w'], fw)};height:{pc(g['h'], fh)}">
     <svg class="stage__wires" viewBox="0 0 {fw} {fh}" preserveAspectRatio="none"
@@ -2045,7 +2057,7 @@ def gunsmith_body():
       if (chip) {{
         chip.classList.remove('has-item');
         chip.querySelector('.chip3__art').style.backgroundImage =
-          'url(../smith/slot/' + slot + '.png)';
+          'url({UP}smith/slot/' + slot + '.png)';
       }}
       for (const b of document.querySelectorAll('#sl-' + slot + ' .pcard'))
         b.classList.remove('is-fitted');
@@ -2314,7 +2326,7 @@ def gunsmith_body():
       if (chip) {{
         chip.classList.add('has-item');
         chip.querySelector('.chip3__art').style.backgroundImage =
-          'url(../att/' + iid + '.png)';
+          'url({UP}att/' + iid + '.png)';
       }}
       for (const b of document.querySelectorAll('#sl-' + slot + ' .pcard'))
         b.classList.toggle('is-fitted', iid === b.dataset.item);
@@ -2446,7 +2458,7 @@ def gunsmith_body():
 
     // ---- dev mode ---------------------------------------------------------
     // Put #dev on the end of the hash to turn it on:
-    //     catalogue/gun-rm277.html#right-patch#dev
+    //     gun-rm277.html#right-patch#dev
     // It edits the two things this page cannot derive — where a chip and the
     // end of its line sit, and which attachments a slot takes on this weapon —
     // and prints the file to paste back. Nothing is saved: the page is a view
@@ -2459,8 +2471,8 @@ def gunsmith_body():
 
     async function dev() {{
       const [doc, cat] = await Promise.all([
-        fetch('../data/gunsmith-rm277.json').then((r) => r.json()),
-        fetch('../data/attachments.json').then((r) => r.json()),
+        fetch('{UP}data/gunsmith-rm277.json').then((r) => r.json()),
+        fetch('{UP}data/attachments.json').then((r) => r.json()),
       ]);
       const named = {{}};
       for (const a of cat) named[a.id] = a.name;
@@ -3048,6 +3060,15 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   padding: 10px max(18px, calc((100vw - 1240px) / 2 + 18px));
 }
 .banner strong { color: var(--warn-ink); font-weight: 700; }
+/* Inverted out of the yellow rather than set in it: a link the colour of the
+   text it sits in is a link nobody sees, and this is the one thing on the
+   notice anyone is meant to do. */
+.banner__go {
+  display: inline-block; margin-left: 10px; padding: 3px 11px;
+  font-weight: 700; text-decoration: none; white-space: nowrap;
+  color: var(--warn); background: var(--warn-ink); border-radius: 4px;
+}
+.banner__go:hover, .banner__go:focus-visible { background: #000; }
 
 .tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); }
 .tile {
@@ -3542,7 +3563,11 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   /* The mirror of the attachment column: same inset from the stage, same
      glass, same border. One side of the gun lists the parts, the other lists
      the guns they make, and neither should look like a different program. */
-  position: absolute; inset: 54px 10px 10px auto; z-index: 8;
+  /* Stops short of the bottom rather than filling the stage: the strip along
+     the foot is where the game keeps INSTALL and the screen control, and a
+     panel that covers the full screen button is a panel you cannot get out
+     from behind. */
+  position: absolute; inset: 54px 10px 56px auto; z-index: 8;
   display: flex; flex-direction: column; gap: 9px;
   width: min(400px, 44%); padding: 0 12px 12px;
   overflow-y: auto; overscroll-behavior: contain;
@@ -3728,7 +3753,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 /* On a narrow stage there is no room to sit beside the gun, so it takes the
    whole of it -- which is what closing it is for. */
 @media (max-width: 760px) {
-  .fside { inset: 54px 10px 10px 10px; width: auto; }
+  .fside { inset: 54px 10px 56px 10px; width: auto; }
   .freq__bar { grid-template-columns: 1fr; }
 }
 
@@ -3829,7 +3854,7 @@ WEAPON_NAME = {w['id']: w['name'] for w in WEAPONS}
 DOCUMENTED = {'rm277'}
 # Weapons whose gunsmith layout has been traced from the game.
 GUNSMITHS = {'rm277'}
-PAGES = ['catalogue/gun-rm277.html']   # documented weapons, for the sitemap
+PAGES = ['gun-rm277.html']   # documented weapons, for the sitemap
 SITE = 'https://eukyrios.github.io/weapon-smith/'
 
 # The mark: a hammer over an anvil. Drawn on a 64 grid in three tones — steel
@@ -3959,13 +3984,20 @@ NAV = ('  <nav class="nav">\n'
        '  </nav>\n')
 
 
-def banner():
+def banner(path=''):
     """The standing notice, on every page.
 
     Written from DOCUMENTED and WEAPONS rather than typed out, because the one
     thing a notice like this must never do is keep saying "one weapon" after the
     second one lands. When the count changes the sentence changes with it, and
     when every weapon is covered the notice stops printing itself.
+
+    It ends with a way to the weapons it is talking about. A notice that names
+    the one finished gun and then leaves the reader to go and find it is doing
+    half a job, and the pages that most need this notice -- the 65 that carry
+    no attachment list -- are exactly the ones furthest from the gun that does.
+    `path` is the page the notice is on, so it does not offer a page a link to
+    itself.
     """
     done, total = len(DOCUMENTED), len(WEAPONS)
     if done >= total:
@@ -3982,7 +4014,10 @@ def banner():
         'faster as it goes: most of what a new gun takes is already catalogued, '
         'so there are fewer attachments left to add each time. Every other '
         'weapon page carries what the catalogue knows and says so.'
-        '\n</aside>\n')
+        + ''.join(f'\n    <a class="banner__go" href="{UP}{gun_file(w)}">'
+                  f'See the {WEAPON_NAME.get(w, w)} &rarr;</a>'
+                  for w in sorted(DOCUMENTED) if gun_file(w) != path)
+        + '\n</aside>\n')
 
 
 def shell(title, eyebrow, h1, sub, body, nav, css_href=None,
@@ -3994,7 +4029,7 @@ def shell(title, eyebrow, h1, sub, body, nav, css_href=None,
     return '\n'.join([
         head(title, desc, path, css_href, crumb),
         '',
-        banner(),
+        banner(path),
         '<div class="wrap">',
         '',
         nav,
@@ -4035,8 +4070,27 @@ def index_page(items, by_caliber):
     return shell(
         'Weapon Smith &mdash; Delta Force: Operations build maker',
         'Delta Force &middot; Operations', LOGO + 'Weapon Smith', '',
-        catalogue_browser(items, by_caliber, pages='catalogue/', art=''), '',
+        catalogue_browser(items, by_caliber, pages=UP, art=''), '',
         desc=desc, path='')
+
+
+def moved(title, to, up, note='This moved up a level.', tab=None):
+    """A page that is only an address, pointing at the one that replaced it.
+
+    Three things have to agree or a forward is worse than a 404: the refresh
+    sends the reader, the canonical sends the crawler, and noindex says not to
+    keep this page in its own right — the canonical alone leaves that to
+    Google's judgement, and Google's judgement is that a page which exists is
+    a page worth keeping. The link is for anyone whose browser refuses the
+    refresh, which is not nobody.
+    """
+    return ('<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
+            f'<title>{tab or title + " &middot; Weapon Smith"}</title>\n'
+            f'<meta http-equiv="refresh" content="0; url={up}{to}">\n'
+            f'<link rel="canonical" href="{SITE}{to}">\n'
+            '<meta name="robots" content="noindex, follow">\n'
+            f'<p>{note} '
+            f'<a href="{up}{to}">{title} &rarr;</a></p>\n')
 
 
 def build():
@@ -4079,22 +4133,7 @@ if __name__ == '__main__':
 
     (out / 'index.html').write_text(
         index_page(items, by_caliber), encoding='utf-8')
-
-    # The weapon page used to live at the root and now folds into its catalogue
-    # entry. Remove the old file rather than leave two URLs serving the same
-    # tables — this tool wrote it, so this tool cleans it up.
-    stale = out / 'rm277.html'
-    if stale.exists():
-        stale.unlink()
-        print('removed stale rm277.html')
-
     (out / 'smith.css').write_text(CSS, encoding='utf-8')
-
-    # The standalone workbench folded into the editor itself, behind #dev.
-    stale_dev = out / 'dev-anchors.html'
-    if stale_dev.exists():
-        stale_dev.unlink()
-        print('removed stale dev-anchors.html')
 
     # Site furniture. Generated too, so a new weapon page reaches the sitemap
     # without anyone remembering to add it.
@@ -4111,12 +4150,10 @@ if __name__ == '__main__':
     # ignores; they are here to say which pages are the ones being worked on.
     urls = [('', 'weekly', '1.0')]
     urls += [(p, 'weekly', '0.8') for p in PAGES]
-    urls += [(f'catalogue/{gun_file(w["id"])}', 'monthly', '0.6')
-             for w in WEAPONS if f'catalogue/{gun_file(w["id"])}' not in PAGES]
-    urls += [(f'catalogue/{ammo_file(a["id"])}', 'monthly', '0.5')
-             for a in AMMO]
-    urls += [(f"catalogue/{i['id']}.html", 'monthly', '0.5')
-             for i in items.values()]
+    urls += [(gun_file(w['id']), 'monthly', '0.6')
+             for w in WEAPONS if gun_file(w['id']) not in PAGES]
+    urls += [(ammo_file(a['id']), 'monthly', '0.5') for a in AMMO]
+    urls += [(f"{i['id']}.html", 'monthly', '0.5') for i in items.values()]
     (out / 'sitemap.xml').write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -4126,13 +4163,6 @@ if __name__ == '__main__':
                   for u, freq, pr in urls)
         + '</urlset>\n', encoding='utf-8')
     print(f'wrote sitemap.xml with {len(urls)} urls')
-    cat = out / 'catalogue'
-    cat.mkdir(exist_ok=True)
-    # Wipe before writing: a renamed item leaves its old page behind otherwise,
-    # and a stale page is worse than a missing one — it is reachable, wrong,
-    # and looks maintained. Everything in here is generated, so nothing is lost.
-    for old in cat.glob('*.html'):
-        old.unlink()
     fits = fits_index()
     # (weapon id, slot label) per item, so a chip can name both. Today every
     # slot list belongs to the RM277; when a second weapon is transcribed this
@@ -4147,37 +4177,73 @@ if __name__ == '__main__':
         if w.get('caliber'):
             guns_by_caliber.setdefault(w['caliber'], []).append(w)
 
-    # /catalogue/ was the catalogue's own address for a while and may be
-    # bookmarked or linked. It is a signpost now rather than a 404 — the pages
-    # themselves still live in this folder, only the index moved up.
-    (cat / 'index.html').write_text(
-        '<!doctype html>\n<html lang="en">\n<meta charset="utf-8">\n'
-        '<title>Catalogue &middot; Weapon Smith</title>\n'
-        '<meta http-equiv="refresh" content="0; url=../">\n'
-        '<link rel="canonical" href="' + SITE + '">\n'
-        # A forwarding page has nothing to index and the canonical alone leaves
-        # it to Google's judgement. This says it outright.
-        '<meta name="robots" content="noindex, follow">\n'
-        '<p>The catalogue is the front page now. '
-        '<a href="../">Weapon Smith &rarr;</a></p>\n', encoding='utf-8')
+    TITLES = {f"{i['id']}.html": i['name'] for i in items.values()}
+    TITLES.update({gun_file(w['id']): w['name'] for w in WEAPONS})
+    TITLES.update({ammo_file(a['id']): a['name'] for a in AMMO})
+
+    # The pages are siblings of the index now: /gun-rm277.html rather than
+    # /catalogue/gun-rm277.html. The folder said nothing the page did not —
+    # every page on this site is a catalogue page — and it cost a level of
+    # nesting in every address and every link out of one.
+    written = []
     for i in items.values():
-        (cat / f"{i['id']}.html").write_text(
+        written.append(f"{i['id']}.html")
+        (out / written[-1]).write_text(
             item_page(i, accepted.get(i['id'], [])), encoding='utf-8')
     for w in WEAPONS:
-        (cat / gun_file(w['id'])).write_text(
-            gun_page(w), encoding='utf-8')
+        written.append(gun_file(w['id']))
+        (out / written[-1]).write_text(gun_page(w), encoding='utf-8')
+    for a in AMMO:
+        written.append(ammo_file(a['id']))
+        (out / written[-1]).write_text(
+            ammo_page(a, guns_by_caliber.get(a['caliber'], [])), encoding='utf-8')
     # The editor moved into the weapon page; this was its address for a while.
     for wid in sorted(GUNSMITHS):
-        (cat / f'smith-{wid}.html').write_text(
-            f'<title>{WEAPON_NAME.get(wid, wid)} Gunsmith &middot; Weapon Smith</title>\n'
-            f'<meta http-equiv="refresh" content="0; url={gun_file(wid)}">\n'
-            f'<link rel="canonical" href="{SITE}catalogue/{gun_file(wid)}">\n'
-            '<p>The gunsmith is part of the weapon page now. '
-            f'<a href="{gun_file(wid)}">{WEAPON_NAME.get(wid, wid)} &rarr;</a></p>\n',
-            encoding='utf-8')
-    for a in AMMO:
-        (cat / ammo_file(a['id'])).write_text(
-            ammo_page(a, guns_by_caliber.get(a['caliber'], [])), encoding='utf-8')
+        (out / f'smith-{wid}.html').write_text(
+            moved(WEAPON_NAME.get(wid, wid), gun_file(wid), UP,
+                  'The gunsmith is part of the weapon page now.'), encoding='utf-8')
 
-    n = len(items) + len(WEAPONS) + len(AMMO) + 1
-    print(f'wrote index.html and {n} catalogue pages')
+    # Every one of those pages answered at /catalogue/ until now, and those
+    # addresses are in the sitemap Google has already read, in the links from
+    # the sibling site, and in whatever anyone bookmarked. Each becomes a
+    # signpost to the page one level up rather than a 404. A forwarding page
+    # is a quarter of a kilobyte; throwing away every link that already points
+    # into this site costs rather more than 600 of them.
+    cat = out / 'catalogue'
+    cat.mkdir(exist_ok=True)
+    (cat / 'index.html').write_text(
+        moved('Weapon Smith', '', '../', 'The catalogue is the front page now.',
+              'Catalogue &middot; Weapon Smith'), encoding='utf-8')
+    for name in written:
+        (cat / name).write_text(moved(TITLES[name], name, '../'), encoding='utf-8')
+    for wid in sorted(GUNSMITHS):
+        (cat / f'smith-{wid}.html').write_text(
+            moved(WEAPON_NAME.get(wid, wid), gun_file(wid), '../'), encoding='utf-8')
+
+    # A renamed item leaves its old page behind, and a stale page is worse than
+    # a missing one — it is reachable, wrong, and looks maintained. So the run
+    # keeps a list of what it wrote and removes anything the last run wrote
+    # that this one did not.
+    #
+    # A list rather than "delete every .html and write them all again": the
+    # root is not this script's to sweep. It holds a Google Search Console
+    # verification file, which is an .html this tool did not write and whose
+    # disappearance is silent — the console simply stops believing the site is
+    # yours. Deleting only what is on the list cannot reach anything this tool
+    # did not put there in the first place.
+    mine = sorted({'index.html', *written,
+                   *(f'smith-{w}.html' for w in GUNSMITHS),
+                   'catalogue/index.html',
+                   *(f'catalogue/{n}' for n in written),
+                   *(f'catalogue/smith-{w}.html' for w in GUNSMITHS)})
+    before = set(MANIFEST.read_text(encoding='utf-8').split()) \
+        if MANIFEST.exists() else set()
+    for gone in sorted(before - set(mine)):
+        stale = out / gone
+        if stale.exists():
+            stale.unlink()
+            print(f'removed {gone} — no longer generated')
+    MANIFEST.write_text('\n'.join(mine) + '\n', encoding='utf-8')
+
+    print(f'wrote index.html and {len(written)} pages, '
+          f'{len(written) + len(GUNSMITHS) + 1} forwards from catalogue/')

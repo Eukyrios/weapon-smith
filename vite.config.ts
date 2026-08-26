@@ -5,8 +5,9 @@ import path from 'node:path'
 /**
  * Serve <dir>/index.html for a bare directory URL.
  *
- * GitHub Pages does this itself, so /catalogue/ resolves once deployed. Vite's
- * dev server does not, and would 404 on the very link the home page uses.
+ * GitHub Pages does this itself, so /catalogue/ resolves once deployed — that
+ * folder now holds the forwarding pages for the site's old addresses. Vite's
+ * dev server does not, and would 404 on an address that works in production.
  * Without this, dev and production disagree about the same URL — which hides
  * the problem until deploy.
  */

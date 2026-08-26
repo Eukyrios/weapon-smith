@@ -11,8 +11,9 @@ combinations rather than an afternoon in the gunsmith.
 ## Layout
 
     index.html            the weapon list
-    catalogue/            one page per weapon, round and attachment,
-                          plus an index of all 590
+    *.html                one page per weapon, round and attachment,
+                          593 of them, beside the index
+    catalogue/            where those pages used to live; forwards only
     smith.css             shared stylesheet
     att/                  item pictures, copied from loadout-roulette
     data/*.json           the item data this site is generated from
@@ -32,13 +33,20 @@ step. Vite is here for the dev server and the TypeScript, not to build the site.
     npm run check    run the data's own consistency checks
     npm run typecheck
 
-Everything under `catalogue/`, plus `index.html`, is generated. Edit
-`src/data/` or the generator, never the HTML — a hand edit is overwritten on
-the next `npm run gen`.
+Every `.html` in the repo is generated, including `index.html` and everything
+in `catalogue/`. Edit `src/data/` or the generator, never the HTML — a hand
+edit is overwritten on the next `npm run gen`.
 
-A weapon's slot tables live inside its catalogue page, in a fold-out panel.
-There is no separate per-weapon URL: two pages serving the same tables is two
-pages to keep in step, and search engines pick one of them at random.
+A weapon's slot tables live inside its own page, in a fold-out panel. There is
+no separate per-weapon URL: two pages serving the same tables is two pages to
+keep in step, and search engines pick one of them at random.
+
+The pages sat under `catalogue/` until August 2026 and now sit beside the
+index — `/gun-rm277.html`, not `/catalogue/gun-rm277.html`. The folder said
+nothing the page did not, since every page here is a catalogue page. It still
+exists, holding one forwarding page per old address: those addresses are in the
+sitemap Google has already read and in whatever anyone bookmarked, and a
+quarter of a kilobyte each is cheaper than throwing them away.
 
 ## Where the data lives
 
