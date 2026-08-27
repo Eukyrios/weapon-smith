@@ -56,6 +56,24 @@ export interface CardFacts {
    * entry here has not been read yet — it does not have none.
    */
   stats?: Record<string, number>;
+  /**
+   * Somebody has looked at this item's card and the stat lines we hold are the
+   * whole of it — whether they came from here or from the catalogue import.
+   *
+   * The point is what it licenses the site to say. Five stats are marked "not
+   * tracked" wherever they appear, because nothing in the imported data moves
+   * damage or fire rate and printing "550 rpm, no change" would be a claim
+   * about the game rather than a note about our data. A card does not have
+   * that gap: it lists everything the part moves, so on a part somebody has
+   * read, a line the card does not mention is a line that does not move, and
+   * the hedge comes off.
+   *
+   * Setting `stats` here implies this and does not need it. The flag exists
+   * for the other case — an item whose catalogue stat block was already right,
+   * where restating it below would be duplicating a number in order to record
+   * that somebody looked at it.
+   */
+  read?: true;
 }
 
 export const CARD_FACTS: Record<string, CardFacts> = {
@@ -137,6 +155,78 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     tier: 'green', weight: 0.1, stats: { Handling: 1 },
   },
 
+  // --- muzzles --------------------------------------------------------------
+   /*
+    * Rarity for the whole slot, dictated as three runs the way the foregrips
+    * were: purple down to the Blazing Fire, blue down to the Practical
+    * Suppressor, green to the end. Two items answer to "practical
+    * suppressor" — the M7 sits third from the top — and the runs settle it:
+    * the boundary has to fall after the Blazing Fire, so it is the plain one
+    * at twelve.
+    *
+    * The prices agree, and agree with the foregrips: purple 19,633 and up,
+    * blue 9,166 to 14,442, green under 5,000, each boundary a cliff. Two
+    * slots read on different days landing on the same three bands is worth
+    * more than either reading on its own.
+    *
+    * Stats are not touched here. The rarity was read; nobody said the stat
+    * lines were checked, and a tier is not a licence to drop the hedge on
+    * five stats this reading never looked at.
+    */
+  'spiral-fire-flash-hider': { tier: 'purple' },
+  'advanced-multi-caliber-suppressor': { tier: 'purple' },
+  'm7-practical-suppressor': { tier: 'purple' },
+  'silent-suppressor': { tier: 'purple' },
+  'sandstorm-vertical-compensator': { tier: 'purple' },
+  'bastion-horizontal-compensator': { tier: 'purple' },
+  'poseidon-flash-hider': { tier: 'purple' },
+  'whisper-tactical-suppressor': { tier: 'purple' },
+  'titanium-contest-muzzle-brake': { tier: 'purple' },
+  'blazing-fire-suppressor': { tier: 'purple' },
+  'steel-muzzle-brake': { tier: 'blue' },
+  'practical-suppressor': { tier: 'blue' },
+  'birdcage-flash-hider': { tier: 'green' },
+  'practical-flash-hider': { tier: 'green' },
+
+  // --- foregrips ----------------------------------------------------------
+  /*
+   * The whole slot, read in one pass: 21 grips, every one of them cleared,
+   * so an unlisted stat on any of these is unchanged rather than unread.
+   *
+   * Rarity was dictated as three runs down the list rather than item by
+   * item — purple through the Phase Combat, blue through the VFG Knight,
+   * green to the end. The prices agree and say where the runs break: the
+   * three bands do not overlap and each boundary is a cliff, 48,141 to
+   * 9,391 and 8,244 to 3,472. That is what settles the named items as the
+   * last of their run rather than the first of the next; nothing else in
+   * the phrasing does.
+   *
+   * Three of these carry an empty stat block in the catalogue — the CR
+   * Prism Hand Stop, the K1 Elite Bevel and the RK-0. Cleared, that stops
+   * meaning unread and starts meaning they move nothing.
+   */
+  'dawn-angled-flashlight-grip': { tier: 'purple', read: true },
+  'daybreak-vertical-flashlight-grip': { tier: 'purple', read: true },
+  'cr-prism-hand-stop': { tier: 'purple', read: true }, // no modifiers
+  'resonant-mkii-foregrip': { tier: 'purple', read: true },
+  'collapsible-bipod-grip': { tier: 'purple', read: true },
+  'k1-elite-bevel-foregrip': { tier: 'purple', read: true }, // no modifiers
+  'x25u-angled-combat-grip': { tier: 'purple', read: true },
+  'resonant-ergonomic-grip': { tier: 'purple', read: true },
+  'phantom-vertical-foregrip': { tier: 'purple', read: true },
+  'tactical-vertical-foregrip': { tier: 'purple', read: true },
+  'secret-order-bevel-foregrip': { tier: 'purple', read: true },
+  'rk-0-foregrip': { tier: 'purple', read: true }, // no modifiers
+  'tactical-angled-foregrip': { tier: 'purple', read: true },
+  'angled-hand-stop': { tier: 'purple', read: true },
+  'competition-hand-stop': { tier: 'purple', read: true },
+  'phase-combat-foregrip': { tier: 'purple', read: true },
+  'folding-grip': { tier: 'blue', read: true },
+  'vfg-knight-foregrip': { tier: 'blue', read: true },
+  'zfsg-tactical-grip': { tier: 'green', read: true },
+  'mini-hand-stop': { tier: 'green', read: true },
+  'practical-vertical-foregrip': { tier: 'green', read: true },
+
   // --- rail devices -------------------------------------------------------
   /*
    * The Baldr is the odd one here: it IS in the 414, so it has a name, a price
@@ -166,6 +256,14 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'olight-odin-s-tactical-flashlight': {
     tier: 'purple', weight: 0.1, stats: { Handling: -1 },
   },
+  /*
+   * The rail bipod, and the only member of its slot. Another of the nineteen
+   * the catalogue carries with an empty stat block, read off the game: one
+   * line, and the rest of the card genuinely unchanged rather than unread.
+   * That distinction is the whole point of this file — an item with no entry
+   * here has not been read, and this one now has.
+   */
+  'practical-bipod': { tier: 'blue', stats: { Handling: -4 } },
 };
 
 /**

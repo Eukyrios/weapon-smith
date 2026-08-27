@@ -15,7 +15,7 @@ if sys.version_info < (3, 7):  # noqa: UP036
         'Nothing here is fancy — the version is checked up front so a missing '
         'string method does not surface as an AttributeError twenty frames in.')
 
-import json, re, pathlib
+import hashlib, json, re, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -53,6 +53,17 @@ RULES, SLOT_TYPES = _R['rules'], _R['slots']
 # carries neither, so for the items it does not carry at all this is the only
 # thing either page has to say about them beyond a name.
 CARD_FACTS = json.loads((ROOT / 'data/card-facts.json').read_text(encoding='utf-8'))
+# The items somebody sat down with the game and read. A card prints every line
+# the part moves, so for these an unlisted stat is unchanged rather than
+# unread — which is the opposite of what an empty column means everywhere else,
+# and the only reason the distinction is worth keeping.
+#
+# The test is the presence of the key, not a value in it: an item read and
+# found to move nothing is `stats: {}`, and that is a finding, not a blank.
+# `read: true` says the same for an item whose catalogue stat block was already
+# right, where restating it would only duplicate a number to record a look.
+CLEARED = {iid for iid, f in CARD_FACTS.items()
+           if 'stats' in f or f.get('read')}
 SLOT_LABEL = {s['id']: s['label'] for s in SLOT_TYPES}
 BY_ID = {a['id']: a for a in ATTACH}
 BY_NAME = {a['name']: a for a in ATTACH}
@@ -142,7 +153,7 @@ def is_gap(iid):
     card in the catalogue — asks here, so they cannot disagree about what counts
     as done.
     """
-    return not stats_for(iid)
+    return iid not in CLEARED and not stats_for(iid)
 
 
 def needs_info(iid):
@@ -1975,6 +1986,7 @@ def gunsmith_body():
   <script>
     const WEAPON = {json.dumps(d['weapon']['stats'])};
     const SPECS = {json.dumps(d['weapon'].get('specs', []))};
+    const READ = new Set({json.dumps(sorted(CLEARED))});
     const DELTA = {json.dumps(deltas)};
     const OPENS = {json.dumps(opens)};
     const LAYOUTS = {json.dumps(lays)};
@@ -2269,6 +2281,13 @@ def gunsmith_body():
       // points it actually moves, not as the whole of the new optic's effect.
       const before = totals(null, null);
       const after = totals(slot, iid);
+      // Five of these stats are marked "not tracked" because nothing we hold
+      // moves them, which is a fact about the data rather than about the gun.
+      // It stops being true of a part somebody has read off the game's own
+      // card: that card lists everything the part moves, so a line it does not
+      // mention is a line that does not move. Saying "not tracked" there would
+      // be hedging a thing we actually know.
+      const cleared = READ.has(iid);
       let html = '';
       for (const s of WEAPON) {{
         const b = before[s.key], a = after[s.key];
@@ -2280,7 +2299,8 @@ def gunsmith_body():
         const same = a === b;
         html += '<div class="sr' + (same ? ' is-flat' : '') + '">'
              + '<span class="sr__n">' + s.key
-             + (s.tracked ? '' : ' <i class="untracked">not tracked</i>') + '</span>'
+             + (s.tracked || cleared
+                  ? '' : ' <i class="untracked">not tracked</i>') + '</span>'
              + '<span class="sr__v">' + a + (s.unit || '')
              + (same ? '' : ' <i class="' + cls + '">(' + (a > b ? '+' : '&minus;')
                             + Math.abs(a - b) + ')</i>')
@@ -3850,6 +3870,18 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
 }
 """
 
+# The stylesheet's address carries its own fingerprint, so a changed sheet is a
+# different URL and no cache anywhere can serve yesterday's.
+#
+# This is not hypothetical tidiness. Twice now a deployed page has looked
+# broken on a machine where the file on the server was perfectly correct, and
+# both times the answer was a stylesheet the browser had already decided it
+# knew: once the whole page lost its layout, once the smithing button sat in
+# the wrong corner while lines pointed at attachment slots that were not
+# there. The page and the sheet have to change together or the page is a lie,
+# and the only way to promise that is to make them one thing.
+CSS_V = hashlib.md5(CSS.encode('utf-8')).hexdigest()[:10]
+
 
 WEAPONS = json.loads((ROOT / 'data/weapons.json').read_text(encoding='utf-8'))
 AMMO = json.loads((ROOT / 'data/ammo.json').read_text(encoding='utf-8'))
@@ -3916,7 +3948,7 @@ def head(title, desc, path, css_href=None, crumb=''):
     desc = ' '.join(desc.split())
     up = '../' if '/' in path else ''
     url = SITE + path
-    style = (f'<link rel="stylesheet" href="{css_href}">' if css_href
+    style = (f'<link rel="stylesheet" href="{css_href}?v={CSS_V}">' if css_href
              else f'<style>{CSS}</style>')
     return '\n'.join([
         '<!doctype html>',
