@@ -331,6 +331,15 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   text-decoration: none;
 }
 .tile--gap { border-style: dashed; }
+/* The tick on a finished gun. Top right, over the picture and clear of the
+   name strip along the bottom, small enough to read as a mark on the tile
+   rather than a badge stuck to it. */
+.tile__done {
+  position: absolute; top: 4px; right: 4px; z-index: 2;
+  width: 15px; height: 15px; line-height: 15px; text-align: center;
+  font-size: 10px; font-weight: 700; border-radius: 50%;
+  color: var(--bg); background: var(--accent);
+}
 .tile__art {
   position: absolute; inset: 0; background-repeat: no-repeat;
   background-position: center 42%; background-size: 88% auto;
@@ -1144,7 +1153,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
 </style>
 
 <aside class="banner">
-    <strong>Early days.</strong> This site is being written as the game is read, and one of 66 weapons has an attachment list so far &mdash; the RM277. I enter this by hand, one attachment at a time, so the first few guns will take a while. It gets faster as it goes: most of what a new gun takes is already catalogued, so there are fewer attachments left to add each time. Every other weapon page carries what the catalogue knows and says so.
+    <strong>Early days.</strong> This site is being written as the game is read. The RM277 is done &mdash; every slot listed and every attachment read &mdash; and it is the only one of 66 so far. A tick on a weapon in the list means the same has been done for it. I enter this by hand, one attachment at a time, so the first few guns will take a while. It gets faster as it goes: most of what a new gun takes is already catalogued, so there are fewer attachments left to add each time. Every other weapon page carries what the catalogue knows and says so.
     <a class="banner__go" href="gun-rm277.html">See the RM277 &rarr;</a>
 </aside>
 
@@ -1173,6 +1182,8 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
           <a class="navlink" href="#class-shotgun" data-group="class-shotgun">Shotgun<em>5</em></a>
           <a class="navlink" href="#class-pistol" data-group="class-pistol">Pistol<em>7</em></a>
           <a class="navlink" href="#class-special" data-group="class-special">Special<em>1</em></a>
+          <span class="navdiv">By tag</span>
+          <a class="navlink navlink--tag" href="#complete" data-tag="complete" title="Every slot listed and every attachment read"><code>#complete</code><em>1</em></a>
         </div>
       </details>
       <details class="navgroup">
@@ -1245,7 +1256,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="gun-mk47.html"><span class="tile__art" style="background-image:url(gear/mk47.png)"></span><span class="tile__name">MK47</span></a>
       <a class="tile" href="gun-ptr-32.html"><span class="tile__art" style="background-image:url(gear/ptr-32.png)"></span><span class="tile__name">PTR-32</span></a>
       <a class="tile" href="gun-qbz95-1.html"><span class="tile__art" style="background-image:url(gear/qbz95-1.png)"></span><span class="tile__name">QBZ95-1</span></a>
-      <a class="tile" href="gun-rm277.html"><span class="tile__art" style="background-image:url(gear/rm277.png)"></span><span class="tile__name">RM277</span></a>
+      <a class="tile" href="gun-rm277.html" data-tags="complete"><span class="tile__art" style="background-image:url(gear/rm277.png)"></span><span class="tile__done" title="Read to the end">&#10003;</span><span class="tile__name">RM277</span></a>
       <a class="tile" href="gun-scar-h.html"><span class="tile__art" style="background-image:url(gear/scar-h.png)"></span><span class="tile__name">SCAR-H</span></a>
       <a class="tile" href="gun-sg552.html"><span class="tile__art" style="background-image:url(gear/sg552.png)"></span><span class="tile__name">SG552</span></a>
       </div>

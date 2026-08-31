@@ -23,6 +23,12 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 # an asset or another page. One name rather than a hundred literals of '../',
 # so a move back down a level stays one line rather than a hunt.
 UP = ''
+# Where "back" goes. UP is a prefix for reaching a sibling of the index; on its
+# own it is the empty string, and an empty href is not the index — it is the
+# page you are already on. The back link on every one of 594 pages was a
+# reload, which looks like a link that does nothing rather than a broken one,
+# and reads as the site being stuck.
+HOME = UP or './'
 
 # What the last run wrote, so this one can take away what it no longer writes
 # without reaching for anything it did not put there. See the end of the run.
@@ -334,6 +340,28 @@ def rows_for(slot):
                 out.append(name)
     return [(name, needs_info(item_id(name)), needs_extra(item_id(name)))
             for name in out]
+
+
+def is_finished(wid):
+    """Has this weapon been read to the end?
+
+    Not the same question as DOCUMENTED, which only says somebody has started:
+    a gun can have every slot listed and still owe a stat line on half of them.
+    Finished means every row of every slot is answered — no base stats missing,
+    nothing below them unread.
+
+    SECTIONS is the RM277's slot list, so this is only honest for the weapon
+    those sections belong to. When a second gunsmith is traced this has to take
+    the weapon's own sections, and the assert below is what will say so.
+    """
+    if wid not in DOCUMENTED:
+        return False
+    if DOCUMENTED != {'rm277'}:
+        raise SystemExit('is_finished: SECTIONS is one weapon\'s; make it take '
+                         'the weapon before documenting a second')
+    return all(not missing and not unread
+               for slot, _, _ in SECTIONS
+               for _n, missing, unread in rows_for(slot))
 
 
 def table(slot, prefix=UP):
@@ -692,7 +720,7 @@ def item_page(item, accepted_in):
     return shell(f"{item['name']} &middot; Weapon Smith",
                  'Catalogue', item['name'] + tag,
                  kind if kind else 'Named in a slot list.',
-                 body, NAV.format(up=UP, back='Weapon Smith'), UP + 'smith.css',
+                 body, NAV.format(up=HOME, back='Weapon Smith'), UP + 'smith.css',
                  desc=desc, path=f"{item['id']}.html",
                  crumb=item['name'])
 
@@ -761,7 +789,7 @@ def gun_page(w):
                 'Operations. Its slot list is not transcribed yet; the '
                 'catalogue holds the attachments it will draw from.')
     return shell(f"{w['name']} &middot; Weapon Smith", 'Catalogue', w['name'],
-                 sub, body, NAV.format(up=UP, back='Weapon Smith'),
+                 sub, body, NAV.format(up=HOME, back='Weapon Smith'),
                  UP + 'smith.css',
                  desc=desc, path=gun_file(w['id']),
                  crumb=w['name'])
@@ -814,7 +842,7 @@ def ammo_page(a, guns):
              f"chamber{'s' if n == 1 else ''} it." if guns
              else 'No weapon in the catalogue chambers it yet.')
     return shell(f"{a['name']} &middot; Weapon Smith", 'Catalogue', a['name'],
-                 a['caliber'], body, NAV.format(up=UP, back='Weapon Smith'),
+                 a['caliber'], body, NAV.format(up=HOME, back='Weapon Smith'),
                  UP + 'smith.css',
                  desc=desc, path=ammo_file(a['id']),
                  crumb=a['name'])
@@ -839,18 +867,25 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
     to `#class-assault-rifle` still lands on the right group — which matters,
     because the weapon pages link into here by exactly those ids.
     """
-    def tile(href, name, pic, gap=False, tags=()):
+    def tile(href, name, pic, gap=False, tags=(), done=False):
         """One item: its picture, with its name laid over the bottom of it.
 
         `tags` are what the search box's #words match on. They are not printed:
         a tile is 96px wide and the tag is a property of the record rather than
         of the thing, so it lives in the markup and surfaces when asked for.
+
+        `done` is the exception, and it is printed. A finished gun is the one
+        thing about this catalogue a reader wants to see at a glance rather
+        than have to ask for, because for now it is the difference between a
+        page that answers questions and a page that lists names.
         """
         cls = 'tile tile--gap' if gap else 'tile'
         bg = (f' style="background-image:url({art}{pic})"' if pic else '')
         tg = f' data-tags="{" ".join(tags)}"' if tags else ''
+        mark = ('<span class="tile__done" title="Read to the end">&#10003;</span>'
+                if done else '')
         return (f'      <a class="{cls}" href="{pages}{href}"{tg}>'
-                f'<span class="tile__art"{bg}></span>'
+                f'<span class="tile__art"{bg}></span>{mark}'
                 f'<span class="tile__name">{name}</span></a>\n')
 
     groups, nav = [], []
@@ -896,9 +931,16 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         rows = sorted(by_cls[cls], key=lambda x: x['name'])
         group(gid, cls, ''.join(
             tile(gun_file(w['id']), w['name'],
-                 f'gear/{w["id"]}.png' if has_art('gear', w['id']) else None)
+                 f'gear/{w["id"]}.png' if has_art('gear', w['id']) else None,
+                 tags=('complete',) if is_finished(w['id']) else (),
+                 done=is_finished(w['id']))
             for w in rows), len(rows))
         links += nav_link(gid, cls, len(rows))
+    n_done = sum(1 for w in WEAPONS if is_finished(w['id']))
+    if n_done:
+        links += '          <span class="navdiv">By tag</span>\n'
+        links += tag_link('complete', 'Every slot listed and every attachment '
+                                      'read', n_done)
     nav_group('Weapons', len(WEAPONS), links, open_=True)
 
     # --- ammunition, by caliber ----------------------------------------------
@@ -3345,6 +3387,15 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   text-decoration: none;
 }
 .tile--gap { border-style: dashed; }
+/* The tick on a finished gun. Top right, over the picture and clear of the
+   name strip along the bottom, small enough to read as a mark on the tile
+   rather than a badge stuck to it. */
+.tile__done {
+  position: absolute; top: 4px; right: 4px; z-index: 2;
+  width: 15px; height: 15px; line-height: 15px; text-align: center;
+  font-size: 10px; font-weight: 700; border-radius: 50%;
+  color: var(--bg); background: var(--accent);
+}
 .tile__art {
   position: absolute; inset: 0; background-repeat: no-repeat;
   background-position: center 42%; background-size: 88% auto;
@@ -4321,21 +4372,42 @@ def banner(path=''):
     `path` is the page the notice is on, so it does not offer a page a link to
     itself.
     """
-    done, total = len(DOCUMENTED), len(WEAPONS)
-    if done >= total:
+    total = len(WEAPONS)
+    fin = sorted(w for w in DOCUMENTED if is_finished(w))
+    started = sorted(DOCUMENTED - set(fin))
+    if len(fin) >= total:
         return ''
-    named = ', '.join(sorted(WEAPON_NAME.get(w, w) for w in DOCUMENTED))
-    one = done == 1
+    named = ', '.join(WEAPON_NAME.get(w, w) for w in fin)
+    one = len(fin) == 1
+
+    # Written from the counts, because the one thing a notice like this must
+    # never do is go on saying "one weapon" after the second one lands, or keep
+    # calling a gun finished while it still owes a stat line. Both facts are
+    # computed: DOCUMENTED says who has a list, is_finished says who has been
+    # read to the end, and the sentence changes shape when either does.
+    if fin:
+        head = (f'{"The " + named + " is" if one else named + " are"} done '
+                f'&mdash; every slot listed and every attachment read &mdash; '
+                f'{"and it is" if one else "and they are"} '
+                f'{"the only one" if one else f"{len(fin)}"} of {total} so far. '
+                'A tick on a weapon in the list means the same has been done '
+                'for it.')
+    else:
+        head = f'None of the {total} weapons is finished yet.'
+    part = ''
+    if started:
+        s_named = ', '.join(WEAPON_NAME.get(w, w) for w in started)
+        part = (f' {s_named} {"has" if len(started) == 1 else "have"} a list '
+                'and is still being read.' if len(started) == 1 else
+                f' {s_named} have lists and are still being read.')
     return (
         '<aside class="banner">\n'
-        '    <strong>Early days.</strong> This site is being written as the game '
-        f'is read, and {"one" if one else done} of {total} weapons '
-        f'{"has an attachment list" if one else "have attachment lists"} so far '
-        f'&mdash; {"the " if one else ""}{named}. I enter this by hand, one '
-        'attachment at a time, so the first few guns will take a while. It gets '
-        'faster as it goes: most of what a new gun takes is already catalogued, '
-        'so there are fewer attachments left to add each time. Every other '
-        'weapon page carries what the catalogue knows and says so.'
+        f'    <strong>Early days.</strong> This site is being written as the '
+        f'game is read. {head}{part} I enter this by hand, one attachment at a '
+        'time, so the first few guns will take a while. It gets faster as it '
+        'goes: most of what a new gun takes is already catalogued, so there '
+        'are fewer attachments left to add each time. Every other weapon page '
+        'carries what the catalogue knows and says so.'
         + ''.join(f'\n    <a class="banner__go" href="{UP}{gun_file(w)}">'
                   f'See the {WEAPON_NAME.get(w, w)} &rarr;</a>'
                   for w in sorted(DOCUMENTED) if gun_file(w) != path)

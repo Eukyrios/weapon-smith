@@ -305,6 +305,15 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   text-decoration: none;
 }
 .tile--gap { border-style: dashed; }
+/* The tick on a finished gun. Top right, over the picture and clear of the
+   name strip along the bottom, small enough to read as a mark on the tile
+   rather than a badge stuck to it. */
+.tile__done {
+  position: absolute; top: 4px; right: 4px; z-index: 2;
+  width: 15px; height: 15px; line-height: 15px; text-align: center;
+  font-size: 10px; font-weight: 700; border-radius: 50%;
+  color: var(--bg); background: var(--accent);
+}
 .tile__art {
   position: absolute; inset: 0; background-repeat: no-repeat;
   background-position: center 42%; background-size: 88% auto;
