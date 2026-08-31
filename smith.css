@@ -561,14 +561,27 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 
 /* A stat bar is white up to the figure the two readings share, then a coloured
    tail for the difference — added to the right, taken off the end. */
-.sr__bar { display: flex; }
+.sr__bar { display: flex; position: relative; }
 .sr__bar i.base { background: var(--text-dim); }
+/* Where the bare rifle sits on this bar. The bar shows what the gun would be
+   and the slice this part moves it by, and until now there was nothing to
+   measure either against: a build eight attachments deep looked the same as a
+   stock one that happened to score the same. Absolute, so it does not take a
+   share of the flex row -- it is a mark on the bar, not a part of it. */
+.sr__bar i.stock {
+  position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px;
+  height: auto; border-radius: 1px; background: var(--text); opacity: 0.6;
+}
 .sr__v i { font-style: normal; }
 .sr__v i.up { color: var(--accent); }
 .sr__v i.down { color: var(--red); }
 .delta .sr:last-child { margin-bottom: 0; }
 /* A stat this attachment leaves alone is still shown, just quietly. */
 .sr.is-flat .sr__n, .sr.is-flat .sr__v { color: var(--text-faint); }
+/* The commoner of the two debts, so it is drawn quieter: on most items it is
+   the only tag there is, and at the same weight as #missing-info it would make
+   the rare and urgent one impossible to pick out of a page of them. */
+.tag--soft { color: var(--text-faint); border-color: var(--line); }
 .sr__n .untracked {
   font-family: var(--mono); font-size: 8px; font-style: normal;
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn);
@@ -898,9 +911,17 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 
 /* One tab per stat. The tab is the sort: "show me the best handling" is the
    only question anyone opens this for, so it is the only control on top. */
-.ftabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+/* Wrapping, not scrolling. There were five of these when the panel was drawn
+   and there are eight now — the suppressor readings turned muzzle velocity,
+   gunshot range and fire rate from columns nobody had into stats you can sort
+   on — and a row that scrolls hides the ones added last behind an edge nobody
+   thinks to drag. Two lines of four is worth more than one line and a secret. */
+.ftabs {
+  display: flex; flex-wrap: wrap; gap: 0 14px;
+  border-bottom: 1px solid var(--line);
+}
 .ftab {
-  flex: 1; margin-bottom: -1px; padding: 7px 3px 8px;
+  flex: 0 0 auto; margin-bottom: -1px; padding: 6px 1px 7px;
   font: inherit; font-size: 11px; font-weight: 700; white-space: nowrap;
   cursor: pointer; color: var(--text-faint); background: none;
   border: 0; border-bottom: 2px solid transparent;

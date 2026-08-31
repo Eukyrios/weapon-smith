@@ -2916,17 +2916,12 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://eukyrios.github.io/weapon-smith/rm277-heavy-integral-barrel.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>https://eukyrios.github.io/weapon-smith/rm277-whale-shark-barrel-combo.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://eukyrios.github.io/weapon-smith/olight-warrior-3s-tactical-flashlight.html</loc>
+    <loc>https://eukyrios.github.io/weapon-smith/rm277-heavy-integral-barrel.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -2937,6 +2932,11 @@
   </url>
   <url>
     <loc>https://eukyrios.github.io/weapon-smith/dd-python-handguard-panel.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/olight-warrior-3s-tactical-flashlight.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

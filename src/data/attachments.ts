@@ -2044,7 +2044,7 @@ export const ATTACHMENTS: Attachment[] = [
  },
  {
   id: "hornet-handguard",
-  name: "Hornet Handguard",
+  name: "Hornet Handguard Panel",
   cat: "functional",
   price: 5635,
   stats: {
@@ -2088,7 +2088,7 @@ export const ATTACHMENTS: Attachment[] = [
  },
  {
   id: "kc-hound-handguard",
-  name: "KC Hound Handguard",
+  name: "KC Hound Handguard Panel",
   cat: "functional",
   price: 5635,
   stats: {
@@ -2242,7 +2242,7 @@ export const ATTACHMENTS: Attachment[] = [
  },
  {
   id: "ranger-handguard",
-  name: "Ranger Handguard",
+  name: "Ranger Handguard Panel",
   cat: "functional",
   price: 5635,
   stats: {

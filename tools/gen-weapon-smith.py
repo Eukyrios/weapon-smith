@@ -64,6 +64,10 @@ CARD_FACTS = json.loads((ROOT / 'data/card-facts.json').read_text(encoding='utf-
 # right, where restating it would only duplicate a number to record a look.
 CLEARED = {iid for iid, f in CARD_FACTS.items()
            if 'stats' in f or f.get('read')}
+# Stats where a smaller number is the better one. Only gunshot range so far,
+# and it only started mattering when the first suppressor reading landed: until
+# then nothing on record moved it, so it was not a dimension anybody sorted on.
+LOWER_IS_BETTER = {'Gunshot heard'}
 SLOT_LABEL = {s['id']: s['label'] for s in SLOT_TYPES}
 BY_ID = {a['id']: a for a in ATTACH}
 BY_NAME = {a['name']: a for a in ATTACH}
@@ -130,16 +134,23 @@ def nm(i):
 
 
 def stats_for(iid):
-    """An item's stat lines, from whichever source has them.
+    """An item's stat lines, from both sources, the read one winning.
 
-    The catalogue first, card-facts.ts second. The second source is not only for
-    items the catalogue lacks entirely: nineteen of the 414 are carried with an
-    empty stat block, so being in the catalogue is not the same as having been
-    measured, and those get filled from a card reading like anything else.
+    The card-facts reading is laid over the catalogue's rather than chosen
+    instead of it. The two sources do not carry the same columns: the import has
+    control and handling for nearly everything and muzzle velocity, gunshot
+    range and fire rate for nothing at all, while the game's own card prints all
+    of them. A suppressor is the case that forces this — the catalogue knows it
+    costs handling, and only the card knows it is the thing that makes the shot
+    quieter, which is the entire reason anyone fits one.
+
+    Either-or lost that. It also had a quieter fault: it read as a fallback for
+    items the catalogue lacks, which was true only because nothing had been read
+    for an item the catalogue already covered. Where both speak, the card is the
+    better witness — somebody looked at it — so it goes on top, key by key.
     """
-    return (BY_ID.get(iid, {}).get('stats')
-            or (CARD_FACTS.get(iid) or {}).get('stats')
-            or {})
+    return {**BY_ID.get(iid, {}).get('stats', {}),
+            **(CARD_FACTS.get(iid) or {}).get('stats', {})}
 
 
 def is_gap(iid):
@@ -156,17 +167,49 @@ def is_gap(iid):
     return iid not in CLEARED and not stats_for(iid)
 
 
-def needs_info(iid):
-    """Is this item's record still short of complete? The #missing-info tag.
+# The two halves of a card, and the two different silences about them.
+#
+# The catalogue import carries these five columns and no others. So a blank in
+# one of them means the item's stat block was never filled in, while a blank in
+# damage or fire rate means only that this source has never carried such a
+# thing for anybody — a different fact, needing a different word, and until now
+# both were told the same way.
+CORE_STATS = {'Range', 'Control', 'Handling', 'Stability', 'Accuracy'}
 
-    Two ways to be short, and the reader's question is the same for both, so
-    one tag covers both. Either there are no stat lines at all, or the record
-    never came from the catalogue: those two dozen were dictated off the game's
-    own cards a few lines at a time, so they carry what was read and nothing
-    else — a rear grip with control and handling on it and no answer about
-    anything further down the card.
+
+def needs_info(iid):
+    """Are this item's base stats unread? The #missing-info tag.
+
+    Range, control, handling, stability, accuracy — the five the catalogue is
+    supposed to carry. Missing here means somebody has to go and read them.
     """
-    return is_gap(iid) or iid not in BY_ID
+    return iid not in CLEARED and not (set(stats_for(iid)) & CORE_STATS)
+
+
+def needs_extra(iid):
+    """Are this item's further stats unread? The #not-tracked tag.
+
+    Damage, armour penetration, fire rate, muzzle velocity, gunshot range. No
+    import has ever carried these for anything; they come off the game's own
+    card or not at all, so the only thing that answers this is somebody having
+    sat down and read one. That is what CLEARED records.
+
+    Which makes this the larger of the two gaps by a long way, and the honest
+    number: nearly every item in the catalogue has a full set of base stats and
+    nothing at all below them.
+    """
+    return iid not in CLEARED
+
+
+def needs_art(iid):
+    """Is this item drawn with somebody else's picture? The #image-change tag.
+
+    The odd one out in here: not a gap in what the record says but in what it
+    shows. It earns a tag for the same reason the other two do — it is a debt
+    somebody pays by going and looking at the game, and a list of those is
+    worth being able to pull up.
+    """
+    return bool((CARD_FACTS.get(iid) or {}).get('imageChange'))
 
 
 # Rows that are named in a transcript but absent from the catalogue, keyed by
@@ -181,12 +224,18 @@ MISSING = {
     'red-dot-optics': [(0, 'VMX Frameless Sight')],
     'muzzle': [(0, 'RM277 Breaker Suppressor'), (1, 'Cobweb Titanium Muzzle Brake')],
     'foregrip': [(0, 'Resonant MK III Grip'), (1, 'EC Universal Front Hand Stop')],
-    'barrel': [(0, 'RM277 Heavy Integral Barrel'), (1, 'RM277 Whale Shark Barrel Combo')],
-    'left-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'), (1, 'OLIGHT Odin S Tactical Flashlight'),
-                  (11, 'DD Python Handguard Panel')],
-    # No Odin S here: it fits the left rail and not this one.
+    'barrel': [(0, 'RM277 Whale Shark Barrel Combo'), (1, 'RM277 Heavy Integral Barrel')],
+    # No Warrior 3S: dictated onto this list and not on it. Dropping it moves
+    # the Python up one, because these indices are positions in the list as it
+    # is being built, not in the finished one.
+    'left-rail': [(0, 'OLIGHT Odin S Tactical Flashlight'),
+                  (10, 'DD Python Handguard Panel')],
+    # The Odin S is on this rail after all, above the Baldr as it is on the
+    # left. The Warrior 3S is here and not on the left, so the two lists still
+    # differ -- in the other direction from how they used to.
     'right-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'),
-                   (10, 'DD Python Handguard Panel')],
+                   (1, 'OLIGHT Odin S Tactical Flashlight'),
+                   (11, 'DD Python Handguard Panel')],
     'left-patch': [(2, 'DD Python Handguard Panel')],
     'right-patch': [(2, 'DD Python Handguard Panel')],
     'upper-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'), (8, 'DD Python Handguard Panel')],
@@ -283,13 +332,18 @@ def rows_for(slot):
             name = NAMES.get(iid) or iid
             if name not in out:
                 out.append(name)
-    return [(name, needs_info(item_id(name))) for name in out]
+    return [(name, needs_info(item_id(name)), needs_extra(item_id(name)))
+            for name in out]
 
 
 def table(slot, prefix=UP):
     body = ''
-    for name, missing in rows_for(slot):
-        tag = ' <span class="tag">#missing-info</span>' if missing else ''
+    for name, missing, unread in rows_for(slot):
+        tag = (' <span class="tag">#missing-info</span>' if missing else '')
+        tag += (' <span class="tag tag--soft">#not-tracked</span>'
+                if unread else '')
+        tag += (' <span class="tag tag--soft">#image-change</span>'
+                if needs_art(item_id(name)) else '')
         cls = ' class="is-gap"' if missing else ''
         adds = ADDS.get(name, '')
         blocks = BLOCKS.get(name, '')
@@ -367,7 +421,7 @@ def grants_from(slot, seen):
     that at any point without anyone noticing until the build hangs.
     """
     out = {}
-    for name, _missing in rows_for(slot):
+    for name, _m, _x in rows_for(slot):
         for g in RULES.get(item_id(name), {}).get('grants') or []:
             if g in seen:
                 continue
@@ -393,14 +447,25 @@ def subtree(slot, seen):
 
 
 def graph():
-    """The slot tree. A child is a slot that only exists once `via` is fitted."""
+    """The slot tree. A child is a slot that only exists once `via` is fitted.
+
+    Rooted in the slots THIS weapon has, not in every slot type the game knows
+    about. SLOT_TYPES is the vocabulary shared by every gun in the catalogue, so
+    walking it drew a handguard, a stock and a functional slot on a rifle that
+    has none of the three — each with a dash where the count should be, which is
+    the tell nobody reads as a bug because a dash looks like an answer.
+    """
+    mine = {slot for slot, _, _ in SECTIONS}
     tree = [(SLOT_TITLE.get(t['id'], t['label']), t['id'],
              subtree(t['id'], {t['id']}))
-            for t in SLOT_TYPES if t['kind'] == 'base']
+            for t in SLOT_TYPES if t['kind'] == 'base' and t['id'] in mine]
 
     parts, state = [], {'y': TOP}
 
+    drawn = set()
+
     def walk(label, slot, kids, depth, via=None, names=()):
+        drawn.add(slot)
         x, w = COLS[depth]
         h = GROW if via else 22
         y = state['y']
@@ -414,6 +479,14 @@ def graph():
 
     spine = [walk(l, s, k, 0) for l, s, k in tree]
     bottom = state['y']
+
+    # Every slot the weapon has, and nothing else. The tree is derived, so it
+    # cannot go stale — but it can go wrong in the other direction, by drawing
+    # from the wrong list or by losing a granted slot whose only opener was
+    # removed, and neither shows up as anything but a picture that looks fine.
+    if drawn != mine:
+        raise SystemExit(
+            f'tree: draws {sorted(drawn - mine)}, misses {sorted(mine - drawn)}')
 
     mid = (spine[0] + spine[-1]) / 2
     head = [f'<line class="g-edge" x1="160" y1="{spine[0]}" x2="160" y2="{spine[-1]}"></line>']
@@ -510,7 +583,7 @@ def fits_index():
     out = {}
     for slot, _, _ in SECTIONS:
         ids = []
-        for name, _missing in rows_for(slot):
+        for name, _m, _x in rows_for(slot):
             a = BY_NAME.get(name)
             ids.append(a['id'] if a else slug(name))
         out[slot] = ids
@@ -533,6 +606,13 @@ def item_page(item, accepted_in):
         stats = ('    <div class="tablewrap">\n      <table>\n'
                  '        <thead><tr><th>Stat</th><th>Change</th></tr></thead>\n'
                  f'        <tbody>\n{rows}        </tbody>\n      </table>\n    </div>\n')
+    elif item['id'] in CLEARED:
+        # Read, and it moves nothing. That is a finding, and it has to read as
+        # one: the sentence below it would otherwise say nobody has looked, at
+        # the one item somebody has looked at hardest.
+        stats = ('    <p class="lede">Nothing. This one was read off the game '
+                 'and changes no stat on the weapon &mdash; not an empty record, '
+                 'an empty answer.</p>\n')
     else:
         stats = ('    <p class="lede">Not read yet. This item was named in a slot list '
                  'but is not in the game catalogue we hold, so its stat lines have to '
@@ -591,7 +671,12 @@ def item_page(item, accepted_in):
 
 {slots_html}"""
 
-    tag = ' <span class="tag">#missing-info</span>' if needs_info(item['id']) else ''
+    tag = (' <span class="tag">#missing-info</span>'
+           if needs_info(item['id']) else '')
+    tag += (' <span class="tag tag--soft">#not-tracked</span>'
+            if needs_extra(item['id']) else '')
+    tag += (' <span class="tag tag--soft">#image-change</span>'
+            if needs_art(item['id']) else '')
     kind = CAT_LABEL.get(item['cat'], item['cat']) if item['cat'] else ''
     # The description says what this page can answer. An item whose stats are
     # not read yet says that instead of implying numbers it does not have.
@@ -850,8 +935,23 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         by_cat.setdefault(i['cat'], []).append(i)
 
     def item_tags(i):
-        """The fact that is about the record rather than about the part."""
-        return ('missing-info',) if needs_info(i['id']) else ()
+        """The facts that are about the record rather than about the part.
+
+        Two of them, because they are two different debts. #missing-info is the
+        rare one and the urgent one: the five base stats were never filled in.
+        #not-tracked is the common one, and it is common because no import has
+        ever carried damage or fire rate for anything — it comes off the game's
+        own cards, one item at a time, and most of the catalogue is still
+        waiting. Filed together would make the rare one invisible.
+        """
+        out = []
+        if needs_info(i['id']):
+            out.append('missing-info')
+        if needs_extra(i['id']):
+            out.append('not-tracked')
+        if needs_art(i['id']):
+            out.append('image-change')
+        return tuple(out)
 
     def att_tile(i):
         return tile(f'{i["id"]}.html', i['name'],
@@ -869,9 +969,16 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         group(gid, CAT_LABEL[cat], ''.join(att_tile(i) for i in rows), len(rows))
         links += nav_link(gid, CAT_LABEL[cat], len(rows))
 
-    n_gap = sum(1 for i in items.values() if item_tags(i))
+    n_gap = sum(1 for i in items.values() if needs_info(i['id']))
+    n_extra = sum(1 for i in items.values() if needs_extra(i['id']))
     links += '          <span class="navdiv">By tag</span>\n'
-    links += tag_link('missing-info', 'Records still short of complete', n_gap)
+    links += tag_link('missing-info', 'Base stats not read yet', n_gap)
+    links += tag_link('not-tracked', 'Damage, penetration, fire rate, muzzle '
+                                     'velocity and gunshot range not read yet',
+                      n_extra)
+    n_art = sum(1 for i in items.values() if needs_art(i['id']))
+    if n_art:
+        links += tag_link('image-change', 'Drawn with the wrong picture', n_art)
     nav_group('Attachments', len(items), links)
 
     body = [f"""  <div class="browse">
@@ -1035,8 +1142,18 @@ FORGE_CTRL = '''
     // the opposite.
     const FKEYS = WEAPON.filter((s) => s.tracked && s.mode !== 'set')
                         .map((s) => s.key);
-    const FBASE = {};
-    for (const k of FKEYS) FBASE[k] = WEAPON.find((s) => s.key === k).base;
+    const FBASE = {}, SIGN = {}, LOWER = {};
+    for (const k of FKEYS) {
+      const w = WEAPON.find((s) => s.key === k);
+      FBASE[k] = w.base;
+      // The worker compares builds on the rule that more is better, in every
+      // dimension, which is what makes it a plain dominance test. Rather than
+      // teach it about the one stat that runs the other way, that stat's
+      // numbers are flipped on the way in and flipped back on the way out. The
+      // search never learns there was an exception; the reader never sees one.
+      LOWER[k] = !!w.lower;
+      SIGN[k] = w.lower ? -1 : 1;
+    }
     const PER = 4;
 
     let found = [], shortlist = [], sortBy = FKEYS[0], page = 0;
@@ -1102,7 +1219,8 @@ FORGE_CTRL = '''
       shutPanel();
     });
 
-    const value = (b, k) => FBASE[k] + b.v[FKEYS.indexOf(k)];
+    const value = (b, k) =>
+      FBASE[k] + b.v[FKEYS.indexOf(k)] * SIGN[k];
 
     function fitBuild(list) {
       for (const slot of Object.keys(fitted)) unfit(slot);
@@ -1173,7 +1291,8 @@ FORGE_CTRL = '''
     function paintList() {
       const i = FKEYS.indexOf(sortBy);
       shortlist = found.filter((b) =>
-        FKEYS.every((k) => value(b, k) >= floors[k])
+        FKEYS.every((k) => LOWER[k] ? value(b, k) <= floors[k]
+                                    : value(b, k) >= floors[k])
         && must.every((id) => b.has.has(id)));
       shortlist.sort((a, b) => b.v[i] - a.v[i]);
       const pages = Math.ceil(shortlist.length / PER);
@@ -1202,12 +1321,17 @@ FORGE_CTRL = '''
       // What each slider could still be moved to without emptying the list.
       for (const k of FKEYS) {
         const others = found.filter((b) => FKEYS.every(
-          (o) => o === k || value(b, o) >= floors[o]));
-        const top = others.length ? Math.max(...others.map((b) => value(b, k))) : null;
-        sliders[k].note.textContent = top === null ? 'nothing left'
-          : top < floors[k] ? 'too high \\u2014 best here is ' + top
-          : 'up to ' + top;
-        sliders[k].note.classList.toggle('is-over', top !== null && top < floors[k]);
+          (o) => o === k || (LOWER[o] ? value(b, o) <= floors[o]
+                                      : value(b, o) >= floors[o])));
+        const vals = others.map((b) => value(b, k));
+        const best = !vals.length ? null
+          : LOWER[k] ? Math.min(...vals) : Math.max(...vals);
+        const past = best !== null
+          && (LOWER[k] ? best > floors[k] : best < floors[k]);
+        sliders[k].note.textContent = best === null ? 'nothing left'
+          : past ? 'too far \\u2014 best here is ' + best
+          : (LOWER[k] ? 'down to ' : 'up to ') + best;
+        sliders[k].note.classList.toggle('is-over', !!past);
       }
     }
 
@@ -1217,16 +1341,20 @@ FORGE_CTRL = '''
       for (const k of FKEYS) {
         const vals = found.map((b) => value(b, k));
         const lo = Math.min(...vals), hi = Math.max(...vals);
-        floors[k] = lo;
+        // The handle starts where it rules nothing out: the bottom of the range
+        // for a stat you want a lot of, the top of it for the one you want
+        // little of.
+        const open = LOWER[k] ? hi : lo;
+        floors[k] = open;
         const row = document.createElement('label');
         row.className = 'fmin';
         row.innerHTML = '<span class="fmin__k">' + k + '</span>'
           + '<b class="fmin__v"></b>'
-          + '<input type="range" min="' + lo + '" max="' + hi + '" value="' + lo + '">'
+          + '<input type="range" min="' + lo + '" max="' + hi + '" value="' + open + '">'
           + '<em class="fmin__n"></em>';
         const input = row.querySelector('input');
         const out = row.querySelector('.fmin__v');
-        out.textContent = lo;
+        out.textContent = open;
         input.addEventListener('input', () => {
           floors[k] = +input.value;
           out.textContent = input.value;
@@ -1265,9 +1393,10 @@ FORGE_CTRL = '''
       chips();
       for (const k of FKEYS) {
         const s = sliders[k];
-        s.input.value = s.input.min;
-        floors[k] = +s.input.min;
-        s.out.textContent = s.input.min;
+        const open = LOWER[k] ? s.input.max : s.input.min;
+        s.input.value = open;
+        floors[k] = +open;
+        s.out.textContent = open;
       }
       page = 0;
       paintList();
@@ -1304,7 +1433,7 @@ FORGE_CTRL = '''
       for (const [iid, st] of Object.entries(DELTA))
         delta[iid] = FKEYS.map((k) => {
           const w = WEAPON.find((s) => s.key === k);
-          return st[w.from || k] || 0;
+          return (st[w.from || k] || 0) * SIGN[k];
         });
 
       const w = new Worker(URL.createObjectURL(
@@ -1684,8 +1813,18 @@ def slot_tile(sid):
             f'<em>{SLOT_LABEL.get(sid, sid)}</em></span>')
 
 
-def pick_detail(name):
-    """The right-hand card: what fitting this thing does."""
+def pick_detail(name, slot):
+    """The right-hand card: what fitting this thing does.
+
+    The id carries the slot as well as the item because the same attachment is
+    in as many as five of these lists — a handguard panel fits both rails, both
+    patches and the upper rail — and an id repeated five times in one document
+    is not an id. It looked like it worked: the page hides all but one detail,
+    and the panel it filled was the first one in the document, which for an item
+    in a single list is also the visible one. For the twenty-three items in more
+    than one, four times out of five the numbers were written into a pane nobody
+    could see and the visible one stayed blank under its "If fitted" heading.
+    """
     iid = item_id(name)
     item = BY_ID.get(iid)
     rule = RULES.get(iid, {})
@@ -1720,7 +1859,7 @@ def pick_detail(name):
     # No stat block here. What a change is worth depends on what is already
     # fitted, so the numbers are computed in the page against the live build
     # rather than baked in against nothing.
-    return (f'        <div class="detail" id="d-{iid}" hidden>\n'
+    return (f'        <div class="detail" id="d-{slot}-{iid}" hidden>\n'
             + head + rows + fx + adds
             + '          <p class="dlabel">If fitted</p>\n'
             + '          <div class="delta"></div>\n'
@@ -1736,7 +1875,7 @@ def slot_panel(slot, label):
     use, so the two cannot disagree about what fits.
     """
     cards, details = '', ''
-    for i, (name, missing) in enumerate(rows_for(slot)):
+    for i, (name, missing, unread) in enumerate(rows_for(slot)):
         iid = item_id(name)
         tier = (CARD_FACTS.get(iid) or {}).get('tier') or 'none'
         art = (f' style="background-image:url({UP}att/{iid}.png)"'
@@ -1745,7 +1884,7 @@ def slot_panel(slot, label):
                   f'data-item="{iid}" type="button">'
                   f'<span class="pcard__n tier-{tier}">{name}</span>'
                   f'<span class="pcard__art"{art}></span></button>\n')
-        details += pick_detail(name)
+        details += pick_detail(name, slot)
 
     n = len(rows_for(slot))
     return (f'      <div class="slotlist" id="sl-{slot}" hidden>\n'
@@ -1824,7 +1963,7 @@ def gunsmith_body():
     # blank rifle.
     deltas = {}
     for s in order:
-        for name, _m in rows_for(s['slot']):
+        for name, _m, _x in rows_for(s['slot']):
             iid = item_id(name)
             st = stats_for(iid)
             if st:
@@ -1836,13 +1975,17 @@ def gunsmith_body():
     seen = {k for st in deltas.values() for k in st}
     for st in d['weapon']['stats']:
         st['tracked'] = (st.get('from') or st['key']) in seen
+        # Which way is better. Every other stat rewards a bigger number; the
+        # distance your shot carries to somebody else's ears rewards a smaller
+        # one, and nothing downstream can work that out for itself.
+        st['lower'] = st['key'] in LOWER_IS_BETTER
 
     # What each fittable part opens and what it takes over. Only the parts that
     # can go on this rifle, and only the ones that do either, so the page ships
     # the rules it can act on rather than all of them.
     opens = {}
     for s in order:
-        for name, _m in rows_for(s['slot']):
+        for name, _m, _x in rows_for(s['slot']):
             iid = item_id(name)
             r = RULES.get(iid) or {}
             if r.get('grants') or r.get('conflictSlots'):
@@ -2217,6 +2360,11 @@ def gunsmith_body():
     // build on screen. A candidate is judged against the build WITHOUT whatever
     // currently occupies its slot, because fitting it would replace that.
     // Catalogue stat key -> the weapon row it lands on, and how it combines.
+    // The five the catalogue is supposed to carry. Everything else on a stat
+    // row comes off a game card or not at all.
+    // Capacity is not one of these and is not hedged either: it is a set value
+    // read straight off the magazine, not a modifier anybody has to measure.
+    const CORE = new Set(['Range', 'Control', 'Handling', 'Stability', 'Accuracy']);
     const MAP = {{}};
     for (const s of WEAPON) MAP[s.from || s.key] = s;
 
@@ -2251,14 +2399,17 @@ def gunsmith_body():
         const d = v - s.base;
         const pctBase = Math.max(0, Math.min(100, Math.min(v, s.base) / s.max * 100));
         const pctD = Math.max(0, Math.min(100, Math.abs(d) / s.max * 100));
-        const cls = d > 0 ? 'up' : 'down';
+        // Better, not bigger -- the quieter gunshot is the good one.
+        const cls = (s.lower ? d < 0 : d > 0) ? 'up' : 'down';
+        const pctStock = Math.max(0, Math.min(100, s.base / s.max * 100));
         html += '<div class="sr"><span class="sr__n">' + s.key + '</span>'
-             + '<span class="sr__v">' + v + (s.unit || '')
+             + '<span class="sr__v' + (d ? ' ' + cls : '') + '">' + v + (s.unit || '')
              + (d ? ' <i class="' + cls + '">' + (d > 0 ? '+' : '&minus;')
                     + Math.abs(d) + '</i>' : '')
              + '</span><span class="sr__bar">'
              + '<i class="base" style="width:' + pctBase.toFixed(1) + '%"></i>'
              + (d ? '<i class="' + cls + '" style="width:' + pctD.toFixed(1) + '%"></i>' : '')
+             + '<i class="stock" style="left:' + pctStock.toFixed(1) + '%"></i>'
              + '</span></div>';
       }}
       for (const s of SPECS) {{
@@ -2287,7 +2438,11 @@ def gunsmith_body():
       // card: that card lists everything the part moves, so a line it does not
       // mention is a line that does not move. Saying "not tracked" there would
       // be hedging a thing we actually know.
-      const cleared = READ.has(iid);
+      // Per item, and only on the five a card would answer. Whether some other
+      // attachment somewhere moves fire rate is not the question here; whether
+      // anybody has read THIS card is. The base stats have their own tag and
+      // are not hedged twice.
+      const unread = !READ.has(iid);
       let html = '';
       for (const s of WEAPON) {{
         const b = before[s.key], a = after[s.key];
@@ -2295,19 +2450,30 @@ def gunsmith_body():
         // look like a complete one, and hides that the others were considered.
         const pctBase = Math.max(0, Math.min(100, Math.min(a, b) / s.max * 100));
         const pctD = Math.max(0, Math.min(100, Math.abs(a - b) / s.max * 100));
-        const cls = a > b ? 'up' : 'down';
+        // Green for better, not for bigger. Everywhere else those are the same
+        // thing; on gunshot range the quieter number is the good one.
+        const cls = (s.lower ? a < b : a > b) ? 'up' : 'down';
         const same = a === b;
+        // Where the rifle sits with nothing on it. The two numbers on this row
+        // are the build's and the change this part would make to it, and
+        // neither says how far the build has already travelled from stock.
+        const pctStock = Math.max(0, Math.min(100, s.base / s.max * 100));
         html += '<div class="sr' + (same ? ' is-flat' : '') + '">'
              + '<span class="sr__n">' + s.key
-             + (s.tracked || cleared
-                  ? '' : ' <i class="untracked">not tracked</i>') + '</span>'
-             + '<span class="sr__v">' + a + (s.unit || '')
+             + (unread && !CORE.has(s.key) && s.mode !== 'set'
+                  ? ' <i class="untracked">not tracked</i>' : '') + '</span>'
+             // The total takes the colour too. Left plain it reads as the
+             // number the gun already has, with the change beside it as a
+             // suggestion, when it is the number the gun would have.
+             + '<span class="sr__v' + (same ? '' : ' ' + cls) + '">'
+             + a + (s.unit || '')
              + (same ? '' : ' <i class="' + cls + '">(' + (a > b ? '+' : '&minus;')
                             + Math.abs(a - b) + ')</i>')
              + '</span><span class="sr__bar">'
              + '<i class="base" style="width:' + pctBase.toFixed(1) + '%"></i>'
              + (same ? '' : '<i class="' + cls + '" style="width:'
                             + pctD.toFixed(1) + '%"></i>')
+             + '<i class="stock" style="left:' + pctStock.toFixed(1) + '%"></i>'
              + '</span></div>';
       }}
       // Stat lines the weapon panel has no base for — magazine capacity and the
@@ -2319,7 +2485,7 @@ def gunsmith_body():
              + (v > 0 ? '+' : '&minus;') + Math.abs(v) + '</span></div>';
       }}
 
-      const box = document.querySelector('#d-' + iid + ' .delta');
+      const box = document.querySelector('#d-' + slot + '-' + iid + ' .delta');
       if (box) box.innerHTML = html;
     }}
 
@@ -2336,7 +2502,7 @@ def gunsmith_body():
       for (const b of list.querySelectorAll('.pcard'))
         b.classList.toggle('is-on', b.dataset.item === iid);
       for (const d of list.querySelectorAll('.detail'))
-        d.hidden = d.id !== 'd-' + iid;
+        d.hidden = d.id !== 'd-' + list.id.slice(3) + '-' + iid;
       cur = {{slot: list.id.slice(3), item: iid}};
       paintDelta(cur.slot, iid);
       paintEquip();
@@ -3356,14 +3522,27 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 
 /* A stat bar is white up to the figure the two readings share, then a coloured
    tail for the difference — added to the right, taken off the end. */
-.sr__bar { display: flex; }
+.sr__bar { display: flex; position: relative; }
 .sr__bar i.base { background: var(--text-dim); }
+/* Where the bare rifle sits on this bar. The bar shows what the gun would be
+   and the slice this part moves it by, and until now there was nothing to
+   measure either against: a build eight attachments deep looked the same as a
+   stock one that happened to score the same. Absolute, so it does not take a
+   share of the flex row -- it is a mark on the bar, not a part of it. */
+.sr__bar i.stock {
+  position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px;
+  height: auto; border-radius: 1px; background: var(--text); opacity: 0.6;
+}
 .sr__v i { font-style: normal; }
 .sr__v i.up { color: var(--accent); }
 .sr__v i.down { color: var(--red); }
 .delta .sr:last-child { margin-bottom: 0; }
 /* A stat this attachment leaves alone is still shown, just quietly. */
 .sr.is-flat .sr__n, .sr.is-flat .sr__v { color: var(--text-faint); }
+/* The commoner of the two debts, so it is drawn quieter: on most items it is
+   the only tag there is, and at the same weight as #missing-info it would make
+   the rare and urgent one impossible to pick out of a page of them. */
+.tag--soft { color: var(--text-faint); border-color: var(--line); }
 .sr__n .untracked {
   font-family: var(--mono); font-size: 8px; font-style: normal;
   letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn);
@@ -3693,9 +3872,17 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 
 /* One tab per stat. The tab is the sort: "show me the best handling" is the
    only question anyone opens this for, so it is the only control on top. */
-.ftabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+/* Wrapping, not scrolling. There were five of these when the panel was drawn
+   and there are eight now — the suppressor readings turned muzzle velocity,
+   gunshot range and fire rate from columns nobody had into stats you can sort
+   on — and a row that scrolls hides the ones added last behind an edge nobody
+   thinks to drag. Two lines of four is worth more than one line and a secret. */
+.ftabs {
+  display: flex; flex-wrap: wrap; gap: 0 14px;
+  border-bottom: 1px solid var(--line);
+}
 .ftab {
-  flex: 1; margin-bottom: -1px; padding: 7px 3px 8px;
+  flex: 0 0 auto; margin-bottom: -1px; padding: 6px 1px 7px;
   font: inherit; font-size: 11px; font-weight: 700; white-space: nowrap;
   cursor: pointer; color: var(--text-faint); background: none;
   border: 0; border-bottom: 2px solid transparent;

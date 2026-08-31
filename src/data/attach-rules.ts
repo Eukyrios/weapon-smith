@@ -304,11 +304,43 @@ export const CATEGORY_FITS: Record<string, string[]> = {
   ],
 
   /**
-   * Left rail — 14 named, 11 resolve. Nine lights and lasers plus the five
-   * handguard panels. Absent from the 414: OLIGHT Warrior 3S Tactical
-   * Flashlight, OLIGHT Odin S Tactical Flashlight, DD Python Handguard Panel.
+   * Left rail — 13 named, 11 resolve. Eight lights and lasers plus the five
+   * handguard panels. Absent from the 414: OLIGHT Odin S Tactical Flashlight,
+   * DD Python Handguard Panel.
+   *
+   * The Warrior 3S was dictated onto this list and is not on it. It is on the
+   * right rail and the upper rail, which is what made the mistake easy: three
+   * lists that agree about almost everything, transcribed in one sitting.
    */
   'left-rail': [
+    // 'olight-odin-s-tactical-flashlight',      <- named, absent
+    'olight-baldr-pro-r-multi-function-flashlight',
+    'dbal-x2-purple-laser-light-combo',
+    'perst-7-blue-laser-light-combo', // transcribed "Burst ST-7"
+    'flare-tactical-flashlight',
+    'la-3c-green-laser-light-combo',
+    'peq-2-red-laser-light-combo',
+    'practical-weapon-light',
+    'modular-handguard-panel',
+    'hornet-handguard',
+    // 'dd-python-handguard-panel',              <- named, absent
+    'kc-hound-handguard',
+    'ranger-handguard',
+  ],
+
+  /**
+   * Right rail — 14 named, 11 resolve. Absent from the 414: OLIGHT Warrior 3S
+   * Tactical Flashlight, OLIGHT Odin S Tactical Flashlight, DD Python
+   * Handguard Panel.
+   *
+   * Dictated as identical to the left at first, then corrected to leave the
+   * Odin S off, then corrected back. It carries the Warrior 3S and the left
+   * rail does not, so the two lists still differ and are still written out in
+   * full rather than aliased to each other. Two slots that agree about eleven
+   * of thirteen entries are still two slots, and every time this pair has been
+   * re-read the difference has moved.
+   */
+  'right-rail': [
     // 'olight-warrior-3s-tactical-flashlight',  <- named, absent
     // 'olight-odin-s-tactical-flashlight',      <- named, absent
     'olight-baldr-pro-r-multi-function-flashlight',
@@ -319,35 +351,7 @@ export const CATEGORY_FITS: Record<string, string[]> = {
     'peq-2-red-laser-light-combo',
     'practical-weapon-light',
     'modular-handguard-panel',
-    'hornet-handguard', // catalogue drops the "Panel"
-    // 'dd-python-handguard-panel',              <- named, absent
-    'kc-hound-handguard',
-    'ranger-handguard',
-  ],
-
-  /**
-   * Right rail — 13 named, 11 resolve. NOT the same list as the left: the
-   * OLIGHT Odin S fits the left rail and not this one.
-   *
-   * Dictated as identical to the left at first, and written out in full rather
-   * than aliased to it on the grounds that two slots which agree today are
-   * still two slots. That turned out to be the right call sooner than expected
-   * — sharing one array would have made this difference unrepresentable, and
-   * correcting it would have silently changed the left rail too.
-   */
-  'right-rail': [
-    // 'olight-warrior-3s-tactical-flashlight',  <- named, absent
-    // The Odin S is a left-rail-only light. It is also absent from the upper
-    // rail, so the left rail is the exception rather than this one.
-    'olight-baldr-pro-r-multi-function-flashlight',
-    'dbal-x2-purple-laser-light-combo',
-    'perst-7-blue-laser-light-combo', // transcribed "Burst ST-7"
-    'flare-tactical-flashlight',
-    'la-3c-green-laser-light-combo',
-    'peq-2-red-laser-light-combo',
-    'practical-weapon-light',
-    'modular-handguard-panel',
-    'hornet-handguard', // catalogue drops the "Panel"
+    'hornet-handguard',
     // 'dd-python-handguard-panel',              <- named, absent
     'kc-hound-handguard',
     'ranger-handguard',
@@ -758,7 +762,7 @@ export const UNRESOLVED_NAMES: Record<string, Record<string, string[]>> = {
       'UHX Holographic Sight',
       'MEO Micro Sight Riser',
     ],
-    barrel: ['RM277 Heavy Integral Barrel', 'RM277 Whale Shark Barrel Combo'],
+    barrel: ['RM277 Whale Shark Barrel Combo', 'RM277 Heavy Integral Barrel'],
     'rear-grip': ['AR Modular Rear Grip', 'AR MOE Rear Grip'],
     'rear-grip-patch': ['AR Light Grip Piece', 'AR Heavy Grip Piece'],
     'cheek-pad': ['RM277 Cheek Pad'],
@@ -767,9 +771,15 @@ export const UNRESOLVED_NAMES: Record<string, Record<string, string[]>> = {
     // The four laser-light combos once guessed at for the tactical-device slot
     // turned out to belong to the RAILS. The tactical-device list is unknown.
     'left-rail': [
-      'OLIGHT Warrior 3S Tactical Flashlight',
       'OLIGHT Odin S Tactical Flashlight',
       'DD Python Handguard Panel',
+    ],
+    // The Warrior 3S moved here from the left rail, where it had been
+    // transcribed by mistake. It is on the upper rail too; one slot is enough
+    // to anchor its card facts, and this is the one it was checked against.
+    'right-rail': [
+      'OLIGHT Warrior 3S Tactical Flashlight',
+      'OLIGHT Odin S Tactical Flashlight',
     ],
   },
 };

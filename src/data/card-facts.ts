@@ -74,6 +74,17 @@ export interface CardFacts {
    * that somebody looked at it.
    */
   read?: true;
+  /**
+   * This item is showing the wrong picture and wants a new one.
+   *
+   * Not a card fact at all, but it lives here because it is the same shape of
+   * thing as the rest of this file: a note about what the record still owes,
+   * kept per item, surfaced as a tag you can search for. The offset sights are
+   * the whole of it so far — each is drawn with its straight cousin's art, so
+   * the one feature that distinguishes them is the one thing the picture does
+   * not show.
+   */
+  imageChange?: true;
 }
 
 export const CARD_FACTS: Record<string, CardFacts> = {
@@ -108,25 +119,129 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     tier: 'blue', weight: 0.3, stats: { Handling: -1, Stability: 2 },
   },
 
+  // --- optics: the whole slot, cleared ------------------------------------
+  /*
+   * Twenty-two scopes and sights, reviewed in one pass. None of them needed
+   * a stat line changed — the import already had the handling and stability
+   * they cost, and it had them right — so what is recorded here is only the
+   * looking, which is the whole point of the flag: it is the difference
+   * between a number nobody has checked and one somebody has.
+   *
+   * No tier on these. Rarity was not part of the pass, and a colour is a
+   * reading like any other; guessing it from price would be inventing a
+   * measurement to fill a column.
+   */
+  'insight-3-7-sniper-scope': { tier: 'purple', read: true },
+  'viewpoint-3x-scope': { tier: 'purple', read: true },
+  'lpvo-scope': { tier: 'purple', read: true },
+  '3-7-adjustable-scope': { tier: 'purple', read: true },
+  'recon-1-5-5-adjustable-scope': { tier: 'purple', read: true },
+  'hamr-combined-scope': { tier: 'purple', read: true },
+  'multi-purpose-tactical-riser': { tier: 'blue', read: true },
+  'micro-sight-riser': { tier: 'blue', read: true },
+  'acog-precision-6x-scope': { tier: 'blue', read: true },
+  'osight-red-dot': { tier: 'blue', read: true },
+  'cobra-accuracy-sight': { tier: 'blue', read: true },
+  'combat-red-dot-sight': { tier: 'blue', read: true },
+  'mini-red-dot-sight': { tier: 'blue', read: true },
+  'okp-7-reflex-sight': { tier: 'blue', read: true },
+  'xcog-assault-3-5x-scope': { tier: 'blue', read: true },
+  'xro-quick-response-sight': { tier: 'blue', read: true },
+  'panoramic-red-dot-sight': { tier: 'blue', read: true },
+  'ap5000-reflex-sight': { tier: 'green', read: true },
+  'holographic-sight-type-ii': { tier: 'green', read: true },
+  'reflex-sight': { tier: 'green', read: true },
+  'russian-accuracy-2x-scope': { tier: 'green', read: true },
+  'holographic-sight': { tier: 'green', read: true },
+
+  // --- offset optics ------------------------------------------------------
+  /*
+   * All five purple, and all five flagged for a new picture: they are
+   * showing the straight sight's art rather than the offset mount's, which
+   * is the one thing about them worth looking at.
+   */
+  'offset-osight-red-dot': { tier: 'purple', imageChange: true, read: true },
+  'offset-combat-red-dot-sight': {
+    tier: 'purple', imageChange: true,
+    read: true,
+  },
+  'offset-mini-red-dot-sight': {
+    tier: 'purple', imageChange: true,
+    read: true,
+  },
+  'offset-xro-quick-response-sight': {
+    tier: 'purple', imageChange: true,
+    read: true,
+  },
+  'offset-panoramic-red-dot-sight': {
+    tier: 'purple', imageChange: true,
+    read: true,
+  },
+
+  // --- magazine and its mount ---------------------------------------------
+  /*
+   * The drum mag corrects the import rather than filling a blank: the
+   * catalogue has it at -12 handling and the card reads -6. Its 45 rounds
+   * the catalogue already had right.
+   */
+  'm7-6-8-45-round-drum-mag': {
+    tier: 'purple', read: true, stats: { Handling: -6 },
+  },
+  'grizzly-full-p-mag-assist-sand': { tier: 'green', read: true },
+  'grizzly-full-p-mag-assist-green': { tier: 'green', read: true },
+  'grizzly-full-p-mag-assist-black': { tier: 'green', read: true },
+
+  // --- rear grips ---------------------------------------------------------
+  'ar-heavy-tower-grip': { tier: 'purple', read: true },
+  'invasion-rear-grip': { tier: 'purple', read: true },
+  'phantom-rear-grip': { tier: 'purple', read: true },
+  'marksman-d-2-rear-grip': { tier: 'blue', read: true },
+  'hurricane-d-1-rear-grip': { tier: 'blue', read: true },
+  'm7-stable-rear-grip': { tier: 'green', read: true },
+  '416-practical-rear-grip': { tier: 'green', read: true },
+
   // --- muzzle and barrel --------------------------------------------------
   'rm277-breaker-suppressor': {
-    tier: 'purple', weight: 0.15, stats: { Range: 10, Control: 5, Accuracy: -8 },
+    tier: 'purple', weight: 0.15, read: true,
+    stats: {
+      Range: 10, Control: 5, Accuracy: -8,
+      'Muzzle velocity': 117, 'Gunshot heard': -150,
+    },
   },
   'cobweb-titanium-muzzle-brake': {
     tier: 'purple', weight: 0.2, stats: { Control: 7, Stability: -2, Accuracy: 8 },
   },
+  /*
+   * Both barrels re-read for muzzle velocity, which nothing carried until the
+   * suppressors made it a column worth having: 845 m/s and 767 against the bare
+   * rifle's 650, so +195 and +117. A barrel being the biggest single thing that
+   * happens to muzzle velocity is what you would expect, and worth having on
+   * record now that the stat is one the optimiser can sort on.
+   */
   'rm277-whale-shark-barrel-combo': {
-    tier: 'purple', weight: 0.4,
-    stats: { Range: 17, Control: 8, Handling: -9, Stability: 5, Accuracy: -12 },
+    tier: 'purple', weight: 0.4, read: true,
+    stats: {
+      Range: 17, Control: 8, Handling: -9, Stability: 5, Accuracy: -12,
+      'Muzzle velocity': 195,
+    },
   },
   'rm277-heavy-integral-barrel': {
-    tier: 'purple', weight: 0.5,
-    stats: { Range: 10, Control: 7, Handling: -2, Stability: 5, Accuracy: 12 },
+    tier: 'purple', weight: 0.5, read: true,
+    stats: {
+      Range: 10, Control: 7, Handling: -2, Stability: 5, Accuracy: 12,
+      'Muzzle velocity': 117,
+    },
   },
 
   // --- grips, pads and panels ---------------------------------------------
-  'rm277-pad': { tier: 'purple', weight: 0.2 },
-  'rm277-cheek-pad': { tier: 'purple', weight: 0.2 },
+  'rm277-pad': {
+    tier: 'purple', weight: 0.2,
+    stats: { Control: 4, Handling: 2, Accuracy: -8 },
+  },
+  'rm277-cheek-pad': {
+    tier: 'purple', weight: 0.2,
+    stats: { Control: 2, Handling: -2, Stability: 4 },
+  },
   // Dictated as "Resonant MK II". The RM277's foregrip list holds one Resonant
   // grip and it is the MK III.
   'resonant-mk-iii-grip': {
@@ -152,10 +267,24 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     tier: 'blue', weight: 0.2, stats: { Control: 3, Stability: 3 },
   },
   'dd-python-handguard-panel': {
-    tier: 'green', weight: 0.1, stats: { Handling: 1 },
+    tier: 'green', weight: 0.1, read: true, stats: { Handling: 1 },
   },
 
   // --- muzzles --------------------------------------------------------------
+   /*
+    * Six suppressors carry stat lines as well as a tier, and they are the first
+    * items on the site to move muzzle velocity, gunshot range or fire rate --
+    * the columns the catalogue import has for nothing at all. Which is why a
+    * card reading is laid over the import rather than used instead of it: the
+    * import knows a suppressor costs handling, and only the card knows it is
+    * the thing that makes the shot quieter.
+    *
+    * Dictated as the figures the gun's own panel shows with the part fitted,
+    * against the bare RM277 -- fire rate 550, muzzle velocity 650, gunshot 500 --
+    * and written down here as the modifiers that produce them. The M7's 650 m/s
+    * is the base exactly, so it has no muzzle velocity line: read, and found to
+    * move nothing.
+    */
    /*
     * Rarity for the whole slot, dictated as three runs the way the foregrips
     * were: purple down to the Blazing Fire, blue down to the Practical
@@ -173,20 +302,31 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     * lines were checked, and a tier is not a licence to drop the hedge on
     * five stats this reading never looked at.
     */
-  'spiral-fire-flash-hider': { tier: 'purple' },
-  'advanced-multi-caliber-suppressor': { tier: 'purple' },
-  'm7-practical-suppressor': { tier: 'purple' },
-  'silent-suppressor': { tier: 'purple' },
-  'sandstorm-vertical-compensator': { tier: 'purple' },
-  'bastion-horizontal-compensator': { tier: 'purple' },
-  'poseidon-flash-hider': { tier: 'purple' },
-  'whisper-tactical-suppressor': { tier: 'purple' },
-  'titanium-contest-muzzle-brake': { tier: 'purple' },
-  'blazing-fire-suppressor': { tier: 'purple' },
-  'steel-muzzle-brake': { tier: 'blue' },
-  'practical-suppressor': { tier: 'blue' },
-  'birdcage-flash-hider': { tier: 'green' },
-  'practical-flash-hider': { tier: 'green' },
+  'spiral-fire-flash-hider': { tier: 'purple', read: true },
+  'advanced-multi-caliber-suppressor': { tier: 'purple', read: true,
+    stats: { 'Muzzle velocity': 117, 'Gunshot heard': -250 } },
+  'm7-practical-suppressor': { tier: 'purple', read: true, stats: { 'Gunshot heard': -250 } },
+  'silent-suppressor': { tier: 'purple', read: true,
+    stats: { 'Fire rate': -71, 'Muzzle velocity': 156, 'Gunshot heard': -250 } },
+  'sandstorm-vertical-compensator': {
+    tier: 'purple',
+    read: true,
+    stats: { Control: 9 },
+  },
+  'bastion-horizontal-compensator': {
+    tier: 'purple',
+    read: true,
+    stats: { Control: 9 },
+  },
+  'poseidon-flash-hider': { tier: 'purple', read: true },
+  'whisper-tactical-suppressor': { tier: 'purple', read: true,
+    stats: { 'Muzzle velocity': 117, 'Gunshot heard': -150 } },
+  'titanium-contest-muzzle-brake': { tier: 'purple', read: true },
+  'blazing-fire-suppressor': { tier: 'purple', read: true },
+  'steel-muzzle-brake': { tier: 'blue', read: true },
+  'practical-suppressor': { tier: 'blue', read: true, stats: { 'Gunshot heard': -150 } },
+  'birdcage-flash-hider': { tier: 'green', read: true },
+  'practical-flash-hider': { tier: 'green', read: true },
 
   // --- foregrips ----------------------------------------------------------
   /*
@@ -227,6 +367,17 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'mini-hand-stop': { tier: 'green', read: true },
   'practical-vertical-foregrip': { tier: 'green', read: true },
 
+
+  // --- read on the RM277, with nothing of their own to add ----------------
+  /*
+   * The last of the rifle's own lists to be gone through. None of these
+   * needed a number changed, so all that is recorded is the looking — which
+   * is the whole of what `read` is for.
+   */
+  'honeycomb-killflash': { read: true },
+  'balanced-grip-base': { read: true },
+  'stable-grip-base': { read: true },
+
   // --- rail devices -------------------------------------------------------
   /*
    * The Baldr is the odd one here: it IS in the 414, so it has a name, a price
@@ -250,12 +401,45 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * Nobody has published them. They come off the game's own cards or not at all.
    */
   'olight-baldr-pro-r-multi-function-flashlight': {
-    stats: { Handling: -5, Accuracy: -8 },
+    tier: 'purple', read: true, stats: { Handling: -5, Accuracy: -8 },
   },
-  'olight-warrior-3s-tactical-flashlight': { tier: 'purple', weight: 0.1 },
+  'olight-warrior-3s-tactical-flashlight': {
+    tier: 'purple', weight: 0.1,
+    read: true,
+    stats: {},
+  },
   'olight-odin-s-tactical-flashlight': {
     tier: 'purple', weight: 0.1, stats: { Handling: -1 },
   },
+  /*
+   * The rest of the rail, read in one pass, and rarity dictated as runs the way
+   * the foregrips and muzzles were: purple down to the PEQ-2, the Practical
+   * Weapon Light on its own in blue, the five panels green.
+   *
+   * Most of these only confirm what the import already said — the Flare's -1
+   * handling, the Python's +1 — and confirmation is worth writing down, because
+   * it is the difference between a number nobody has checked and one somebody
+   * has. The four laser-light combos are new: the import carried no stat block
+   * for any of them.
+   */
+  'dbal-x2-purple-laser-light-combo': {
+    tier: 'purple', read: true, stats: { Handling: -4 },
+  },
+  'perst-7-blue-laser-light-combo': {
+    tier: 'purple', read: true, stats: { Handling: -4 },
+  },
+  'flare-tactical-flashlight': { tier: 'purple', read: true },
+  'la-3c-green-laser-light-combo': {
+    tier: 'purple', read: true, stats: { Handling: -4 },
+  },
+  'peq-2-red-laser-light-combo': {
+    tier: 'purple', read: true, stats: { Handling: -4 },
+  },
+  'practical-weapon-light': { tier: 'blue', read: true },
+  'modular-handguard-panel': { tier: 'green', read: true },
+  'hornet-handguard': { tier: 'green', read: true },
+  'kc-hound-handguard': { tier: 'green', read: true },
+  'ranger-handguard': { tier: 'green', read: true },
   /*
    * The rail bipod, and the only member of its slot. Another of the nineteen
    * the catalogue carries with an empty stat block, read off the game: one
