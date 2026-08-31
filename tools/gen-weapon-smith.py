@@ -1121,6 +1121,7 @@ FORGE_CTRL = '''
       work: document.getElementById('forge-work'),
       fill: document.getElementById('forge-fill'),
       say: document.getElementById('forge-say'),
+      tick: document.getElementById('forge-tick'),
       out: document.getElementById('forge-out'),
       shut: document.getElementById('forge-close'),
       sort: document.getElementById('forge-sort'),
@@ -1156,14 +1157,56 @@ FORGE_CTRL = '''
     }
     const PER = 4;
 
-    let found = [], shortlist = [], sortBy = FKEYS[0], page = 0;
+    // "Overall" is a sort, not a stat: it has no column of its own and no
+    // floor. It sits first because it is the question most people arrive with
+    // -- not "which gun has the most range" but "which of these is the best
+    // gun" -- and the frontier alone cannot answer it. Every build on the
+    // frontier is the best at something, so the frontier has no top; a ranking
+    // needs somebody to say what counts, and this says all eight stats count
+    // the same.
+    const OVERALL = 'Overall';
+    let found = [], shortlist = [], sortBy = OVERALL, page = 0;
+    let span = {};
     let picked = null, floors = {}, sliders = {};
 
     // The worker talks faster than anyone can read. Its messages are queued and
     // shown one at a time, each for long enough to be read; when the search
     // finishes ahead of the queue the queue is cut short rather than made to
     // hold the results back.
-    let sayQ = [], sayT = null, sayGap = 320;
+    let sayQ = [], sayT = null, sayGap = 240;
+
+    // ---- the part of the screen that is always moving ---------------------
+    // A search that takes four seconds and reports twenty-two times looks
+    // stalled for most of them: one slot can take longer than the rest put
+    // together, and a bar that only moves when a message arrives sits still
+    // through exactly the stretch a reader starts to doubt it. So the bar eases
+    // toward a point just short of the next milestone rather than jumping to
+    // the last one, and a counter under it climbs toward the real number of
+    // arrangements looked at. Neither is a lie about progress: the bar never
+    // passes a milestone it has not reached, and the counter never passes the
+    // count the worker has actually reported.
+    let barAt = 0, barTo = 0, tickAt = 0, tickTo = 0, t0 = 0, spinning = false;
+
+    function frame() {
+      if (!spinning) return;
+      barAt += (barTo - barAt) * 0.055;
+      forge.fill.style.width = (barAt * 100).toFixed(2) + '%';
+      tickAt += (tickTo - tickAt) * 0.12;
+      const secs = ((performance.now() - t0) / 1000).toFixed(1);
+      forge.tick.textContent = tickAt < 1 ? secs + 's'
+        : Math.round(tickAt).toLocaleString() + ' arrangements weighed \u00b7 '
+          + secs + 's';
+      requestAnimationFrame(frame);
+    }
+
+    function spin(on) {
+      spinning = on;
+      if (on) {
+        barAt = barTo = tickAt = tickTo = 0;
+        t0 = performance.now();
+        requestAnimationFrame(frame);
+      }
+    }
 
     function pump() {
       if (!sayQ.length) { sayT = null; return; }
@@ -1294,7 +1337,8 @@ FORGE_CTRL = '''
         FKEYS.every((k) => LOWER[k] ? value(b, k) <= floors[k]
                                     : value(b, k) >= floors[k])
         && must.every((id) => b.has.has(id)));
-      shortlist.sort((a, b) => b.v[i] - a.v[i]);
+      shortlist.sort((a, b) => sortBy === OVERALL
+        ? b.score - a.score : b.v[i] - a.v[i]);
       const pages = Math.ceil(shortlist.length / PER);
       page = Math.min(page, Math.max(0, pages - 1));
       forge.list.innerHTML = '';
@@ -1366,9 +1410,37 @@ FORGE_CTRL = '''
       }
     }
 
+    // Each stat stretched onto nought-to-one across the builds that were found,
+    // then added up. Stretching is the whole of it: raw, muzzle velocity moves
+    // in nearly two hundreds and handling in tens, so a plain sum would be a
+    // muzzle velocity ranking wearing a different name. On this scale a build
+    // that is best-in-set at everything scores eight and one that is worst at
+    // everything scores nought.
+    function score(b) {
+      let t = 0;
+      for (let i = 0; i < FKEYS.length; i++) {
+        const sp = span[FKEYS[i]];
+        if (sp.hi > sp.lo) t += (b.v[i] - sp.lo) / (sp.hi - sp.lo);
+      }
+      return t;
+    }
+
+    function measure() {
+      span = {};
+      for (let i = 0; i < FKEYS.length; i++) {
+        let lo = Infinity, hi = -Infinity;
+        for (const b of found) {
+          if (b.v[i] < lo) lo = b.v[i];
+          if (b.v[i] > hi) hi = b.v[i];
+        }
+        span[FKEYS[i]] = {lo, hi};
+      }
+      for (const b of found) b.score = score(b);
+    }
+
     function buildTabs() {
       forge.sort.innerHTML = '';
-      for (const k of FKEYS) {
+      for (const k of [OVERALL, ...FKEYS]) {
         const b = document.createElement('button');
         b.type = 'button';
         b.role = 'tab';
@@ -1416,6 +1488,8 @@ FORGE_CTRL = '''
       forge.out.hidden = true;
       forge.out.classList.remove('is-open');
       forge.fill.style.width = '0%';
+      forge.tick.textContent = '';
+      spin(true);
       sayQ = [];
       clearTimeout(sayT);
       sayT = null;
@@ -1440,6 +1514,7 @@ FORGE_CTRL = '''
         new Blob([FORGE_SRC], {type: 'text/javascript'})));
       const t0 = performance.now();
       w.onerror = (e) => {
+        spin(false);
         sayQ = [];
         forge.say.textContent = 'The search stopped: ' + e.message;
         forge.go.disabled = false;
@@ -1451,7 +1526,9 @@ FORGE_CTRL = '''
         if (data.total !== undefined)
           return note(data.total.toLocaleString() + ' builds to get through');
         if (data.step) {
-          forge.fill.style.width = (data.step / data.of * 100) + '%';
+          // Just short of the next one, so the ease has somewhere to go.
+          barTo = Math.min(1, (data.step + 0.85) / data.of);
+          if (data.raw) tickTo += data.raw;
           const what = data.slot.replace(/-/g, ' ');
           return note(data.idle
             ? 'Skipping ' + what + ' \\u2014 nothing on record moves a stat'
@@ -1467,19 +1544,20 @@ FORGE_CTRL = '''
           sayGap = 110;
           note(found.length.toLocaleString() + ' builds nothing else beats, in '
             + ((performance.now() - t0) / 1000).toFixed(1) + 's');
-          forge.fill.style.width = '100%';
+          barTo = 1;
           forge.goLabel.textContent = 'Builds';
           forge.go.disabled = false;
           forge.go.classList.remove('is-busy');
           picked = null;
           page = 0;
           must = [];
+          measure();
           countUses();
           chips();
           buildTabs();
           buildSliders();
           paintList();
-          drained(openPanel);
+          drained(() => { spin(false); openPanel(); });
         }
       };
       w.postMessage({pool, delta, opens: OPENS,
@@ -2071,6 +2149,7 @@ def gunsmith_body():
         </div>
         <div class="fwork__bar"><i id="forge-fill"></i></div>
         <p class="fwork__say" id="forge-say"></p>
+        <p class="fwork__tick" id="forge-tick"></p>
       </div>
     </div>
 
@@ -3747,9 +3826,30 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .fwork__bar {
   height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden;
 }
+/* No width transition: the width is driven frame by frame from script, easing
+   toward a point just short of the next milestone, so the bar is always moving
+   even while one slot is taking its time. A transition here would fight that.
+   The sheen runs regardless, so the bar says "working" even at a standstill. */
 .fwork__bar i {
   display: block; height: 100%; width: 0;
-  background: var(--accent); transition: width 200ms ease;
+  background: linear-gradient(90deg,
+    var(--accent-dim) 0%, var(--accent) 35%, #8ffbd0 50%,
+    var(--accent) 65%, var(--accent-dim) 100%);
+  background-size: 280% 100%;
+  animation: fsheen 1.3s linear infinite;
+}
+@keyframes fsheen { from { background-position: 140% 0; } to { background-position: -140% 0; } }
+/* The line that never stops: a running count of arrangements looked at, easing
+   toward the real figure a frame at a time, and the seconds ticking beside it.
+   The message above changes once a slot; this changes every frame, which is
+   the difference between a screen that is working and one that has hung. */
+.fwork__tick {
+  margin: 4px 0 0; font-family: var(--mono); font-size: 10px;
+  color: var(--text-faint); font-variant-numeric: tabular-nums;
+  min-height: 1.4em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fwork__bar i { animation: none; background: var(--accent); }
 }
 .fwork__say {
   margin: 12px 0 0; min-height: 3.2em; font-family: var(--mono); font-size: 11px;

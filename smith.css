@@ -786,9 +786,30 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .fwork__bar {
   height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden;
 }
+/* No width transition: the width is driven frame by frame from script, easing
+   toward a point just short of the next milestone, so the bar is always moving
+   even while one slot is taking its time. A transition here would fight that.
+   The sheen runs regardless, so the bar says "working" even at a standstill. */
 .fwork__bar i {
   display: block; height: 100%; width: 0;
-  background: var(--accent); transition: width 200ms ease;
+  background: linear-gradient(90deg,
+    var(--accent-dim) 0%, var(--accent) 35%, #8ffbd0 50%,
+    var(--accent) 65%, var(--accent-dim) 100%);
+  background-size: 280% 100%;
+  animation: fsheen 1.3s linear infinite;
+}
+@keyframes fsheen { from { background-position: 140% 0; } to { background-position: -140% 0; } }
+/* The line that never stops: a running count of arrangements looked at, easing
+   toward the real figure a frame at a time, and the seconds ticking beside it.
+   The message above changes once a slot; this changes every frame, which is
+   the difference between a screen that is working and one that has hung. */
+.fwork__tick {
+  margin: 4px 0 0; font-family: var(--mono); font-size: 10px;
+  color: var(--text-faint); font-variant-numeric: tabular-nums;
+  min-height: 1.4em;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fwork__bar i { animation: none; background: var(--accent); }
 }
 .fwork__say {
   margin: 12px 0 0; min-height: 3.2em; font-family: var(--mono); font-size: 11px;

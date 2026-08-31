@@ -24,7 +24,7 @@
 <meta name="twitter:image" content="https://eukyrios.github.io/weapon-smith/og.png">
 
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Weapon Smith", "item": "https://eukyrios.github.io/weapon-smith/"}, {"@type": "ListItem", "position": 2, "name": "RM277", "item": "https://eukyrios.github.io/weapon-smith/gun-rm277.html"}]}</script>
-<link rel="stylesheet" href="smith.css?v=80db4bf7ec">
+<link rel="stylesheet" href="smith.css?v=e850835c94">
 
 <aside class="banner">
     <strong>Early days.</strong> This site is being written as the game is read, and one of 66 weapons has an attachment list so far &mdash; the RM277. I enter this by hand, one attachment at a time, so the first few guns will take a while. It gets faster as it goes: most of what a new gun takes is already catalogued, so there are fewer attachments left to add each time. Every other weapon page carries what the catalogue knows and says so.
@@ -152,6 +152,7 @@
         </div>
         <div class="fwork__bar"><i id="forge-fill"></i></div>
         <p class="fwork__say" id="forge-say"></p>
+        <p class="fwork__tick" id="forge-tick"></p>
       </div>
     </div>
 
@@ -1946,6 +1947,7 @@
       work: document.getElementById('forge-work'),
       fill: document.getElementById('forge-fill'),
       say: document.getElementById('forge-say'),
+      tick: document.getElementById('forge-tick'),
       out: document.getElementById('forge-out'),
       shut: document.getElementById('forge-close'),
       sort: document.getElementById('forge-sort'),
@@ -1981,14 +1983,56 @@
     }
     const PER = 4;
 
-    let found = [], shortlist = [], sortBy = FKEYS[0], page = 0;
+    // "Overall" is a sort, not a stat: it has no column of its own and no
+    // floor. It sits first because it is the question most people arrive with
+    // -- not "which gun has the most range" but "which of these is the best
+    // gun" -- and the frontier alone cannot answer it. Every build on the
+    // frontier is the best at something, so the frontier has no top; a ranking
+    // needs somebody to say what counts, and this says all eight stats count
+    // the same.
+    const OVERALL = 'Overall';
+    let found = [], shortlist = [], sortBy = OVERALL, page = 0;
+    let span = {};
     let picked = null, floors = {}, sliders = {};
 
     // The worker talks faster than anyone can read. Its messages are queued and
     // shown one at a time, each for long enough to be read; when the search
     // finishes ahead of the queue the queue is cut short rather than made to
     // hold the results back.
-    let sayQ = [], sayT = null, sayGap = 320;
+    let sayQ = [], sayT = null, sayGap = 240;
+
+    // ---- the part of the screen that is always moving ---------------------
+    // A search that takes four seconds and reports twenty-two times looks
+    // stalled for most of them: one slot can take longer than the rest put
+    // together, and a bar that only moves when a message arrives sits still
+    // through exactly the stretch a reader starts to doubt it. So the bar eases
+    // toward a point just short of the next milestone rather than jumping to
+    // the last one, and a counter under it climbs toward the real number of
+    // arrangements looked at. Neither is a lie about progress: the bar never
+    // passes a milestone it has not reached, and the counter never passes the
+    // count the worker has actually reported.
+    let barAt = 0, barTo = 0, tickAt = 0, tickTo = 0, t0 = 0, spinning = false;
+
+    function frame() {
+      if (!spinning) return;
+      barAt += (barTo - barAt) * 0.055;
+      forge.fill.style.width = (barAt * 100).toFixed(2) + '%';
+      tickAt += (tickTo - tickAt) * 0.12;
+      const secs = ((performance.now() - t0) / 1000).toFixed(1);
+      forge.tick.textContent = tickAt < 1 ? secs + 's'
+        : Math.round(tickAt).toLocaleString() + ' arrangements weighed · '
+          + secs + 's';
+      requestAnimationFrame(frame);
+    }
+
+    function spin(on) {
+      spinning = on;
+      if (on) {
+        barAt = barTo = tickAt = tickTo = 0;
+        t0 = performance.now();
+        requestAnimationFrame(frame);
+      }
+    }
 
     function pump() {
       if (!sayQ.length) { sayT = null; return; }
@@ -2119,7 +2163,8 @@
         FKEYS.every((k) => LOWER[k] ? value(b, k) <= floors[k]
                                     : value(b, k) >= floors[k])
         && must.every((id) => b.has.has(id)));
-      shortlist.sort((a, b) => b.v[i] - a.v[i]);
+      shortlist.sort((a, b) => sortBy === OVERALL
+        ? b.score - a.score : b.v[i] - a.v[i]);
       const pages = Math.ceil(shortlist.length / PER);
       page = Math.min(page, Math.max(0, pages - 1));
       forge.list.innerHTML = '';
@@ -2191,9 +2236,37 @@
       }
     }
 
+    // Each stat stretched onto nought-to-one across the builds that were found,
+    // then added up. Stretching is the whole of it: raw, muzzle velocity moves
+    // in nearly two hundreds and handling in tens, so a plain sum would be a
+    // muzzle velocity ranking wearing a different name. On this scale a build
+    // that is best-in-set at everything scores eight and one that is worst at
+    // everything scores nought.
+    function score(b) {
+      let t = 0;
+      for (let i = 0; i < FKEYS.length; i++) {
+        const sp = span[FKEYS[i]];
+        if (sp.hi > sp.lo) t += (b.v[i] - sp.lo) / (sp.hi - sp.lo);
+      }
+      return t;
+    }
+
+    function measure() {
+      span = {};
+      for (let i = 0; i < FKEYS.length; i++) {
+        let lo = Infinity, hi = -Infinity;
+        for (const b of found) {
+          if (b.v[i] < lo) lo = b.v[i];
+          if (b.v[i] > hi) hi = b.v[i];
+        }
+        span[FKEYS[i]] = {lo, hi};
+      }
+      for (const b of found) b.score = score(b);
+    }
+
     function buildTabs() {
       forge.sort.innerHTML = '';
-      for (const k of FKEYS) {
+      for (const k of [OVERALL, ...FKEYS]) {
         const b = document.createElement('button');
         b.type = 'button';
         b.role = 'tab';
@@ -2241,6 +2314,8 @@
       forge.out.hidden = true;
       forge.out.classList.remove('is-open');
       forge.fill.style.width = '0%';
+      forge.tick.textContent = '';
+      spin(true);
       sayQ = [];
       clearTimeout(sayT);
       sayT = null;
@@ -2265,6 +2340,7 @@
         new Blob([FORGE_SRC], {type: 'text/javascript'})));
       const t0 = performance.now();
       w.onerror = (e) => {
+        spin(false);
         sayQ = [];
         forge.say.textContent = 'The search stopped: ' + e.message;
         forge.go.disabled = false;
@@ -2276,7 +2352,9 @@
         if (data.total !== undefined)
           return note(data.total.toLocaleString() + ' builds to get through');
         if (data.step) {
-          forge.fill.style.width = (data.step / data.of * 100) + '%';
+          // Just short of the next one, so the ease has somewhere to go.
+          barTo = Math.min(1, (data.step + 0.85) / data.of);
+          if (data.raw) tickTo += data.raw;
           const what = data.slot.replace(/-/g, ' ');
           return note(data.idle
             ? 'Skipping ' + what + ' \u2014 nothing on record moves a stat'
@@ -2292,19 +2370,20 @@
           sayGap = 110;
           note(found.length.toLocaleString() + ' builds nothing else beats, in '
             + ((performance.now() - t0) / 1000).toFixed(1) + 's');
-          forge.fill.style.width = '100%';
+          barTo = 1;
           forge.goLabel.textContent = 'Builds';
           forge.go.disabled = false;
           forge.go.classList.remove('is-busy');
           picked = null;
           page = 0;
           must = [];
+          measure();
           countUses();
           chips();
           buildTabs();
           buildSliders();
           paintList();
-          drained(openPanel);
+          drained(() => { spin(false); openPanel(); });
         }
       };
       w.postMessage({pool, delta, opens: OPENS,
