@@ -12,23 +12,40 @@ did the RM277.
 
 CUTTING THE RIFLE OFF THE GROUND
 
-The first pass at this thresholded the difference from a modelled background
-and opened the result with a 3x3, which is a fine way to shed speckle and a
-reliable way to lose every part of a rifle thinner than three pixels. It lost
-two: the rod that carries the folding stock's buttplate, which then floated
-free with a gap of nothing behind it, and a long sliver of the top rail. It
-also drew the line between "cyan glow" and "cool grey metal" at the wrong
-place, and took the top of the buffer tube out of its own silhouette.
+Three things went wrong with the first pass at this, and they pull in different
+directions.
 
-What replaces it measures the same thing and decides differently. The ground is
-modelled per column, corrected by what the floor actually looks like just above
-and below the rifle in that column, so the game's ambient glow does not read as
-a cloud of not-background hanging off the pistol grip. And the decision uses
-two thresholds rather than an erosion: one high enough that anything over it is
-certainly the gun, one low enough that nothing of the gun falls under it, with
-the low mask kept only where it joins the high one. A two-pixel rod then
-survives on the strength of what it bridges, while the leader lines the game
-draws across the frame are dropped for joining nothing.
+It ATE THE RIFLE: a 3x3 opening shed speckle and, with it, the rod carrying the
+folding stock's buttplate -- which then floated free with a gap of nothing
+behind it -- and a long sliver of the top rail. So the decision is made with
+two thresholds instead of an erosion now. One high enough that anything over it
+is certainly the gun, one low enough that nothing of the gun falls under it,
+and the low mask kept only where it joins the high one. A two-pixel rod
+survives on the strength of what it bridges; the leader lines the game draws
+across the frame are dropped for joining nothing.
+
+It CUT THE BUFFER TUBE out of its own silhouette, because the test separating
+the game's cyan floor glow from the rifle was a plain blue-minus-red difference
+drawn at 20, and the coldest metal on this gun measures 20. A ratio separates
+them properly, and the glow's washed-out white middles are recovered by sealing
+each blob inside its own cyan outline.
+
+And it LOST THE PISTOL GRIP into the floor. That one is the deepest. The
+background was modelled as a single vertical gradient, but the game washes a
+bank of cyan light bars across the floor and those run horizontally, straight
+behind the grip. A model that only varies with height says the floor there is
+nearly black; the grip is nearly black; so the grip stopped differing from the
+background and vanished out of the middle of its own silhouette. No threshold
+could have fixed that, because the measurement being thresholded was wrong.
+
+The ground is therefore read ALONG THE ROWS, which is the direction the light
+bars run: drop every column the rifle occupies and stretch what is left of each
+row across the gap. Whatever is behind the grip continues to its left and its
+right, where it can be seen. The one trap is what counts as "the rifle" for
+that purpose -- a mask that misses the grip's dark face lets the model sample
+the grip and conclude the floor behind a pistol grip looks like a pistol grip,
+which is the same hole by a different road -- so anything differing at all from
+the first guess is dropped, except the glow, which is ground and has to stay.
 """
 import json
 import numpy as np
@@ -117,9 +134,19 @@ glow = (a[:, :, 2] > 1.5 * a[:, :, 0] + 10) & (a.mean(axis=2) > 40)
 # Each blob of the glow has a white-hot middle where the colour washes out and
 # the ratio says nothing. The ratio does catch the cyan fringe all the way
 # round it, so the blob is recovered as the inside of its own outline: close
-# the ring, fill it, and the middle comes with it.
-glow = ndimage.binary_fill_holes(
-    ndimage.binary_closing(glow, np.ones((15, 15))))
+# the ring and fill it, and the middle comes with it.
+#
+# Only small holes, though. There are blobs behind the pistol grip as well as
+# beside it, and closing the ring around THOSE encloses the grip -- fill that
+# and the glow mask swallows the front half of it, which is what took a bite
+# out of the grip's leading edge. A blob's washed-out middle is a thousand
+# pixels; the grip is ten thousand. The cap is the difference.
+glow = ndimage.binary_closing(glow, np.ones((15, 15)))
+_h, _n = ndimage.label(~glow)
+_edge = set(np.unique(np.concatenate([_h[0], _h[-1], _h[:, 0], _h[:, -1]])))
+_sz = ndimage.sum(~glow, _h, range(1, _n + 1))
+glow |= np.isin(_h, [i + 1 for i, z in enumerate(_sz)
+                     if z < 3000 and (i + 1) not in _edge])
 neutral = ~glow
 
 # ---- the ground ----------------------------------------------------------
@@ -130,55 +157,44 @@ top, bot = np.median(a[334:356], axis=0), np.median(a[810:870], axis=0)
 t = np.clip((np.arange(H, dtype=np.float32) - 345) / 495, 0, 1)[:, None, None]
 bg = top[None] * (1 - t) + bot[None] * t
 
-# A rifle-shaped guess, only good enough to say which rows of a column are
-# ground. Deliberately strict: it may miss half the thin work and still bound
-# the silhouette correctly.
-rough = (np.abs(a - bg).sum(axis=2) > 45) & where & neutral
-rough = ndimage.binary_closing(rough, np.ones((11, 11)))
-lab, n = ndimage.label(rough)
-if n:
-    sizes = ndimage.sum(rough, lab, range(1, n + 1))
-    rough = lab == (int(np.argmax(sizes)) + 1)
-rough = ndimage.binary_fill_holes(rough)
-
-# What the ground in each column actually looks like just clear of the rifle,
-# as a correction on the first guess. PAD keeps the sample off the silhouette's
-# own soft edge; SPAN is how much ground to average.
-PAD, SPAN = 10, 26
-resid = a - bg
-corr = np.zeros_like(a)
-cols = np.where(rough.any(axis=0))[0]
-lo = np.full(W, -1); hi = np.full(W, -1)
-for x in cols:
-    ys = np.where(rough[:, x])[0]
-    lo[x], hi[x] = ys.min(), ys.max()
-
-def band(x, y0, y1):
-    """What the ground looks like in this column between these rows.
-
-    The glow is skipped. Under the grip the band below the rifle lands square
-    on it, and a background estimate taken there says the floor is four times
-    as bright as it is -- which then makes the grip's own shadow, a little
-    darker than the floor, look more different from the background than the
-    rifle does.
-    """
-    y0, y1 = max(Y0, y0), min(Y1, y1)
-    if y1 <= y0:
-        return np.zeros(3, np.float32)
-    seg, ok = resid[y0:y1, x], ~glow[y0:y1, x]
-    return np.median(seg[ok] if ok.sum() >= 4 else seg, axis=0)
-
-
-above = np.zeros((W, 3), np.float32); below = np.zeros((W, 3), np.float32)
-for x in cols:
-    above[x] = band(x, lo[x] - PAD - SPAN, lo[x] - PAD)
-    below[x] = band(x, hi[x] + PAD, hi[x] + PAD + SPAN)
-
-yy = np.arange(H, dtype=np.float32)
-for x in cols:
-    y0, y1 = float(lo[x] - PAD), float(hi[x] + PAD)
-    f = np.clip((yy - y0) / max(1.0, y1 - y0), 0, 1)[:, None]
-    corr[:, x] = above[x][None] * (1 - f) + below[x][None] * f
+# What the ground behind the rifle looks like, read along the rows.
+#
+# The vertical gradient is most of the answer and not all of it: the game
+# washes a bank of cyan light bars across the floor, and those run
+# horizontally, straight behind the pistol grip. A model that only varies with
+# height says the floor there is nearly black. The grip is nearly black. So the
+# grip stopped differing from the background and disappeared out of the middle
+# of its own silhouette -- a hole no threshold could have fixed, because the
+# measurement being thresholded was wrong.
+#
+# Reading along the row fixes it, because that is the direction the light bars
+# run: whatever is behind the grip continues to its left and to its right,
+# where it can be seen. Every column of the rifle is dropped, and what is left
+# of each row is stretched across the gap. Where the rifle spans most of a row
+# -- the barrel and receiver -- the stretch is long, and there the ground
+# really is just the gradient, so a straight line between the two ends of it is
+# the right answer anyway.
+# What to leave out of the reading. Not the strict guess -- that misses the
+# darkest parts of the rifle, and a background model that samples the pistol
+# grip concludes the floor behind the grip looks like a pistol grip, which is
+# the same hole by a different road. Anything that differs at all from the
+# first guess is dropped, EXCEPT the glow: the light bars are ground, and the
+# whole point of reading along the row is to carry them behind the gun.
+hide = (np.abs(a - bg).sum(axis=2) > 20) & ~glow
+hide = ndimage.binary_dilation(hide, np.ones((3, 3)), iterations=6)
+_l, _n = ndimage.label(hide)
+_z = ndimage.sum(hide, _l, range(1, _n + 1))
+hide = np.isin(_l, [i + 1 for i, v in enumerate(_z) if v > 200])
+for c in chips:                       # the chips are not ground either
+    hide[max(0, c['y'] - 24):c['y'] + S + 6, max(0, c['x'] - 8):c['x'] + S + 8] = True
+resid, corr = a - bg, np.zeros_like(a)
+xs_all = np.arange(W, dtype=np.float32)
+for y in range(H):
+    ok = np.where(~hide[y])[0]
+    if len(ok) < 2:
+        continue
+    for ch in range(3):
+        corr[y, :, ch] = np.interp(xs_all, ok.astype(np.float32), resid[y, ok, ch])
 bg2 = bg + corr
 d = np.abs(a - bg2).sum(axis=2)
 
@@ -193,14 +209,13 @@ weak &= ndimage.uniform_filter(weak.astype(np.float32), 5) * 25 >= 12
 lab, n = ndimage.label(weak)
 keep = set(np.unique(lab[strong])) - {0}
 m = np.isin(lab, list(keep))
-# And only near it, so a run of leader line that happens to touch the barrel
-# does not trail forty pixels of hairline off the front sight.
-# And near the rifle. `rough` is deliberately strict, so it is a poor
-# silhouette and an excellent bound: it says where the rifle IS, to within a
-# dozen pixels, and everything the ground still contributes -- the shadow the
-# grip throws on the lit floor, the hairline of a leader line -- is a hundred
-# pixels away from it. Every substantial strict piece, not just the largest,
-# so the buttplate across its gap bounds itself.
+# And near the rifle. A strict pass over the corrected background is a poor
+# silhouette and an excellent bound: it says where the rifle IS to within a
+# dozen pixels, so a run of leader line that happens to touch the barrel does
+# not trail forty pixels of hairline off the front sight, and what the ground
+# still contributes -- the shadow the grip throws on the lit floor -- is far
+# enough away to be dropped. Every substantial piece of it, not just the
+# largest, so the buttplate across its gap bounds itself.
 strict = (np.abs(a - bg2).sum(axis=2) > 45) & where & neutral
 strict = ndimage.binary_closing(strict, np.ones((7, 7)))
 slab, sn = ndimage.label(strict)
@@ -209,20 +224,6 @@ strict = np.isin(slab, [i + 1 for i, sz in enumerate(ssz) if sz > 800])
 near = ndimage.binary_dilation(ndimage.binary_fill_holes(strict),
                                np.ones((3, 3)), iterations=16)
 m &= near
-# A column of the picture holds the rifle between two heights and nothing
-# above or below them. The grip throws a shadow on the lit floor a few pixels
-# under its toe, and a shadow is as different from the ground as the thing
-# casting it -- so it is excluded by where it is rather than by what it looks
-# like. Columns the strict mask never reached keep everything: that is where
-# the thin work lives, and it is already bounded by `near`.
-sf = ndimage.binary_fill_holes(strict)
-band = np.zeros_like(m)
-for x in np.where(sf.any(axis=0))[0]:
-    ys_ = np.where(sf[:, x])[0]
-    band[max(0, ys_.min() - 8):ys_.max() + 9, x] = True
-band[:, ~sf.any(axis=0)] = True
-m &= band
-
 m = ndimage.binary_fill_holes(ndimage.binary_closing(m, np.ones((5, 5))))
 lab, n = ndimage.label(m)
 sizes = ndimage.sum(m, lab, range(1, n + 1))
@@ -251,6 +252,16 @@ alpha[(a[:, :, 2] > 1.3 * a[:, :, 0] + 8) & (a.mean(axis=2) > 55)] = 0
 # works in that one neighbourhood.
 alpha[ndimage.binary_dilation(glow, np.ones((3, 3)), iterations=6)
       & (a.mean(axis=2) > 72)] = 0
+# The two colour trims above work pixel by pixel and can punch a pinhole in the
+# middle of the rifle -- one screw head bright enough and cool enough at once.
+# A hole a few dozen pixels across, entirely surrounded by gun, is a mistake by
+# construction: nothing that small is background.
+solid = alpha > 0.02
+gaps = ndimage.binary_fill_holes(solid) & ~solid
+_l, _n = ndimage.label(gaps)
+_z = ndimage.sum(gaps, _l, range(1, _n + 1))
+alpha[np.isin(_l, [i + 1 for i, v in enumerate(_z) if v < 80])] = 1.0
+
 m = alpha > 0.02
 
 ys, xs = np.where(m)
