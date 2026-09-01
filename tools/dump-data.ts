@@ -9,7 +9,7 @@
 import { writeFileSync } from 'node:fs'
 import { ATTACHMENTS } from '../src/data/attachments'
 import {
-  ATTACH_RULES, PENDING_RULES, SLOT_TYPES, CATEGORY_FITS,
+  ATTACH_RULES, PENDING_RULES, SLOT_TYPES, WEAPON_FITS,
 } from '../src/data/attach-rules'
 import { CARD_FACTS } from '../src/data/card-facts'
 
@@ -26,7 +26,10 @@ for (const [k, v] of Object.entries(PENDING_RULES)) {
 }
 
 put('attachments', ATTACHMENTS)
-put('fits', CATEGORY_FITS)
+// Keyed by weapon now, not one flat slot map. The generator asks for a named
+// gun's lists and gets nothing for a gun nobody has read, which is the answer
+// it should get — the flat map handed the RM277's lists to whoever asked.
+put('fits', WEAPON_FITS)
 put('rules', { rules, slots: SLOT_TYPES })
 put('card-facts', CARD_FACTS)
 console.log('dumped data/{attachments,fits,rules,card-facts}.json')

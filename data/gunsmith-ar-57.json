@@ -1,0 +1,187 @@
+{
+ "frame": {
+  "w": 1920,
+  "h": 1080
+ },
+ "gun": {
+  "src": "ar-57.png",
+  "x": 472,
+  "y": 366,
+  "w": 1097,
+  "h": 320
+ },
+ "chip": 70,
+ "slots": [
+  {
+   "slot": "optics",
+   "label": "Optic",
+   "x": 1214,
+   "y": 232,
+   "ax": 1152,
+   "ay": 371
+  },
+  {
+   "slot": "offset-optics",
+   "label": "Offset Optic",
+   "x": 1325,
+   "y": 252,
+   "ax": 1177,
+   "ay": 416
+  },
+  {
+   "slot": "right-patch",
+   "label": "Right Patch",
+   "x": 618,
+   "y": 237,
+   "ax": 754,
+   "ay": 421
+  },
+  {
+   "slot": "left-patch",
+   "label": "Left Patch",
+   "x": 514,
+   "y": 259,
+   "ax": 705,
+   "ay": 421
+  },
+  {
+   "slot": "barrel",
+   "label": "Barrel",
+   "x": 413,
+   "y": 289,
+   "ax": 551,
+   "ay": 388
+  },
+  {
+   "slot": "right-rail",
+   "label": "Right Rail",
+   "x": 315,
+   "y": 330,
+   "ax": 522,
+   "ay": 444
+  },
+  {
+   "slot": "foregrip",
+   "label": "Foregrip",
+   "x": 225,
+   "y": 388,
+   "ax": 498,
+   "ay": 467
+  },
+  {
+   "slot": "left-rail",
+   "label": "Left Rail",
+   "x": 160,
+   "y": 471,
+   "ax": 487,
+   "ay": 490
+  },
+  {
+   "slot": "muzzle",
+   "label": "Muzzle",
+   "x": 167,
+   "y": 583,
+   "ax": 476,
+   "ay": 489
+  },
+  {
+   "slot": "rail-bipod",
+   "label": "Rail Bipod",
+   "x": 239,
+   "y": 662,
+   "ax": 556,
+   "ay": 515
+  },
+  {
+   "slot": "stock-kit",
+   "label": "Stock Kit",
+   "x": 1699,
+   "y": 455,
+   "ax": 1554,
+   "ay": 509
+  },
+  {
+   "slot": "stock",
+   "label": "Stock",
+   "x": 1706,
+   "y": 568,
+   "ax": 1560,
+   "ay": 579
+  },
+  {
+   "slot": "rear-grip",
+   "label": "Rear Grip",
+   "x": 1527,
+   "y": 720,
+   "ax": 1210,
+   "ay": 635
+  }
+ ],
+ "weapon": {
+  "id": "ar-57",
+  "name": "AR-57",
+  "source": "gun basic.mp4 (bare weapon), 2026-09-01"
+ },
+ "granted": [
+  {
+   "slot": "upper-rail",
+   "label": "Upper Rail",
+   "from_slot": "barrel",
+   "by": "AR57 Wave Blaster Ultra-Long Barrel",
+   "card": {
+    "tier": "blue",
+    "price": 27222,
+    "stats": {
+     "Range": 11,
+     "Control": 9,
+     "Handling": -7,
+     "Stability": 4,
+     "Accuracy": -12
+    }
+   }
+  },
+  {
+   "slot": "red-dot-optics",
+   "label": "Optic",
+   "from_slot": "optics",
+   "by": "an optic in the Optic slot"
+  },
+  {
+   "slot": "kill-flash",
+   "label": "Killflash",
+   "from_slot": "optics",
+   "by": "an optic in the Optic slot",
+   "fits": [
+    {
+     "name": "Honeycomb Killflash",
+     "tier": "purple",
+     "price": 17550,
+     "stats": {
+      "Handling": -3,
+      "Stability": -3
+     }
+    }
+   ]
+  },
+  {
+   "slot": "rear-grip-mount",
+   "label": "Grip Mount",
+   "from_slot": "rear-grip",
+   "by": "a rear grip"
+  },
+  {
+   "slot": "rear-grip-patch",
+   "label": "Rear Grip Patch",
+   "from_slot": "rear-grip",
+   "by": "a different rear grip"
+  }
+ ],
+ "layouts": [],
+ "edits": {
+  "slots": {
+   "add": [],
+   "remove": []
+  },
+  "fits": {}
+ }
+}

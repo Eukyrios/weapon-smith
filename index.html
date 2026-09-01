@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Weapon Smith &mdash; Delta Force: Operations build maker</title>
-<meta name="description" content="Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 438 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.">
+<meta name="description" content="Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 439 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.">
 <link rel="canonical" href="https://eukyrios.github.io/weapon-smith/">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="color-scheme" content="dark">
@@ -12,7 +12,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Weapon Smith">
 <meta property="og:title" content="Weapon Smith &mdash; Delta Force: Operations build maker">
-<meta property="og:description" content="Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 438 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.">
+<meta property="og:description" content="Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 439 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.">
 <meta property="og:url" content="https://eukyrios.github.io/weapon-smith/">
 <meta property="og:image" content="https://eukyrios.github.io/weapon-smith/og.png">
 <meta property="og:image:width" content="1200">
@@ -20,10 +20,10 @@
 <meta property="og:image:alt" content="Weapon Smith &mdash; a Delta Force: Operations weapon, ammunition and attachment library, and a build maker on top of it">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Weapon Smith &mdash; Delta Force: Operations build maker">
-<meta name="twitter:description" content="Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 438 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.">
+<meta name="twitter:description" content="Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 439 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.">
 <meta name="twitter:image" content="https://eukyrios.github.io/weapon-smith/og.png">
 
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Weapon Smith", "url": "https://eukyrios.github.io/weapon-smith/", "description": "Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 438 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.", "inLanguage": "en", "image": "https://eukyrios.github.io/weapon-smith/og.png"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Weapon Smith", "url": "https://eukyrios.github.io/weapon-smith/", "description": "Build Delta Force: Operations loadouts. A library of 66 weapons, 89 rounds and 439 attachments, with every slot on a gun, what it accepts and which attachments open more &mdash; and a build optimiser in progress that picks the parts maximising the stat you choose.", "inLanguage": "en", "image": "https://eukyrios.github.io/weapon-smith/og.png"}</script>
 <style>
 /* Hidden means hidden. The browser's own rule for [hidden] is the weakest
    there is, so any element given a display of its own quietly ignores it --
@@ -133,6 +133,13 @@ h2 .count {
 }
 p { margin: 0; max-width: 78ch; }
 .lede { color: var(--text-dim); font-size: 14px; }
+/* A slot the gunsmith has and the transcript has not reached. Set apart from a
+   plain lede because it is a promise rather than a description, and a reader
+   scanning twenty-odd slots should be able to see which ones are still owed. */
+.lede--gap {
+  border-left: 2px solid var(--line-2); padding-left: 10px;
+  color: var(--text-faint); font-style: italic;
+}
 code {
   font-family: var(--mono); font-size: 0.88em;
   background: var(--surface-2); color: var(--text-dim);
@@ -458,6 +465,12 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .tier.purple { background: rgb(155, 114, 221); }
 .tier.red    { background: rgb(218, 87, 88); }
 
+/* The detail pane of a slot with nothing in it yet. */
+.dnone {
+  margin: 14px 2px; font-size: 12px; line-height: 1.55;
+  color: var(--text-faint); font-style: italic;
+}
+
 .dlabel {
   margin: 14px 0 6px; padding-top: 10px; border-top: 1px solid var(--line);
   font-family: var(--mono); font-size: 9px; font-weight: 600;
@@ -720,6 +733,14 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 
  /* The dots layer sits over the chips, so it has to be transparent to the
    pointer or it swallows every click meant for a chip underneath. */
+/* Said once, under the stage, on a weapon whose bars have not been read. Under
+   rather than on it: the stage is a fixed-ratio box of absolutely placed
+   things, and a paragraph inside it lands on the gun and then behind the slot
+   panel the moment a chip is clicked. */
+.stagenote {
+  margin: 10px auto 0; max-width: 68ch; text-align: center;
+  font-size: 12px; line-height: 1.55; color: var(--text-faint);
+}
 .pins { position: absolute; inset: 0; pointer-events: none; }
 .pin { pointer-events: auto; }
 .pin {
@@ -1153,7 +1174,8 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
 </style>
 
 <aside class="banner">
-    <strong>Early days.</strong> This site is being written as the game is read. The RM277 is done &mdash; every slot listed and every attachment read &mdash; and it is the only one of 66 so far. A tick on a weapon in the list means the same has been done for it. I enter this by hand, one attachment at a time, so the first few guns will take a while. It gets faster as it goes: most of what a new gun takes is already catalogued, so there are fewer attachments left to add each time. Every other weapon page carries what the catalogue knows and says so.
+    <strong>Early days.</strong> This site is being written as the game is read. The RM277 is done &mdash; every slot listed and every attachment read &mdash; and it is the only one of 66 so far. A tick on a weapon in the list means the same has been done for it. AR-57 has a list and is still being read. I enter this by hand, one attachment at a time, so the first few guns will take a while. It gets faster as it goes: most of what a new gun takes is already catalogued, so there are fewer attachments left to add each time. Every other weapon page carries what the catalogue knows and says so.
+    <a class="banner__go" href="gun-ar-57.html">See the AR-57 &rarr;</a>
     <a class="banner__go" href="gun-rm277.html">See the RM277 &rarr;</a>
 </aside>
 
@@ -1213,10 +1235,10 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
         </div>
       </details>
       <details class="navgroup">
-        <summary>Attachments<span class="count">438</span></summary>
+        <summary>Attachments<span class="count">439</span></summary>
         <div class="navgroup__list">
           <a class="navlink" href="#cat-muzzle" data-group="cat-muzzle">Muzzle<em>39</em></a>
-          <a class="navlink" href="#cat-barrel" data-group="cat-barrel">Barrel<em>111</em></a>
+          <a class="navlink" href="#cat-barrel" data-group="cat-barrel">Barrel<em>112</em></a>
           <a class="navlink" href="#cat-handguard" data-group="cat-handguard">Handguard<em>26</em></a>
           <a class="navlink" href="#cat-foregrip" data-group="cat-foregrip">Foregrip<em>23</em></a>
           <a class="navlink" href="#cat-rear-grip" data-group="cat-rear-grip">Rear grip<em>36</em></a>
@@ -1578,7 +1600,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       </div>
     </section>
     <section class="group" id="cat-barrel" hidden>
-      <h2>Barrel <span class="count">111</span></h2>
+      <h2>Barrel <span class="count">112</span></h2>
       <div class="tiles">
       <a class="tile" href="357-revolver-long-barrel.html" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/357-revolver-long-barrel.png)"></span><span class="tile__name">.357 Revolver Long Barrel</span></a>
       <a class="tile" href="357-revolver-zephyr-barrel.html" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/357-revolver-zephyr-barrel.png)"></span><span class="tile__name">.357 Revolver Zephyr Barrel</span></a>
@@ -1601,6 +1623,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="ar-specops-integrally-suppressed-combo.html" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ar-specops-integrally-suppressed-combo.png)"></span><span class="tile__name">AR SpecOps Integrally Suppressed Combo</span></a>
       <a class="tile" href="ar-standard-barrel-combo.html" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ar-standard-barrel-combo.png)"></span><span class="tile__name">AR Standard Barrel Combo</span></a>
       <a class="tile" href="ar-trench-standard-barrel-combo.html" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ar-trench-standard-barrel-combo.png)"></span><span class="tile__name">AR Trench Standard Barrel Combo</span></a>
+      <a class="tile" href="ar57-wave-blaster-ultra-long-barrel.html"><span class="tile__art"></span><span class="tile__name">AR57 Wave Blaster Ultra-Long Barrel</span></a>
       <a class="tile" href="ash-12-annihilator-precision-long-barrel.html" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ash-12-annihilator-precision-long-barrel.png)"></span><span class="tile__name">ASh-12 Annihilator Precision Long Barrel</span></a>
       <a class="tile" href="ash-12-cqb-short-barrel.html" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ash-12-cqb-short-barrel.png)"></span><span class="tile__name">ASh-12 CQB Short Barrel</span></a>
       <a class="tile" href="aug-dawn-zero-integrally-suppressed-barrel.html" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/aug-dawn-zero-integrally-suppressed-barrel.png)"></span><span class="tile__name">AUG Dawn Zero Integrally Suppressed Barrel</span></a>

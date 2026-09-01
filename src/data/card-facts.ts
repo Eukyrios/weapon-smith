@@ -448,6 +448,19 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * here has not been read, and this one now has.
    */
   'practical-bipod': { tier: 'blue', stats: { Handling: -4 } },
+
+  /*
+   * The first card off a second weapon. Read from the AR-57 clip that its slot
+   * layout came from, so the five base lines are what the card showed and the
+   * five below them were not on screen — hence no `read`, and the item keeps
+   * its #not-tracked tag.
+   */
+  'ar57-wave-blaster-ultra-long-barrel': {
+    tier: 'blue',
+    stats: {
+      Range: 11, Control: 9, Handling: -7, Stability: 4, Accuracy: -12,
+    },
+  },
 };
 
 /**

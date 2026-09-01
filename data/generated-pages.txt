@@ -161,6 +161,7 @@ ar-raid-short-barrel-combo.html
 ar-specops-integrally-suppressed-combo.html
 ar-standard-barrel-combo.html
 ar-trench-standard-barrel-combo.html
+ar57-wave-blaster-ultra-long-barrel.html
 as-val-bolt-cover.html
 ash-12-30-round-extended-mag.html
 ash-12-annihilator-precision-long-barrel.html
@@ -356,6 +357,7 @@ catalogue/ar-raid-short-barrel-combo.html
 catalogue/ar-specops-integrally-suppressed-combo.html
 catalogue/ar-standard-barrel-combo.html
 catalogue/ar-trench-standard-barrel-combo.html
+catalogue/ar57-wave-blaster-ultra-long-barrel.html
 catalogue/as-val-bolt-cover.html
 catalogue/ash-12-30-round-extended-mag.html
 catalogue/ash-12-annihilator-precision-long-barrel.html
@@ -718,6 +720,7 @@ catalogue/smg-45-fission-long-barrel.html
 catalogue/smg-45-longbow-ultra-long-barrel.html
 catalogue/smg-45-practical-heavy-barrel.html
 catalogue/smg-echo-suppressor.html
+catalogue/smith-ar-57.html
 catalogue/smith-rm277.html
 catalogue/spiral-fire-flash-hider.html
 catalogue/sr-25-20-round-mag.html
@@ -1118,6 +1121,7 @@ smg-45-fission-long-barrel.html
 smg-45-longbow-ultra-long-barrel.html
 smg-45-practical-heavy-barrel.html
 smg-echo-suppressor.html
+smith-ar-57.html
 smith-rm277.html
 spiral-fire-flash-hider.html
 sr-25-20-round-mag.html

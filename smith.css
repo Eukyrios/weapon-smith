@@ -107,6 +107,13 @@ h2 .count {
 }
 p { margin: 0; max-width: 78ch; }
 .lede { color: var(--text-dim); font-size: 14px; }
+/* A slot the gunsmith has and the transcript has not reached. Set apart from a
+   plain lede because it is a promise rather than a description, and a reader
+   scanning twenty-odd slots should be able to see which ones are still owed. */
+.lede--gap {
+  border-left: 2px solid var(--line-2); padding-left: 10px;
+  color: var(--text-faint); font-style: italic;
+}
 code {
   font-family: var(--mono); font-size: 0.88em;
   background: var(--surface-2); color: var(--text-dim);
@@ -432,6 +439,12 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .tier.purple { background: rgb(155, 114, 221); }
 .tier.red    { background: rgb(218, 87, 88); }
 
+/* The detail pane of a slot with nothing in it yet. */
+.dnone {
+  margin: 14px 2px; font-size: 12px; line-height: 1.55;
+  color: var(--text-faint); font-style: italic;
+}
+
 .dlabel {
   margin: 14px 0 6px; padding-top: 10px; border-top: 1px solid var(--line);
   font-family: var(--mono); font-size: 9px; font-weight: 600;
@@ -694,6 +707,14 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 
  /* The dots layer sits over the chips, so it has to be transparent to the
    pointer or it swallows every click meant for a chip underneath. */
+/* Said once, under the stage, on a weapon whose bars have not been read. Under
+   rather than on it: the stage is a fixed-ratio box of absolutely placed
+   things, and a paragraph inside it lands on the gun and then behind the slot
+   panel the moment a chip is clicked. */
+.stagenote {
+  margin: 10px auto 0; max-width: 68ch; text-align: center;
+  font-size: 12px; line-height: 1.55; color: var(--text-faint);
+}
 .pins { position: absolute; inset: 0; pointer-events: none; }
 .pin { pointer-events: auto; }
 .pin {

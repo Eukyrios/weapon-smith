@@ -219,36 +219,46 @@ def needs_art(iid):
 
 
 # Rows that are named in a transcript but absent from the catalogue, keyed by
-# the slot they belong to, with the index they occupy in the dictated order.
+# weapon and then by the slot they belong to, with the index they occupy in the
+# dictated order.
 MISSING = {
-    'optics': [(0, 'White Phosphor Thermal Scope'), (1, 'Advanced Thermal Fusion Holographic Sight'),
-               (2, 'VMX Frameless Sight'), (3, '1P-33 2/4x Scope'), (4, 'UHX Holographic Sight'),
-               (5, 'Prism Universal 2x Optic'), (7, 'M157 Fire Control System'),
-               (9, '1P-29 Russian 3x Sight'), (14, 'MEO Micro Sight Riser')],
-    'riser-optics': [(0, 'Advanced Thermal Fusion Holographic Sight'), (1, 'VMX Frameless Sight'),
-                     (2, 'UHX Holographic Sight'), (3, 'MEO Micro Sight Riser')],
-    'red-dot-optics': [(0, 'VMX Frameless Sight')],
-    'muzzle': [(0, 'RM277 Breaker Suppressor'), (1, 'Cobweb Titanium Muzzle Brake')],
-    'foregrip': [(0, 'Resonant MK III Grip'), (1, 'EC Universal Front Hand Stop')],
-    'barrel': [(0, 'RM277 Whale Shark Barrel Combo'), (1, 'RM277 Heavy Integral Barrel')],
-    # No Warrior 3S: dictated onto this list and not on it. Dropping it moves
-    # the Python up one, because these indices are positions in the list as it
-    # is being built, not in the finished one.
-    'left-rail': [(0, 'OLIGHT Odin S Tactical Flashlight'),
-                  (10, 'DD Python Handguard Panel')],
-    # The Odin S is on this rail after all, above the Baldr as it is on the
-    # left. The Warrior 3S is here and not on the left, so the two lists still
-    # differ -- in the other direction from how they used to.
-    'right-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'),
-                   (1, 'OLIGHT Odin S Tactical Flashlight'),
-                   (11, 'DD Python Handguard Panel')],
-    'left-patch': [(2, 'DD Python Handguard Panel')],
-    'right-patch': [(2, 'DD Python Handguard Panel')],
-    'upper-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'), (8, 'DD Python Handguard Panel')],
-    'cheek-pad': [(0, 'RM277 Cheek Pad')],
-    'stock-pad': [(0, 'RM277 Pad')],
-    'rear-grip': [(0, 'AR Modular Rear Grip'), (4, 'AR MOE Rear Grip')],
-    'rear-grip-patch': [(0, 'AR Light Grip Piece'), (1, 'AR Heavy Grip Piece')],
+  'rm277': {
+      'optics': [(0, 'White Phosphor Thermal Scope'), (1, 'Advanced Thermal Fusion Holographic Sight'),
+                 (2, 'VMX Frameless Sight'), (3, '1P-33 2/4x Scope'), (4, 'UHX Holographic Sight'),
+                 (5, 'Prism Universal 2x Optic'), (7, 'M157 Fire Control System'),
+                 (9, '1P-29 Russian 3x Sight'), (14, 'MEO Micro Sight Riser')],
+      'riser-optics': [(0, 'Advanced Thermal Fusion Holographic Sight'), (1, 'VMX Frameless Sight'),
+                       (2, 'UHX Holographic Sight'), (3, 'MEO Micro Sight Riser')],
+      'red-dot-optics': [(0, 'VMX Frameless Sight')],
+      'muzzle': [(0, 'RM277 Breaker Suppressor'), (1, 'Cobweb Titanium Muzzle Brake')],
+      'foregrip': [(0, 'Resonant MK III Grip'), (1, 'EC Universal Front Hand Stop')],
+      'barrel': [(0, 'RM277 Whale Shark Barrel Combo'), (1, 'RM277 Heavy Integral Barrel')],
+      # No Warrior 3S: dictated onto this list and not on it. Dropping it moves
+      # the Python up one, because these indices are positions in the list as it
+      # is being built, not in the finished one.
+      'left-rail': [(0, 'OLIGHT Odin S Tactical Flashlight'),
+                    (10, 'DD Python Handguard Panel')],
+      # The Odin S is on this rail after all, above the Baldr as it is on the
+      # left. The Warrior 3S is here and not on the left, so the two lists still
+      # differ -- in the other direction from how they used to.
+      'right-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'),
+                     (1, 'OLIGHT Odin S Tactical Flashlight'),
+                     (11, 'DD Python Handguard Panel')],
+      'left-patch': [(2, 'DD Python Handguard Panel')],
+      'right-patch': [(2, 'DD Python Handguard Panel')],
+      'upper-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'), (8, 'DD Python Handguard Panel')],
+      'cheek-pad': [(0, 'RM277 Cheek Pad')],
+      'stock-pad': [(0, 'RM277 Pad')],
+      'rear-grip': [(0, 'AR Modular Rear Grip'), (4, 'AR MOE Rear Grip')],
+      'rear-grip-patch': [(0, 'AR Light Grip Piece'), (1, 'AR Heavy Grip Piece')],
+  },
+
+  # The AR-57, read off one clip of the bare weapon. Its two confirmed parts:
+  # the long barrel, which is weapon-exclusive and absent from the catalogue,
+  # and the killflash, which is catalogued and so needs no entry here.
+  'ar-57': {
+    'barrel': [(0, 'AR57 Wave Blaster Ultra-Long Barrel')],
+  },
 }
 
 # What a row opens and what it occupies, by display name.
@@ -279,58 +289,141 @@ for _iid, _rule in RULES.items():
     if _rule.get('conflictSlots'):
         BLOCKS[_name] = _labels(_rule['conflictSlots'])
 
-SECTIONS = [
-    ('optics', 'Optics', 'The base optic slot. The catalogue&rsquo;s other eleven optics belong to the offset slot or are sniper glass this rifle does not take.'),
-    ('riser-optics', 'Riser optics', 'Opened by the Multi-Purpose Tactical Riser.'),
-    ('red-dot-optics', 'Red dot optics', 'Opened by either micro sight riser, and by the 3/7 Adjustable Scope&rsquo;s own dot mount. A subset of riser optics.'),
-    ('offset-optics', 'Offset optics', 'The offset twins of the five red dots.'),
-    ('kill-flash', 'Killflash', 'Opened by any of five magnified optics: the Insight 3/7 Sniper Scope, M157 Fire Control System, LPVO Scope, 3/7 Adjustable Scope and Recon 1.5/5 Adjustable Scope. One option.'),
-    ('tactical-device', 'Tactical device', 'Opened by the Multi-Purpose Tactical Riser. These four also fit all three rails.'),
-    ('muzzle', 'Muzzle', 'Fourteen of the catalogue&rsquo;s 37 muzzles &mdash; shotgun, pistol and AK devices are excluded.'),
-    ('barrel', 'Barrel', 'Both are RM277-exclusive and absent from the catalogue. Each opens an upper rail; the integral barrel also occupies the muzzle.'),
-    ('foregrip', 'Foregrip', 'Every foregrip in the catalogue fits, so this slot is not filtered.'),
-    ('left-rail', 'Left rail', 'Nine lights and lasers plus the five handguard panels.'),
-    ('right-rail', 'Right rail', 'The left rail&rsquo;s list less the OLIGHT Odin S, which fits the left side only.'),
-    ('upper-rail', 'Upper rail', 'A shorter list than the side rails: no OLIGHT Odin S, OLIGHT Baldr Pro R or Practical Weapon Light.'),
-    ('left-patch', 'Left patch', 'Handguard panels only.'),
-    ('right-patch', 'Right patch', 'The same five panels.'),
-    ('mag', 'Magazine', 'The RM277 is chambered in 6.8x51mm. The catalogue also holds an M7 6.8 30-Round Mag, which was not named.'),
-    ('mag-mount', 'Magazine mount', ''),
-    ('rear-grip', 'Rear grip', 'Two of these open further slots.'),
-    ('rear-grip-patch', 'Rear grip patch', 'Opened by the AR Modular Rear Grip. Neither piece is in the catalogue, and nor is the grip that opens the slot.'),
-    ('rear-grip-mount', 'Rear grip mount', 'Opened by the AR Heavy Tower Grip.'),
-    ('rail-bipod', 'Rail bipod', 'One option.'),
-    ('cheek-pad', 'Cheek pad', ''),
-    ('stock-pad', 'Stock pad', ''),
-]
-
-# Deliberate departures from the derived lists, recorded by the editor's dev
-# mode and written into the weapon's own file.
+# The slots each traced weapon presents, in the order the gunsmith runs them
+# along the gun, with the sentence that explains the slot on that weapon.
 #
-# A delta rather than a frozen copy of the lists. The whole point of deriving
-# them is that a rule added tomorrow reaches every weapon at once, and a copy
-# would quietly stop doing that. What is in here is a claim that the derivation
-# is wrong for this weapon in this one place — which is a thing worth seeing on
-# its own in a diff, rather than buried in four hundred unchanged rows.
-EDITS = json.loads(
-    (ROOT / 'data/gunsmith-rm277.json').read_text(encoding='utf-8')
-).get('edits') or {}
-_SLOT_EDITS = EDITS.get('slots') or {}
-_FIT_EDITS = EDITS.get('fits') or {}
+# Per weapon, because it is the one thing that certainly is not shared: the
+# RM277 is a bullpup with no stock and the AR-57 has two stock slots, and a
+# list that suited both would be a list describing neither.
+SECTIONS = {
+  'rm277': [
+      ('optics', 'Optics', 'The base optic slot. The catalogue&rsquo;s other eleven optics belong to the offset slot or are sniper glass this rifle does not take.'),
+      ('riser-optics', 'Riser optics', 'Opened by the Multi-Purpose Tactical Riser.'),
+      ('red-dot-optics', 'Red dot optics', 'Opened by either micro sight riser, and by the 3/7 Adjustable Scope&rsquo;s own dot mount. A subset of riser optics.'),
+      ('offset-optics', 'Offset optics', 'The offset twins of the five red dots.'),
+      ('kill-flash', 'Killflash', 'Opened by any of five magnified optics: the Insight 3/7 Sniper Scope, M157 Fire Control System, LPVO Scope, 3/7 Adjustable Scope and Recon 1.5/5 Adjustable Scope. One option.'),
+      ('tactical-device', 'Tactical device', 'Opened by the Multi-Purpose Tactical Riser. These four also fit all three rails.'),
+      ('muzzle', 'Muzzle', 'Fourteen of the catalogue&rsquo;s 37 muzzles &mdash; shotgun, pistol and AK devices are excluded.'),
+      ('barrel', 'Barrel', 'Both are RM277-exclusive and absent from the catalogue. Each opens an upper rail; the integral barrel also occupies the muzzle.'),
+      ('foregrip', 'Foregrip', 'Every foregrip in the catalogue fits, so this slot is not filtered.'),
+      ('left-rail', 'Left rail', 'Nine lights and lasers plus the five handguard panels.'),
+      ('right-rail', 'Right rail', 'The left rail&rsquo;s list less the OLIGHT Odin S, which fits the left side only.'),
+      ('upper-rail', 'Upper rail', 'A shorter list than the side rails: no OLIGHT Odin S, OLIGHT Baldr Pro R or Practical Weapon Light.'),
+      ('left-patch', 'Left patch', 'Handguard panels only.'),
+      ('right-patch', 'Right patch', 'The same five panels.'),
+      ('mag', 'Magazine', 'The RM277 is chambered in 6.8x51mm. The catalogue also holds an M7 6.8 30-Round Mag, which was not named.'),
+      ('mag-mount', 'Magazine mount', ''),
+      ('rear-grip', 'Rear grip', 'Two of these open further slots.'),
+      ('rear-grip-patch', 'Rear grip patch', 'Opened by the AR Modular Rear Grip. Neither piece is in the catalogue, and nor is the grip that opens the slot.'),
+      ('rear-grip-mount', 'Rear grip mount', 'Opened by the AR Heavy Tower Grip.'),
+      ('rail-bipod', 'Rail bipod', 'One option.'),
+      ('cheek-pad', 'Cheek pad', ''),
+      ('stock-pad', 'Stock pad', ''),
+  ],
 
-SECTIONS = [s for s in SECTIONS if s[0] not in set(_SLOT_EDITS.get('remove', []))]
-for _sid in _SLOT_EDITS.get('add', []):
-    if _sid not in {s[0] for s in SECTIONS}:
-        SECTIONS.append((_sid, SLOT_LABEL.get(_sid, _sid), ''))
+  # Thirteen chips, measured off the bare weapon. The lists behind them are
+  # not read yet, so every lede here says what the slot is rather than what
+  # goes in it — an empty slot table on this gun means unread, not empty.
+  'ar-57': [
+    ('optics', 'Optics', 'The base optic slot.'),
+    ('offset-optics', 'Offset optics', 'A standing slot on this rifle, as it is on the RM277.'),
+    ('barrel', 'Barrel', 'One confirmed so far, and it opens an upper rail.'),
+    ('upper-rail', 'Upper rail', 'Opened by the AR57 Wave Blaster Ultra-Long Barrel.'),
+    ('muzzle', 'Muzzle', ''),
+    ('foregrip', 'Foregrip', ''),
+    ('left-rail', 'Left rail', ''),
+    ('right-rail', 'Right rail', ''),
+    ('left-patch', 'Left patch', ''),
+    ('right-patch', 'Right patch', ''),
+    ('rail-bipod', 'Rail bipod', ''),
+    ('stock-kit', 'Stock kit', 'The rear assembly as a whole. The RM277 has no equivalent.'),
+    ('stock', 'Stock', ''),
+    ('rear-grip', 'Rear grip', ''),
+  ],
+}
+
+class Gun:
+    """One weapon, and everything about it that is only true of it.
+
+    There used to be no such thing here. Every list was a module global, which
+    was honest while exactly one gunsmith had been traced — the RM277's slots
+    WERE the site's slots — and quietly wrong the moment a second one arrived.
+    The tell was a tripwire in is_finished() saying so out loud, which is the
+    note this class is the answer to.
+
+    Everything a page needs about a weapon hangs off here: which slots it has,
+    what fits each of them, what its own file says to override, and the traced
+    gunsmith layout when there is one. A function that draws part of a weapon
+    takes one of these as its first argument, so it cannot accidentally read
+    another gun's lists.
+    """
+
+    def __init__(self, wid):
+        self.id = wid
+        self.fits = FITS.get(wid) or {}
+        self.missing = MISSING.get(wid) or {}
+
+        # Deliberate departures from the derived lists, recorded by the
+        # editor's dev mode and written into the weapon's own file.
+        #
+        # A delta rather than a frozen copy of the lists. The whole point of
+        # deriving them is that a rule added tomorrow reaches every weapon at
+        # once, and a copy would quietly stop doing that. What is in here is a
+        # claim that the derivation is wrong for this weapon in this one place
+        # — which is a thing worth seeing on its own in a diff, rather than
+        # buried in four hundred unchanged rows.
+        path = ROOT / f'data/gunsmith-{wid}.json'
+        self.smith = (json.loads(path.read_text(encoding='utf-8'))
+                      if path.is_file() else None)
+        edits = (self.smith or {}).get('edits') or {}
+        self._slot_edits = edits.get('slots') or {}
+        self.fit_edits = edits.get('fits') or {}
+
+        drop = set(self._slot_edits.get('remove', []))
+        sections = [s for s in SECTIONS.get(wid, []) if s[0] not in drop]
+        for sid in self._slot_edits.get('add', []):
+            if sid not in {s[0] for s in sections}:
+                sections.append((sid, SLOT_LABEL.get(sid, sid), ''))
+        self.sections = sections
+
+        # Every slot with a list must be a slot the weapon has. Both halves
+        # are worth catching: a list under a slot the gun does not present is
+        # data that renders nowhere and is never missed, and it is the exact
+        # shape of a fit recorded before the slot that opens it was traced.
+        mine = {slot for slot, _, _ in sections}
+        stray = (set(self.fits) | set(self.missing)) - mine
+        if stray:
+            raise SystemExit(
+                f'{wid}: attachments listed for {sorted(stray)}, which is not '
+                'a slot this weapon has. Add the slot to SECTIONS or take the '
+                'list out.')
+
+        # A slot's heading on THIS gun, falling back to the game-wide label.
+        self.slot_title = dict(SLOT_LABEL,
+                               **{slot: title for slot, title, _ in sections})
+        self.name = ((self.smith or {}).get('weapon', {}).get('name')
+                     or WEAPON_NAME.get(wid, wid))
+
+    @property
+    def has_stats(self):
+        """Has the weapon's own stat panel been read off the game?
+
+        The AR-57's layout was traced from a clip that never opened one, so it
+        has slots and no bars. Everything the bars drive — the build panel, the
+        optimiser — is left off that page rather than shown empty, because an
+        empty stat panel reads as a rifle with no stats rather than as a
+        reading nobody has taken.
+        """
+        return bool((self.smith or {}).get('weapon', {}).get('stats'))
 
 
-def rows_for(slot):
+def rows_for(g, slot):
     """Dictated order: resolved ids with the missing names spliced back in,
     then whatever the dev mode says this weapon does or does not take."""
-    out = [nm(i) for i in FITS.get(slot, [])]
-    for idx, name in MISSING.get(slot, []):
+    out = [nm(i) for i in g.fits.get(slot, [])]
+    for idx, name in g.missing.get(slot, []):
         out.insert(idx, name)
-    e = _FIT_EDITS.get(slot) or {}
+    e = g.fit_edits.get(slot) or {}
     if e:
         drop = set(e.get('remove', []))
         out = [n for n in out if item_id(n) not in drop]
@@ -342,31 +435,39 @@ def rows_for(slot):
             for name in out]
 
 
-def is_finished(wid):
+def is_finished(g):
     """Has this weapon been read to the end?
 
     Not the same question as DOCUMENTED, which only says somebody has started:
     a gun can have every slot listed and still owe a stat line on half of them.
     Finished means every row of every slot is answered — no base stats missing,
-    nothing below them unread.
+    nothing below them unread — and that the weapon's own stat panel has been
+    read, since a build's arithmetic is nothing without it.
 
-    SECTIONS is the RM277's slot list, so this is only honest for the weapon
-    those sections belong to. When a second gunsmith is traced this has to take
-    the weapon's own sections, and the assert below is what will say so.
+    A slot with no rows at all is not finished either. The AR-57 has eleven of
+    those, and `all()` over an empty list is True, which would have called an
+    untranscribed rifle done.
     """
-    if wid not in DOCUMENTED:
+    if g.id not in DOCUMENTED or not g.has_stats:
         return False
-    if DOCUMENTED != {'rm277'}:
-        raise SystemExit('is_finished: SECTIONS is one weapon\'s; make it take '
-                         'the weapon before documenting a second')
-    return all(not missing and not unread
-               for slot, _, _ in SECTIONS
-               for _n, missing, unread in rows_for(slot))
+    return all(rows and all(not missing and not unread
+                            for _n, missing, unread in rows)
+               for rows in (rows_for(g, slot) for slot, _, _ in g.sections))
 
 
-def table(slot, prefix=UP):
+def finished(wid):
+    """The same question of a weapon id, for callers holding only the id.
+
+    A weapon with no Gun record is one nobody has started, which is a fair
+    answer to give the index rather than a crash.
+    """
+    g = GUNS.get(wid)
+    return bool(g) and is_finished(g)
+
+
+def table(g, slot, prefix=UP):
     body = ''
-    for name, missing, unread in rows_for(slot):
+    for name, missing, unread in rows_for(g, slot):
         tag = (' <span class="tag">#missing-info</span>' if missing else '')
         tag += (' <span class="tag tag--soft">#not-tracked</span>'
                 if unread else '')
@@ -387,30 +488,38 @@ def table(slot, prefix=UP):
             '        </tbody>\n      </table>\n    </div>\n')
 
 
-def section(n, slot, title, lede, prefix=UP):
-    total = len(rows_for(slot))
+def section(g, n, slot, title, lede, prefix=UP):
+    total = len(rows_for(g, slot))
     head = (f'  <section id="slot-{slot}">\n    <h2><span class="n">{n}</span>'
             f'{title} <span class="count">{total}</span></h2>\n')
     if lede:
         head += f'    <p class="lede">{lede}</p>\n'
-    return head + table(slot, prefix) + '  </section>\n\n'
+    # An empty table draws a header row over nothing, which reads as a slot
+    # that accepts nothing. It accepts things nobody has written down yet, and
+    # that is a different sentence.
+    if not total:
+        return head + ('    <p class="lede lede--gap">Not read yet. This slot is '
+                       'on the weapon &mdash; it was measured off the gunsmith '
+                       '&mdash; but what goes in it has still to be '
+                       'transcribed.</p>\n  </section>\n\n')
+    return head + table(g, slot, prefix) + '  </section>\n\n'
 
 
-def weapon_sections(prefix=UP):
+def weapon_sections(g, prefix=UP):
     """Every slot table for the weapon, plus the tree.
 
     Shared by the standalone weapon page and the panel folded into its
     catalogue entry, so the two can never drift. `prefix` is the only thing
     that differs: links to an item page are relative to wherever this lands.
     """
-    out = [section(i, slot, title, lede, prefix)
-           for i, (slot, title, lede) in enumerate(SECTIONS, 1)]
-    n = len(SECTIONS) + 1
+    out = [section(g, i, slot, title, lede, prefix)
+           for i, (slot, title, lede) in enumerate(g.sections, 1)]
+    n = len(g.sections) + 1
     out.append(f"""  <section>
     <h2><span class="n">{n}</span>The whole tree</h2>
     <figure>
       <div class="canvas">
-        {graph()}
+        {graph(g)}
       </div>
       <figcaption>Solid boxes are slots the rifle always has. Outlined boxes only
       appear once the named attachment is fitted. Numbers are how many attachments
@@ -430,13 +539,10 @@ ROW, GROW, TOP = 32, 42, 30
 COLS = [(180, 190), (420, 215), (676, 215)]   # (x, width) per depth
 
 
-SLOT_TITLE = dict({s['id']: s['label'] for s in SLOT_TYPES},
-                  **{slot: title for slot, title, _ in SECTIONS})
-
 VIA_CHARS = 34          # how much "via ..." fits in a node before it overruns
 
 
-def grants_from(slot, seen):
+def grants_from(g, slot, seen):
     """The slots that open off `slot`, and what opens each.
 
     Read out of the rules rather than drawn by hand. The hand-drawn version of
@@ -449,32 +555,38 @@ def grants_from(slot, seen):
     that at any point without anyone noticing until the build hangs.
     """
     out = {}
-    for name, _m, _x in rows_for(slot):
-        for g in RULES.get(item_id(name), {}).get('grants') or []:
-            if g in seen:
+    for name, _m, _x in rows_for(g, slot):
+        for opened in RULES.get(item_id(name), {}).get('grants') or []:
+            if opened in seen:
                 continue
-            out.setdefault(g, []).append(name)
+            out.setdefault(opened, []).append(name)
     return out
 
 
-def via_label(names, parent):
+def via_label(g, names, parent):
     """Name the openers if they fit, count them if they do not."""
     joined = ', '.join(names)
     if len(joined) <= VIA_CHARS:
         return joined
-    noun = SLOT_TITLE.get(parent, parent).lower()
+    noun = g.slot_title.get(parent, parent).lower()
+    # One opener with a name too long to print still gets counted, and "1
+    # barrels" is the sort of wrong that makes a reader distrust the rest of
+    # the picture.
+    if len(names) == 1:
+        return f'1 {noun}'
     return f'{len(names)} {noun}' + ('' if noun.endswith('s') else 's')
 
 
-def subtree(slot, seen):
+def subtree(g, slot, seen):
     kids = []
-    for g, names in grants_from(slot, seen).items():
-        kids.append((via_label(names, slot), names, SLOT_TITLE.get(g, g), g,
-                     subtree(g, seen | {g})))
+    for opened, names in grants_from(g, slot, seen).items():
+        kids.append((via_label(g, names, slot), names,
+                     g.slot_title.get(opened, opened), opened,
+                     subtree(g, opened, seen | {opened})))
     return kids
 
 
-def graph():
+def graph(g):
     """The slot tree. A child is a slot that only exists once `via` is fitted.
 
     Rooted in the slots THIS weapon has, not in every slot type the game knows
@@ -483,9 +595,9 @@ def graph():
     has none of the three — each with a dash where the count should be, which is
     the tell nobody reads as a bug because a dash looks like an answer.
     """
-    mine = {slot for slot, _, _ in SECTIONS}
-    tree = [(SLOT_TITLE.get(t['id'], t['label']), t['id'],
-             subtree(t['id'], {t['id']}))
+    mine = {slot for slot, _, _ in g.sections}
+    tree = [(g.slot_title.get(t['id'], t['label']), t['id'],
+             subtree(g, t['id'], {t['id']}))
             for t in SLOT_TYPES if t['kind'] == 'base' and t['id'] in mine]
 
     parts, state = [], {'y': TOP}
@@ -497,7 +609,7 @@ def graph():
         x, w = COLS[depth]
         h = GROW if via else 22
         y = state['y']
-        parts.append(node(x, y, w, h, label, len(rows_for(slot)), via, names))
+        parts.append(node(x, y, w, h, label, len(rows_for(g, slot)), via, names))
         state['y'] = y + (GROW if via else ROW)
         anchor = y + h / 2
         for cvia, cnames, clabel, cslot, ckids in kids:
@@ -521,12 +633,13 @@ def graph():
     head += [f'<line class="g-edge" x1="160" y1="{a}" x2="{COLS[0][0]}" y2="{a}"></line>' for a in spine]
     head.append(f'<line class="g-edge" x1="140" y1="{mid}" x2="160" y2="{mid}"></line>')
     parts += [f'<rect class="g-root" x="8" y="{mid - 22}" width="132" height="44" rx="3"></rect>',
-              f'<text class="g-root-t" x="74" y="{mid + 5}" text-anchor="middle">RM277</text>']
+              f'<text class="g-root-t" x="74" y="{mid + 5}" '
+              f'text-anchor="middle">{g.name}</text>']
 
-    return ('<svg viewBox="0 0 910 %d" role="img" aria-label="Slot tree for the RM277. '
+    return ('<svg viewBox="0 0 910 %d" role="img" aria-label="Slot tree for the %s. '
             'Base slots hang off the gun; slots that only exist once an attachment is '
             'fitted hang off the slot that attachment sits in, to any depth.">\n  %s\n</svg>'
-            % (bottom + 10, '\n  '.join(head + parts)))
+            % (bottom + 10, g.name, '\n  '.join(head + parts)))
 
 
 def node(x, y, w, h, label, count, via=None, names=()):
@@ -577,7 +690,9 @@ def slot_category(slot):
     would mean the slot draws on two categories, and then filing an
     uncatalogued row by its slot is the wrong idea rather than a wrong answer.
     """
-    cats = {BY_ID[i]['cat'] for i in FITS.get(slot, []) if i in BY_ID}
+    cats = {BY_ID[i]['cat']
+            for bySlot in FITS.values() for i in bySlot.get(slot, [])
+            if i in BY_ID}
     if len(cats) > 1:
         raise SystemExit(f'{slot}: catalogued members span {sorted(cats)}')
     return cats.pop() if cats else SLOT_CAT_FALLBACK[slot]
@@ -594,24 +709,30 @@ def catalogue_items():
     search tag now, not a category.
     """
     items = {a['id']: dict(a, known=True) for a in ATTACH}
-    for slot, misses in MISSING.items():
-        cat = slot_category(slot)
-        for _, name in misses:
-            sid = BY_NAME[name]['id'] if name in BY_NAME else slug(name)
-            if sid not in items:
-                items[sid] = {'id': sid, 'name': name, 'cat': cat, 'price': None,
-                              'stats': {}, 'traits': [], 'known': False}
-            elif not items[sid]['known'] and items[sid]['cat'] != cat:
-                raise SystemExit(f'{name}: {items[sid]["cat"]} here, {cat} in {slot}')
+    # Every weapon's uncatalogued rows, not one weapon's. An item named on two
+    # guns is one page, and the category check below is what makes sure the two
+    # namings agree about what it is.
+    for bySlot in MISSING.values():
+        for slot, misses in bySlot.items():
+            cat = slot_category(slot)
+            for _, name in misses:
+                sid = BY_NAME[name]['id'] if name in BY_NAME else slug(name)
+                if sid not in items:
+                    items[sid] = {'id': sid, 'name': name, 'cat': cat,
+                                  'price': None, 'stats': {}, 'traits': [],
+                                  'known': False}
+                elif not items[sid]['known'] and items[sid]['cat'] != cat:
+                    raise SystemExit(
+                        f'{name}: {items[sid]["cat"]} here, {cat} in {slot}')
     return items
 
 
-def fits_index():
+def fits_index(g):
     """slot id -> the item ids it accepts, including the missing ones."""
     out = {}
-    for slot, _, _ in SECTIONS:
+    for slot, _, _ in g.sections:
         ids = []
-        for name, _m, _x in rows_for(slot):
+        for name, _m, _x in rows_for(g, slot):
             a = BY_NAME.get(name)
             ids.append(a['id'] if a else slug(name))
         out[slot] = ids
@@ -747,9 +868,10 @@ def gun_page(w):
     # above it.
     sub = ' &middot; '.join(v for _k, v in facts)
 
+    g = GUNS.get(w['id'])
     smith = ''
     if w['id'] in GUNSMITHS:
-        smith = gunsmith_body()
+        smith = gunsmith_body(g)
         # The stage shows the weapon at full size; a thumbnail above it as well
         # would be the same picture twice.
         img = ''
@@ -762,10 +884,13 @@ def gun_page(w):
     # arrives for. Opened, they read exactly as before — same rows_for(), same
     # order — and the chips link straight into them.
     if w['id'] in DOCUMENTED:
+        n = len(g.sections)
+        read = ('every attachment listed' if is_finished(g)
+                else 'lists still being read')
         slots = (f'''  <details class="deploy" id="tables">
-    <summary>Attachment slots<span class="hint">{len(SECTIONS)} slots &middot; every attachment listed</span></summary>
+    <summary>Attachment slots<span class="hint">{n} slots &middot; {read}</span></summary>
     <div class="deploy__body">
-{weapon_sections('')}    </div>
+{weapon_sections(g, '')}    </div>
   </details>
 ''')
     else:
@@ -782,8 +907,10 @@ def gun_page(w):
     cal = f" chambered in {w['caliber']}" if w.get('caliber') else ''
     if w['id'] in DOCUMENTED:
         desc = (f"{w['name']} &mdash; {w['cls'].lower()}{cal} in Delta Force: "
-                f'Operations. All {len(SECTIONS)} attachment slots and every '
-                'attachment that fits each one.')
+                f'Operations. All {len(g.sections)} attachment slots'
+                + (' and every attachment that fits each one.' if is_finished(g)
+                   else ', traced from the game, with the attachment lists '
+                        'being read one slot at a time.'))
     else:
         desc = (f"{w['name']} &mdash; {w['cls'].lower()}{cal} in Delta Force: "
                 'Operations. Its slot list is not transcribed yet; the '
@@ -932,11 +1059,11 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         group(gid, cls, ''.join(
             tile(gun_file(w['id']), w['name'],
                  f'gear/{w["id"]}.png' if has_art('gear', w['id']) else None,
-                 tags=('complete',) if is_finished(w['id']) else (),
-                 done=is_finished(w['id']))
+                 tags=('complete',) if finished(w['id']) else (),
+                 done=finished(w['id']))
             for w in rows), len(rows))
         links += nav_link(gid, cls, len(rows))
-    n_done = sum(1 for w in WEAPONS if is_finished(w['id']))
+    n_done = sum(1 for w in WEAPONS if finished(w['id']))
     if n_done:
         links += '          <span class="navdiv">By tag</span>\n'
         links += tag_link('complete', 'Every slot listed and every attachment '
@@ -1137,7 +1264,6 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
 """)
 
     return ''.join(body)
-GUNSMITH = ROOT / 'data/gunsmith-rm277.json'
 
 
 # The search, as a worker. It runs off the main thread because it takes a few
@@ -1986,7 +2112,7 @@ def pick_detail(name, slot):
             + '        </div>\n')
 
 
-def slot_panel(slot, label):
+def slot_panel(g, slot, label):
     """One slot: every attachment that fits it, and what the chosen one does.
 
     Laid out as the game lays it out — a column of cards, then a panel of
@@ -1995,7 +2121,7 @@ def slot_panel(slot, label):
     use, so the two cannot disagree about what fits.
     """
     cards, details = '', ''
-    for i, (name, missing, unread) in enumerate(rows_for(slot)):
+    for i, (name, missing, unread) in enumerate(rows_for(g, slot)):
         iid = item_id(name)
         tier = (CARD_FACTS.get(iid) or {}).get('tier') or 'none'
         art = (f' style="background-image:url({UP}att/{iid}.png)"'
@@ -2006,7 +2132,13 @@ def slot_panel(slot, label):
                   f'<span class="pcard__art"{art}></span></button>\n')
         details += pick_detail(name, slot)
 
-    n = len(rows_for(slot))
+    n = len(rows_for(g, slot))
+    # A slot measured off the gunsmith but not yet transcribed has no cards to
+    # show. It still gets its panel -- the chip is real and clicking it must do
+    # something -- and the panel says which of the two silences this is.
+    if not n:
+        details = ('          <p class="dnone">Not read yet. The slot is on the '
+                   'weapon; its list is still to be transcribed.</p>\n')
     return (f'      <div class="slotlist" id="sl-{slot}" hidden>\n'
             f'        <div class="picks">\n'
             f'          <p class="picks__h">{label} <span class="count">{n}</span></p>\n'
@@ -2015,7 +2147,7 @@ def slot_panel(slot, label):
             '      </div>\n')
 
 
-def gunsmith_body():
+def gunsmith_body(g):
     """The editor: the weapon, its slots around it, a leader line to each.
 
     Returns a body fragment, not a page. It is the top half of the weapon's own
@@ -2034,9 +2166,9 @@ def gunsmith_body():
     apart at any window size. A slot with no anchor recorded yet simply gets no
     line, which is why the page was useful before all of them were placed.
     """
-    d = json.loads(GUNSMITH.read_text(encoding='utf-8'))
+    d = g.smith
     fw, fh = d['frame']['w'], d['frame']['h']
-    g, C = d['gun'], d['chip']
+    box, C = d['gun'], d['chip']
     pc = lambda v, tot: f'{v / tot * 100:.4f}%'
 
     # The base fifteen, and every chip a fitted part opens. A granted chip is
@@ -2055,9 +2187,9 @@ def gunsmith_body():
     for s in order:
         granted = s['slot'] in extra
         cx, cy = s['x'] + C / 2, s['y'] + C / 2
-        label = SLOT_TITLE.get(s['slot'], s['label'])
-        n = len(rows_for(s['slot'])) if s['slot'] in dict(
-            (k, 1) for k, _, _ in SECTIONS) else 0
+        label = g.slot_title.get(s['slot'], s['label'])
+        n = (len(rows_for(g, s['slot']))
+             if s['slot'] in {k for k, _, _ in g.sections} else 0)
         chips.append(
             f'      <a class="chip3{" is-granted" if granted else ""}" '
             f'style="left:{pc(s["x"], fw)};'
@@ -2069,7 +2201,7 @@ def gunsmith_body():
             f'<span class="chip3__art" style="background-image:'
             f'url({UP}smith/slot/{s["slot"]}.png)"></span>'
             + (f'<em>{n}</em>' if n else '') + '</a>\n')
-        panels.append(slot_panel(s['slot'], label))
+        panels.append(slot_panel(g, s['slot'], label))
         if s.get('ax') is not None:
             lines.append(f'      <line data-slot="{s["slot"]}" '
                          f'x1="{cx}" y1="{cy}" '
@@ -2078,12 +2210,24 @@ def gunsmith_body():
 
     prov = (' <em class="prov">derived, unconfirmed</em>'
             if d['weapon'].get('derived') else '')
+    # Both of these are arithmetic on the weapon's own bars: the build panel
+    # shows what your parts did to them, and the optimiser searches over them.
+    # With no reading to work from they would show a rifle whose every stat is
+    # zero, so on a weapon whose stat panel has not been read they are simply
+    # not offered. The elements stay in the page -- the script wires itself to
+    # them either way -- and are hidden.
+    unread = '' if g.has_stats else ' hidden'
+    stage_note = '' if g.has_stats else (
+        '  <p class="stagenote">Slots traced from the game, and the lists behind '
+        'them are being read one at a time. This rifle&rsquo;s own stat panel '
+        'has not been read yet, so there is nothing here to add up &mdash; no '
+        'build figures and no smithing.</p>\n')
     # Every stat line the page might need to add up, by item, so the arithmetic
     # happens against the build the reader has assembled rather than against a
     # blank rifle.
     deltas = {}
     for s in order:
-        for name, _m, _x in rows_for(s['slot']):
+        for name, _m, _x in rows_for(g, s['slot']):
             iid = item_id(name)
             st = stats_for(iid)
             if st:
@@ -2093,7 +2237,7 @@ def gunsmith_body():
     # how far the shot carries, and printing "500 m, no change" would be a
     # claim about the game rather than a note about our data.
     seen = {k for st in deltas.values() for k in st}
-    for st in d['weapon']['stats']:
+    for st in d['weapon'].get('stats', []):
         st['tracked'] = (st.get('from') or st['key']) in seen
         # Which way is better. Every other stat rewards a bigger number; the
         # distance your shot carries to somebody else's ears rewards a smaller
@@ -2105,7 +2249,7 @@ def gunsmith_body():
     # the rules it can act on rather than all of them.
     opens = {}
     for s in order:
-        for name, _m, _x in rows_for(s['slot']):
+        for name, _m, _x in rows_for(g, s['slot']):
             iid = item_id(name)
             r = RULES.get(iid) or {}
             if r.get('grants') or r.get('conflictSlots'):
@@ -2129,7 +2273,7 @@ def gunsmith_body():
     body = f"""  <div class="gunsmith" style="--ar:{fw / fh:.4f}">
   <div class="stage" style="aspect-ratio:{fw}/{fh}">
     <div class="wname">
-      <button class="wname__b" id="wtab" aria-expanded="false">
+      <button class="wname__b" id="wtab" aria-expanded="false"{unread}>
         <span>{d['weapon']['name']}</span>
         <svg viewBox="0 0 16 16" aria-hidden="true" width="15" height="15">
           <rect x="1" y="2.5" width="14" height="2"></rect>
@@ -2142,7 +2286,7 @@ def gunsmith_body():
         <div class="wstats"></div>
       </div>
     </div>
-    <button class="smith" id="forge-go" type="button">
+    <button class="smith" id="forge-go" type="button"{unread}>
       <svg viewBox="0 0 64 64" width="17" height="17" aria-hidden="true">
         <g fill="#95a8b4">
           <path d="M13 34h36v6H13l-6-3z"></path>
@@ -2153,9 +2297,9 @@ def gunsmith_body():
       </svg>
       <span>Smith</span>
     </button>
-    <img class="stage__gun" src="{UP}smith/rm277.png" alt="RM277"
-         style="left:{pc(g['x'], fw)};top:{pc(g['y'], fh)};
-                width:{pc(g['w'], fw)};height:{pc(g['h'], fh)}">
+    <img class="stage__gun" src="{UP}smith/{box['src']}" alt="{d['weapon']['name']}"
+         style="left:{pc(box['x'], fw)};top:{pc(box['y'], fh)};
+                width:{pc(box['w'], fw)};height:{pc(box['h'], fh)}">
     <svg class="stage__wires" viewBox="0 0 {fw} {fh}" preserveAspectRatio="none"
          aria-hidden="true">
 {''.join(lines)}    </svg>
@@ -2244,11 +2388,11 @@ def gunsmith_body():
       </svg>
     </button>
   </div>
-  </div>
+{stage_note}  </div>
 
 
   <script>
-    const WEAPON = {json.dumps(d['weapon']['stats'])};
+    const WEAPON = {json.dumps(d['weapon'].get('stats', []))};
     const SPECS = {json.dumps(d['weapon'].get('specs', []))};
     const READ = new Set({json.dumps(sorted(CLEARED))});
     const DELTA = {json.dumps(deltas)};
@@ -3189,6 +3333,13 @@ h2 .count {
 }
 p { margin: 0; max-width: 78ch; }
 .lede { color: var(--text-dim); font-size: 14px; }
+/* A slot the gunsmith has and the transcript has not reached. Set apart from a
+   plain lede because it is a promise rather than a description, and a reader
+   scanning twenty-odd slots should be able to see which ones are still owed. */
+.lede--gap {
+  border-left: 2px solid var(--line-2); padding-left: 10px;
+  color: var(--text-faint); font-style: italic;
+}
 code {
   font-family: var(--mono); font-size: 0.88em;
   background: var(--surface-2); color: var(--text-dim);
@@ -3514,6 +3665,12 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 .tier.purple { background: rgb(155, 114, 221); }
 .tier.red    { background: rgb(218, 87, 88); }
 
+/* The detail pane of a slot with nothing in it yet. */
+.dnone {
+  margin: 14px 2px; font-size: 12px; line-height: 1.55;
+  color: var(--text-faint); font-style: italic;
+}
+
 .dlabel {
   margin: 14px 0 6px; padding-top: 10px; border-top: 1px solid var(--line);
   font-family: var(--mono); font-size: 9px; font-weight: 600;
@@ -3776,6 +3933,14 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
 
  /* The dots layer sits over the chips, so it has to be transparent to the
    pointer or it swallows every click meant for a chip underneath. */
+/* Said once, under the stage, on a weapon whose bars have not been read. Under
+   rather than on it: the stage is a fixed-ratio box of absolutely placed
+   things, and a paragraph inside it lands on the gun and then behind the slot
+   panel the moment a chip is clicked. */
+.stagenote {
+  margin: 10px auto 0; max-width: 68ch; text-align: center;
+  font-size: 12px; line-height: 1.55; color: var(--text-faint);
+}
 .pins { position: absolute; inset: 0; pointer-events: none; }
 .pin { pointer-events: auto; }
 .pin {
@@ -4224,10 +4389,18 @@ CSS_V = hashlib.md5(CSS.encode('utf-8')).hexdigest()[:10]
 WEAPONS = json.loads((ROOT / 'data/weapons.json').read_text(encoding='utf-8'))
 AMMO = json.loads((ROOT / 'data/ammo.json').read_text(encoding='utf-8'))
 WEAPON_NAME = {w['id']: w['name'] for w in WEAPONS}
-DOCUMENTED = {'rm277'}
-# Weapons whose gunsmith layout has been traced from the game.
-GUNSMITHS = {'rm277'}
-PAGES = ['gun-rm277.html']   # documented weapons, for the sitemap
+# Weapons with a slot list of their own. Derived from the lists themselves
+# rather than typed twice: a weapon is documented exactly when SECTIONS has
+# something to say about it.
+DOCUMENTED = {wid for wid, secs in SECTIONS.items() if secs}
+# Weapons whose gunsmith layout has been traced from the game. Also derived —
+# from whether the traced file is actually on disk.
+GUNSMITHS = {wid for wid in DOCUMENTED
+             if (ROOT / f'data/gunsmith-{wid}.json').is_file()}
+# Every weapon's own record, built once. Everything that draws part of a gun
+# takes one of these; nothing reads the raw lists above directly.
+GUNS = {wid: Gun(wid) for wid in DOCUMENTED}
+PAGES = [gun_file(w) for w in sorted(DOCUMENTED)]  # for the sitemap
 SITE = 'https://eukyrios.github.io/weapon-smith/'
 
 # The mark: a hammer over an anvil. Drawn on a 64 grid in three tones — steel
@@ -4373,7 +4546,7 @@ def banner(path=''):
     itself.
     """
     total = len(WEAPONS)
-    fin = sorted(w for w in DOCUMENTED if is_finished(w))
+    fin = sorted(w for w in DOCUMENTED if finished(w))
     started = sorted(DOCUMENTED - set(fin))
     if len(fin) >= total:
         return ''
@@ -4487,36 +4660,10 @@ def moved(title, to, up, note='This moved up a level.', tab=None):
             f'<a href="{up}{to}">{title} &rarr;</a></p>\n')
 
 
-def build():
-    out = ['<title>RM277 Gunsmith Schema</title>',
-           f'<style>{CSS}</style>', '', '<div class="wrap">', '',
-           '  <header>',
-           '    <span class="eyebrow">Delta Force &middot; Operations</span>',
-           '    <h1>RM277 Gunsmith Schema</h1>',
-           '    <p class="sub">Which attachments fit each slot on the RM277, and which '
-           'attachments open further slots of their own.</p>',
-           '  </header>', '']
-
-    for i, (slot, title, lede) in enumerate(SECTIONS, 1):
-        out.append(section(i, slot, title, lede))
-
-    n = len(SECTIONS) + 1
-    out.append(f'''  <section>
-    <h2><span class="n">{n}</span>The whole tree</h2>
-    <figure>
-      <div class="canvas">
-        {graph()}
-      </div>
-      <figcaption>Solid boxes are slots the rifle always has. Outlined boxes only
-      appear once the named attachment is fitted. Numbers are how many attachments
-      the slot accepts.</figcaption>
-    </figure>
-  </section>
-''')
-
-    out.append('</div>')
-    return '\n'.join(out) + '\n'
-
+# The standalone RM277 schema dump used to live here, as build(). Nothing has
+# called it since the weapon page grew the same tables, and it was the last
+# thing in the file that knew only one gun's name — so it goes rather than
+# gets a weapon threaded through it.
 
 if __name__ == '__main__':
     out = ROOT
@@ -4557,15 +4704,16 @@ if __name__ == '__main__':
                   for u, freq, pr in urls)
         + '</urlset>\n', encoding='utf-8')
     print(f'wrote sitemap.xml with {len(urls)} urls')
-    fits = fits_index()
-    # (weapon id, slot label) per item, so a chip can name both. Today every
-    # slot list belongs to the RM277; when a second weapon is transcribed this
-    # is where its lists join.
+    # (weapon id, slot label) per item, so a chip on an attachment page can
+    # name both. Every documented weapon contributes, which is what turns the
+    # "Fits" row from a list of slots into a list of guns.
     accepted = {}
-    for slot, ids in fits.items():
-        label = next(t for s_, t, _ in SECTIONS if s_ == slot)
-        for i in ids:
-            accepted.setdefault(i, []).append(('rm277', label))
+    for wid in sorted(DOCUMENTED):
+        g = GUNS[wid]
+        for slot, ids in fits_index(g).items():
+            label = g.slot_title[slot]
+            for i in ids:
+                accepted.setdefault(i, []).append((wid, label))
     guns_by_caliber = {}
     for w in WEAPONS:
         if w.get('caliber'):

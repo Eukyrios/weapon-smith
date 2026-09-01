@@ -171,6 +171,12 @@ export const SLOT_TYPES: SlotType[] = [
   // The two grip bases sit under the catalogue's `rear grip` cat but are their
   // own slot — another case of one cat covering several slots.
   { id: 'rear-grip-mount', label: 'Rear Grip Mount', kind: 'granted', cat: 'rear grip' },
+  // The AR-57 presents these as two chips, one above the other: a kit that
+  // replaces the whole rear assembly, and the stock proper. The RM277 has
+  // neither — it is a bullpup — so this pair arrived with the second weapon,
+  // which is the first evidence that SLOT_TYPES is a game-wide vocabulary and
+  // not one gun's list.
+  { id: 'stock-kit', label: 'Stock Kit', kind: 'base', cat: 'stock' },
   { id: 'stock', label: 'Stock', kind: 'base', cat: 'stock' },
   // Both live under the catalogue's `stock` cat but are their own slots.
   { id: 'cheek-pad', label: 'Cheek Pad', kind: 'base', cat: 'stock' },
@@ -694,6 +700,17 @@ export const PENDING_RULES: Record<string, AttachRule & { name: string }> = {
     // been seen to take the muzzle, so the muzzle is not listed.
     conflictSlots: ['rail-bipod'],
   },
+
+  /*
+   * The AR-57's long barrel, read off its card in the same clip the slot layout
+   * came from. Like the RM277's two it opens an upper rail; unlike them it has
+   * not been seen to take anything away, so nothing is listed — silence here is
+   * "not observed", which the Whale Shark taught us is not the same as "none".
+   */
+  'ar57-wave-blaster-ultra-long-barrel': {
+    name: 'AR57 Wave Blaster Ultra-Long Barrel',
+    grants: ['upper-rail'],
+  },
 };
 
 /**
@@ -709,14 +726,52 @@ export const PENDING_RULES: Record<string, AttachRule & { name: string }> = {
  * must fall back to the whole category when a weapon has no entry — see
  * `fitsFor` below, which is the only correct way to ask.
  */
+/**
+ * Three of the maps above are categories rather than RM277 slots.
+ *
+ * The rifle is a bullpup with an integral handguard: it presents no handguard,
+ * no stock and no functional slot, and the lists under those keys are the
+ * game's categories, gathered for weapons nobody has traced yet. Handing them
+ * to the RM277 asserts three slots it does not have.
+ */
+const NOT_ON_THE_RM277 = new Set(['handguard', 'stock', 'functional']);
+const RM277_FITS: Record<string, string[]> = Object.fromEntries(
+  Object.entries(CATEGORY_FITS).filter(([slot]) => !NOT_ON_THE_RM277.has(slot)),
+);
+
 export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
-  rm277: {
-    // Both lists were dictated for this weapon, so the category arrays above
-    // ARE the RM277's lists today. Referenced, not copied — a second weapon
-    // will diverge and the copy is what would silently go stale.
-    muzzle: CATEGORY_FITS.muzzle,
-    foregrip: CATEGORY_FITS.foregrip,
-    optics: CATEGORY_FITS.optics,
+  // Every list in CATEGORY_FITS was dictated while reading the RM277's
+  // gunsmith, so that map IS this weapon's, whole. Referenced rather than
+  // copied: a copy is what would silently go stale the first time a name is
+  // corrected above.
+  //
+  // It is spelled out here, and not left implicit, because the second weapon
+  // below is what makes the distinction real. CATEGORY_FITS says what kind of
+  // part each slot takes; this says which parts THIS gun's slot takes, and only
+  // for the RM277 are the two the same thing.
+  rm277: RM277_FITS,
+
+  /*
+   * The AR-57, traced from a clip of the bare weapon on 2026-09-01.
+   *
+   * Its slot LAYOUT is fully read — thirteen chips and where each one points —
+   * but its attachment lists are not, and these two entries are all that has
+   * been confirmed so far. An absent slot here is "not read yet", never "takes
+   * nothing": the page says as much on every empty slot rather than drawing an
+   * authoritative zero.
+   */
+  'ar-57': {
+    // Nothing yet that this file can hold. The one part confirmed for the
+    // AR-57 — its Wave Blaster barrel — is not in the catalogue, so it has no
+    // id to list here; it lives in MISSING on the Python side beside the
+    // RM277's exclusives, with its rule parked in PENDING_RULES above.
+    //
+    // A Honeycomb Killflash was seen in this rifle's killflash slot too, and
+    // is deliberately NOT listed. That slot is granted by an optic, and this
+    // weapon's optic list has not been read, so a killflash list here would
+    // be a list on a slot the gun cannot yet be shown to have. It is recorded
+    // in data/gunsmith-ar-57.json under `granted`, and joins the moment the
+    // optics arrive.
   },
 };
 
@@ -781,6 +836,11 @@ export const UNRESOLVED_NAMES: Record<string, Record<string, string[]>> = {
       'OLIGHT Warrior 3S Tactical Flashlight',
       'OLIGHT Odin S Tactical Flashlight',
     ],
+  },
+  'ar-57': {
+    // Weapon-exclusive, like the RM277's two barrels, and absent from the 414
+    // for the same reason. Its rule and its card are both written down.
+    barrel: ['AR57 Wave Blaster Ultra-Long Barrel'],
   },
 };
 
