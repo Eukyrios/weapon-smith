@@ -5,10 +5,10 @@
  },
  "gun": {
   "src": "ar-57.png",
-  "x": 472,
-  "y": 366,
-  "w": 1097,
-  "h": 320
+  "x": 470,
+  "y": 361,
+  "w": 1101,
+  "h": 352
  },
  "chip": 70,
  "slots": [
@@ -17,8 +17,8 @@
    "label": "Optic",
    "x": 1214,
    "y": 232,
-   "ax": 1152,
-   "ay": 371
+   "ax": 1156,
+   "ay": 366
   },
   {
    "slot": "offset-optics",
@@ -33,47 +33,47 @@
    "label": "Right Patch",
    "x": 618,
    "y": 237,
-   "ax": 754,
-   "ay": 421
+   "ax": 753,
+   "ay": 420
   },
   {
    "slot": "left-patch",
    "label": "Left Patch",
    "x": 514,
    "y": 259,
-   "ax": 705,
-   "ay": 421
+   "ax": 700,
+   "ay": 417
   },
   {
    "slot": "barrel",
    "label": "Barrel",
    "x": 413,
    "y": 289,
-   "ax": 551,
-   "ay": 388
+   "ax": 546,
+   "ay": 385
   },
   {
    "slot": "right-rail",
    "label": "Right Rail",
    "x": 315,
    "y": 330,
-   "ax": 522,
-   "ay": 444
+   "ax": 516,
+   "ay": 442
   },
   {
    "slot": "foregrip",
    "label": "Foregrip",
    "x": 225,
    "y": 388,
-   "ax": 498,
-   "ay": 467
+   "ax": 481,
+   "ay": 464
   },
   {
    "slot": "left-rail",
    "label": "Left Rail",
    "x": 160,
    "y": 471,
-   "ax": 487,
+   "ax": 473,
    "ay": 490
   },
   {
@@ -81,46 +81,46 @@
    "label": "Muzzle",
    "x": 167,
    "y": 583,
-   "ax": 476,
-   "ay": 489
+   "ax": 473,
+   "ay": 491
   },
   {
    "slot": "rail-bipod",
    "label": "Rail Bipod",
    "x": 239,
    "y": 662,
-   "ax": 556,
-   "ay": 515
+   "ax": 551,
+   "ay": 519
   },
   {
    "slot": "stock-kit",
    "label": "Stock Kit",
    "x": 1699,
    "y": 455,
-   "ax": 1554,
-   "ay": 509
+   "ax": 1569,
+   "ay": 507
   },
   {
    "slot": "stock",
    "label": "Stock",
    "x": 1706,
    "y": 568,
-   "ax": 1560,
-   "ay": 579
+   "ax": 1567,
+   "ay": 580
   },
   {
    "slot": "rear-grip",
    "label": "Rear Grip",
    "x": 1527,
    "y": 720,
-   "ax": 1210,
-   "ay": 635
+   "ax": 1213,
+   "ay": 636
   }
  ],
  "weapon": {
   "id": "ar-57",
   "name": "AR-57",
-  "source": "gun basic.mp4 (bare weapon), 2026-09-01"
+  "source": "gun basic.mp4, second take (bare weapon), 2026-09-01. Chips, art and anchors by tools/cut-gunsmith-ar57.py."
  },
  "granted": [
   {
