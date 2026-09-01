@@ -221,8 +221,13 @@ strict = ndimage.binary_closing(strict, np.ones((7, 7)))
 slab, sn = ndimage.label(strict)
 ssz = ndimage.sum(strict, slab, range(1, sn + 1))
 strict = np.isin(slab, [i + 1 for i, sz in enumerate(ssz) if sz > 800])
+# Forty pixels, not sixteen. The buttplate is a dark, low-contrast slab that
+# the strict pass barely registers, and a tight bound cut a stepped notch out
+# of its lower corner -- a defect invisible against the site's own dark ground
+# and glaring the moment the cut is composited on orange, which is why every
+# check here is done on orange.
 near = ndimage.binary_dilation(ndimage.binary_fill_holes(strict),
-                               np.ones((3, 3)), iterations=16)
+                               np.ones((3, 3)), iterations=40)
 m &= near
 m = ndimage.binary_fill_holes(ndimage.binary_closing(m, np.ones((5, 5))))
 lab, n = ndimage.label(m)
@@ -252,17 +257,49 @@ alpha[(a[:, :, 2] > 1.3 * a[:, :, 0] + 8) & (a.mean(axis=2) > 55)] = 0
 # works in that one neighbourhood.
 alpha[ndimage.binary_dilation(glow, np.ones((3, 3)), iterations=6)
       & (a.mean(axis=2) > 72)] = 0
-# The two colour trims above work pixel by pixel and can punch a pinhole in the
+# Further out, the light bars fade into a dim teal wash across the floor -- too
+# faint for any ratio to call it glow, and bright enough that it does not match
+# a background read from the plain floor further along the row, so it came
+# through as blocks of floor stuck to the grip.
+#
+# Dim and blue is what that wash is, and the rifle's own cool greys are all
+# BRIGHT -- the buffer tube, the top rail, the receiver flats. But the folding
+# stock's buttplate is dim and cool too, so the test cannot be let loose on the
+# whole frame: applied everywhere it chews holes in the buttplate. It is fenced
+# to within fifty pixels of an actual light bar, which is where a wash from one
+# can be. Measured: the blocks stuck to the grip are nought to thirteen pixels
+# from a bar, and the buttplate is ninety-seven away at its nearest corner.
+bars = (a[:, :, 2] > 1.5 * a[:, :, 0] + 10) & (a.mean(axis=2) > 55)
+_l, _n = ndimage.label(ndimage.binary_dilation(bars, np.ones((9, 9))))
+_z = ndimage.sum(bars, _l, range(1, _n + 1))
+lit = ndimage.binary_dilation(
+    np.isin(_l, [i + 1 for i, v in enumerate(_z) if v > 400]),
+    np.ones((3, 3)), iterations=25)
+alpha[lit & (a[:, :, 2] - a[:, :, 0] >= 12) & (a.mean(axis=2) < 50)] = 0
+
+# The three colour trims above work pixel by pixel and can punch a pinhole in the
 # middle of the rifle -- one screw head bright enough and cool enough at once.
-# A hole a few dozen pixels across, entirely surrounded by gun, is a mistake by
-# construction: nothing that small is background.
+# A hole a couple of hundred pixels across, entirely surrounded by gun, is a
+# mistake by construction: nothing that small is background, and the teal trim
+# in particular nibbles a ragged line down the shaded rear face of the grip.
 solid = alpha > 0.02
 gaps = ndimage.binary_fill_holes(solid) & ~solid
 _l, _n = ndimage.label(gaps)
 _z = ndimage.sum(gaps, _l, range(1, _n + 1))
-alpha[np.isin(_l, [i + 1 for i, v in enumerate(_z) if v < 80])] = 1.0
+alpha[np.isin(_l, [i + 1 for i, v in enumerate(_z) if v < 240])] = 1.0
 
 m = alpha > 0.02
+
+# And a last sweep for crumbs. The soft edge leaves a scatter of one- and
+# two-pixel islands where the ramp clipped something that was never the rifle;
+# 128 of them, 196 pixels between them. The rifle is one piece -- the buttplate
+# included, since the rod that carries it survives now -- so anything not
+# joined to it goes.
+lab, n = ndimage.label(m)
+if n > 1:
+    sizes = ndimage.sum(m, lab, range(1, n + 1))
+    m = lab == (int(np.argmax(sizes)) + 1)
+    alpha *= m
 
 ys, xs = np.where(m)
 bx, by = int(xs.min()), int(ys.min())
