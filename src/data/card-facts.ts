@@ -483,7 +483,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * its #not-tracked tag.
    */
   'ar57-wave-blaster-ultra-long-barrel': {
-    tier: 'blue',
+    tier: 'blue', read: true,
     stats: {
       Range: 11, Control: 9, Handling: -7, Stability: 4, Accuracy: -12,
       // 683 on the card against the rifle's 525, so +158. Stored as the change
@@ -491,10 +491,26 @@ export const CARD_FACTS: Record<string, CardFacts> = {
       // where this barrel LEAVES the gun, and the site adds up changes.
       'Muzzle velocity': 158,
     },
-    // No `read`. Six lines of a card that has eleven — the frame this came
-    // from showed the five base stats, and the muzzle velocity arrived
-    // separately. Damage, armour penetration, fire rate, capacity and gunshot
-    // range are still unknown for it, and the tag says so.
+  },
+  /*
+   * Its integrally suppressed sibling, and the trade reads exactly as one:
+   * ninety metres of gunshot range for sixty-three of muzzle velocity against
+   * the Wave Blaster, and it keeps four points of stability the other loses.
+   *
+   * NO SLOT RULE ON IT YET. The RM277's integral barrel takes over the muzzle
+   * — an integrally suppressed barrel occupies the place a suppressor would go
+   * — and this one is very likely the same. Nobody has watched it do that, and
+   * the Whale Shark already taught this file that silence about a conflict is
+   * not the same as none, so it is not written down. Until it is, a build can
+   * be offered with this barrel and a suppressor both.
+   */
+  'night-gale-integrally-suppressed-combo': {
+    tier: 'purple', read: true,
+    stats: {
+      Range: 6, Control: 8, Handling: -2, Stability: 8, Accuracy: -4,
+      // 620 and 210 on the card, against the rifle's 525 and 300.
+      'Muzzle velocity': 95, 'Gunshot heard': -90,
+    },
   },
 };
 
