@@ -68,10 +68,18 @@ export interface CardFacts {
    * read, a line the card does not mention is a line that does not move, and
    * the hedge comes off.
    *
-   * Setting `stats` here implies this and does not need it. The flag exists
-   * for the other case — an item whose catalogue stat block was already right,
-   * where restating it below would be duplicating a number in order to record
-   * that somebody looked at it.
+   * THIS FLAG IS THE ONLY THING THAT CLEARS THE HEDGE. Numbers in `stats` do
+   * not, and used to. The reasoning was that stats can only come off a card
+   * and a card lists everything — true of a card somebody sits down with, and
+   * false of one read off a paused video, which shows the five lines the frame
+   * happened to include. The AR-57's Wave Blaster barrel was entered that way,
+   * came out looking fully read, and was quietly missing a muzzle velocity of
+   * +158 that nothing on the site could have told you was absent.
+   *
+   * So an item is unread until this says otherwise, and a partial reading is
+   * numbers with no flag. The default has to be the cautious one: the failure
+   * it prevents is a figure that is wrong rather than a figure that is missing,
+   * and only one of those announces itself.
    */
   read?: true;
   /**
@@ -92,31 +100,40 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   // Stats below are read in the order the site's own Optics table lists them.
   'white-phosphor-thermal-scope': {
     tier: 'red', weight: 0.6, stats: { Handling: -8, Stability: -2 },
+    read: true,
   },
   'advanced-thermal-fusion-holographic-sight': {
     tier: 'red', weight: 0.3, stats: { Handling: -2, Stability: -2 },
+    read: true,
   },
   'vmx-frameless-sight': {
     tier: 'purple', weight: 0.55, stats: { Handling: -2 },
+    read: true,
   },
   '1p-33-2-4x-scope': {
     // Restated. An earlier reading of -4 / +3 turned out to be the Prism's.
     tier: 'purple', weight: 0.6, stats: { Handling: -6, Stability: 4 },
+    read: true,
   },
   'uhx-holographic-sight': {
     tier: 'purple', weight: 0.15, stats: { Handling: -2 },
+    read: true,
   },
   'prism-universal-2x-optic': {
     tier: 'purple', weight: 0.3, stats: { Handling: -4, Stability: 3 },
+    read: true,
   },
   'm157-fire-control-system': {
     tier: 'purple', weight: 0.6, stats: { Handling: -6 },
+    read: true,
   },
   '1p-29-russian-3x-sight': {
     tier: 'purple', weight: 0.6, stats: { Handling: -4 },
+    read: true,
   },
   'meo-micro-sight-riser': {
     tier: 'blue', weight: 0.3, stats: { Handling: -1, Stability: 2 },
+    read: true,
   },
 
   // --- optics: the whole slot, cleared ------------------------------------
@@ -210,6 +227,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   },
   'cobweb-titanium-muzzle-brake': {
     tier: 'purple', weight: 0.2, stats: { Control: 7, Stability: -2, Accuracy: 8 },
+    read: true,
   },
   /*
    * Both barrels re-read for muzzle velocity, which nothing carried until the
@@ -237,34 +255,42 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'rm277-pad': {
     tier: 'purple', weight: 0.2,
     stats: { Control: 4, Handling: 2, Accuracy: -8 },
+    read: true,
   },
   'rm277-cheek-pad': {
     tier: 'purple', weight: 0.2,
     stats: { Control: 2, Handling: -2, Stability: 4 },
+    read: true,
   },
   // Dictated as "Resonant MK II". The RM277's foregrip list holds one Resonant
   // grip and it is the MK III.
   'resonant-mk-iii-grip': {
     tier: 'purple', weight: 0.2,
     stats: { Control: 4, Handling: -2, Stability: 4, Accuracy: 8 },
+    read: true,
   },
   // Dictated as "EU universal" — the EC Universal Front Hand Stop.
   'ec-universal-front-hand-stop': {
     tier: 'purple', weight: 0.13,
     stats: { Control: -4, Handling: 6, Stability: 2, Accuracy: 16 },
+    read: true,
   },
   'ar-light-grip-piece': {
     tier: 'purple', weight: 0.2, stats: { Handling: 2, Stability: 4 },
+    read: true,
   },
   'ar-heavy-grip-piece': {
     tier: 'purple', weight: 0.2,
     stats: { Control: 8, Handling: -6, Stability: 4 },
+    read: true,
   },
   'ar-modular-rear-grip': {
     tier: 'purple', weight: 0.2, stats: { Control: 2, Handling: 2 },
+    read: true,
   },
   'ar-moe-rear-grip': {
     tier: 'blue', weight: 0.2, stats: { Control: 3, Stability: 3 },
+    read: true,
   },
   'dd-python-handguard-panel': {
     tier: 'green', weight: 0.1, read: true, stats: { Handling: 1 },
@@ -410,6 +436,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   },
   'olight-odin-s-tactical-flashlight': {
     tier: 'purple', weight: 0.1, stats: { Handling: -1 },
+    read: true,
   },
   /*
    * The rest of the rail, read in one pass, and rarity dictated as runs the way
@@ -447,7 +474,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * That distinction is the whole point of this file — an item with no entry
    * here has not been read, and this one now has.
    */
-  'practical-bipod': { tier: 'blue', stats: { Handling: -4 } },
+  'practical-bipod': { tier: 'blue', stats: { Handling: -4 }, read: true },
 
   /*
    * The first card off a second weapon. Read from the AR-57 clip that its slot
@@ -459,7 +486,15 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     tier: 'blue',
     stats: {
       Range: 11, Control: 9, Handling: -7, Stability: 4, Accuracy: -12,
+      // 683 on the card against the rifle's 525, so +158. Stored as the change
+      // for the same reason the RM277's barrels are: what the card prints is
+      // where this barrel LEAVES the gun, and the site adds up changes.
+      'Muzzle velocity': 158,
     },
+    // No `read`. Six lines of a card that has eleven — the frame this came
+    // from showed the five base stats, and the muzzle velocity arrived
+    // separately. Damage, armour penetration, fire rate, capacity and gunshot
+    // range are still unknown for it, and the tag says so.
   },
 };
 

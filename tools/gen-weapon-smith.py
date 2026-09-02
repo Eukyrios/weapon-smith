@@ -77,17 +77,19 @@ RULES, SLOT_TYPES = _R['rules'], _R['slots']
 # carries neither, so for the items it does not carry at all this is the only
 # thing either page has to say about them beyond a name.
 CARD_FACTS = json.loads((ROOT / 'data/card-facts.json').read_text(encoding='utf-8'))
-# The items somebody sat down with the game and read. A card prints every line
-# the part moves, so for these an unlisted stat is unchanged rather than
-# unread — which is the opposite of what an empty column means everywhere else,
-# and the only reason the distinction is worth keeping.
+# The items somebody sat down with the game and read to the end. A card prints
+# every line the part moves, so for these an unlisted stat is unchanged rather
+# than unread — which is the opposite of what an empty column means everywhere
+# else, and the only reason the distinction is worth keeping.
 #
-# The test is the presence of the key, not a value in it: an item read and
-# found to move nothing is `stats: {}`, and that is a finding, not a blank.
-# `read: true` says the same for an item whose catalogue stat block was already
-# right, where restating it would only duplicate a number to record a look.
-CLEARED = {iid for iid, f in CARD_FACTS.items()
-           if 'stats' in f or f.get('read')}
+# `read: true` and nothing else. Holding numbers used to count, on the
+# reasoning that numbers can only have come off a card; that is true of a card
+# somebody sits down with and false of one read off a paused video, which shows
+# the lines the frame happened to include. An item entered that way looked
+# fully read and was silently short a muzzle velocity. An item is unread here
+# until its entry says otherwise, because the failure that costs something is a
+# figure that is wrong rather than one that is missing.
+CLEARED = {iid for iid, f in CARD_FACTS.items() if f.get('read')}
 # Stats where a smaller number is the better one. Only gunshot range so far,
 # and it only started mattering when the first suppressor reading landed: until
 # then nothing on record moved it, so it was not a dimension anybody sorted on.
@@ -2901,7 +2903,15 @@ def gunsmith_body(g):
       // attachment somewhere moves fire rate is not the question here; whether
       // anybody has read THIS card is. The base stats have their own tag and
       // are not hedged twice.
-      const unread = !READ.has(iid);
+      // Per line, not per item. The hedge means nobody has checked whether
+      // this part moves this stat -- so a line we hold a number for is not
+      // hedged, however much of the rest of the card is still unread. The
+      // Wave Blaster is the case: its muzzle velocity is known and its damage
+      // is not, and printing "not tracked" beside +158 says the opposite of
+      // what the +158 says.
+      const held = DELTA[iid] || {{}};
+      const hedge = (s) => !READ.has(iid) && !CORE.has(s.key)
+                        && s.mode !== 'set' && !((s.from || s.key) in held);
       let html = '';
       for (const s of WEAPON) {{
         const b = before[s.key], a = after[s.key];
@@ -2914,8 +2924,7 @@ def gunsmith_body(g):
           const c = (s.lower ? d < 0 : d > 0) ? 'up' : 'down';
           html += '<div class="sr' + (d ? '' : ' is-flat') + '">'
                + '<span class="sr__n">' + s.key
-               + (!READ.has(iid) && !CORE.has(s.key) && s.mode !== 'set'
-                    ? ' <i class="untracked">not tracked</i>' : '')
+               + (hedge(s) ? ' <i class="untracked">not tracked</i>' : '')
                + '</span><span class="sr__v"><em class="unread">&mdash;</em>'
                + (d ? ' <i class="' + c + '">' + (d > 0 ? '+' : '&minus;')
                       + Math.abs(d) + '</i>' : '')
@@ -2936,8 +2945,7 @@ def gunsmith_body(g):
         const pctStock = Math.max(0, Math.min(100, s.base / s.max * 100));
         html += '<div class="sr' + (same ? ' is-flat' : '') + '">'
              + '<span class="sr__n">' + s.key
-             + (unread && !CORE.has(s.key) && s.mode !== 'set'
-                  ? ' <i class="untracked">not tracked</i>' : '') + '</span>'
+             + (hedge(s) ? ' <i class="untracked">not tracked</i>' : '') + '</span>'
              // The total takes the colour too. Left plain it reads as the
              // number the gun already has, with the change beside it as a
              // suggestion, when it is the number the gun would have.
