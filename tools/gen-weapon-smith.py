@@ -2899,6 +2899,18 @@ def gunsmith_body(g):
              + (v > 0 ? '+' : '&minus;') + Math.abs(v) + '</span></div>';
       }}
 
+      // On a weapon whose own stat panel has not been read, WEAPON is empty
+      // and the loop above produces nothing: what is left is the part's own
+      // lines with no bar and no resulting figure, because there is no base to
+      // add them to. Same code, different data -- and worth saying at the
+      // point where the difference shows rather than only in the note under
+      // the stage, which is where somebody comparing two weapons is not
+      // looking.
+      if (!WEAPON.length)
+        html += '<p class="dnone">No resulting figures: the stat panel for '
+             + 'this weapon has not been read off the game yet, so there is '
+             + 'no base for these to be added to.</p>';
+
       const box = document.querySelector('#d-' + slot + '-' + iid + ' .delta');
       if (box) box.innerHTML = html;
     }}
