@@ -41,6 +41,15 @@ ATTACH = json.loads((ROOT / 'data/attachments.json').read_text(encoding='utf-8')
 # these used to be spelled out inside each gun's lists, and two weapons in,
 # four of them were written down twice.
 UNCAT = json.loads((ROOT / 'data/uncatalogued.json').read_text(encoding='utf-8'))
+# The rows of the game's stat panel: the same eleven on every weapon, in the
+# order it prints them. Only the `base` in each is that gun's own, and that
+# stays in its gunsmith file. See src/data/weapon-stats.ts for why the shape
+# had to come out of the RM277's file: a weapon with no reading had no rows,
+# so the same attachment showed as eleven rows on one gun and as a two-line
+# list on another, which reads as the site being broken rather than as a
+# measurement being absent.
+STAT_ROWS = json.loads(
+    (ROOT / 'data/weapon-stats.json').read_text(encoding='utf-8'))
 
 # One catalogue name carries stray bidi and zero-width marks — invisible in the
 # source, but they survive into the page and come back as mojibake the moment
@@ -1558,8 +1567,13 @@ FORGE_CTRL = '''
       shutPanel();
     });
 
+    // The build's figure for a stat, or its change where the gun's own base
+    // has not been read. The search itself does not care: it ranks builds by
+    // what the parts do, and a base is the same constant added to every
+    // candidate, which no ordering can see.
     const value = (b, k) =>
-      FBASE[k] + b.v[FKEYS.indexOf(k)] * SIGN[k];
+      (FBASE[k] ?? 0) + b.v[FKEYS.indexOf(k)] * SIGN[k];
+    const rooted = (k) => FBASE[k] !== undefined;
 
     function fitBuild(list) {
       for (const slot of Object.keys(fitted)) unfit(slot);
@@ -1578,7 +1592,13 @@ FORGE_CTRL = '''
         const d = b.v[FKEYS.indexOf(k)];
         const cls = (d > 0 ? 'up' : d < 0 ? 'down' : '')
                   + (k === sortBy ? ' key' : '');
-        html += '<i><b class="' + cls + '">' + value(b, k) + '</b>'
+        // On a weapon whose base nobody has read, the figure IS the change,
+        // and it says so with a sign. A bare 11 in the same column that shows
+        // 82 on the rifle next door would read as a much worse gun rather than
+        // as a different quantity.
+        const n = value(b, k);
+        const shown = rooted(k) ? n : (n > 0 ? '+' + n : n < 0 ? '\u2212' + -n : n);
+        html += '<i><b class="' + cls + '">' + shown + '</b>'
              + k.slice(0, 4).toLowerCase() + '</i>';
       }
       el.innerHTML = html + '</span><span class="fbuild__n">'
@@ -2338,18 +2358,20 @@ def gunsmith_body(g):
 
     prov = (' <em class="prov">derived, unconfirmed</em>'
             if d['weapon'].get('derived') else '')
-    # Both of these are arithmetic on the weapon's own bars: the build panel
-    # shows what your parts did to them, and the optimiser searches over them.
-    # With no reading to work from they would show a rifle whose every stat is
-    # zero, so on a weapon whose stat panel has not been read they are simply
-    # not offered. The elements stay in the page -- the script wires itself to
-    # them either way -- and are hidden.
-    unread = '' if g.has_stats else ' hidden'
+    # Both of these were hidden on a weapon whose stat panel had not been read,
+    # on the reasoning that arithmetic needs something to add to. Only half
+    # true, and the wrong half: the build panel wants a base to show where a
+    # build LANDS, but the changes themselves are the parts' own and are known
+    # either way -- and the optimiser never needed a base at all, because it
+    # ranks builds against each other and a base is the same constant added to
+    # every candidate. So both are offered on every weapon, and where the gun's
+    # own figure is unknown the row shows a dash in that one cell.
+    unread = ''
     stage_note = '' if g.has_stats else (
         '  <p class="stagenote">Slots traced from the game, and the lists behind '
         'them are being read one at a time. This rifle&rsquo;s own stat panel '
-        'has not been read yet, so there is nothing here to add up &mdash; no '
-        'build figures and no smithing.</p>\n')
+        'has not been read yet, so the figures below show what a part changes '
+        'rather than where it leaves the gun.</p>\n')
     # Every stat line the page might need to add up, by item, so the arithmetic
     # happens against the build the reader has assembled rather than against a
     # blank rifle.
@@ -2365,7 +2387,15 @@ def gunsmith_body(g):
     # how far the shot carries, and printing "500 m, no change" would be a
     # claim about the game rather than a note about our data.
     seen = {k for st in deltas.values() for k in st}
-    for st in d['weapon'].get('stats', []):
+    # Every row, on every weapon. The bases are this gun's if anybody has read
+    # its panel and simply absent if not -- which the page then shows as a dash
+    # in that one cell, rather than as a different panel.
+    base = {st['key']: st.get('base')
+            for st in d['weapon'].get('stats', [])}
+    rows = [dict(r, **({'base': base[r['key']]}
+                       if base.get(r['key']) is not None else {}))
+            for r in STAT_ROWS]
+    for st in rows:
         st['tracked'] = (st.get('from') or st['key']) in seen
         # Which way is better. Every other stat rewards a bigger number; the
         # distance your shot carries to somebody else's ears rewards a smaller
@@ -2536,7 +2566,7 @@ def gunsmith_body(g):
     window.__smithStop = () => AC.abort();
 
     const WID = {json.dumps(g.id)};
-    const WEAPON = {json.dumps(d['weapon'].get('stats', []))};
+    const WEAPON = {json.dumps(rows)};
     const SPECS = {json.dumps(d['weapon'].get('specs', []))};
     const READ = new Set({json.dumps(sorted(CLEARED))});
     const DELTA = {json.dumps(deltas)};
@@ -2809,8 +2839,23 @@ def gunsmith_body(g):
       const now = totals(null, null);
       let html = '';
       for (const s of WEAPON) {{
+        // A row whose base nobody has read still prints, in its place, with
+        // the change this build makes to it. What it cannot print is where
+        // that leaves the gun, so that one cell is a dash and the bar is left
+        // off -- a bar with no base to draw from would be a made-up length.
+        const known = s.base !== undefined;
         const v = now[s.key];
-        const d = v - s.base;
+        const d = known ? v - s.base : (v || 0);
+        if (!known) {{
+          const c = (s.lower ? d < 0 : d > 0) ? 'up' : 'down';
+          html += '<div class="sr' + (d ? '' : ' is-flat') + '">'
+               + '<span class="sr__n">' + s.key + '</span>'
+               + '<span class="sr__v"><em class="unread">&mdash;</em>'
+               + (d ? ' <i class="' + c + '">' + (d > 0 ? '+' : '&minus;')
+                      + Math.abs(d) + '</i>' : '')
+               + '</span><span class="sr__bar"></span></div>';
+          continue;
+        }}
         const pctBase = Math.max(0, Math.min(100, Math.min(v, s.base) / s.max * 100));
         const pctD = Math.max(0, Math.min(100, Math.abs(d) / s.max * 100));
         // Better, not bigger -- the quieter gunshot is the good one.
@@ -2860,6 +2905,23 @@ def gunsmith_body(g):
       let html = '';
       for (const s of WEAPON) {{
         const b = before[s.key], a = after[s.key];
+        // Same eleven rows on every weapon, in the same order, whether or not
+        // anybody has read this one's panel. Without a base there is no
+        // resulting figure and no bar; there is still the change, which is the
+        // part's own and is known.
+        if (s.base === undefined) {{
+          const d = (a || 0) - (b || 0);
+          const c = (s.lower ? d < 0 : d > 0) ? 'up' : 'down';
+          html += '<div class="sr' + (d ? '' : ' is-flat') + '">'
+               + '<span class="sr__n">' + s.key
+               + (!READ.has(iid) && !CORE.has(s.key) && s.mode !== 'set'
+                    ? ' <i class="untracked">not tracked</i>' : '')
+               + '</span><span class="sr__v"><em class="unread">&mdash;</em>'
+               + (d ? ' <i class="' + c + '">' + (d > 0 ? '+' : '&minus;')
+                      + Math.abs(d) + '</i>' : '')
+               + '</span><span class="sr__bar"></span></div>';
+          continue;
+        }}
         // Every stat, every time. Listing only what moves makes a short list
         // look like a complete one, and hides that the others were considered.
         const pctBase = Math.max(0, Math.min(100, Math.min(a, b) / s.max * 100));
@@ -2899,17 +2961,14 @@ def gunsmith_body(g):
              + (v > 0 ? '+' : '&minus;') + Math.abs(v) + '</span></div>';
       }}
 
-      // On a weapon whose own stat panel has not been read, WEAPON is empty
-      // and the loop above produces nothing: what is left is the part's own
-      // lines with no bar and no resulting figure, because there is no base to
-      // add them to. Same code, different data -- and worth saying at the
-      // point where the difference shows rather than only in the note under
-      // the stage, which is where somebody comparing two weapons is not
-      // looking.
-      if (!WEAPON.length)
-        html += '<p class="dnone">No resulting figures: the stat panel for '
-             + 'this weapon has not been read off the game yet, so there is '
-             + 'no base for these to be added to.</p>';
+      // Why the dashes, said where they are. The note under the stage says it
+      // too, but somebody comparing two weapons is not reading the bottom of
+      // the page -- they are looking at this panel and wondering why it is
+      // not the one they saw a moment ago.
+      if (WEAPON.some((s) => s.base === undefined))
+        html += '<p class="dnone">Dashes where the resulting figure would be: '
+             + 'the stat panel for this weapon has not been read off the game '
+             + 'yet, so the changes have no base to be added to.</p>';
 
       const box = document.querySelector('#d-' + slot + '-' + iid + ' .delta');
       if (box) box.innerHTML = html;
@@ -3860,6 +3919,11 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   margin: 14px 2px; font-size: 12px; line-height: 1.55;
   color: var(--text-faint); font-style: italic;
 }
+/* Where a figure would be, on a weapon whose panel nobody has read. Dimmer
+   than a number so the eye passes over it, and present so the row keeps its
+   shape: the eleven rows are the same eleven on every gun, and only what is
+   in this one cell differs. */
+.unread { color: var(--text-faint); font-style: normal; }
 
 .dlabel {
   margin: 14px 0 6px; padding-top: 10px; border-top: 1px solid var(--line);

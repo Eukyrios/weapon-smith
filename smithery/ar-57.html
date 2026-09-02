@@ -7,7 +7,7 @@
   <div class="gunsmith" style="--ar:1.7778">
   <div class="stage" style="aspect-ratio:1920/1080">
     <div class="wname">
-      <button class="wname__b" id="wtab" aria-expanded="false" hidden>
+      <button class="wname__b" id="wtab" aria-expanded="false">
         <span>AR-57</span>
         <svg viewBox="0 0 16 16" aria-hidden="true" width="15" height="15">
           <rect x="1" y="2.5" width="14" height="2"></rect>
@@ -20,7 +20,7 @@
         <div class="wstats"></div>
       </div>
     </div>
-    <button class="smith" id="forge-go" type="button" hidden>
+    <button class="smith" id="forge-go" type="button">
       <svg viewBox="0 0 64 64" width="17" height="17" aria-hidden="true">
         <g fill="#95a8b4">
           <path d="M13 34h36v6H13l-6-3z"></path>
@@ -595,7 +595,7 @@
       </svg>
     </button>
   </div>
-  <p class="stagenote">Slots traced from the game, and the lists behind them are being read one at a time. This rifle&rsquo;s own stat panel has not been read yet, so there is nothing here to add up &mdash; no build figures and no smithing.</p>
+  <p class="stagenote">Slots traced from the game, and the lists behind them are being read one at a time. This rifle&rsquo;s own stat panel has not been read yet, so the figures below show what a part changes rather than where it leaves the gun.</p>
   </div>
 
 
@@ -616,7 +616,7 @@
     window.__smithStop = () => AC.abort();
 
     const WID = "ar-57";
-    const WEAPON = [];
+    const WEAPON = [{"key": "Damage", "max": 100, "tracked": false, "lower": false}, {"key": "Range", "max": 100, "unit": "m", "tracked": true, "lower": false}, {"key": "Control", "max": 100, "tracked": true, "lower": false}, {"key": "Handling", "max": 100, "tracked": true, "lower": false}, {"key": "Stability", "max": 100, "tracked": true, "lower": false}, {"key": "Accuracy", "max": 100, "tracked": true, "lower": false}, {"key": "Armour penetration", "max": 100, "tracked": false, "lower": false}, {"key": "Fire rate", "max": 1200, "unit": " rpm", "tracked": true, "lower": false}, {"key": "Capacity", "max": 100, "from": "Holds", "mode": "set", "tracked": false, "lower": false}, {"key": "Muzzle velocity", "max": 1200, "unit": " m/s", "tracked": true, "lower": false}, {"key": "Gunshot heard", "max": 1000, "unit": " m", "tracked": true, "lower": true}];
     const SPECS = [];
     const READ = new Set(["1p-29-russian-3x-sight", "1p-33-2-4x-scope", "3-7-adjustable-scope", "416-practical-rear-grip", "acog-precision-6x-scope", "advanced-multi-caliber-suppressor", "advanced-thermal-fusion-holographic-sight", "angled-hand-stop", "ap5000-reflex-sight", "ar-heavy-grip-piece", "ar-heavy-tower-grip", "ar-light-grip-piece", "ar-modular-rear-grip", "ar-moe-rear-grip", "ar57-wave-blaster-ultra-long-barrel", "balanced-grip-base", "bastion-horizontal-compensator", "birdcage-flash-hider", "blazing-fire-suppressor", "cobra-accuracy-sight", "cobweb-titanium-muzzle-brake", "collapsible-bipod-grip", "combat-red-dot-sight", "competition-hand-stop", "cr-prism-hand-stop", "dawn-angled-flashlight-grip", "daybreak-vertical-flashlight-grip", "dbal-x2-purple-laser-light-combo", "dd-python-handguard-panel", "ec-universal-front-hand-stop", "flare-tactical-flashlight", "folding-grip", "grizzly-full-p-mag-assist-black", "grizzly-full-p-mag-assist-green", "grizzly-full-p-mag-assist-sand", "hamr-combined-scope", "holographic-sight", "holographic-sight-type-ii", "honeycomb-killflash", "hornet-handguard", "hurricane-d-1-rear-grip", "insight-3-7-sniper-scope", "invasion-rear-grip", "k1-elite-bevel-foregrip", "kc-hound-handguard", "la-3c-green-laser-light-combo", "lpvo-scope", "m157-fire-control-system", "m7-6-8-45-round-drum-mag", "m7-practical-suppressor", "m7-stable-rear-grip", "marksman-d-2-rear-grip", "meo-micro-sight-riser", "micro-sight-riser", "mini-hand-stop", "mini-red-dot-sight", "modular-handguard-panel", "multi-purpose-tactical-riser", "offset-combat-red-dot-sight", "offset-mini-red-dot-sight", "offset-osight-red-dot", "offset-panoramic-red-dot-sight", "offset-xro-quick-response-sight", "okp-7-reflex-sight", "olight-baldr-pro-r-multi-function-flashlight", "olight-odin-s-tactical-flashlight", "olight-warrior-3s-tactical-flashlight", "osight-red-dot", "panoramic-red-dot-sight", "peq-2-red-laser-light-combo", "perst-7-blue-laser-light-combo", "phantom-rear-grip", "phantom-vertical-foregrip", "phase-combat-foregrip", "poseidon-flash-hider", "practical-bipod", "practical-flash-hider", "practical-suppressor", "practical-vertical-foregrip", "practical-weapon-light", "prism-universal-2x-optic", "ranger-handguard", "recon-1-5-5-adjustable-scope", "reflex-sight", "resonant-ergonomic-grip", "resonant-mk-iii-grip", "resonant-mkii-foregrip", "rk-0-foregrip", "rm277-breaker-suppressor", "rm277-cheek-pad", "rm277-heavy-integral-barrel", "rm277-pad", "rm277-whale-shark-barrel-combo", "russian-accuracy-2x-scope", "sandstorm-vertical-compensator", "secret-order-bevel-foregrip", "silent-suppressor", "spiral-fire-flash-hider", "stable-grip-base", "steel-muzzle-brake", "tactical-angled-foregrip", "tactical-vertical-foregrip", "titanium-contest-muzzle-brake", "uhx-holographic-sight", "vfg-knight-foregrip", "viewpoint-3x-scope", "vmx-frameless-sight", "whisper-tactical-suppressor", "white-phosphor-thermal-scope", "x25u-angled-combat-grip", "xcog-assault-3-5x-scope", "xro-quick-response-sight", "zfsg-tactical-grip"]);
     const DELTA = {"modular-handguard-panel": {"Control": 1, "Stability": 1, "Handling": -2}, "hornet-handguard": {"Accuracy": 4}, "dd-python-handguard-panel": {"Handling": 1}, "kc-hound-handguard": {"Stability": 1}, "ranger-handguard": {"Control": 1}, "ar57-wave-blaster-ultra-long-barrel": {"Range": 11, "Control": 9, "Handling": -7, "Stability": 4, "Accuracy": -12}, "olight-odin-s-tactical-flashlight": {"Handling": -1}, "olight-baldr-pro-r-multi-function-flashlight": {"Handling": -5, "Accuracy": -8}, "dbal-x2-purple-laser-light-combo": {"Handling": -4}, "perst-7-blue-laser-light-combo": {"Handling": -4}, "flare-tactical-flashlight": {"Handling": -1}, "la-3c-green-laser-light-combo": {"Handling": -4}, "peq-2-red-laser-light-combo": {"Handling": -4}, "practical-weapon-light": {"Handling": -1}, "cobweb-titanium-muzzle-brake": {"Control": 7, "Stability": -2, "Accuracy": 8}, "spiral-fire-flash-hider": {"Stability": 1}, "advanced-multi-caliber-suppressor": {"Handling": -3, "Stability": -3, "Muzzle velocity": 117, "Gunshot heard": -250}, "m7-practical-suppressor": {"Control": 8, "Handling": -11, "Gunshot heard": -250}, "smg-echo-suppressor": {"Range": 7, "Control": 7, "Handling": -10, "Stability": -3}, "silent-suppressor": {"Handling": -13, "Stability": -5, "Fire rate": -71, "Muzzle velocity": 156, "Gunshot heard": -250}, "sandstorm-vertical-compensator": {"Control": 9}, "bastion-horizontal-compensator": {"Control": 9}, "poseidon-flash-hider": {"Control": 7}, "whisper-tactical-suppressor": {"Range": 5, "Control": 5, "Handling": -5, "Stability": -4, "Muzzle velocity": 117, "Gunshot heard": -150}, "titanium-contest-muzzle-brake": {"Control": 12, "Handling": -3}, "blazing-fire-suppressor": {"Control": 6, "Muzzle Flash": 1, "Handling": -1}, "steel-muzzle-brake": {"Control": 6, "Stability": -1}, "practical-suppressor": {"Control": -2, "Stability": -3, "Gunshot heard": -150}, "birdcage-flash-hider": {"Control": 2, "Stability": 1}, "practical-flash-hider": {"Control": 2}, "resonant-2-integral-stock": {"Control": 7, "Accuracy": 4, "Stability": -6}, "restricted-zone-integral-stock": {"Control": 11, "Stability": 7, "Handling": -6}};
@@ -889,8 +889,23 @@
       const now = totals(null, null);
       let html = '';
       for (const s of WEAPON) {
+        // A row whose base nobody has read still prints, in its place, with
+        // the change this build makes to it. What it cannot print is where
+        // that leaves the gun, so that one cell is a dash and the bar is left
+        // off -- a bar with no base to draw from would be a made-up length.
+        const known = s.base !== undefined;
         const v = now[s.key];
-        const d = v - s.base;
+        const d = known ? v - s.base : (v || 0);
+        if (!known) {
+          const c = (s.lower ? d < 0 : d > 0) ? 'up' : 'down';
+          html += '<div class="sr' + (d ? '' : ' is-flat') + '">'
+               + '<span class="sr__n">' + s.key + '</span>'
+               + '<span class="sr__v"><em class="unread">&mdash;</em>'
+               + (d ? ' <i class="' + c + '">' + (d > 0 ? '+' : '&minus;')
+                      + Math.abs(d) + '</i>' : '')
+               + '</span><span class="sr__bar"></span></div>';
+          continue;
+        }
         const pctBase = Math.max(0, Math.min(100, Math.min(v, s.base) / s.max * 100));
         const pctD = Math.max(0, Math.min(100, Math.abs(d) / s.max * 100));
         // Better, not bigger -- the quieter gunshot is the good one.
@@ -940,6 +955,23 @@
       let html = '';
       for (const s of WEAPON) {
         const b = before[s.key], a = after[s.key];
+        // Same eleven rows on every weapon, in the same order, whether or not
+        // anybody has read this one's panel. Without a base there is no
+        // resulting figure and no bar; there is still the change, which is the
+        // part's own and is known.
+        if (s.base === undefined) {
+          const d = (a || 0) - (b || 0);
+          const c = (s.lower ? d < 0 : d > 0) ? 'up' : 'down';
+          html += '<div class="sr' + (d ? '' : ' is-flat') + '">'
+               + '<span class="sr__n">' + s.key
+               + (!READ.has(iid) && !CORE.has(s.key) && s.mode !== 'set'
+                    ? ' <i class="untracked">not tracked</i>' : '')
+               + '</span><span class="sr__v"><em class="unread">&mdash;</em>'
+               + (d ? ' <i class="' + c + '">' + (d > 0 ? '+' : '&minus;')
+                      + Math.abs(d) + '</i>' : '')
+               + '</span><span class="sr__bar"></span></div>';
+          continue;
+        }
         // Every stat, every time. Listing only what moves makes a short list
         // look like a complete one, and hides that the others were considered.
         const pctBase = Math.max(0, Math.min(100, Math.min(a, b) / s.max * 100));
@@ -979,17 +1011,14 @@
              + (v > 0 ? '+' : '&minus;') + Math.abs(v) + '</span></div>';
       }
 
-      // On a weapon whose own stat panel has not been read, WEAPON is empty
-      // and the loop above produces nothing: what is left is the part's own
-      // lines with no bar and no resulting figure, because there is no base to
-      // add them to. Same code, different data -- and worth saying at the
-      // point where the difference shows rather than only in the note under
-      // the stage, which is where somebody comparing two weapons is not
-      // looking.
-      if (!WEAPON.length)
-        html += '<p class="dnone">No resulting figures: the stat panel for '
-             + 'this weapon has not been read off the game yet, so there is '
-             + 'no base for these to be added to.</p>';
+      // Why the dashes, said where they are. The note under the stage says it
+      // too, but somebody comparing two weapons is not reading the bottom of
+      // the page -- they are looking at this panel and wondering why it is
+      // not the one they saw a moment ago.
+      if (WEAPON.some((s) => s.base === undefined))
+        html += '<p class="dnone">Dashes where the resulting figure would be: '
+             + 'the stat panel for this weapon has not been read off the game '
+             + 'yet, so the changes have no base to be added to.</p>';
 
       const box = document.querySelector('#d-' + slot + '-' + iid + ' .delta');
       if (box) box.innerHTML = html;
@@ -1294,8 +1323,13 @@
       shutPanel();
     });
 
+    // The build's figure for a stat, or its change where the gun's own base
+    // has not been read. The search itself does not care: it ranks builds by
+    // what the parts do, and a base is the same constant added to every
+    // candidate, which no ordering can see.
     const value = (b, k) =>
-      FBASE[k] + b.v[FKEYS.indexOf(k)] * SIGN[k];
+      (FBASE[k] ?? 0) + b.v[FKEYS.indexOf(k)] * SIGN[k];
+    const rooted = (k) => FBASE[k] !== undefined;
 
     function fitBuild(list) {
       for (const slot of Object.keys(fitted)) unfit(slot);
@@ -1314,7 +1348,13 @@
         const d = b.v[FKEYS.indexOf(k)];
         const cls = (d > 0 ? 'up' : d < 0 ? 'down' : '')
                   + (k === sortBy ? ' key' : '');
-        html += '<i><b class="' + cls + '">' + value(b, k) + '</b>'
+        // On a weapon whose base nobody has read, the figure IS the change,
+        // and it says so with a sign. A bare 11 in the same column that shows
+        // 82 on the rifle next door would read as a much worse gun rather than
+        // as a different quantity.
+        const n = value(b, k);
+        const shown = rooted(k) ? n : (n > 0 ? '+' + n : n < 0 ? '−' + -n : n);
+        html += '<i><b class="' + cls + '">' + shown + '</b>'
              + k.slice(0, 4).toLowerCase() + '</i>';
       }
       el.innerHTML = html + '</span><span class="fbuild__n">'

@@ -470,6 +470,11 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   margin: 14px 2px; font-size: 12px; line-height: 1.55;
   color: var(--text-faint); font-style: italic;
 }
+/* Where a figure would be, on a weapon whose panel nobody has read. Dimmer
+   than a number so the eye passes over it, and present so the row keeps its
+   shape: the eleven rows are the same eleven on every gun, and only what is
+   in this one cell differs. */
+.unread { color: var(--text-faint); font-style: normal; }
 
 .dlabel {
   margin: 14px 0 6px; padding-top: 10px; border-top: 1px solid var(--line);

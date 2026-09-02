@@ -13,6 +13,7 @@ import {
 } from '../src/data/attach-rules'
 import { CARD_FACTS } from '../src/data/card-facts'
 import { UNCATALOGUED } from '../src/data/uncatalogued'
+import { WEAPON_STAT_ROWS } from '../src/data/weapon-stats'
 
 const put = (name: string, v: unknown) =>
   writeFileSync(`data/${name}.json`, JSON.stringify(v))
@@ -38,4 +39,7 @@ put('card-facts', CARD_FACTS)
 // The items the catalogue does not carry, so the generator can resolve an id
 // in a slot list whether the 414 hold it or not.
 put('uncatalogued', UNCATALOGUED)
-console.log('dumped data/{attachments,fits,rules,card-facts,uncatalogued}.json')
+// The rows of the game's stat panel. Shared: every weapon has these eleven,
+// and only the numbers in them are its own.
+put('weapon-stats', WEAPON_STAT_ROWS)
+console.log('dumped data/{attachments,fits,rules,card-facts,uncatalogued,weapon-stats}.json')
