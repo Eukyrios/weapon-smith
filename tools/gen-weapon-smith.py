@@ -118,7 +118,7 @@ def has_art(folder, iid):
     return (ROOT / folder / (iid + '.png')).is_file()
 
 
-def thumb(folder, iid, show=True):
+def thumb(folder, iid, show=True, up=UP):
     """A 40px card thumbnail.
 
     A span with a background image rather than an <img>: a missing file then
@@ -131,7 +131,7 @@ def thumb(folder, iid, show=True):
     if not show:
         return '<span class="thumb" aria-hidden="true"></span>'
     return (f'<span class="thumb" aria-hidden="true" '
-            f'style="background-image:url({UP}{folder}/{iid}.png)"></span>')
+            f'style="background-image:url({up}{folder}/{iid}.png)"></span>')
 
 
 def anchor(kind, value):
@@ -164,21 +164,11 @@ def item_href(iid, up=''):
 
 
 def gun_href(wid, up=''):
-    # Still a page each. The weapons are the one kind that cannot simply be
-    # concatenated: two of them carry a gunsmith stage of ~100KB with a script
-    # that reaches for elements by id, and two stages in one document is two of
-    # every id. That page wants its weapon FETCHED rather than inlined, which
-    # is a different job from this one -- so the address is left alone until
-    # it is done, and this is the one line that changes when it is.
-    return f'{up}gun-{wid}.html'
+    return f'#{wid}' if up == SELF else f'{up}{SMITH_AT}#{wid}'
 
 
 def ammo_href(aid, up=''):
     return f'#{aid}' if up == SELF else f'{up}{AMMO_AT}#{aid}'
-
-
-def gun_file(wid):
-    return f'gun-{wid}.html'
 
 
 def ammo_file(aid):
@@ -897,43 +887,35 @@ PICKED_JS = """  <script>
 """
 
 
-def gun_page(w):
-    """One weapon: what it is, and every slot on it.
+def gun_fragment(w):
+    """One weapon, as a body to be dropped into the smithery page.
 
-    No ammunition table. The Caliber row above is a link to the catalogue group
-    holding every round of that caliber, which is the same list with a page of
-    its own, so printing it here as well was two places to read the same thing.
+    Not a page. The smithery holds one weapon at a time and fetches the next
+    when the address changes, so what is wanted here is the middle of a page:
+    the weapon's name, its stage, its slot tables. Two of these run to 100KB
+    and there are sixty-six weapons, which is the whole reason they are
+    fetched rather than concatenated the way the attachments are.
+
+    No ammunition table. The Caliber link goes to the catalogue group holding
+    every round of that caliber, which is the same list with a page of its own.
     """
-    # Both facts are also how the catalogue groups things, so both are a way in
-    # rather than a dead end: the class lands on every weapon of that class, the
-    # caliber on every round that fits.
-    facts = [('Class', f'<a href="{UP}index.html#{anchor("class", w["cls"])}">'
-                       f'{w["cls"]}</a>')]
-    if w.get('caliber'):
-        facts.append(('Caliber',
-                      f'<a href="{UP}index.html#{anchor("caliber", w["caliber"])}">'
-                      f'{w["caliber"]}</a>'))
-    # The standfirst carries them. It already said the class; now it says the
-    # class and the caliber, and both are the way into the catalogue. A table
-    # drew a bordered box around four words and repeated what was directly
-    # above it.
-    sub = ' &middot; '.join(v for _k, v in facts)
-
     g = GUNS.get(w['id'])
+    facts = [f'<a href="{DEEP}index.html#{anchor("class", w["cls"])}">{w["cls"]}</a>']
+    if w.get('caliber'):
+        facts.append(f'<a href="{DEEP}index.html#{anchor("caliber", w["caliber"])}">'
+                     f'{w["caliber"]}</a>')
+    sub_ = ' &middot; '.join(facts)
+
     smith = ''
     if w['id'] in GUNSMITHS:
         smith = gunsmith_body(g)
-        # The stage shows the weapon at full size; a thumbnail above it as well
-        # would be the same picture twice.
+        # The stage shows the weapon at full size; a thumbnail as well would be
+        # the same picture twice.
         img = ''
     else:
-        img = (f'      <img class="shot" src="{UP}gear/{w["id"]}.png" alt="" '
+        img = (f'      <img class="shot" src="{DEEP}gear/{w["id"]}.png" alt="" '
                'width="280" height="140" onerror="this.remove()">\n')
 
-    # Folded away again. It was opened out when the tables were the whole page;
-    # now the editor above answers most of what they answer and is what anyone
-    # arrives for. Opened, they read exactly as before — same rows_for(), same
-    # order — and the chips link straight into them.
     if w['id'] in DOCUMENTED:
         n = len(g.sections)
         read = ('every attachment listed' if is_finished(g)
@@ -941,7 +923,7 @@ def gun_page(w):
         slots = (f'''  <details class="deploy" id="tables">
     <summary>Attachment slots<span class="hint">{n} slots &middot; {read}</span></summary>
     <div class="deploy__body">
-{weapon_sections(g, '')}    </div>
+{weapon_sections(g, DEEP)}    </div>
   </details>
 ''')
     else:
@@ -951,26 +933,126 @@ def gun_page(w):
 
     head = ('' if not img else
             f'  <section>\n    <div class="itemgrid">\n{img}    </div>\n  </section>\n')
+    return (f'  <header class="entry__h">\n'
+            f'    <h2>{w["name"]}</h2>\n'
+            f'    <p class="sub">{sub_}</p>\n'
+            f'  </header>\n\n{head}\n{smith}\n{slots}')
 
-    body = f"""{head}
-{smith}
-{slots}"""
-    cal = f" chambered in {w['caliber']}" if w.get('caliber') else ''
-    if w['id'] in DOCUMENTED:
-        desc = (f"{w['name']} &mdash; {w['cls'].lower()}{cal} in Delta Force: "
-                f'Operations. All {len(g.sections)} attachment slots'
-                + (' and every attachment that fits each one.' if is_finished(g)
-                   else ', traced from the game, with the attachment lists '
-                        'being read one slot at a time.'))
-    else:
-        desc = (f"{w['name']} &mdash; {w['cls'].lower()}{cal} in Delta Force: "
-                'Operations. Its slot list is not transcribed yet; the '
-                'catalogue holds the attachments it will draw from.')
-    return shell(f"{w['name']} &middot; Weapon Smith", 'Catalogue', w['name'],
-                 sub, body, NAV.format(up=HOME, back='Weapon Smith'),
-                 UP + 'smith.css',
-                 desc=desc, path=gun_file(w['id']),
-                 crumb=w['name'])
+
+def smithery_page():
+    """The gunsmith, for whichever weapon the address names.
+
+    The one page that fetches rather than holding everything. The attachments
+    and the rounds are a kilobyte each and all 441 of them fit in one document;
+    a traced weapon is a hundred, and its editor is a script that reaches for
+    elements by id -- two of those in one document is two of every id. So the
+    weapon arrives when it is asked for, and the one before it is torn down.
+
+    What IS in the page is every weapon's name, class and caliber, and a link
+    to each. That is the list a reader wants before they have chosen, it is
+    what a crawler finds here, and it is what draws the sixty-four weapons
+    whose slots nobody has traced -- for those there is nothing to fetch.
+    """
+    light = [{'id': w['id'], 'name': w['name'], 'cls': w['cls'],
+              'caliber': w.get('caliber') or '',
+              'has': w['id'] in DOCUMENTED} for w in WEAPONS]
+    by_cls = {}
+    for w in WEAPONS:
+        by_cls.setdefault(w['cls'], []).append(w)
+    picker = ''
+    for cls in ['Assault Rifle', 'SMG', 'Marksman Rifle', 'Sniper Rifle',
+                'Light Machinegun', 'Shotgun', 'Pistol', 'Special']:
+        if cls not in by_cls:
+            continue
+        picker += (f'    <p class="dlabel">{cls}</p>\n    <div class="chips">\n'
+                   + '\n'.join(
+                       f'      <a class="chip{" chip--on" if x["id"] in DOCUMENTED else ""}"'
+                       f' href="#{x["id"]}">{x["name"]}</a>'
+                       for x in sorted(by_cls[cls], key=lambda x: x['name']))
+                   + '\n    </div>\n')
+
+    body = f"""  <p class="lede kind-lede">Every slot on a weapon, what each one
+  accepts, and which attachments open more. Pick a weapon; the two with a
+  traced gunsmith open the editor, the rest carry what the catalogue knows.</p>
+
+  <div id="smithery" class="smithery-slot"></div>
+
+  <section class="entry entry--none" id="pick">
+    <h2>Weapons</h2>
+    <p class="lede">{len(DOCUMENTED)} of {len(WEAPONS)} have their slots traced
+    from the game &mdash; those are the lit ones.</p>
+{picker}  </section>
+
+  <script>
+    const LIGHT = {json.dumps(light)};
+    const BOX = document.getElementById('smithery');
+    const PICK = document.getElementById('pick');
+    const BASE = document.title;
+    let showing = null;
+
+    // Injected markup does not run its own scripts -- innerHTML never has --
+    // so each one is copied into a fresh node, which does.
+    function runScripts(root) {{
+      for (const old of root.querySelectorAll('script')) {{
+        const s = document.createElement('script');
+        s.textContent = old.textContent;
+        old.replaceWith(s);
+      }}
+    }}
+
+    function plain(w) {{
+      const cal = w.caliber ? ' &middot; ' + w.caliber : '';
+      return '<header class="entry__h"><h2>' + w.name + '</h2>'
+        + '<p class="sub">' + w.cls + cal + '</p></header>'
+        + '<section><h2>Attachment slots</h2><p class="lede">Not transcribed '
+        + 'yet. Slot lists are done one weapon at a time.</p></section>';
+    }}
+
+    async function route() {{
+      const id = location.hash.slice(1).split('#')[0];
+      const w = LIGHT.find((x) => x.id === id);
+      if (!w) {{                       // no weapon named: the list is the page
+        if (window.__smithStop) {{ window.__smithStop(); window.__smithStop = null; }}
+        BOX.innerHTML = ''; PICK.hidden = false; showing = null;
+        document.title = BASE;
+        return;
+      }}
+      PICK.hidden = true;
+      if (id === showing) return;      // a slot or #dev moved, not the weapon
+      showing = id;
+      document.title = w.name + ' \u00b7 ' + BASE;
+      if (!w.has) {{
+        if (window.__smithStop) {{ window.__smithStop(); window.__smithStop = null; }}
+        BOX.innerHTML = plain(w);
+        return;
+      }}
+      BOX.innerHTML = '<p class="lede">Loading the ' + w.name + '&hellip;</p>';
+      try {{
+        const r = await fetch(id + '.html');
+        if (!r.ok) throw new Error(r.status);
+        // Still wanted? A fast hand through three weapons must not have the
+        // first one land on top of the third.
+        if (showing !== id) return;
+        BOX.innerHTML = await r.text();
+        runScripts(BOX);
+        scrollTo(0, 0);
+      }} catch (e) {{
+        BOX.innerHTML = '<p class="lede lede--gap">The ' + w.name
+          + ' would not load. <a href="#">Back to the weapons</a>.</p>';
+        showing = null;
+      }}
+    }}
+    addEventListener('hashchange', route);
+    route();
+  </script>
+"""
+    desc = (f'The Delta Force: Operations gunsmith for all {len(WEAPONS)} '
+            'weapons &mdash; every attachment slot, what each accepts, which '
+            'attachments open further slots, and a build editor for the '
+            'weapons traced from the game.')
+    return shell('Smithery &middot; Weapon Smith', 'Catalogue', 'Smithery', '',
+                 body, NAV.format(up=DEEP, back='Weapon Smith'),
+                 DEEP + 'smith.css', desc=desc, path=SMITH_AT, crumb='Smithery')
 
 
 def ammo_section(a, guns):
@@ -2099,7 +2181,7 @@ def stat_bar(name, delta):
 
 def slot_tile(sid):
     """A slot as the game draws it in "Adds Slots": named box with its icon."""
-    icon = (f' style="background-image:url({UP}smith/slot/{sid}.png)"'
+    icon = (f' style="background-image:url({DEEP}smith/slot/{sid}.png)"'
             if (ROOT / 'smith' / 'slot' / f'{sid}.png').is_file() else '')
     return (f'<span class="stile"{icon}>'
             f'<em>{SLOT_LABEL.get(sid, sid)}</em></span>')
@@ -2124,7 +2206,7 @@ def pick_detail(name, slot):
 
     tier = card.get('tier')
     dot = f'<span class="tier {tier}"></span>' if tier else ''
-    head = (f'          <h4>{dot}<a href="{item_href(iid)}">{name}</a></h4>\n')
+    head = (f'          <h4>{dot}<a href="{item_href(iid, DEEP)}">{name}</a></h4>\n')
 
     # No price. It is a market snapshot rather than a property of the thing,
     # it drifts, and it is not what this screen is for — the item's own page
@@ -2170,7 +2252,7 @@ def slot_panel(g, slot, label):
     for i, (name, missing, unread) in enumerate(rows_for(g, slot)):
         iid = item_id(name)
         tier = (CARD_FACTS.get(iid) or {}).get('tier') or 'none'
-        art = (f' style="background-image:url({UP}att/{iid}.png)"'
+        art = (f' style="background-image:url({DEEP}att/{iid}.png)"'
                if has_art('att', iid) or iid in BY_ID else '')
         cards += (f'          <button class="pcard{" is-on" if i == 0 else ""}" '
                   f'data-item="{iid}" type="button">'
@@ -2240,12 +2322,12 @@ def gunsmith_body(g):
             f'      <a class="chip3{" is-granted" if granted else ""}" '
             f'style="left:{pc(s["x"], fw)};'
             f'top:{pc(s["y"], fh)};width:{pc(C, fw)};height:{pc(C, fh)}" '
-            f'href="#slot-{s["slot"]}" '
+            f'href="#{g.id}#slot-{s["slot"]}" '
             f'data-slot="{s["slot"]}" title="{s["label"]}"'
             f'{" hidden" if granted else ""}>'
             f'<span class="chip3__label">{s["label"]}</span>'
             f'<span class="chip3__art" style="background-image:'
-            f'url({UP}smith/slot/{s["slot"]}.png)"></span>'
+            f'url({DEEP}smith/slot/{s["slot"]}.png)"></span>'
             + (f'<em>{n}</em>' if n else '') + '</a>\n')
         panels.append(slot_panel(g, s['slot'], label))
         if s.get('ax') is not None:
@@ -2343,7 +2425,7 @@ def gunsmith_body(g):
       </svg>
       <span>Smith</span>
     </button>
-    <img class="stage__gun" src="{UP}smith/{box['src']}" alt="{d['weapon']['name']}"
+    <img class="stage__gun" src="{DEEP}smith/{box['src']}" alt="{d['weapon']['name']}"
          style="left:{pc(box['x'], fw)};top:{pc(box['y'], fh)};
                 width:{pc(box['w'], fw)};height:{pc(box['h'], fh)}">
     <svg class="stage__wires" viewBox="0 0 {fw} {fh}" preserveAspectRatio="none"
@@ -2438,6 +2520,22 @@ def gunsmith_body(g):
 
 
   <script>
+    // One instance of the editor, torn down before the next.
+    //
+    // The smithery page holds one weapon at a time and fetches the next when
+    // the address changes, so this script runs again on the same document. An
+    // IIFE is what makes that legal -- a second run of `const WEAPON` in the
+    // same scope is a SyntaxError, and the whole file would stop. Every
+    // listener it hangs on the document or the window is tied to a signal, and
+    // the run before this one is aborted here: an editor for a weapon nobody
+    // is looking at, still answering Escape and still closing panels that no
+    // longer exist, is the leak this prevents.
+    (function () {{
+    if (window.__smithStop) window.__smithStop();
+    const AC = new AbortController(), SIG = {{signal: AC.signal}};
+    window.__smithStop = () => AC.abort();
+
+    const WID = {json.dumps(g.id)};
     const WEAPON = {json.dumps(d['weapon'].get('stats', []))};
     const SPECS = {json.dumps(d['weapon'].get('specs', []))};
     const READ = new Set({json.dumps(sorted(CLEARED))});
@@ -2448,12 +2546,17 @@ def gunsmith_body(g):
     const SLOTS = {json.dumps([{'id': s['id'], 'label': SLOT_LABEL.get(s['id'], s['id'])} for s in SLOT_TYPES])};
     const FORGE_SRC = {json.dumps(FORGE_JS)};
 
-    // The hash carries two things: which slot to open, and whether the editor
-    // is in dev mode. Written as #right-patch#dev because that is one string to
-    // paste and one to delete.
-    const HASH = location.hash.slice(1).split('#');
-    const DEV = HASH.includes('dev');
+    // The hash carries three things now: which weapon, which of its slots to
+    // open, and whether the editor is in dev mode. #ar-57#left-rail#dev, in
+    // that order, because the weapon is what the page is showing and the rest
+    // is where you are inside it. The chips write the middle segment; #dev is
+    // still one string to paste and one to delete.
+    const SEG = location.hash.slice(1).split('#');
+    const DEV = SEG.includes('dev');
     const TAIL = DEV ? '#dev' : '';
+    // Chips link to the table heading, which is '#slot-x'; the editor's own
+    // writing is the bare slot id. Both forms arrive here.
+    const WANT = (SEG[1] || '').replace(/^slot-/, '');
 
     // Each chip is a real link to the slot's table on the weapon page, and stays
     // one. This only intercepts the click to show the same list here instead,
@@ -2523,7 +2626,7 @@ def gunsmith_body(g):
       if (chip) {{
         chip.classList.remove('has-item');
         chip.querySelector('.chip3__art').style.backgroundImage =
-          'url({UP}smith/slot/' + slot + '.png)';
+          'url({DEEP}smith/slot/' + slot + '.png)';
       }}
       for (const b of document.querySelectorAll('#sl-' + slot + ' .pcard'))
         b.classList.remove('is-fitted');
@@ -2826,7 +2929,7 @@ def gunsmith_body(g):
       if (chip) {{
         chip.classList.add('has-item');
         chip.querySelector('.chip3__art').style.backgroundImage =
-          'url({UP}att/' + iid + '.png)';
+          'url({DEEP}att/' + iid + '.png)';
       }}
       for (const b of document.querySelectorAll('#sl-' + slot + ' .pcard'))
         b.classList.toggle('is-fitted', iid === b.dataset.item);
@@ -2859,7 +2962,7 @@ def gunsmith_body(g):
         const first = found.querySelector('.pcard');
         if (first) pick(found, first.dataset.item);
         found.querySelector('.picks').scrollTop = 0;
-        history.replaceState(null, '', '#' + slot + TAIL);
+        history.replaceState(null, '', '#' + WID + '#' + slot + TAIL);
       }}
     }}
 
@@ -2870,7 +2973,7 @@ def gunsmith_body(g):
       cur = {{slot: null, item: null}};
       equipBtn.hidden = true;
       for (const c of document.querySelectorAll('.chip3')) c.classList.remove('is-on');
-      history.replaceState(null, '', location.pathname + (TAIL ? '#dev' : ''));
+      history.replaceState(null, '', '#' + WID + TAIL);
     }}
 
     for (const l of lists) {{
@@ -2887,7 +2990,7 @@ def gunsmith_body(g):
     if (tables) {{
       for (const a of document.querySelectorAll('a[href^="#slot-"]'))
         a.addEventListener('click', () => {{ tables.open = true; }});
-      if (location.hash.startsWith('#slot-')) tables.open = true;
+      if ((SEG[1] || '').startsWith('slot-')) tables.open = true;
     }}
 
     for (const c of document.querySelectorAll('.chip3')) {{
@@ -2912,7 +3015,7 @@ def gunsmith_body(g):
         const on = document.fullscreenElement === wrap;
         expand.classList.toggle('is-on', on);
         expand.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen');
-      }});
+      }}, SIG);
     }}
 
     const wtab = document.getElementById('wtab');
@@ -2932,7 +3035,7 @@ def gunsmith_body(g):
     relayout();
 
     document.getElementById('close').addEventListener('click', shut);
-    addEventListener('keydown', (e) => {{ if (e.key === 'Escape') shut(); }});
+    addEventListener('keydown', (e) => {{ if (e.key === 'Escape') shut(); }}, SIG);
 
     // Anywhere that is not the panel, a chip or the equip button closes it —
     // including the weapon itself. The chip and equip handlers run first and
@@ -2944,21 +3047,23 @@ def gunsmith_body(g):
       if (panel.hidden) return;
       if (e.target.closest('.panel, .chip3, #equip, .pins')) return;
       shut();
-    }});
-    if (location.hash) showSlot(HASH[0]);
+    }}, SIG);
+    if (WANT) showSlot(WANT);
 {FORGE_CTRL}
 
     // Typing #dev onto a page that is already open only changes the hash, and
     // dev mode is decided at load. Reload for it, or the address bar and the
-    // page disagree about which one you are looking at.
+    // page disagree about which one you are looking at. A change of WEAPON is
+    // not this instance's business -- the page above is already replacing it.
     addEventListener('hashchange', () => {{
-      if (location.hash.slice(1).split('#').includes('dev') !== DEV)
-        location.reload();
-    }});
+      const seg = location.hash.slice(1).split('#');
+      if (seg[0] !== WID) return;
+      if (seg.includes('dev') !== DEV) location.reload();
+    }}, SIG);
 
     // ---- dev mode ---------------------------------------------------------
     // Put #dev on the end of the hash to turn it on:
-    //     gun-rm277.html#right-patch#dev
+    //     smithery/#rm277#right-patch#dev
     // It edits the two things this page cannot derive — where a chip and the
     // end of its line sit, and which attachments a slot takes on this weapon —
     // and prints the file to paste back. Nothing is saved: the page is a view
@@ -2971,8 +3076,8 @@ def gunsmith_body(g):
 
     async function dev() {{
       const [doc, cat] = await Promise.all([
-        fetch('{UP}data/gunsmith-rm277.json').then((r) => r.json()),
-        fetch('{UP}data/attachments.json').then((r) => r.json()),
+        fetch('{DEEP}data/gunsmith-' + WID + '.json').then((r) => r.json()),
+        fetch('{DEEP}data/attachments.json').then((r) => r.json()),
       ]);
       const named = {{}};
       for (const a of cat) named[a.id] = a.name;
@@ -3264,8 +3369,9 @@ def gunsmith_body(g):
       // prevents; the browser decides whether to honour it.
       addEventListener('beforeunload', (e) => {{
         if (JSON.stringify(doc) !== clean) e.preventDefault();
-      }});
+      }}, SIG);
     }}
+    }})();
   </script>
 """
     return body
@@ -4472,7 +4578,6 @@ GUNSMITHS = {wid for wid in DOCUMENTED
 # Every weapon's own record, built once. Everything that draws part of a gun
 # takes one of these; nothing reads the raw lists above directly.
 GUNS = {wid: Gun(wid) for wid in DOCUMENTED}
-PAGES = [gun_file(w) for w in sorted(DOCUMENTED)]  # for the sitemap
 SITE = 'https://eukyrios.github.io/weapon-smith/'
 
 # The mark: a hammer over an anvil. Drawn on a 64 grid in three tones — steel
@@ -4658,7 +4763,7 @@ def banner(path=''):
         'carries what the catalogue knows and says so.'
         + ''.join(f'\n    <a class="banner__go" href="{gun_href(w, up)}">'
                   f'See the {WEAPON_NAME.get(w, w)} &rarr;</a>'
-                  for w in sorted(DOCUMENTED) if gun_file(w) != path)
+                  for w in sorted(DOCUMENTED))
         + '\n</aside>\n')
 
 
@@ -4727,8 +4832,8 @@ def gone_page():
         /ammo-<id>.html         ->  /ammo/#<id>
         /<id>.html              ->  /attachment/#<id>, everything else
 
-    A weapon page keeps its own address, so gun-<id>.html falls through and is
-    served as itself where it exists.
+    /gun-<id>.html and /smith-<id>.html both name a weapon, and both become
+    the smithery page with that weapon's fragment on the address.
 
     It replaces 1,129 forwarding files -- one per old address under catalogue/,
     and one per item page. A rule per SHAPE of address rather than a file per
@@ -4778,7 +4883,8 @@ def gone_page():
   else if (rest === '' || rest === 'index.html') to = '';
   else if (/^ammo-(.+)\.html$/.test(rest))
     to = 'ammo/#' + /^ammo-(.+)\.html$/.exec(rest)[1];
-  else if (/^(gun|smith)-.+\.html$/.test(rest)) to = rest;
+  else if (/^(gun|smith)-(.+)\.html$/.test(rest))
+    to = 'smithery/#' + /^(gun|smith)-(.+)\.html$/.exec(rest)[2];
   else if (/\.html$/.test(rest)) to = 'attachment/#' + rest.slice(0, -5);
   if (to !== null) location.replace(BASE + to + location.search);
   addEventListener('DOMContentLoaded', function () {
@@ -4791,12 +4897,14 @@ def gone_page():
 <h1>Not here</h1>
 <p>That address does not exist on this site. The attachments and the rounds
 each live on one page now, with the item chosen by the part of the address
-after the #. If you followed an old link it should have sent you on; if it did
-not, the catalogue has everything.</p>
+after the #, and every weapon is on the smithery page the same way. If you
+followed an old link it should have sent you on; if it did not, the catalogue
+has everything.</p>
 <a data-to="" href="%s">Catalogue</a>
 <a data-to="attachment/" href="%sattachment/">Attachments</a>
+<a data-to="smithery/" href="%ssmithery/">Smithery</a>
 <a data-to="ammo/" href="%sammo/">Ammunition</a>
-""" % (json.dumps(base), base, base, base)
+""" % (json.dumps(base), base, base, base, base)
 
 
 def moved(title, to, up, note='This moved up a level.', tab=None):
@@ -4848,11 +4956,8 @@ if __name__ == '__main__':
     # 530 lines here is two, and the content of all 530 is on the two pages
     # they point at. changefreq and priority are hints Google mostly ignores;
     # they are here to say which pages are the ones being worked on.
-    urls = [('', 'weekly', '1.0')]
-    urls += [(p, 'weekly', '0.8') for p in PAGES]
-    urls += [(ITEMS_AT, 'weekly', '0.7'), (AMMO_AT, 'monthly', '0.5')]
-    urls += [(gun_file(w['id']), 'monthly', '0.6')
-             for w in WEAPONS if gun_file(w['id']) not in PAGES]
+    urls = [('', 'weekly', '1.0'), (SMITH_AT, 'weekly', '0.9'),
+            (ITEMS_AT, 'weekly', '0.7'), (AMMO_AT, 'monthly', '0.5')]
     (out / 'sitemap.xml').write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -4913,15 +5018,17 @@ if __name__ == '__main__':
         'Pick a round from the catalogue and it opens here.',
     ), encoding='utf-8')
 
+    # The smithery, and a body per traced weapon for it to fetch. Only the
+    # traced ones: for the other sixty-four there is nothing to fetch that the
+    # page does not already hold.
+    (out / SMITH_AT).mkdir(exist_ok=True)
+    written.append(SMITH_AT + 'index.html')
+    (out / written[-1]).write_text(smithery_page(), encoding='utf-8')
     for w in WEAPONS:
-        written.append(gun_file(w['id']))
-        (out / written[-1]).write_text(gun_page(w), encoding='utf-8')
-    # The editor moved into the weapon page; this was its address for a while.
-    for wid in sorted(GUNSMITHS):
-        written.append(f'smith-{wid}.html')
-        (out / written[-1]).write_text(
-            moved(WEAPON_NAME.get(wid, wid), gun_file(wid), UP,
-                  'The gunsmith is part of the weapon page now.'), encoding='utf-8')
+        if w['id'] not in DOCUMENTED:
+            continue
+        written.append(f'{SMITH_AT}{w["id"]}.html')
+        (out / written[-1]).write_text(gun_fragment(w), encoding='utf-8')
 
     # Every address this site has ever had, answered by one file.
     #
@@ -4966,6 +5073,7 @@ if __name__ == '__main__':
     if old.is_dir() and not any(old.iterdir()):
         old.rmdir()
         print('removed catalogue/ — one 404.html answers for it now')
-    print(f'wrote index.html and {len(written)} pages: '
-          f'{len(ordered)} attachments and {len(rounds)} rounds on two of '
-          f'them, {len(WEAPONS)} weapons on their own')
+    print(f'wrote {len(written) + 1} files: the catalogue, '
+          f'{len(ordered)} attachments and {len(rounds)} rounds on a page '
+          f'each, the smithery and {len(DOCUMENTED)} weapon bodies for it to '
+          'fetch, and one 404 answering for every address the site has had')

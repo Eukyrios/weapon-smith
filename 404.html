@@ -34,7 +34,8 @@
   else if (rest === '' || rest === 'index.html') to = '';
   else if (/^ammo-(.+)\.html$/.test(rest))
     to = 'ammo/#' + /^ammo-(.+)\.html$/.exec(rest)[1];
-  else if (/^(gun|smith)-.+\.html$/.test(rest)) to = rest;
+  else if (/^(gun|smith)-(.+)\.html$/.test(rest))
+    to = 'smithery/#' + /^(gun|smith)-(.+)\.html$/.exec(rest)[2];
   else if (/\.html$/.test(rest)) to = 'attachment/#' + rest.slice(0, -5);
   if (to !== null) location.replace(BASE + to + location.search);
   addEventListener('DOMContentLoaded', function () {
@@ -47,8 +48,10 @@
 <h1>Not here</h1>
 <p>That address does not exist on this site. The attachments and the rounds
 each live on one page now, with the item chosen by the part of the address
-after the #. If you followed an old link it should have sent you on; if it did
-not, the catalogue has everything.</p>
+after the #, and every weapon is on the smithery page the same way. If you
+followed an old link it should have sent you on; if it did not, the catalogue
+has everything.</p>
 <a data-to="" href="/weapon-smith/">Catalogue</a>
 <a data-to="attachment/" href="/weapon-smith/attachment/">Attachments</a>
+<a data-to="smithery/" href="/weapon-smith/smithery/">Smithery</a>
 <a data-to="ammo/" href="/weapon-smith/ammo/">Ammunition</a>
