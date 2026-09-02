@@ -120,7 +120,59 @@
  "weapon": {
   "id": "ar-57",
   "name": "AR-57",
-  "source": "gun basic.mp4, second take (bare weapon), 2026-09-01. Chips, art and anchors by tools/cut-gunsmith-ar57.py."
+  "source": "gun basic.mp4, second take (bare weapon), 2026-09-01. Chips, art and anchors by tools/cut-gunsmith-ar57.py; the stat panel read off the game and dictated, 2026-09-02.",
+  "stats": [
+   {
+    "key": "Damage",
+    "base": 30
+   },
+   {
+    "key": "Range",
+    "base": 35
+   },
+   {
+    "key": "Control",
+    "base": 41
+   },
+   {
+    "key": "Handling",
+    "base": 58
+   },
+   {
+    "key": "Stability",
+    "base": 40
+   },
+   {
+    "key": "Accuracy",
+    "base": 60
+   },
+   {
+    "key": "Armour penetration",
+    "base": 31
+   },
+   {
+    "key": "Fire rate",
+    "base": 900
+   },
+   {
+    "key": "Capacity",
+    "base": 50
+   },
+   {
+    "key": "Muzzle velocity",
+    "base": 525
+   },
+   {
+    "key": "Gunshot heard",
+    "base": 300
+   }
+  ],
+  "specs": [
+   {
+    "key": "Fire modes",
+    "text": "Auto / Single"
+   }
+  ]
  },
  "granted": [
   {

@@ -139,64 +139,47 @@
   "stats": [
    {
     "key": "Damage",
-    "base": 41,
-    "max": 100
+    "base": 41
    },
    {
     "key": "Range",
-    "base": 55,
-    "max": 100,
-    "unit": "m"
+    "base": 55
    },
    {
     "key": "Control",
-    "base": 48,
-    "max": 100
+    "base": 48
    },
    {
     "key": "Handling",
-    "base": 50,
-    "max": 100
+    "base": 50
    },
    {
     "key": "Stability",
-    "base": 59,
-    "max": 100
+    "base": 59
    },
    {
     "key": "Accuracy",
-    "base": 44,
-    "max": 100
+    "base": 44
    },
    {
     "key": "Armour penetration",
-    "base": 42,
-    "max": 100
+    "base": 42
    },
    {
     "key": "Fire rate",
-    "base": 550,
-    "max": 1200,
-    "unit": " rpm"
+    "base": 550
    },
    {
     "key": "Capacity",
-    "base": 30,
-    "max": 100,
-    "from": "Holds",
-    "mode": "set"
+    "base": 30
    },
    {
     "key": "Muzzle velocity",
-    "base": 650,
-    "max": 1200,
-    "unit": " m/s"
+    "base": 650
    },
    {
     "key": "Gunshot heard",
-    "base": 500,
-    "max": 1000,
-    "unit": " m"
+    "base": 500
    }
   ],
   "source": "Read off the game. The six bar figures were derived first, from the one frame showing a stat panel, and the reading confirmed every one of them.",
