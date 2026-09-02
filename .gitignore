@@ -1,3 +1,7 @@
 node_modules/
 .DS_Store
 Thumbs.db
+
+# Cut checks: pictures to look at, not things to keep. Written by
+# tools/cut-gunsmith-frame.py every run.
+tools/cut-checks/

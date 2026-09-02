@@ -1,0 +1,22 @@
+{
+ "weapon": "ar-57",
+ "frame": "/home/claude/ar57/base2.png",
+ "note": "gun basic.mp4, second take -- bare weapon, no charm. The first take had a barrel and a rear grip fitted for part of its length and a dragon hanging off the receiver.",
+ "chip": 70,
+ "box": [430, 340, 1690, 830],
+ "seeds": [
+  ["optics", "Optic", 1215, 238],
+  ["offset-optics", "Offset Optic", 1325, 258],
+  ["right-patch", "Right Patch", 620, 242],
+  ["left-patch", "Left Patch", 515, 260],
+  ["barrel", "Barrel", 413, 292],
+  ["right-rail", "Right Rail", 316, 337],
+  ["foregrip", "Foregrip", 226, 392],
+  ["left-rail", "Left Rail", 161, 470],
+  ["muzzle", "Muzzle", 168, 588],
+  ["rail-bipod", "Rail Bipod", 240, 665],
+  ["stock-kit", "Stock Kit", 1699, 455, "pinned"],
+  ["stock", "Stock", 1707, 572],
+  ["rear-grip", "Rear Grip", 1527, 727]
+ ]
+}
