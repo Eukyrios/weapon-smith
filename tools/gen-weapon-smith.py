@@ -36,6 +36,11 @@ MANIFEST = ROOT / 'data/generated-pages.txt'
 
 FITS = json.loads((ROOT / 'data/fits.json').read_text(encoding='utf-8'))
 ATTACH = json.loads((ROOT / 'data/attachments.json').read_text(encoding='utf-8'))
+# The items a slot list can name that the 414 do not hold. Read from the same
+# library every weapon reads, so a name corrected once is corrected everywhere:
+# these used to be spelled out inside each gun's lists, and two weapons in,
+# four of them were written down twice.
+UNCAT = json.loads((ROOT / 'data/uncatalogued.json').read_text(encoding='utf-8'))
 
 # One catalogue name carries stray bidi and zero-width marks — invisible in the
 # source, but they survive into the page and come back as mojibake the moment
@@ -52,7 +57,11 @@ def clean(name):
 
 for _a in ATTACH:
     _a['name'] = clean(_a['name'])
-NAMES = {a['id']: a['name'] for a in ATTACH}
+# Every id the site can name, catalogued or not. One lookup, because to
+# everything downstream -- a slot row, a link, a page title -- an item is an
+# item and where its name came from is not a distinction worth carrying.
+NAMES = dict({a['id']: a['name'] for a in ATTACH},
+             **{i: clean(v['name']) for i, v in UNCAT.items()})
 _R = json.loads((ROOT / 'data/rules.json').read_text(encoding='utf-8'))
 RULES, SLOT_TYPES = _R['rules'], _R['slots']
 # Rarity and weight, read off the game's own inventory cards. The catalogue
@@ -77,6 +86,9 @@ LOWER_IS_BETTER = {'Gunshot heard'}
 SLOT_LABEL = {s['id']: s['label'] for s in SLOT_TYPES}
 BY_ID = {a['id']: a for a in ATTACH}
 BY_NAME = {a['name']: a for a in ATTACH}
+# Uncatalogued names resolve back to their ids too, so item_id() is total over
+# everything NAMES can produce.
+_UNCAT_ID = {n: i for i, n in NAMES.items() if i not in BY_ID}
 
 
 def slug(name):
@@ -88,7 +100,9 @@ def slug(name):
 def item_id(name):
     """The catalogue page id for an item, catalogued or merely named."""
     a = BY_NAME.get(name)
-    return a['id'] if a else slug(name)
+    if a:
+        return a['id']
+    return _UNCAT_ID.get(name) or slug(name)
 
 
 # Weapons, rounds and attachments share one flat folder, so their filenames are
@@ -218,59 +232,12 @@ def needs_art(iid):
     return bool((CARD_FACTS.get(iid) or {}).get('imageChange'))
 
 
-# Rows that are named in a transcript but absent from the catalogue, keyed by
-# weapon and then by the slot they belong to, with the index they occupy in the
-# dictated order.
-MISSING = {
-  'rm277': {
-      'optics': [(0, 'White Phosphor Thermal Scope'), (1, 'Advanced Thermal Fusion Holographic Sight'),
-                 (2, 'VMX Frameless Sight'), (3, '1P-33 2/4x Scope'), (4, 'UHX Holographic Sight'),
-                 (5, 'Prism Universal 2x Optic'), (7, 'M157 Fire Control System'),
-                 (9, '1P-29 Russian 3x Sight'), (14, 'MEO Micro Sight Riser')],
-      'riser-optics': [(0, 'Advanced Thermal Fusion Holographic Sight'), (1, 'VMX Frameless Sight'),
-                       (2, 'UHX Holographic Sight'), (3, 'MEO Micro Sight Riser')],
-      'red-dot-optics': [(0, 'VMX Frameless Sight')],
-      'muzzle': [(0, 'RM277 Breaker Suppressor'), (1, 'Cobweb Titanium Muzzle Brake')],
-      'foregrip': [(0, 'Resonant MK III Grip'), (1, 'EC Universal Front Hand Stop')],
-      'barrel': [(0, 'RM277 Whale Shark Barrel Combo'), (1, 'RM277 Heavy Integral Barrel')],
-      # No Warrior 3S: dictated onto this list and not on it. Dropping it moves
-      # the Python up one, because these indices are positions in the list as it
-      # is being built, not in the finished one.
-      'left-rail': [(0, 'OLIGHT Odin S Tactical Flashlight'),
-                    (10, 'DD Python Handguard Panel')],
-      # The Odin S is on this rail after all, above the Baldr as it is on the
-      # left. The Warrior 3S is here and not on the left, so the two lists still
-      # differ -- in the other direction from how they used to.
-      'right-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'),
-                     (1, 'OLIGHT Odin S Tactical Flashlight'),
-                     (11, 'DD Python Handguard Panel')],
-      'left-patch': [(2, 'DD Python Handguard Panel')],
-      'right-patch': [(2, 'DD Python Handguard Panel')],
-      'upper-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'), (8, 'DD Python Handguard Panel')],
-      'cheek-pad': [(0, 'RM277 Cheek Pad')],
-      'stock-pad': [(0, 'RM277 Pad')],
-      'rear-grip': [(0, 'AR Modular Rear Grip'), (4, 'AR MOE Rear Grip')],
-      'rear-grip-patch': [(0, 'AR Light Grip Piece'), (1, 'AR Heavy Grip Piece')],
-  },
-
-  # The AR-57. Same three uncatalogued rail names as the RM277, at the same
-  # positions, dictated again for this weapon and matching; two barrels of its
-  # own, both weapon-exclusive; and two muzzles, one of which the RM277 also
-  # names and the catalogue also lacks.
-  'ar-57': {
-    'muzzle': [(0, 'Cobweb Titanium Muzzle Brake'),
-               (1, 'FFC Double Port Muzzle Brake')],
-    'barrel': [(0, 'Night Gale Integrally Suppressed Combo'),
-               (1, 'AR57 Wave Blaster Ultra-Long Barrel')],
-    'left-rail': [(0, 'OLIGHT Odin S Tactical Flashlight'),
-                  (10, 'DD Python Handguard Panel')],
-    'right-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'),
-                   (1, 'OLIGHT Odin S Tactical Flashlight'),
-                   (11, 'DD Python Handguard Panel')],
-    'left-patch': [(2, 'DD Python Handguard Panel')],
-    'right-patch': [(2, 'DD Python Handguard Panel')],
-  },
-}
+# MISSING used to sit here: for each weapon and slot, the names a transcript
+# gave that the catalogue does not carry, each with the index it occupies in
+# the dictated order. It was two facts in one table -- what the item is called,
+# and where in this weapon's list it goes -- and only the second of those is
+# per weapon. The first is now in data/uncatalogued.json, once per item, and
+# the lists in fits.json name those ids in place like any other.
 
 # What a row opens and what it occupies, by display name.
 #
@@ -282,8 +249,9 @@ _SLOT_ORDER = {s['id']: i for i, s in enumerate(SLOT_TYPES)}
 
 
 def _rule_name(iid, rule):
-    """A rule's display name: from the catalogue, or carried on a pending rule."""
-    return NAMES.get(iid) or rule.get('name') or iid
+    """A rule's display name. One lookup: a pending rule used to carry its own
+    copy of the name, which was a third place for one to be spelled wrong."""
+    return NAMES.get(iid) or iid
 
 
 def _labels(slots):
@@ -372,7 +340,6 @@ class Gun:
     def __init__(self, wid):
         self.id = wid
         self.fits = FITS.get(wid) or {}
-        self.missing = MISSING.get(wid) or {}
 
         # Deliberate departures from the derived lists, recorded by the
         # editor's dev mode and written into the weapon's own file.
@@ -402,7 +369,7 @@ class Gun:
         # data that renders nowhere and is never missed, and it is the exact
         # shape of a fit recorded before the slot that opens it was traced.
         mine = {slot for slot, _, _ in sections}
-        stray = (set(self.fits) | set(self.missing)) - mine
+        stray = set(self.fits) - mine
         if stray:
             raise SystemExit(
                 f'{wid}: attachments listed for {sorted(stray)}, which is not '
@@ -429,11 +396,9 @@ class Gun:
 
 
 def rows_for(g, slot):
-    """Dictated order: resolved ids with the missing names spliced back in,
-    then whatever the dev mode says this weapon does or does not take."""
+    """Dictated order, then whatever the dev mode says this weapon does or
+    does not take."""
     out = [nm(i) for i in g.fits.get(slot, [])]
-    for idx, name in g.missing.get(slot, []):
-        out.insert(idx, name)
     e = g.fit_edits.get(slot) or {}
     if e:
         drop = set(e.get('remove', []))
@@ -720,21 +685,26 @@ def catalogue_items():
     search tag now, not a category.
     """
     items = {a['id']: dict(a, known=True) for a in ATTACH}
-    # Every weapon's uncatalogued rows, not one weapon's. An item named on two
-    # guns is one page, and the category check below is what makes sure the two
-    # namings agree about what it is.
-    for bySlot in MISSING.values():
-        for slot, misses in bySlot.items():
-            cat = slot_category(slot)
-            for _, name in misses:
-                sid = BY_NAME[name]['id'] if name in BY_NAME else slug(name)
-                if sid not in items:
-                    items[sid] = {'id': sid, 'name': name, 'cat': cat,
-                                  'price': None, 'stats': {}, 'traits': [],
-                                  'known': False}
-                elif not items[sid]['known'] and items[sid]['cat'] != cat:
-                    raise SystemExit(
-                        f'{name}: {items[sid]["cat"]} here, {cat} in {slot}')
+    # And one page per uncatalogued item, wherever it turns up. An item named
+    # by two guns is one item now, so this walks the library rather than the
+    # weapons -- but the category still comes from the slots it is listed in,
+    # since its slot-mates are better evidence than anything typed by hand.
+    # A slot the item appears in that disagrees with another stops the build.
+    where = {}
+    for bySlot in FITS.values():
+        for slot, ids in bySlot.items():
+            for i in ids:
+                if i not in items:
+                    where.setdefault(i, set()).add(slot)
+    for iid, slots in where.items():
+        cats = {slot_category(s) for s in slots}
+        if len(cats) > 1:
+            raise SystemExit(f'{iid}: filed as {sorted(cats)} by {sorted(slots)}')
+        items[iid] = {'id': iid, 'name': NAMES[iid], 'cat': cats.pop(),
+                      'price': None, 'stats': {}, 'traits': [], 'known': False}
+    unplaced = set(UNCAT) - set(items)
+    if unplaced:
+        raise SystemExit(f'uncatalogued and in no slot list: {sorted(unplaced)}')
     return items
 
 

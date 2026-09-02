@@ -35,7 +35,7 @@
  */
 
 import { ATTACH_BY_ID } from './attachments';
-import { PENDING_RULES, UNRESOLVED_NAMES } from './attach-rules';
+import { UNCATALOGUED } from './uncatalogued';
 
 export type CardTier = 'green' | 'blue' | 'purple' | 'red';
 
@@ -484,10 +484,6 @@ export const UNPLACED_CARDS: Record<string, CardFacts & { name: string }> = {
   },
 };
 
-/** The generator's id rule, so a check here agrees with the pages it builds. */
-const slug = (name: string) =>
-  name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-
 /**
  * Card facts whose id matches no item anywhere.
  *
@@ -495,16 +491,14 @@ const slug = (name: string) =>
  * item the catalogue does not carry, so nothing else in the build would notice
  * a misspelling — the fact would simply never appear on any page and the page
  * would look exactly as it did before. This is what notices.
+ *
+ * One set to check against now, rather than three. It used to slug every name
+ * in UNRESOLVED_NAMES and union that with the keys of PENDING_RULES, which was
+ * a way of asking "does anything, anywhere, claim this item exists" — the
+ * question UNCATALOGUED answers on its own.
  */
 export function unanchoredCardFacts(): string[] {
-  const known = new Set([
-    ...Object.keys(ATTACH_BY_ID),
-    ...Object.keys(PENDING_RULES),
-  ]);
-  for (const bySlot of Object.values(UNRESOLVED_NAMES)) {
-    for (const names of Object.values(bySlot)) {
-      for (const n of names) known.add(slug(n));
-    }
-  }
-  return Object.keys(CARD_FACTS).filter((id) => !known.has(id));
+  return Object.keys(CARD_FACTS).filter(
+    (id) => !ATTACH_BY_ID[id] && !UNCATALOGUED[id],
+  );
 }

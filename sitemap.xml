@@ -2851,6 +2851,51 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://eukyrios.github.io/weapon-smith/rm277-whale-shark-barrel-combo.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/rm277-heavy-integral-barrel.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/rm277-breaker-suppressor.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/cobweb-titanium-muzzle-brake.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/resonant-mk-iii-grip.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/ec-universal-front-hand-stop.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/olight-warrior-3s-tactical-flashlight.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/dd-python-handguard-panel.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/olight-odin-s-tactical-flashlight.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://eukyrios.github.io/weapon-smith/white-phosphor-thermal-scope.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -2896,61 +2941,6 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://eukyrios.github.io/weapon-smith/rm277-breaker-suppressor.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/cobweb-titanium-muzzle-brake.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/resonant-mk-iii-grip.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/ec-universal-front-hand-stop.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/rm277-whale-shark-barrel-combo.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/rm277-heavy-integral-barrel.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/olight-odin-s-tactical-flashlight.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/dd-python-handguard-panel.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/olight-warrior-3s-tactical-flashlight.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/rm277-cheek-pad.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://eukyrios.github.io/weapon-smith/rm277-pad.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>https://eukyrios.github.io/weapon-smith/ar-modular-rear-grip.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -2967,6 +2957,16 @@
   </url>
   <url>
     <loc>https://eukyrios.github.io/weapon-smith/ar-heavy-grip-piece.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/rm277-cheek-pad.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://eukyrios.github.io/weapon-smith/rm277-pad.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

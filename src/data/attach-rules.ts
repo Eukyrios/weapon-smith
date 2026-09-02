@@ -44,6 +44,11 @@
  */
 
 import { ATTACH_BY_ID } from './attachments';
+import { UNCATALOGUED } from './uncatalogued';
+
+/** Every item this file may name: the catalogue's, plus the ones it lacks. */
+export const KNOWN_ITEM = (id: string): boolean =>
+  Boolean(ATTACH_BY_ID[id]) || Boolean(UNCATALOGUED[id]);
 
 /** A slot that only exists because something else granted it. */
 export type GrantedSlot =
@@ -229,12 +234,24 @@ export const STACKABLE_RISERS = ['micro-sight-riser', 'meo-micro-sight-riser'];
  */
 export const CATEGORY_FITS: Record<string, string[]> = {
   // --- barrel group -------------------------------------------------------
+  // Both RM277-exclusive and neither in the 414. Dictated with the Whale Shark
+  // first. This list had nowhere to live while uncatalogued items were held
+  // apart from catalogued ones -- a slot whose every member is missing from
+  // the 414 simply had no entry here at all, which read as "no barrels" rather
+  // than "two barrels, both absent from one source".
+  barrel: [
+    'rm277-whale-shark-barrel-combo',
+    'rm277-heavy-integral-barrel',
+  ],
+
+  // 16 named for the RM277 out of the catalogue's 37 muzzles — a real
+  // per-weapon filter, unlike foregrip. Dictated order, reversed. The first two
+  // are not in the 414; they are in UNCATALOGUED, and named here by id like
+  // everything else, because whether the catalogue happens to carry a part is
+  // not a fact about which slot takes it.
   muzzle: [
-    // 16 named for the RM277, 14 resolve, out of the catalogue's 37 muzzles —
-    // a real per-weapon filter, unlike foregrip. Dictated order, reversed; the
-    // two that do not resolve head the list, in the order given:
-    //   'rm277-breaker-suppressor',       <- weapon-exclusive, absent from ATTACHMENTS
-    //   'cobweb-titanium-muzzle-brake',   <- unidentified, absent from ATTACHMENTS
+    'rm277-breaker-suppressor',
+    'cobweb-titanium-muzzle-brake',
     'spiral-fire-flash-hider',
     'advanced-multi-caliber-suppressor',
     'm7-practical-suppressor', // transcribed "MC-7"
@@ -250,9 +267,10 @@ export const CATEGORY_FITS: Record<string, string[]> = {
     'birdcage-flash-hider', // transcribed "Breed Cage"
     'practical-flash-hider',
   ],
-  barrel: [],
   handguard: [],
   foregrip: [
+    'resonant-mk-iii-grip',
+    'ec-universal-front-hand-stop',
     // 23 named for the RM277 across two passes, 21 resolve — and those 21 are
     // EVERY foregrip in the catalogue. Unlike muzzle (14 of 37), this slot is
     // not filtered at all, which is also why the two that do not resolve read as
@@ -296,6 +314,7 @@ export const CATEGORY_FITS: Record<string, string[]> = {
    * Baldr Pro R or the Practical Weapon Light.
    */
   'upper-rail': [
+    'olight-warrior-3s-tactical-flashlight',
     // 'olight-warrior-3s-tactical-flashlight',  <- named, absent
     'dbal-x2-purple-laser-light-combo',
     'perst-7-blue-laser-light-combo',
@@ -304,6 +323,7 @@ export const CATEGORY_FITS: Record<string, string[]> = {
     'peq-2-red-laser-light-combo',
     'modular-handguard-panel',
     'hornet-handguard',
+    'dd-python-handguard-panel',
     // 'dd-python-handguard-panel',              <- named, absent
     'kc-hound-handguard',
     'ranger-handguard',
@@ -319,6 +339,7 @@ export const CATEGORY_FITS: Record<string, string[]> = {
    * lists that agree about almost everything, transcribed in one sitting.
    */
   'left-rail': [
+    'olight-odin-s-tactical-flashlight',
     // 'olight-odin-s-tactical-flashlight',      <- named, absent
     'olight-baldr-pro-r-multi-function-flashlight',
     'dbal-x2-purple-laser-light-combo',
@@ -329,6 +350,7 @@ export const CATEGORY_FITS: Record<string, string[]> = {
     'practical-weapon-light',
     'modular-handguard-panel',
     'hornet-handguard',
+    'dd-python-handguard-panel',
     // 'dd-python-handguard-panel',              <- named, absent
     'kc-hound-handguard',
     'ranger-handguard',
@@ -347,6 +369,8 @@ export const CATEGORY_FITS: Record<string, string[]> = {
    * re-read the difference has moved.
    */
   'right-rail': [
+    'olight-warrior-3s-tactical-flashlight',
+    'olight-odin-s-tactical-flashlight',
     // 'olight-warrior-3s-tactical-flashlight',  <- named, absent
     // 'olight-odin-s-tactical-flashlight',      <- named, absent
     'olight-baldr-pro-r-multi-function-flashlight',
@@ -358,6 +382,7 @@ export const CATEGORY_FITS: Record<string, string[]> = {
     'practical-weapon-light',
     'modular-handguard-panel',
     'hornet-handguard',
+    'dd-python-handguard-panel',
     // 'dd-python-handguard-panel',              <- named, absent
     'kc-hound-handguard',
     'ranger-handguard',
@@ -367,6 +392,7 @@ export const CATEGORY_FITS: Record<string, string[]> = {
   'left-patch': [
     'modular-handguard-panel',
     'hornet-handguard',
+    'dd-python-handguard-panel',
     // 'dd-python-handguard-panel',              <- named, absent
     'kc-hound-handguard',
     'ranger-handguard',
@@ -376,6 +402,7 @@ export const CATEGORY_FITS: Record<string, string[]> = {
   'right-patch': [
     'modular-handguard-panel',
     'hornet-handguard',
+    'dd-python-handguard-panel',
     // 'dd-python-handguard-panel',              <- named, absent
     'kc-hound-handguard',
     'ranger-handguard',
@@ -397,6 +424,12 @@ export const CATEGORY_FITS: Record<string, string[]> = {
    * 6/12s. An assault rifle does not take them.
    */
   optics: [
+    'white-phosphor-thermal-scope',
+    'advanced-thermal-fusion-holographic-sight',
+    'vmx-frameless-sight',
+    '1p-33-2-4x-scope',
+    'uhx-holographic-sight',
+    'prism-universal-2x-optic',
     // 'white-phosphor-thermal-scope',               <- named, absent
     // 'advanced-thermal-fusion-holographic-sight',  <- named, absent
     // 'vmx-frameless-sight',                        <- named, absent
@@ -406,13 +439,16 @@ export const CATEGORY_FITS: Record<string, string[]> = {
     // 'uhx-holographic-sight',                      <- named, absent
     // 'prism-universal-2x-optic',                   <- named, absent
     'insight-3-7-sniper-scope',
+    'm157-fire-control-system',
     // 'm157-fire-control-system',                   <- named, absent
     'viewpoint-3x-scope',
+    '1p-29-russian-3x-sight',
     // '1p-29-russian-3x-sight',                     <- named, absent
     'lpvo-scope',
     '3-7-adjustable-scope',
     'recon-1-5-5-adjustable-scope',
     'hamr-combined-scope',
+    'meo-micro-sight-riser',
     // the three risers
     // 'meo-micro-sight-riser',                      <- named, absent
     'multi-purpose-tactical-riser',
@@ -446,6 +482,10 @@ export const CATEGORY_FITS: Record<string, string[]> = {
    *   MEO Micro Sight Riser
    */
   'riser-optics': [
+    'advanced-thermal-fusion-holographic-sight',
+    'vmx-frameless-sight',
+    'uhx-holographic-sight',
+    'meo-micro-sight-riser',
     // 'advanced-thermal-fusion-holographic-sight',
     // 'vmx-frameless-sight',
     // 'uhx-holographic-sight',
@@ -472,6 +512,7 @@ export const CATEGORY_FITS: Record<string, string[]> = {
    * five that resolve, so the VMX looks like a real gap, not a mishearing.
    */
   'red-dot-optics': [
+    'vmx-frameless-sight',
     // 'vmx-frameless-sight',
     'osight-red-dot',
     'combat-red-dot-sight',
@@ -555,10 +596,12 @@ export const CATEGORY_FITS: Record<string, string[]> = {
    * "416 Practical Rear Grip" is the catalogue's exact name — no HK prefix.
    */
   'rear-grip': [
+    'ar-modular-rear-grip',
     // 'ar-modular-rear-grip',  <- named, absent. Opens the rear-grip patch.
     'ar-heavy-tower-grip',
     'invasion-rear-grip',
     'phantom-rear-grip',
+    'ar-moe-rear-grip',
     // 'ar-moe-rear-grip',      <- named, absent
     'marksman-d-2-rear-grip',
     'hurricane-d-1-rear-grip',
@@ -568,6 +611,8 @@ export const CATEGORY_FITS: Record<string, string[]> = {
 
   /** Rear grip patch — 2 named, neither in the 414. */
   'rear-grip-patch': [
+    'ar-light-grip-piece',
+    'ar-heavy-grip-piece',
     // 'ar-light-grip-piece',   <- named, absent
     // 'ar-heavy-grip-piece',   <- named, absent
   ],
@@ -579,12 +624,14 @@ export const CATEGORY_FITS: Record<string, string[]> = {
 
   /** Cheek pad — 1 named, absent from the 414. */
   'cheek-pad': [
+    'rm277-cheek-pad',
     // 'rm277-cheek-pad',   <- named, absent. The catalogue carries M700, QBZ
     //                         and Universal cheek pads but no RM277 one.
   ],
 
   /** Stock pad — 1 named, absent from the 414. */
   'stock-pad': [
+    'rm277-pad',
     // 'rm277-pad',         <- named, absent from ATTACHMENTS
   ],
 
@@ -664,9 +711,8 @@ export function ladderViolations(): string[] {
  * the knowledge survives, and so `danglingRuleIds` stays quiet about ids that
  * were never claimed to exist.
  */
-export const PENDING_RULES: Record<string, AttachRule & { name: string }> = {
+export const PENDING_RULES: Record<string, AttachRule> = {
   'meo-micro-sight-riser': {
-    name: 'MEO Micro Sight Riser',
     grants: ['red-dot-optics'],
   },
 
@@ -677,21 +723,17 @@ export const PENDING_RULES: Record<string, AttachRule & { name: string }> = {
    * valuable part and are written down in full.
    */
   'rm277-heavy-integral-barrel': {
-    name: 'RM277 Heavy Integral Barrel',
     grants: ['upper-rail'],
     // An integral barrel occupies the muzzle, and rules out the rail bipod.
     conflictSlots: ['muzzle', 'rail-bipod'],
   },
   'ar-modular-rear-grip': {
-    name: 'AR Modular Rear Grip',
     grants: ['rear-grip-patch'],
   },
   'm157-fire-control-system': {
-    name: 'M157 Fire Control System',
     grants: ['kill-flash'],
   },
   'rm277-whale-shark-barrel-combo': {
-    name: 'RM277 Whale Shark Barrel Combo',
     grants: ['upper-rail'],
     // It does block the bipod, confirmed later than the rest of the rule. The
     // note that used to sit here said no conflict had been *stated* and warned
@@ -708,7 +750,6 @@ export const PENDING_RULES: Record<string, AttachRule & { name: string }> = {
    * "not observed", which the Whale Shark taught us is not the same as "none".
    */
   'ar57-wave-blaster-ultra-long-barrel': {
-    name: 'AR57 Wave Blaster Ultra-Long Barrel',
     grants: ['upper-rail'],
   },
 };
@@ -761,17 +802,15 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
    * authoritative zero.
    */
   'ar-57': {
-    // Dictated order, reversed as always. Two of the seventeen do not resolve
-    // and head the list from MISSING on the Python side: the Cobweb Titanium
-    // Muzzle Brake, which the RM277 also takes and the catalogue also lacks,
-    // and the FFC Double Port Muzzle Brake, new here.
-    //
-    // Fifteen of the catalogue's 37. The overlap with the RM277 is the whole
-    // of its list bar the weapon-exclusive Breaker Suppressor, plus two this
-    // rifle takes and that one does not — the FFC brake and the SMG Echo
-    // Suppressor, which is the tell that the filter is by calibre: a 5.7
-    // carbine gets the SMG can, a 6.8 rifle does not.
+    // Dictated order, reversed as always. Fifteen of the catalogue's 37 plus
+    // two it does not carry, named by id like the rest. The overlap with the
+    // RM277 is the whole of its list bar the weapon-exclusive Breaker
+    // Suppressor, plus two this rifle takes and that one does not -- the FFC
+    // brake and the SMG Echo Suppressor, which is the tell that the filter is
+    // by calibre: a 5.7 carbine gets the SMG can, a 6.8 rifle does not.
     muzzle: [
+      'cobweb-titanium-muzzle-brake',
+      'ffc-double-port-muzzle-brake',
       'spiral-fire-flash-hider',
       'advanced-multi-caliber-suppressor',
       'm7-practical-suppressor',
@@ -789,13 +828,14 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
       'practical-flash-hider',
     ],
 
-    // Both barrels are weapon-exclusive and absent from the 414, so the whole
-    // list is in MISSING; this entry would be an empty array saying the same
-    // thing less clearly, and the tripwire in the generator only asks that a
-    // slot with a list is a slot the weapon has.
+    // Both weapon-exclusive and neither in the 414, like the RM277's pair.
+    barrel: [
+      'night-gale-integrally-suppressed-combo',
+      'ar57-wave-blaster-ultra-long-barrel',
+    ],
 
     // Two integral stocks, filed by the game under `rear grip` rather than
-    // `stock` — which is the same lesson the handguard panels taught under
+    // `stock` -- the same lesson the handguard panels taught under
     // `functional`, and the reason slot and category are separate ideas here.
     //
     // "Resident 2" as dictated; the catalogue's is RESONANT 2, sitting
@@ -804,11 +844,13 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
     'stock-kit': ['resonant-2-integral-stock', 'restricted-zone-integral-stock'],
 
     // Dictated separately for this weapon and identical to the RM277's, item
-    // for item and in order, all four of them. Referenced rather than copied
-    // for the usual reason — a correction to a panel name should reach both
-    // guns — and the fact that two independently dictated lists came out the
-    // same is itself the evidence that rails and patches are not filtered per
-    // weapon the way muzzles are.
+    // for item and in order, all four of them -- the uncatalogued lights and
+    // the DD Python panel included, which is exactly what naming everything by
+    // id buys: the shared list is the whole list, so referencing it is enough.
+    //
+    // Two independently dictated lists coming out the same is itself the
+    // evidence that rails and patches are not filtered per weapon the way
+    // muzzles plainly are.
     'left-rail': CATEGORY_FITS['left-rail'],
     'right-rail': CATEGORY_FITS['right-rail'],
     'left-patch': CATEGORY_FITS['left-patch'],
@@ -834,88 +876,15 @@ export function fitsFor(weaponId: string, slot: string): string[] | null {
   return WEAPON_FITS[weaponId]?.[slot] ?? null;
 }
 
-/**
- * Names heard in a transcript that no catalogue id matches, by weapon and slot.
- *
- * Kept beside the lists they came from so a later catalogue pass has something
- * to check against. A name here means one of two things and we cannot yet tell
- * which: the item is missing from the 414, or the speech-to-text mangled it
- * past recognition. The RM277 Breaker Suppressor is almost certainly the former
- * — the catalogue already carries weapon-exclusive muzzles (AK Bravefire,
- * SR-3M Stealth, PBS Russian), so an RM277 one fits the pattern.
+/*
+ * UNRESOLVED_NAMES used to sit here: the names heard in a transcript that no
+ * catalogue id matched, listed again per weapon and per slot. Both of its jobs
+ * are done better elsewhere now. The names live in UNCATALOGUED, once each,
+ * and where they fit is said by WEAPON_FITS naming their ids in the ordinary
+ * way -- so the fact that a part is missing from the 414 has stopped being a
+ * different KIND of fact, told in a different place, from the fact that a part
+ * fits a slot.
  */
-export const UNRESOLVED_NAMES: Record<string, Record<string, string[]>> = {
-  rm277: {
-    muzzle: ['Cobweb Titanium Muzzle Brake', 'RM277 Breaker Suppressor'],
-    optics: [
-      'White Phosphor Thermal Scope', // heard "WhiteForce4"; the "4" was "-phor"
-      'Advanced Thermal Fusion Holographic Sight', // heard "ATV" once, "Adv" later
-      'VMX Frameless Sight',
-      '1P-33 2/4x Scope', // heard "1P-32 4X" once, "1P-332/4X" later
-      'UHX Holographic Sight',
-      'Prism Universal 2x Optic',
-      'M157 Fire Control System',
-      '1P-29 Russian 3x Sight',
-      'MEO Micro Sight Riser',
-    ],
-    // Named for the riser-optic slot; all four are also absent from the 414.
-    'riser-optics': [
-      'Advanced Thermal Fusion Holographic Sight',
-      'VMX Frameless Sight',
-      'UHX Holographic Sight',
-      'MEO Micro Sight Riser',
-    ],
-    barrel: ['RM277 Whale Shark Barrel Combo', 'RM277 Heavy Integral Barrel'],
-    'rear-grip': ['AR Modular Rear Grip', 'AR MOE Rear Grip'],
-    'rear-grip-patch': ['AR Light Grip Piece', 'AR Heavy Grip Piece'],
-    'cheek-pad': ['RM277 Cheek Pad'],
-    'stock-pad': ['RM277 Pad'],
-    foregrip: ['Resonant MK III Grip', 'EC Universal Front Hand Stop'],
-    // The four laser-light combos once guessed at for the tactical-device slot
-    // turned out to belong to the RAILS. The tactical-device list is unknown.
-    'left-rail': [
-      'OLIGHT Odin S Tactical Flashlight',
-      'DD Python Handguard Panel',
-    ],
-    // The Warrior 3S moved here from the left rail, where it had been
-    // transcribed by mistake. It is on the upper rail too; one slot is enough
-    // to anchor its card facts, and this is the one it was checked against.
-    'right-rail': [
-      'OLIGHT Warrior 3S Tactical Flashlight',
-      'OLIGHT Odin S Tactical Flashlight',
-    ],
-  },
-  'ar-57': {
-    // Both weapon-exclusive, like the RM277's two barrels, and absent from the
-    // 414 for the same reason. The Wave Blaster's rule and card are written
-    // down; the Night Gale has neither yet. Spelled as dictated: the catalogue
-    // has no entry to check it against, and it writes "Birdcage" closed where
-    // the same dictation gave "Bird Cage", so the split may not survive a
-    // sighting of the card.
-    barrel: [
-      'Night Gale Integrally Suppressed Combo',
-      'AR57 Wave Blaster Ultra-Long Barrel',
-    ],
-    muzzle: [
-      // Also on the RM277's list and also unresolved there.
-      'Cobweb Titanium Muzzle Brake',
-      'FFC Double Port Muzzle Brake',
-    ],
-    // The three the RM277's rails name and the catalogue does not carry. Same
-    // names, same slots, dictated again for this weapon and matching.
-    'left-rail': [
-      'OLIGHT Odin S Tactical Flashlight',
-      'DD Python Handguard Panel',
-    ],
-    'right-rail': [
-      'OLIGHT Warrior 3S Tactical Flashlight',
-      'OLIGHT Odin S Tactical Flashlight',
-      'DD Python Handguard Panel',
-    ],
-    'left-patch': ['DD Python Handguard Panel'],
-    'right-patch': ['DD Python Handguard Panel'],
-  },
-};
 
 /** Rules for an attachment, or an empty rule if it has none. */
 export const ruleFor = (id: string): AttachRule => ATTACH_RULES[id] ?? {};
@@ -980,11 +949,17 @@ export function panelSubsetViolations(): string[] {
     }
   }
   // The upper rail was dictated as a shorter version of the side rails, so
-  // anything on it that a side rail refuses means one list was misheard.
+  // anything on it that NEITHER side rail takes means one list was misheard.
+  //
+  // It used to be checked against the left rail alone, which was right only by
+  // accident: the two side rails differ by exactly the OLIGHT lights, and both
+  // of those were uncatalogued and therefore absent from these arrays. With
+  // the lists complete the upper rail carries the Warrior 3S, the left rail
+  // carries the Odin S instead, and the containment holds against the pair.
+  const sides = new Set([...(CATEGORY_FITS['left-rail'] ?? []),
+                         ...(CATEGORY_FITS['right-rail'] ?? [])]);
   for (const id of CATEGORY_FITS['upper-rail'] ?? []) {
-    if (!(CATEGORY_FITS['left-rail'] ?? []).includes(id)) {
-      out.push(`upper-rail: ${id} is not in left-rail`);
-    }
+    if (!sides.has(id)) out.push(`upper-rail: ${id} is on neither side rail`);
   }
   return out;
 }
@@ -1007,20 +982,31 @@ export function unknownConflictSlots(): string[] {
  */
 export function danglingRuleIds(): string[] {
   const bad = new Set<string>();
+  // ATTACH_RULES is for catalogued items only, by definition: a rule on an
+  // uncatalogued one goes in PENDING_RULES, and that is the whole distinction
+  // between the two maps. So this half still asks the narrower question.
   for (const [id, rule] of Object.entries(ATTACH_RULES)) {
     if (!ATTACH_BY_ID[id]) bad.add(id);
     for (const c of rule.conflicts ?? []) if (!ATTACH_BY_ID[c]) bad.add(c);
   }
+  // The lists ask the wider one. An id in a slot list is fine whether the
+  // catalogue carries the item or UNCATALOGUED does; it is an id in NEITHER
+  // that means a name was typed twice and spelled differently once.
+  //
+  // This used to subtract the keys of PENDING_RULES at the end, which was a
+  // way of saying "these ones we know about" — a list of known-missing items,
+  // maintained as a side effect of them happening to have slot rules. Items
+  // with no rule were simply never checked.
   for (const bySlot of Object.values(WEAPON_FITS)) {
     for (const ids of Object.values(bySlot)) {
-      for (const id of ids ?? []) if (!ATTACH_BY_ID[id]) bad.add(id);
+      for (const id of ids ?? []) if (!KNOWN_ITEM(id)) bad.add(id);
     }
   }
   for (const id of [...RISER_OPTIC_FITS, ...RED_DOT_FITS, ...STACKABLE_RISERS]) {
-    if (!ATTACH_BY_ID[id]) bad.add(id);
+    if (!KNOWN_ITEM(id)) bad.add(id);
   }
-  // Items we already know are missing and are tracking deliberately are not
-  // rot — reporting them every build would train everyone to ignore this.
-  for (const id of Object.keys(PENDING_RULES)) bad.delete(id);
+  // And a rule parked for an item nobody has claimed exists is the same rot in
+  // the other direction: it can never fire and nothing else would say so.
+  for (const id of Object.keys(PENDING_RULES)) if (!KNOWN_ITEM(id)) bad.add(id);
   return [...bad];
 }

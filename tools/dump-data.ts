@@ -12,14 +12,17 @@ import {
   ATTACH_RULES, PENDING_RULES, SLOT_TYPES, WEAPON_FITS,
 } from '../src/data/attach-rules'
 import { CARD_FACTS } from '../src/data/card-facts'
+import { UNCATALOGUED } from '../src/data/uncatalogued'
 
 const put = (name: string, v: unknown) =>
   writeFileSync(`data/${name}.json`, JSON.stringify(v))
 
+// Both rule maps, flattened. The generator does not care which of them a rule
+// came from — that distinction is about whether the catalogue carries the item,
+// which it can now ask UNCATALOGUED directly.
 const rules: Record<string, unknown> = { ...ATTACH_RULES }
 for (const [k, v] of Object.entries(PENDING_RULES)) {
   rules[k] = {
-    name: v.name,
     grants: v.grants,
     conflictSlots: (v as { conflictSlots?: string[] }).conflictSlots,
   }
@@ -32,4 +35,7 @@ put('attachments', ATTACHMENTS)
 put('fits', WEAPON_FITS)
 put('rules', { rules, slots: SLOT_TYPES })
 put('card-facts', CARD_FACTS)
-console.log('dumped data/{attachments,fits,rules,card-facts}.json')
+// The items the catalogue does not carry, so the generator can resolve an id
+// in a slot list whether the 414 hold it or not.
+put('uncatalogued', UNCATALOGUED)
+console.log('dumped data/{attachments,fits,rules,card-facts,uncatalogued}.json')
