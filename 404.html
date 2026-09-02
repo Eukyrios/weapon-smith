@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not here &middot; Weapon Smith</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<style>
+  html { background: #060e13; color: #dfe8ee;
+         font: 15px/1.6 ui-sans-serif, system-ui, sans-serif; }
+  body { margin: 0; padding: 12vh 20px; max-width: 44rem; }
+  h1 { margin: 6px 0 4px; font-size: 30px; letter-spacing: -0.02em; }
+  .eyebrow { font: 600 10px/1 ui-monospace, monospace; letter-spacing: 0.2em;
+             text-transform: uppercase; color: #6d8492; }
+  p { color: #9db0bd; max-width: 60ch; }
+  a { display: inline-block; margin: 18px 10px 0 0; padding: 7px 13px;
+      border: 1px solid #1d3038; border-radius: 5px; color: #0ff796;
+      text-decoration: none; font-size: 13px; }
+  a:hover { border-color: #0ff796; }
+</style>
+<script>
+  // Which prefix the site is mounted under. In production that is the project
+  // folder GitHub Pages serves from; served at a root -- the dev server, or a
+  // move to a domain of its own -- it is just the root, and the same file has
+  // to work either way or it will be tested in the one place it is not used.
+  var BASE = "/weapon-smith/";
+  if (location.pathname.indexOf(BASE) !== 0) BASE = '/';
+  var rest = location.pathname.slice(BASE.length).replace(/^catalogue\//, '');
+  var to = null;
+  // Not itself. Opened directly -- by a curious reader, or by a checker
+  // following the sitemap -- "404.html" ends in .html like everything else and
+  // the last rule would send it to an attachment called 404.
+  if (rest === '404.html') to = null;
+  else if (rest === '' || rest === 'index.html') to = '';
+  else if (/^ammo-(.+)\.html$/.test(rest))
+    to = 'ammo/#' + /^ammo-(.+)\.html$/.exec(rest)[1];
+  else if (/^(gun|smith)-.+\.html$/.test(rest)) to = rest;
+  else if (/\.html$/.test(rest)) to = 'attachment/#' + rest.slice(0, -5);
+  if (to !== null) location.replace(BASE + to + location.search);
+  addEventListener('DOMContentLoaded', function () {
+    var as = document.querySelectorAll('a[data-to]');
+    for (var i = 0; i < as.length; i++)
+      as[i].href = BASE + as[i].getAttribute('data-to');
+  });
+</script>
+<span class="eyebrow">Weapon Smith</span>
+<h1>Not here</h1>
+<p>That address does not exist on this site. The attachments and the rounds
+each live on one page now, with the item chosen by the part of the address
+after the #. If you followed an old link it should have sent you on; if it did
+not, the catalogue has everything.</p>
+<a data-to="" href="/weapon-smith/">Catalogue</a>
+<a data-to="attachment/" href="/weapon-smith/attachment/">Attachments</a>
+<a data-to="ammo/" href="/weapon-smith/ammo/">Ammunition</a>

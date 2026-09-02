@@ -107,6 +107,32 @@ h2 .count {
 }
 p { margin: 0; max-width: 78ch; }
 .lede { color: var(--text-dim); font-size: 14px; }
+
+/* One page, one entry showing. The fragment picks it and CSS does the picking,
+   so the right thing is on screen before any script runs and stays right
+   without one. Every entry is in the document either way, which is what keeps
+   the whole catalogue readable to a crawler now that it is four pages rather
+   than six hundred. */
+.entry { display: none; }
+.entry:target { display: block; }
+/* And with nothing picked, the note rather than the first item -- landing on
+   /attachment/ and being shown one arbitrary attachment reads as a bug. */
+.wrap:has(.entry:target) .entry--none { display: none; }
+.entry--none { display: block; }
+.entry__h { margin-bottom: 22px; }
+/* The entry's own name is a title, not a section heading: same size and
+   colour the item's page gave it when it had one to itself. Left as an h2 in
+   the markup because it IS one -- the page is the attachments and this is one
+   of them -- and an h1 per entry would be 441 of them in one document. */
+.entry__h h2 {
+  margin: 0; font-size: 26px; letter-spacing: -0.01em;
+  color: var(--text); border: 0; padding: 0;
+}
+.entry__h h2::before { content: none; }
+.entry__h .sub { margin-top: 4px; }
+/* With an entry open, the page's own blurb gets out of its way: it says what
+   the page is for, which is worth reading once and not above every item. */
+.wrap:has(.entry:target) .kind-lede { display: none; }
 /* A slot the gunsmith has and the transcript has not reached. Set apart from a
    plain lede because it is a promise rather than a description, and a reader
    scanning twenty-odd slots should be able to see which ones are still owed. */

@@ -139,6 +139,44 @@ def anchor(kind, value):
     return f'{kind}-{slug(value)}'
 
 
+# One page per KIND of thing, not per thing.
+#
+# There were 441 attachment pages, and each was 3.8KB of which 1.0KB was the
+# item: the other 2.8KB was the same shell -- head, banner, nav, breadcrumb --
+# written out 441 times. A page per item also meant a page load to read the
+# next one, and 1,200 files in a repo that is served straight from disk.
+#
+# So each kind gets one page and the fragment says which entry to show. The
+# entries are all in the page, hidden by :target rather than fetched, which is
+# why this still reads with the script off and why a crawler still sees every
+# word. What it costs is a search result per item: /attachment/ is one page to
+# Google however many attachments are on it.
+ITEMS_AT, AMMO_AT, SMITH_AT = 'attachment/', 'ammo/', 'smithery/'
+
+# Pages one level down reach the root's assets through this.
+DEEP = '../'
+# And `up` for a link that lands on the page it is written on: a bare fragment.
+SELF = 'self:'
+
+
+def item_href(iid, up=''):
+    return f'#{iid}' if up == SELF else f'{up}{ITEMS_AT}#{iid}'
+
+
+def gun_href(wid, up=''):
+    # Still a page each. The weapons are the one kind that cannot simply be
+    # concatenated: two of them carry a gunsmith stage of ~100KB with a script
+    # that reaches for elements by id, and two stages in one document is two of
+    # every id. That page wants its weapon FETCHED rather than inlined, which
+    # is a different job from this one -- so the address is left alone until
+    # it is done, and this is the one line that changes when it is.
+    return f'{up}gun-{wid}.html'
+
+
+def ammo_href(aid, up=''):
+    return f'#{aid}' if up == SELF else f'{up}{AMMO_AT}#{aid}'
+
+
 def gun_file(wid):
     return f'gun-{wid}.html'
 
@@ -454,7 +492,7 @@ def table(g, slot, prefix=UP):
         blocks = BLOCKS.get(name, '')
         a = f'<td class="slotcell">{adds}</td>' if adds else '<td class="none">&mdash;</td>'
         b = f'<td class="cut">{blocks}</td>' if blocks else '<td class="none">&mdash;</td>'
-        href = prefix + item_id(name) + '.html'
+        href = item_href(item_id(name), prefix)
         body += (f'          <tr{cls} data-item="{item_id(name)}">'
                  f'<td><a href="{href}">{name}</a>{tag}</td>'
                  f'{a}{b}</tr>\n')
@@ -720,7 +758,7 @@ def fits_index(g):
     return out
 
 
-def item_page(item, accepted_in):
+def item_section(item, accepted_in):
     rule = RULES.get(item['id'], {})
     rows = ''
     # An item the catalogue does not carry can still have had its stat lines
@@ -771,14 +809,14 @@ def item_page(item, accepted_in):
         # Every mirrored picture is a 512x256 canvas, so a square frame spent
         # half its height on nothing and showed the art at a fifth of the
         # pixels it has. The frame matches the canvas instead.
-        img = (f'      <img class="shot" src="{UP}att/{item["id"]}.png" alt="" '
+        img = (f'      <img class="shot" src="{DEEP}att/{item["id"]}.png" alt="" '
                'width="280" height="140" onerror="this.remove()">\n')
 
     slots_html = ''
     if accepted_in:
         slots_html = ('  <section>\n    <h2>Fits</h2>\n    <div class="chips">\n'
                       + '\n'.join(
-                          f'      <a class="chip" href="{gun_file(wid)}">'
+                          f'      <a class="chip" href="{gun_href(wid, DEEP)}">'
                           f'{WEAPON_NAME.get(wid, wid)} &middot; {label}</a>'
                           for wid, label in accepted_in)
                       + '\n    </div>\n  </section>\n')
@@ -808,23 +846,55 @@ def item_page(item, accepted_in):
     tag += (' <span class="tag tag--soft">#image-change</span>'
             if needs_art(item['id']) else '')
     kind = CAT_LABEL.get(item['cat'], item['cat']) if item['cat'] else ''
-    # The description says what this page can answer. An item whose stats are
-    # not read yet says that instead of implying numbers it does not have.
-    desc = f"{item['name']} &mdash; "
-    desc += f'{kind.lower()} attachment ' if kind else 'attachment '
-    desc += 'for Delta Force: Operations. '
-    desc += ('Every stat line it changes. ' if stat_lines
-             else 'Its stat lines are not read off the game yet. ')
-    n = len(accepted_in)
-    if n:
-        slots = 'one weapon slot' if n == 1 else f'{n} weapon slots'
-        desc += f'Fits {slots}.'
-    return shell(f"{item['name']} &middot; Weapon Smith",
-                 'Catalogue', item['name'] + tag,
-                 kind if kind else 'Named in a slot list.',
-                 body, NAV.format(up=HOME, back='Weapon Smith'), UP + 'smith.css',
-                 desc=desc, path=f"{item['id']}.html",
-                 crumb=item['name'])
+    sub = kind if kind else 'Named in a slot list.'
+    return (f'  <section class="entry" id="{item["id"]}" '
+            f'data-name="{attr(item["name"])}">\n'
+            f'    <header class="entry__h">\n'
+            f'      <h2>{item["name"]}{tag}</h2>\n'
+            f'      <p class="sub">{sub}</p>\n'
+            f'    </header>\n'
+            f'{body}  </section>\n\n')
+
+
+def kind_page(what, title, h1, lede, desc, path, entries, empty):
+    """One page holding every entry of a kind, the fragment choosing which.
+
+    `:target` does the choosing, in CSS, so this works before any script runs
+    and keeps working without one. The entries are in the page rather than
+    fetched for the same reason, and because every word of them is then
+    something a crawler can read: the cost of collapsing 441 pages into one is
+    a search RESULT per item, and there is no need to pay a second time in
+    content nobody can see.
+    """
+    body = (f'  <p class="lede kind-lede">{lede}</p>\n\n'
+            f'  <section class="entry entry--none">\n'
+            f'    <p class="lede lede--gap">{empty}</p>\n  </section>\n\n'
+            + entries
+            + PICKED_JS)
+    return shell(title, 'Catalogue', h1, '', body,
+                 NAV.format(up=DEEP, back='Weapon Smith'), DEEP + 'smith.css',
+                 desc=desc, path=path, crumb=what)
+
+
+# The tab is the one thing CSS cannot name. Everything else about which entry
+# is showing is done by :target; this puts the entry's own name in the title
+# bar and in the history entry, so a back button reads as going back to the
+# thing rather than to the page it was on.
+PICKED_JS = """  <script>
+    const base = document.title;
+    function named() {
+      const el = location.hash && document.getElementById(
+        decodeURIComponent(location.hash.slice(1)));
+      // The name off the section, not off its heading: the heading carries
+      // the #missing-info tags too, and a tab reading "Ember Suppressor
+      // #not-tracked" is the page telling the reader about itself.
+      document.title = el ? el.dataset.name + ' \u00b7 ' + base : base;
+      if (el) el.scrollIntoView({block: 'start'});
+    }
+    addEventListener('hashchange', named);
+    named();
+  </script>
+"""
 
 
 def gun_page(w):
@@ -903,7 +973,7 @@ def gun_page(w):
                  crumb=w['name'])
 
 
-def ammo_page(a, guns):
+def ammo_section(a, guns):
     facts = [('Caliber', a['caliber'])]
     if a['pen'] is not None:
         facts.append(('Penetration', f"{a['pen']} of 7"))
@@ -912,7 +982,7 @@ def ammo_page(a, guns):
     rows = ''.join(f'          <tr><td>{k}</td><td class="v">{v}</td></tr>\n'
                    for k, v in facts)
 
-    img = (f'      <img class="shot" src="{UP}ammo/{a["id"]}.png" alt="" '
+    img = (f'      <img class="shot" src="{DEEP}ammo/{a["id"]}.png" alt="" '
            'width="280" height="140" onerror="this.remove()">\n')
 
     chambers = ''
@@ -920,7 +990,7 @@ def ammo_page(a, guns):
         chambers = ('  <section>\n    <h2>Chambered by '
                     f'<span class="count">{len(guns)}</span></h2>\n'
                     '    <div class="chips">\n'
-                    + '\n'.join(f'      <a class="chip" href="{gun_file(g["id"])}">'
+                    + '\n'.join(f'      <a class="chip" href="{gun_href(g["id"], DEEP)}">'
                                  f'{g["name"]}</a>' for g in guns)
                     + '\n    </div>\n  </section>\n')
 
@@ -942,18 +1012,13 @@ def ammo_page(a, guns):
   </section>
 
 {chambers}{note}"""
-    pen = f", penetration {a['pen']} of 7" if a['pen'] is not None else ''
-    desc = (f"{a['name']} &mdash; {a['caliber']} round for Delta Force: "
-            f'Operations{pen}. ')
-    n = len(guns)
-    desc += (f"The {'one weapon' if n == 1 else str(n) + ' weapons'} that "
-             f"chamber{'s' if n == 1 else ''} it." if guns
-             else 'No weapon in the catalogue chambers it yet.')
-    return shell(f"{a['name']} &middot; Weapon Smith", 'Catalogue', a['name'],
-                 a['caliber'], body, NAV.format(up=HOME, back='Weapon Smith'),
-                 UP + 'smith.css',
-                 desc=desc, path=ammo_file(a['id']),
-                 crumb=a['name'])
+    return (f'  <section class="entry" id="{a["id"]}" '
+            f'data-name="{attr(a["name"])}">\n'
+            f'    <header class="entry__h">\n'
+            f'      <h2>{a["name"]}</h2>\n'
+            f'      <p class="sub">{a["caliber"]}</p>\n'
+            f'    </header>\n'
+            f'{body}  </section>\n\n')
 
 
 def catalogue_browser(items, by_caliber, pages='', art=''):
@@ -1038,7 +1103,7 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         gid = anchor('class', cls)
         rows = sorted(by_cls[cls], key=lambda x: x['name'])
         group(gid, cls, ''.join(
-            tile(gun_file(w['id']), w['name'],
+            tile(gun_href(w['id'], pages), w['name'],
                  f'gear/{w["id"]}.png' if has_art('gear', w['id']) else None,
                  tags=('complete',) if finished(w['id']) else (),
                  done=finished(w['id']))
@@ -1057,7 +1122,7 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         gid = anchor('caliber', cal)
         rows = sorted(by_caliber[cal], key=lambda a: a['name'])
         group(gid, cal, ''.join(
-            tile(ammo_file(a['id']), a['name'],
+            tile(ammo_href(a['id'], pages), a['name'],
                  f'ammo/{a["id"]}.png'
                  if (a['hasArt'] or has_art('ammo', a['id'])) else None)
             for a in rows), len(rows))
@@ -1104,7 +1169,7 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         return tuple(out)
 
     def att_tile(i):
-        return tile(f'{i["id"]}.html', i['name'],
+        return tile(item_href(i['id'], pages), i['name'],
                     f'att/{i["id"]}.png'
                     if (i['known'] or has_art('att', i['id'])) else None,
                     gap=needs_info(i['id']), tags=item_tags(i))
@@ -2059,7 +2124,7 @@ def pick_detail(name, slot):
 
     tier = card.get('tier')
     dot = f'<span class="tier {tier}"></span>' if tier else ''
-    head = (f'          <h4>{dot}<a href="{iid}.html">{name}</a></h4>\n')
+    head = (f'          <h4>{dot}<a href="{item_href(iid)}">{name}</a></h4>\n')
 
     # No price. It is a market snapshot rather than a property of the thing,
     # it drifts, and it is not what this screen is for — the item's own page
@@ -3314,6 +3379,32 @@ h2 .count {
 }
 p { margin: 0; max-width: 78ch; }
 .lede { color: var(--text-dim); font-size: 14px; }
+
+/* One page, one entry showing. The fragment picks it and CSS does the picking,
+   so the right thing is on screen before any script runs and stays right
+   without one. Every entry is in the document either way, which is what keeps
+   the whole catalogue readable to a crawler now that it is four pages rather
+   than six hundred. */
+.entry { display: none; }
+.entry:target { display: block; }
+/* And with nothing picked, the note rather than the first item -- landing on
+   /attachment/ and being shown one arbitrary attachment reads as a bug. */
+.wrap:has(.entry:target) .entry--none { display: none; }
+.entry--none { display: block; }
+.entry__h { margin-bottom: 22px; }
+/* The entry's own name is a title, not a section heading: same size and
+   colour the item's page gave it when it had one to itself. Left as an h2 in
+   the markup because it IS one -- the page is the attachments and this is one
+   of them -- and an h1 per entry would be 441 of them in one document. */
+.entry__h h2 {
+  margin: 0; font-size: 26px; letter-spacing: -0.01em;
+  color: var(--text); border: 0; padding: 0;
+}
+.entry__h h2::before { content: none; }
+.entry__h .sub { margin-top: 4px; }
+/* With an entry open, the page's own blurb gets out of its way: it says what
+   the page is for, which is worth reading once and not above every item. */
+.wrap:has(.entry:target) .kind-lede { display: none; }
 /* A slot the gunsmith has and the transcript has not reached. Set apart from a
    plain lede because it is a promise rather than a description, and a reader
    scanning twenty-odd slots should be able to see which ones are still owed. */
@@ -4526,6 +4617,9 @@ def banner(path=''):
     `path` is the page the notice is on, so it does not offer a page a link to
     itself.
     """
+    # A page one level down reaches a weapon page through '../', the same way
+    # it reaches the stylesheet.
+    up = DEEP if '/' in path else ''
     total = len(WEAPONS)
     fin = sorted(w for w in DOCUMENTED if finished(w))
     started = sorted(DOCUMENTED - set(fin))
@@ -4562,7 +4656,7 @@ def banner(path=''):
         'goes: most of what a new gun takes is already catalogued, so there '
         'are fewer attachments left to add each time. Every other weapon page '
         'carries what the catalogue knows and says so.'
-        + ''.join(f'\n    <a class="banner__go" href="{UP}{gun_file(w)}">'
+        + ''.join(f'\n    <a class="banner__go" href="{gun_href(w, up)}">'
                   f'See the {WEAPON_NAME.get(w, w)} &rarr;</a>'
                   for w in sorted(DOCUMENTED) if gun_file(w) != path)
         + '\n</aside>\n')
@@ -4622,6 +4716,89 @@ def index_page(items, by_caliber):
         desc=desc, path='')
 
 
+def gone_page():
+    """The only forwarding page on the site.
+
+    GitHub Pages hands 404.html to anything it cannot find, so one file can
+    look at the address that was asked for and work out where that thing lives
+    now. Three shapes cover every URL this site has ever published:
+
+        /catalogue/<anything>   ->  /<anything>, the flattening
+        /ammo-<id>.html         ->  /ammo/#<id>
+        /<id>.html              ->  /attachment/#<id>, everything else
+
+    A weapon page keeps its own address, so gun-<id>.html falls through and is
+    served as itself where it exists.
+
+    It replaces 1,129 forwarding files -- one per old address under catalogue/,
+    and one per item page. A rule per SHAPE of address rather than a file per
+    address. It is a 404 to a crawler, which is right: those pages really are
+    gone and the ones that replaced them are in the sitemap. This is for the
+    reader, the bookmark, and the links from the sibling site.
+
+    Self-contained on purpose. It is served for any depth at once -- for
+    /ember-suppressor.html and /catalogue/ammo-x.html alike -- so a relative
+    stylesheet would mean a different file each time, and it carries its own
+    few rules rather than reaching for the site's.
+    """
+    base = SITE[SITE.index('/', 8):]          # '/weapon-smith/'
+    return """<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not here &middot; Weapon Smith</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<style>
+  html { background: #060e13; color: #dfe8ee;
+         font: 15px/1.6 ui-sans-serif, system-ui, sans-serif; }
+  body { margin: 0; padding: 12vh 20px; max-width: 44rem; }
+  h1 { margin: 6px 0 4px; font-size: 30px; letter-spacing: -0.02em; }
+  .eyebrow { font: 600 10px/1 ui-monospace, monospace; letter-spacing: 0.2em;
+             text-transform: uppercase; color: #6d8492; }
+  p { color: #9db0bd; max-width: 60ch; }
+  a { display: inline-block; margin: 18px 10px 0 0; padding: 7px 13px;
+      border: 1px solid #1d3038; border-radius: 5px; color: #0ff796;
+      text-decoration: none; font-size: 13px; }
+  a:hover { border-color: #0ff796; }
+</style>
+<script>
+  // Which prefix the site is mounted under. In production that is the project
+  // folder GitHub Pages serves from; served at a root -- the dev server, or a
+  // move to a domain of its own -- it is just the root, and the same file has
+  // to work either way or it will be tested in the one place it is not used.
+  var BASE = %s;
+  if (location.pathname.indexOf(BASE) !== 0) BASE = '/';
+  var rest = location.pathname.slice(BASE.length).replace(/^catalogue\//, '');
+  var to = null;
+  // Not itself. Opened directly -- by a curious reader, or by a checker
+  // following the sitemap -- "404.html" ends in .html like everything else and
+  // the last rule would send it to an attachment called 404.
+  if (rest === '404.html') to = null;
+  else if (rest === '' || rest === 'index.html') to = '';
+  else if (/^ammo-(.+)\.html$/.test(rest))
+    to = 'ammo/#' + /^ammo-(.+)\.html$/.exec(rest)[1];
+  else if (/^(gun|smith)-.+\.html$/.test(rest)) to = rest;
+  else if (/\.html$/.test(rest)) to = 'attachment/#' + rest.slice(0, -5);
+  if (to !== null) location.replace(BASE + to + location.search);
+  addEventListener('DOMContentLoaded', function () {
+    var as = document.querySelectorAll('a[data-to]');
+    for (var i = 0; i < as.length; i++)
+      as[i].href = BASE + as[i].getAttribute('data-to');
+  });
+</script>
+<span class="eyebrow">Weapon Smith</span>
+<h1>Not here</h1>
+<p>That address does not exist on this site. The attachments and the rounds
+each live on one page now, with the item chosen by the part of the address
+after the #. If you followed an old link it should have sent you on; if it did
+not, the catalogue has everything.</p>
+<a data-to="" href="%s">Catalogue</a>
+<a data-to="attachment/" href="%sattachment/">Attachments</a>
+<a data-to="ammo/" href="%sammo/">Ammunition</a>
+""" % (json.dumps(base), base, base, base)
+
+
 def moved(title, to, up, note='This moved up a level.', tab=None):
     """A page that is only an address, pointing at the one that replaced it.
 
@@ -4665,17 +4842,17 @@ if __name__ == '__main__':
         'User-agent: *\nAllow: /\n\nSitemap: ' + SITE + 'sitemap.xml\n',
         encoding='utf-8')
 
-    # Every page, not a hand-kept list of two. A catalogue is worth nothing to
-    # a reader who cannot be shown the page holding the thing they searched
-    # for, and a crawler that has to find 595 pages by walking the front page's
-    # filter finds them slowly. changefreq and priority are hints Google mostly
-    # ignores; they are here to say which pages are the ones being worked on.
+    # Every page, and there are far fewer of them than there were. The
+    # attachments and the rounds are two pages now rather than 530, and a
+    # fragment is not an address a crawler can be given -- so what used to be
+    # 530 lines here is two, and the content of all 530 is on the two pages
+    # they point at. changefreq and priority are hints Google mostly ignores;
+    # they are here to say which pages are the ones being worked on.
     urls = [('', 'weekly', '1.0')]
     urls += [(p, 'weekly', '0.8') for p in PAGES]
+    urls += [(ITEMS_AT, 'weekly', '0.7'), (AMMO_AT, 'monthly', '0.5')]
     urls += [(gun_file(w['id']), 'monthly', '0.6')
              for w in WEAPONS if gun_file(w['id']) not in PAGES]
-    urls += [(ammo_file(a['id']), 'monthly', '0.5') for a in AMMO]
-    urls += [(f"{i['id']}.html", 'monthly', '0.5') for i in items.values()]
     (out / 'sitemap.xml').write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -4700,48 +4877,66 @@ if __name__ == '__main__':
         if w.get('caliber'):
             guns_by_caliber.setdefault(w['caliber'], []).append(w)
 
-    TITLES = {f"{i['id']}.html": i['name'] for i in items.values()}
-    TITLES.update({gun_file(w['id']): w['name'] for w in WEAPONS})
-    TITLES.update({ammo_file(a['id']): a['name'] for a in AMMO})
-
-    # The pages are siblings of the index now: /gun-rm277.html rather than
-    # /catalogue/gun-rm277.html. The folder said nothing the page did not —
-    # every page on this site is a catalogue page — and it cost a level of
-    # nesting in every address and every link out of one.
+    # One page for the attachments, one for the rounds, and a file each for
+    # the weapons until the smithery page can fetch them.
     written = []
-    for i in items.values():
-        written.append(f"{i['id']}.html")
-        (out / written[-1]).write_text(
-            item_page(i, accepted.get(i['id'], [])), encoding='utf-8')
+    ordered = sorted(items.values(), key=lambda i: i['name'].lower())
+    att = ''.join(item_section(i, accepted.get(i['id'], [])) for i in ordered)
+    (out / ITEMS_AT).mkdir(exist_ok=True)
+    written.append(ITEMS_AT + 'index.html')
+    (out / written[-1]).write_text(kind_page(
+        'Attachments',
+        'Attachments &middot; Weapon Smith', 'Attachments',
+        f'Every one of the {len(ordered)} attachments this site knows about, '
+        'what fitting it does to a gun, and which slots take it.',
+        f'All {len(ordered)} Delta Force: Operations attachments in one place '
+        '&mdash; every stat line each one changes, what it opens, what it '
+        'occupies, and the weapon slots that accept it.',
+        ITEMS_AT, att,
+        'Pick an attachment from the catalogue and it opens here.',
+    ), encoding='utf-8')
+
+    rounds = sorted(AMMO, key=lambda a: a['name'].lower())
+    am = ''.join(ammo_section(a, guns_by_caliber.get(a['caliber'], []))
+                 for a in rounds)
+    (out / AMMO_AT).mkdir(exist_ok=True)
+    written.append(AMMO_AT + 'index.html')
+    (out / written[-1]).write_text(kind_page(
+        'Ammunition',
+        'Ammunition &middot; Weapon Smith', 'Ammunition',
+        f'All {len(rounds)} rounds, their calibers and penetration, and the '
+        'weapons chambered for each.',
+        f'Every one of the {len(rounds)} Delta Force: Operations rounds '
+        '&mdash; caliber, penetration and price, and which weapons chamber '
+        'each of them.',
+        AMMO_AT, am,
+        'Pick a round from the catalogue and it opens here.',
+    ), encoding='utf-8')
+
     for w in WEAPONS:
         written.append(gun_file(w['id']))
         (out / written[-1]).write_text(gun_page(w), encoding='utf-8')
-    for a in AMMO:
-        written.append(ammo_file(a['id']))
-        (out / written[-1]).write_text(
-            ammo_page(a, guns_by_caliber.get(a['caliber'], [])), encoding='utf-8')
     # The editor moved into the weapon page; this was its address for a while.
     for wid in sorted(GUNSMITHS):
-        (out / f'smith-{wid}.html').write_text(
+        written.append(f'smith-{wid}.html')
+        (out / written[-1]).write_text(
             moved(WEAPON_NAME.get(wid, wid), gun_file(wid), UP,
                   'The gunsmith is part of the weapon page now.'), encoding='utf-8')
 
-    # Every one of those pages answered at /catalogue/ until now, and those
-    # addresses are in the sitemap Google has already read, in the links from
-    # the sibling site, and in whatever anyone bookmarked. Each becomes a
-    # signpost to the page one level up rather than a 404. A forwarding page
-    # is a quarter of a kilobyte; throwing away every link that already points
-    # into this site costs rather more than 600 of them.
-    cat = out / 'catalogue'
-    cat.mkdir(exist_ok=True)
-    (cat / 'index.html').write_text(
-        moved('Weapon Smith', '', '../', 'The catalogue is the front page now.',
-              'Catalogue &middot; Weapon Smith'), encoding='utf-8')
-    for name in written:
-        (cat / name).write_text(moved(TITLES[name], name, '../'), encoding='utf-8')
-    for wid in sorted(GUNSMITHS):
-        (cat / f'smith-{wid}.html').write_text(
-            moved(WEAPON_NAME.get(wid, wid), gun_file(wid), '../'), encoding='utf-8')
+    # Every address this site has ever had, answered by one file.
+    #
+    # There used to be a forwarding page per old URL -- 599 of them under
+    # catalogue/, and a moment ago there would have been 530 more for the item
+    # pages that just became fragments. GitHub Pages serves 404.html for
+    # anything it cannot find, which means one file can work out where an old
+    # address went and send the reader there. A rule per SHAPE of address
+    # rather than a file per address.
+    #
+    # It is a real 404 to a crawler, which is right: these pages are gone, and
+    # the ones that replaced them are in the sitemap. It is the reader, and the
+    # bookmark, and the link from the sibling site that this is for.
+    (out / '404.html').write_text(gone_page(), encoding='utf-8')
+    written.append('404.html')
 
     # A renamed item leaves its old page behind, and a stale page is worse than
     # a missing one — it is reachable, wrong, and looks maintained. So the run
@@ -4754,11 +4949,7 @@ if __name__ == '__main__':
     # disappearance is silent — the console simply stops believing the site is
     # yours. Deleting only what is on the list cannot reach anything this tool
     # did not put there in the first place.
-    mine = sorted({'index.html', *written,
-                   *(f'smith-{w}.html' for w in GUNSMITHS),
-                   'catalogue/index.html',
-                   *(f'catalogue/{n}' for n in written),
-                   *(f'catalogue/smith-{w}.html' for w in GUNSMITHS)})
+    mine = sorted({'index.html', *written})
     before = set(MANIFEST.read_text(encoding='utf-8').split()) \
         if MANIFEST.exists() else set()
     for gone in sorted(before - set(mine)):
@@ -4768,5 +4959,13 @@ if __name__ == '__main__':
             print(f'removed {gone} — no longer generated')
     MANIFEST.write_text('\n'.join(mine) + '\n', encoding='utf-8')
 
-    print(f'wrote index.html and {len(written)} pages, '
-          f'{len(written) + len(GUNSMITHS) + 1} forwards from catalogue/')
+    # The old forwarding folder, emptied by the sweep above. An empty
+    # directory left behind is a URL that answers with a listing or a 404
+    # depending on the host, which is a coin toss nobody needs.
+    old = out / 'catalogue'
+    if old.is_dir() and not any(old.iterdir()):
+        old.rmdir()
+        print('removed catalogue/ — one 404.html answers for it now')
+    print(f'wrote index.html and {len(written)} pages: '
+          f'{len(ordered)} attachments and {len(rounds)} rounds on two of '
+          f'them, {len(WEAPONS)} weapons on their own')
