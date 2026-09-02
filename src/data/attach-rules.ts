@@ -761,16 +761,64 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
    * authoritative zero.
    */
   'ar-57': {
-    // Nothing yet that this file can hold. The one part confirmed for the
-    // AR-57 — its Wave Blaster barrel — is not in the catalogue, so it has no
-    // id to list here; it lives in MISSING on the Python side beside the
-    // RM277's exclusives, with its rule parked in PENDING_RULES above.
+    // Dictated order, reversed as always. Two of the seventeen do not resolve
+    // and head the list from MISSING on the Python side: the Cobweb Titanium
+    // Muzzle Brake, which the RM277 also takes and the catalogue also lacks,
+    // and the FFC Double Port Muzzle Brake, new here.
     //
-    // A Honeycomb Killflash was seen in this rifle's killflash slot too, and
-    // is deliberately NOT listed. That slot is granted by an optic, and this
-    // weapon's optic list has not been read, so a killflash list here would
-    // be a list on a slot the gun cannot yet be shown to have. It is recorded
-    // in data/gunsmith-ar-57.json under `granted`, and joins the moment the
+    // Fifteen of the catalogue's 37. The overlap with the RM277 is the whole
+    // of its list bar the weapon-exclusive Breaker Suppressor, plus two this
+    // rifle takes and that one does not — the FFC brake and the SMG Echo
+    // Suppressor, which is the tell that the filter is by calibre: a 5.7
+    // carbine gets the SMG can, a 6.8 rifle does not.
+    muzzle: [
+      'spiral-fire-flash-hider',
+      'advanced-multi-caliber-suppressor',
+      'm7-practical-suppressor',
+      'smg-echo-suppressor',
+      'silent-suppressor',
+      'sandstorm-vertical-compensator',
+      'bastion-horizontal-compensator',
+      'poseidon-flash-hider',
+      'whisper-tactical-suppressor',
+      'titanium-contest-muzzle-brake',
+      'blazing-fire-suppressor',
+      'steel-muzzle-brake',
+      'practical-suppressor',
+      'birdcage-flash-hider',
+      'practical-flash-hider',
+    ],
+
+    // Both barrels are weapon-exclusive and absent from the 414, so the whole
+    // list is in MISSING; this entry would be an empty array saying the same
+    // thing less clearly, and the tripwire in the generator only asks that a
+    // slot with a list is a slot the weapon has.
+
+    // Two integral stocks, filed by the game under `rear grip` rather than
+    // `stock` — which is the same lesson the handguard panels taught under
+    // `functional`, and the reason slot and category are separate ideas here.
+    //
+    // "Resident 2" as dictated; the catalogue's is RESONANT 2, sitting
+    // directly beside the Restricted Zone in the same category, which is the
+    // pair as dictated. Read as the same item.
+    'stock-kit': ['resonant-2-integral-stock', 'restricted-zone-integral-stock'],
+
+    // Dictated separately for this weapon and identical to the RM277's, item
+    // for item and in order, all four of them. Referenced rather than copied
+    // for the usual reason — a correction to a panel name should reach both
+    // guns — and the fact that two independently dictated lists came out the
+    // same is itself the evidence that rails and patches are not filtered per
+    // weapon the way muzzles are.
+    'left-rail': CATEGORY_FITS['left-rail'],
+    'right-rail': CATEGORY_FITS['right-rail'],
+    'left-patch': CATEGORY_FITS['left-patch'],
+    'right-patch': CATEGORY_FITS['right-patch'],
+
+    // A Honeycomb Killflash was seen in this rifle's killflash slot and is
+    // deliberately NOT listed. That slot is granted by an optic, and this
+    // weapon's optic list has not been read, so a killflash list here would be
+    // a list on a slot the gun cannot yet be shown to have. It is recorded in
+    // data/gunsmith-ar-57.json under `granted`, and joins the moment the
     // optics arrive.
   },
 };
@@ -838,9 +886,34 @@ export const UNRESOLVED_NAMES: Record<string, Record<string, string[]>> = {
     ],
   },
   'ar-57': {
-    // Weapon-exclusive, like the RM277's two barrels, and absent from the 414
-    // for the same reason. Its rule and its card are both written down.
-    barrel: ['AR57 Wave Blaster Ultra-Long Barrel'],
+    // Both weapon-exclusive, like the RM277's two barrels, and absent from the
+    // 414 for the same reason. The Wave Blaster's rule and card are written
+    // down; the Night Gale has neither yet. Spelled as dictated: the catalogue
+    // has no entry to check it against, and it writes "Birdcage" closed where
+    // the same dictation gave "Bird Cage", so the split may not survive a
+    // sighting of the card.
+    barrel: [
+      'Night Gale Integrally Suppressed Combo',
+      'AR57 Wave Blaster Ultra-Long Barrel',
+    ],
+    muzzle: [
+      // Also on the RM277's list and also unresolved there.
+      'Cobweb Titanium Muzzle Brake',
+      'FFC Double Port Muzzle Brake',
+    ],
+    // The three the RM277's rails name and the catalogue does not carry. Same
+    // names, same slots, dictated again for this weapon and matching.
+    'left-rail': [
+      'OLIGHT Odin S Tactical Flashlight',
+      'DD Python Handguard Panel',
+    ],
+    'right-rail': [
+      'OLIGHT Warrior 3S Tactical Flashlight',
+      'OLIGHT Odin S Tactical Flashlight',
+      'DD Python Handguard Panel',
+    ],
+    'left-patch': ['DD Python Handguard Panel'],
+    'right-patch': ['DD Python Handguard Panel'],
   },
 };
 

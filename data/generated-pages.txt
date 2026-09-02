@@ -413,6 +413,7 @@ catalogue/ec-universal-front-hand-stop.html
 catalogue/elite-light-stock.html
 catalogue/elite-pistol-muzzle-brake.html
 catalogue/ember-suppressor.html
+catalogue/ffc-double-port-muzzle-brake.html
 catalogue/flare-tactical-flashlight.html
 catalogue/folding-grip.html
 catalogue/g-series-pistol-25-round-mag.html
@@ -604,6 +605,7 @@ catalogue/mp7-stinger-long-barrel-combo.html
 catalogue/mp7-wolf-fang-light-barrel.html
 catalogue/mrgs-skeleton-stock.html
 catalogue/multi-purpose-tactical-riser.html
+catalogue/night-gale-integrally-suppressed-combo.html
 catalogue/offset-combat-red-dot-sight.html
 catalogue/offset-mini-red-dot-sight.html
 catalogue/offset-osight-red-dot.html
@@ -814,6 +816,7 @@ ec-universal-front-hand-stop.html
 elite-light-stock.html
 elite-pistol-muzzle-brake.html
 ember-suppressor.html
+ffc-double-port-muzzle-brake.html
 flare-tactical-flashlight.html
 folding-grip.html
 g-series-pistol-25-round-mag.html
@@ -1005,6 +1008,7 @@ mp7-stinger-long-barrel-combo.html
 mp7-wolf-fang-light-barrel.html
 mrgs-skeleton-stock.html
 multi-purpose-tactical-riser.html
+night-gale-integrally-suppressed-combo.html
 offset-combat-red-dot-sight.html
 offset-mini-red-dot-sight.html
 offset-osight-red-dot.html

@@ -253,11 +253,22 @@ MISSING = {
       'rear-grip-patch': [(0, 'AR Light Grip Piece'), (1, 'AR Heavy Grip Piece')],
   },
 
-  # The AR-57, read off one clip of the bare weapon. Its two confirmed parts:
-  # the long barrel, which is weapon-exclusive and absent from the catalogue,
-  # and the killflash, which is catalogued and so needs no entry here.
+  # The AR-57. Same three uncatalogued rail names as the RM277, at the same
+  # positions, dictated again for this weapon and matching; two barrels of its
+  # own, both weapon-exclusive; and two muzzles, one of which the RM277 also
+  # names and the catalogue also lacks.
   'ar-57': {
-    'barrel': [(0, 'AR57 Wave Blaster Ultra-Long Barrel')],
+    'muzzle': [(0, 'Cobweb Titanium Muzzle Brake'),
+               (1, 'FFC Double Port Muzzle Brake')],
+    'barrel': [(0, 'Night Gale Integrally Suppressed Combo'),
+               (1, 'AR57 Wave Blaster Ultra-Long Barrel')],
+    'left-rail': [(0, 'OLIGHT Odin S Tactical Flashlight'),
+                  (10, 'DD Python Handguard Panel')],
+    'right-rail': [(0, 'OLIGHT Warrior 3S Tactical Flashlight'),
+                   (1, 'OLIGHT Odin S Tactical Flashlight'),
+                   (11, 'DD Python Handguard Panel')],
+    'left-patch': [(2, 'DD Python Handguard Panel')],
+    'right-patch': [(2, 'DD Python Handguard Panel')],
   },
 }
 
