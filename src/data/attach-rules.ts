@@ -802,6 +802,55 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
    * authoritative zero.
    */
   'ar-57': {
+    // Twenty-four of the thirty-one the RM277 takes, and a strict subset of
+    // them: no UHX, no Insight 3/7, no M157, no LPVO, no 3/7 Adjustable, no
+    // Multi-Purpose Tactical Riser, no OKP-7. Two of those absences change the
+    // shape of the gun rather than just the list. The MPTR is what opens the
+    // riser-optic and tactical-device slots, so this rifle has neither. And of
+    // the five scopes that open a killflash, only the Recon 1.5/5 is here, so
+    // its killflash hangs off one optic where the RM277's hangs off five.
+    optics: [
+      'white-phosphor-thermal-scope',
+      'advanced-thermal-fusion-holographic-sight',
+      'vmx-frameless-sight',
+      '1p-33-2-4x-scope',
+      'prism-universal-2x-optic',
+      'viewpoint-3x-scope',
+      '1p-29-russian-3x-sight',
+      'recon-1-5-5-adjustable-scope',
+      'hamr-combined-scope',
+      'meo-micro-sight-riser',
+      'micro-sight-riser',
+      'acog-precision-6x-scope',
+      'osight-red-dot',
+      'cobra-accuracy-sight',
+      'combat-red-dot-sight',
+      'mini-red-dot-sight',
+      'xcog-assault-3-5x-scope',
+      'xro-quick-response-sight',
+      'panoramic-red-dot-sight',
+      'ap5000-reflex-sight',
+      'holographic-sight-type-ii',
+      'reflex-sight',
+      'russian-accuracy-2x-scope',
+      'holographic-sight',
+    ],
+
+    // Opened by either micro sight riser, both of which are in the list above.
+    // The pool itself has not been dictated for this weapon.
+
+    // Same as the RM277's, dictated for this weapon: the offset twins of the
+    // five red dots, the one bipod, and nine rear grips -- two of which open
+    // slots of their own, so this rifle has a grip patch and a grip mount.
+    'offset-optics': CATEGORY_FITS['offset-optics'],
+    'rail-bipod': CATEGORY_FITS['rail-bipod'],
+    'rear-grip': CATEGORY_FITS['rear-grip'],
+
+    // Seen in this rifle's killflash slot in the same clip the layout came
+    // from, and now sayable: the Recon 1.5/5 is on the optic list above, so
+    // the slot has an opener and the gun can be shown to have it.
+    'kill-flash': CATEGORY_FITS['kill-flash'],
+
     // Dictated order, reversed as always. Fifteen of the catalogue's 37 plus
     // two it does not carry, named by id like the rest. The overlap with the
     // RM277 is the whole of its list bar the weapon-exclusive Breaker

@@ -343,20 +343,24 @@ SECTIONS = {
   # not read yet, so every lede here says what the slot is rather than what
   # goes in it — an empty slot table on this gun means unread, not empty.
   'ar-57': [
-    ('optics', 'Optics', 'The base optic slot.'),
-    ('offset-optics', 'Offset optics', 'A standing slot on this rifle, as it is on the RM277.'),
-    ('barrel', 'Barrel', 'One confirmed so far, and it opens an upper rail.'),
-    ('upper-rail', 'Upper rail', 'Opened by the AR57 Wave Blaster Ultra-Long Barrel.'),
+    ('optics', 'Optics', 'Twenty-four of the catalogue&rsquo;s optics, a strict subset of the RM277&rsquo;s thirty-one. No Multi-Purpose Tactical Riser, so this rifle has no riser-optic or tactical-device slot at all.'),
+    ('red-dot-optics', 'Red dot optics', 'Opened by either micro sight riser. Not dictated for this weapon yet.'),
+    ('offset-optics', 'Offset optics', 'The offset twins of the five red dots, as on the RM277.'),
+    ('kill-flash', 'Killflash', 'Opened by the Recon 1.5/5 Adjustable Scope, which is the only one of the five killflash scopes this rifle takes. One option.'),
     ('muzzle', 'Muzzle', ''),
+    ('barrel', 'Barrel', 'Both are AR-57-exclusive and absent from the catalogue. The Wave Blaster opens an upper rail.'),
+    ('upper-rail', 'Upper rail', 'Opened by the AR57 Wave Blaster Ultra-Long Barrel.'),
     ('foregrip', 'Foregrip', ''),
     ('left-rail', 'Left rail', ''),
     ('right-rail', 'Right rail', ''),
     ('left-patch', 'Left patch', ''),
     ('right-patch', 'Right patch', ''),
-    ('rail-bipod', 'Rail bipod', ''),
+    ('rear-grip', 'Rear grip', 'The RM277&rsquo;s nine, dictated again for this weapon. Two of them open further slots.'),
+    ('rear-grip-patch', 'Rear grip patch', 'Opened by the AR Modular Rear Grip. Not dictated for this weapon yet.'),
+    ('rear-grip-mount', 'Rear grip mount', 'Opened by the AR Heavy Tower Grip. Not dictated for this weapon yet.'),
+    ('rail-bipod', 'Rail bipod', 'One option.'),
     ('stock-kit', 'Stock kit', 'The rear assembly as a whole. The RM277 has no equivalent.'),
     ('stock', 'Stock', ''),
-    ('rear-grip', 'Rear grip', ''),
   ],
 }
 
