@@ -947,6 +947,19 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
     'left-patch': CATEGORY_FITS['left-patch'],
     'right-patch': CATEGORY_FITS['right-patch'],
 
+    // And the foregrips, dictated as twenty-three names and matching the
+    // RM277's list item for item AND IN THE SAME ORDER, which is the strongest
+    // evidence yet that this slot is not filtered per weapon: the catalogue's
+    // whole foregrip category fits both rifles. Referenced rather than copied.
+    //
+    // Six of the twenty-three came through the dictation misheard, and each
+    // resolved to exactly one catalogue name: Down Angle Flashlight TSK ->
+    // Dawn Angled Flashlight, E-Brake Vertical -> Daybreak Vertical (the two
+    // are a pair, Dawn and Daybreak, and sit next to each other), Resident MK2
+    // -> Resonant MKII, 3K Order Bevel -> Secret Order Bevel, Face Combat ->
+    // Phase Combat, Practical Tactical -> Practical Vertical.
+    foregrip: CATEGORY_FITS.foregrip,
+
     // And the upper rail with them, dictated as the RM277's whole list. Which
     // makes five rails and patches identical across two rifles that share
     // neither a calibre nor a barrel list -- the case for these being filtered

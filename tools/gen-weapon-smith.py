@@ -366,7 +366,7 @@ SECTIONS = {
     ('muzzle', 'Muzzle', ''),
     ('barrel', 'Barrel', 'Both are AR-57-exclusive and absent from the catalogue. The Wave Blaster opens an upper rail.'),
     ('upper-rail', 'Upper rail', 'Opened by the AR57 Wave Blaster Ultra-Long Barrel.'),
-    ('foregrip', 'Foregrip', ''),
+    ('foregrip', 'Foregrip', 'The RM277&rsquo;s twenty-three, dictated again for this weapon and matching item for item and in the same order &mdash; the whole of the catalogue&rsquo;s foregrip category. This slot is not filtered.'),
     ('left-rail', 'Left rail', ''),
     ('right-rail', 'Right rail', ''),
     ('left-patch', 'Left patch', ''),
