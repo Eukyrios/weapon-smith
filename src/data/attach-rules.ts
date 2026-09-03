@@ -905,6 +905,16 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
     'left-patch': CATEGORY_FITS['left-patch'],
     'right-patch': CATEGORY_FITS['right-patch'],
 
+    // And the upper rail with them, dictated as the RM277's whole list. Which
+    // makes five rails and patches identical across two rifles that share
+    // neither a calibre nor a barrel list -- the case for these being filtered
+    // by what the rail IS rather than by what it is bolted to.
+    //
+    // This one is only sayable now: the upper rail is a granted slot, opened
+    // by the Wave Blaster barrel, and until that barrel was on the AR-57's
+    // list there was no slot here to fill.
+    'upper-rail': CATEGORY_FITS['upper-rail'],
+
     // Eighteen, in the order the picker shows them, which is also the order
     // they were dictated -- unlike the muzzles, so no reversal here. The tier
     // bands were given as three runs and they fall where the picker sorts:

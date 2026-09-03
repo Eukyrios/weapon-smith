@@ -400,7 +400,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * needed a number changed, so all that is recorded is the looking — which
    * is the whole of what `read` is for.
    */
-  'honeycomb-killflash': { read: true },
+  'honeycomb-killflash': { tier: 'purple', read: true },
   'balanced-grip-base': { read: true },
   'stable-grip-base': { read: true },
 
