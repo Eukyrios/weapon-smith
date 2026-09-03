@@ -1,0 +1,439 @@
+{
+ "weapon": "mcx-lt",
+ "chip": 70,
+ "label_dy": 15,
+ "frames": "/home/claude/mcx-lt/layouts",
+ "base_frame": "base.png",
+ "anchor_ref": [
+  1150,
+  430,
+  1350,
+  520
+ ],
+ "from": {
+  "_": "All six out of Screen Recording 2026-09-03 194921.mp4, at 2 fps: ffmpeg -i <clip> -vf fps=2 f%04d.png",
+  "base.png": "3.0s",
+  "fierce-barrel.png": "25.5s",
+  "fierce-barrel-riser.png": "44.5s",
+  "red-dot.png": "60.5s",
+  "grip-mount.png": "70.5s",
+  "grip-patch.png": "81.0s"
+ },
+ "note": [
+  "The MCX LT is the weapon that broke the house assumption about which slots",
+  "are on a gun and which are opened. Its upper rail and upper patch are on the",
+  "bare rifle -- the RM277 has to be given an upper rail by a barrel -- and its",
+  "LEFT AND RIGHT PATCHES are not on the rifle at all: the Fierce Barrel brings",
+  "them, along with a heat shield, and takes the muzzle away in exchange.",
+  "",
+  "Every chip in every frame is seeded by hand here rather than left to the",
+  "label reader. Two of these arrangements put three chips in a row all called",
+  "'Optic' or '...Patch' with the name clipped, and the reader cannot tell a",
+  "Left Patch from an Upper Patch from a Right Patch by its tail alone. Seeded",
+  "to the right object, snapped to the right pixel."
+ ],
+ "labels": {
+  "heat-shield": "Heat Shield",
+  "left-patch": "Left Patch",
+  "right-patch": "Right Patch",
+  "tactical-device": "Tactical Device",
+  "riser-optics": "Riser Optic",
+  "red-dot-optics": "Optic",
+  "rear-grip-mount": "Grip Mount",
+  "rear-grip-patch": "Rear Grip Patch"
+ },
+ "clips": [
+  {
+   "key": "fierce-barrel",
+   "frame": "fierce-barrel.png",
+   "items": [
+    "mcx-lt-fierce-barrel"
+   ],
+   "grants": [
+    "heat-shield",
+    "left-patch",
+    "right-patch"
+   ],
+   "occupies": [
+    "muzzle"
+   ],
+   "seed": {
+    "heat-shield": [
+     251,
+     368
+    ],
+    "left-rail": [
+     344,
+     316
+    ],
+    "right-rail": [
+     444,
+     279
+    ],
+    "barrel": [
+     546,
+     251
+    ],
+    "foregrip": [
+     650,
+     232
+    ],
+    "upper-rail": [
+     755,
+     219
+    ],
+    "left-patch": [
+     860,
+     212
+    ],
+    "upper-patch": [
+     937,
+     211
+    ],
+    "right-patch": [
+     1042,
+     214
+    ],
+    "optics": [
+     1291,
+     245
+    ],
+    "offset-optics": [
+     1409,
+     274
+    ],
+    "mag-mount": [
+     1238,
+     803
+    ],
+    "mag": [
+     1476,
+     741
+    ],
+    "rear-grip": [
+     1658,
+     635
+    ],
+    "stock": [
+     1690,
+     440
+    ]
+   }
+  },
+  {
+   "key": "fierce-barrel-riser",
+   "frame": "fierce-barrel-riser.png",
+   "items": [
+    "mcx-lt-fierce-barrel",
+    "multi-purpose-tactical-riser"
+   ],
+   "grants": [
+    "heat-shield",
+    "left-patch",
+    "right-patch",
+    "tactical-device",
+    "riser-optics"
+   ],
+   "occupies": [
+    "muzzle"
+   ],
+   "why": "The riser goes in a slot the bare rifle already has, so this clip answers for the barrel and the riser together and for nothing else.",
+   "seed": {
+    "heat-shield": [
+     235,
+     380
+    ],
+    "left-rail": [
+     326,
+     325
+    ],
+    "right-rail": [
+     424,
+     285
+    ],
+    "barrel": [
+     526,
+     256
+    ],
+    "foregrip": [
+     630,
+     235
+    ],
+    "upper-rail": [
+     735,
+     221
+    ],
+    "left-patch": [
+     840,
+     213
+    ],
+    "upper-patch": [
+     945,
+     211
+    ],
+    "right-patch": [
+     1023,
+     213
+    ],
+    "tactical-device": [
+     1128,
+     221
+    ],
+    "optics": [
+     1232,
+     234
+    ],
+    "riser-optics": [
+     1336,
+     255
+    ],
+    "offset-optics": [
+     1438,
+     284
+    ],
+    "mag-mount": [
+     1238,
+     803
+    ],
+    "mag": [
+     1476,
+     741
+    ],
+    "rear-grip": [
+     1658,
+     635
+    ],
+    "stock": [
+     1690,
+     440
+    ]
+   }
+  },
+  {
+   "key": "red-dot",
+   "frame": "red-dot.png",
+   "items": [
+    "meo-micro-sight-riser"
+   ],
+   "grants": [
+    "red-dot-optics"
+   ],
+   "occupies": [],
+   "seed": {
+    "muzzle": [
+     199,
+     411
+    ],
+    "foregrip": [
+     284,
+     347
+    ],
+    "left-rail": [
+     380,
+     301
+    ],
+    "right-rail": [
+     481,
+     267
+    ],
+    "barrel": [
+     584,
+     243
+    ],
+    "upper-rail": [
+     688,
+     226
+    ],
+    "upper-patch": [
+     881,
+     212
+    ],
+    "red-dot-optics": [
+     965,
+     211
+    ],
+    "optics": [
+     1070,
+     216
+    ],
+    "offset-optics": [
+     1215,
+     232
+    ],
+    "mag": [
+     877,
+     826
+    ],
+    "mag-mount": [
+     955,
+     827
+    ],
+    "rear-grip": [
+     1573,
+     696
+    ],
+    "stock": [
+     1674,
+     419
+    ]
+   }
+  },
+  {
+   "key": "grip-mount",
+   "frame": "grip-mount.png",
+   "items": [
+    "meo-micro-sight-riser",
+    "ar-heavy-tower-grip"
+   ],
+   "grants": [
+    "red-dot-optics",
+    "rear-grip-mount"
+   ],
+   "occupies": [],
+   "seed": {
+    "muzzle": [
+     199,
+     411
+    ],
+    "foregrip": [
+     284,
+     347
+    ],
+    "left-rail": [
+     380,
+     301
+    ],
+    "right-rail": [
+     481,
+     267
+    ],
+    "barrel": [
+     584,
+     243
+    ],
+    "upper-rail": [
+     688,
+     226
+    ],
+    "upper-patch": [
+     881,
+     212
+    ],
+    "red-dot-optics": [
+     965,
+     211
+    ],
+    "optics": [
+     1070,
+     216
+    ],
+    "offset-optics": [
+     1215,
+     232
+    ],
+    "mag": [
+     877,
+     826
+    ],
+    "mag-mount": [
+     955,
+     827
+    ],
+    "rear-grip-mount": [
+     1377,
+     773
+    ],
+    "rear-grip": [
+     1642,
+     650
+    ],
+    "stock": [
+     1674,
+     419
+    ]
+   }
+  },
+  {
+   "key": "grip-patch",
+   "frame": "grip-patch.png",
+   "items": [
+    "meo-micro-sight-riser",
+    "ar-modular-rear-grip"
+   ],
+   "grants": [
+    "red-dot-optics",
+    "rear-grip-patch"
+   ],
+   "occupies": [
+    "rear-grip-mount"
+   ],
+   "seed": {
+    "muzzle": [
+     199,
+     411
+    ],
+    "foregrip": [
+     284,
+     347
+    ],
+    "left-rail": [
+     380,
+     301
+    ],
+    "right-rail": [
+     481,
+     267
+    ],
+    "barrel": [
+     584,
+     243
+    ],
+    "upper-rail": [
+     688,
+     226
+    ],
+    "upper-patch": [
+     881,
+     212
+    ],
+    "red-dot-optics": [
+     965,
+     211
+    ],
+    "optics": [
+     1070,
+     216
+    ],
+    "offset-optics": [
+     1215,
+     232
+    ],
+    "mag": [
+     877,
+     826
+    ],
+    "mag-mount": [
+     955,
+     827
+    ],
+    "rear-grip-patch": [
+     1573,
+     696
+    ],
+    "rear-grip": [
+     1660,
+     634
+    ],
+    "stock": [
+     1674,
+     419
+    ]
+   },
+   "why": "The modular grip's card prints Grip Mount under Conflicting Slots, so it takes that slot away as well as opening a patch. Nothing is visibly removed in this clip -- no grip was fitted to have opened a mount -- but the layout has to say what the rule says, or the page stops matching it."
+  }
+ ],
+ "icon_from": {
+  "heat-shield": "fierce-barrel",
+  "upper-patch": "red-dot"
+ }
+}

@@ -35,42 +35,100 @@
   {
    "key": "upper-rail",
    "frame": "upper-rail.png",
-   "items": ["ar57-wave-blaster-ultra-long-barrel"],
-   "grants": ["upper-rail"],
+   "items": [
+    "ar57-wave-blaster-ultra-long-barrel"
+   ],
+   "grants": [
+    "upper-rail"
+   ],
    "occupies": [],
-   "seed": {"upper-rail": [424, 285]}
+   "seed": {
+    "upper-rail": [
+     424,
+     285
+    ]
+   }
   },
   {
    "key": "red-dot-optics",
    "frame": "red-dot-optics.png",
-   "items": ["meo-micro-sight-riser"],
-   "grants": ["red-dot-optics"],
+   "items": [
+    "meo-micro-sight-riser"
+   ],
+   "grants": [
+    "red-dot-optics"
+   ],
    "occupies": [],
-   "seed": {"optics": [1223, 233], "red-dot-optics": [1119, 220]}
+   "seed": {
+    "optics": [
+     1223,
+     233
+    ],
+    "red-dot-optics": [
+     1119,
+     220
+    ]
+   }
   },
   {
    "key": "kill-flash",
    "frame": "kill-flash.png",
-   "items": ["recon-1-5-5-adjustable-scope", "ar-heavy-tower-grip"],
-   "grants": ["kill-flash", "rear-grip-mount"],
+   "items": [
+    "recon-1-5-5-adjustable-scope",
+    "ar-heavy-tower-grip"
+   ],
+   "grants": [
+    "kill-flash",
+    "rear-grip-mount"
+   ],
    "occupies": [],
-   "seed": {"kill-flash": [950, 211], "rear-grip-mount": [1313, 788]}
+   "seed": {
+    "kill-flash": [
+     950,
+     211
+    ],
+    "rear-grip-mount": [
+     1313,
+     788
+    ]
+   }
   },
   {
    "key": "rear-grip-mount",
    "frame": "rear-grip-mount.png",
-   "items": ["ar-heavy-tower-grip"],
-   "grants": ["rear-grip-mount"],
+   "items": [
+    "ar-heavy-tower-grip"
+   ],
+   "grants": [
+    "rear-grip-mount"
+   ],
    "occupies": [],
-   "seed": {"rear-grip-mount": [1313, 788]}
+   "seed": {
+    "rear-grip-mount": [
+     1313,
+     788
+    ]
+   }
   },
   {
    "key": "rear-grip-patch",
    "frame": "rear-grip-patch.png",
-   "items": ["ar-modular-rear-grip"],
-   "grants": ["rear-grip-patch"],
-   "occupies": [],
-   "seed": {"rear-grip-patch": [1713, 490]}
+   "items": [
+    "ar-modular-rear-grip"
+   ],
+   "grants": [
+    "rear-grip-patch"
+   ],
+   "occupies": [
+    "rear-grip-mount"
+   ],
+   "seed": {
+    "rear-grip-patch": [
+     1713,
+     490
+    ]
+   },
+   "why": "The modular grip's card prints Grip Mount under Conflicting Slots. Nothing is visibly removed here, but the layout has to say what the rule says or the page stops matching it and composes a picture instead of using the one that was watched."
   }
  ],
  "icon_from": {}

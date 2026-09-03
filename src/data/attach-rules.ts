@@ -65,6 +65,7 @@ export type GrantedSlot =
   | 'right-patch'
   | 'rear-grip-patch'
   | 'rear-grip-mount'
+  | 'heat-shield'
   | 'cheek-pad'
   | 'stock-pad'
   | 'mag-mount';
@@ -147,14 +148,24 @@ export const SLOT_TYPES: SlotType[] = [
 
   // The rail family. None of these has a catalogue `cat` of its own, which is
   // the clearest sign that `cat` was never a slot map.
-  // The rails, the patches and the rail bipod are all on the gun itself. Only
-  // the upper rail has to be opened, by either RM277 barrel.
+  //
+  // `kind` HERE IS THE USUAL CASE, NOT THE RULE. It used to be flatly true:
+  // the upper rail had to be opened by an RM277 barrel, and the patches were
+  // on the gun. The MCX LT is both of those the other way round -- its upper
+  // rail and upper patch are on the bare rifle, and its left and right patches
+  // arrive with the Fierce Barrel. Which slots a weapon HAS is answered by
+  // that weapon's own traced `slots` in data/gunsmith-<id>.json, and the page
+  // reads it from there; this field is a note about the family.
   { id: 'upper-rail', label: 'Upper Rail', kind: 'granted' },
+  { id: 'upper-patch', label: 'Upper Patch', kind: 'base' },
   { id: 'left-rail', label: 'Left Rail', kind: 'base' },
   { id: 'right-rail', label: 'Right Rail', kind: 'base' },
   { id: 'left-patch', label: 'Left Patch', kind: 'base' },
   { id: 'right-patch', label: 'Right Patch', kind: 'base' },
   { id: 'rail-bipod', label: 'Rail Bipod', kind: 'base' },
+  // Round the barrel rather than on a rail, and opened by one: the MCX LT's
+  // Fierce Barrel grants it along with both side patches.
+  { id: 'heat-shield', label: 'Heat Shield', kind: 'granted' },
 
   // The optic ladder — see OPTIC_LADDER, which holds what each one accepts.
   { id: 'optics', label: 'Optics', kind: 'base', cat: 'optic' },
@@ -729,6 +740,22 @@ export const PENDING_RULES: Record<string, AttachRule> = {
   },
   'ar-modular-rear-grip': {
     grants: ['rear-grip-patch'],
+    // Printed on its own card, under "Conflicting Slots", and read off the
+    // MCX LT's gunsmith. It was there on the RM277's card too and nobody
+    // looked: a grip carries either a patch or a mount, not both.
+    conflictSlots: ['rear-grip-mount'],
+  },
+  /*
+   * The MCX LT's own barrel, and the most consequential single part in this
+   * file. It opens THREE slots -- a heat shield round the barrel and both side
+   * patches -- and takes the muzzle in exchange, because it comes with its own
+   * can. Which makes this rifle the counterexample to the shape the other two
+   * taught: left and right patches are not something a gun has, they are
+   * something a barrel can bring.
+   */
+  'mcx-lt-fierce-barrel': {
+    grants: ['heat-shield', 'left-patch', 'right-patch'],
+    conflictSlots: ['muzzle'],
   },
   'm157-fire-control-system': {
     grants: ['kill-flash'],
@@ -781,6 +808,21 @@ const RM277_FITS: Record<string, string[]> = Object.fromEntries(
 );
 
 export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
+  /*
+   * The MCX LT, traced from one recording on 2026-09-03. Its twenty-one slots
+   * are all placed; its lists are not read. These two entries are the whole of
+   * what the recording showed being fitted in a slot, and each is ONE ITEM OUT
+   * OF AN UNKNOWN NUMBER -- the picker was never opened on either. They are
+   * here because the page needs a slot to file an uncatalogued item under, and
+   * the ledes in SECTIONS say what they are.
+   */
+  'mcx-lt': {
+    barrel: ['mcx-lt-fierce-barrel'],
+    'heat-shield': ['sur-heat-shield'],
+    optics: ['multi-purpose-tactical-riser', 'meo-micro-sight-riser'],
+    'rear-grip': ['ar-heavy-tower-grip', 'ar-modular-rear-grip'],
+  },
+
   // Every list in CATEGORY_FITS was dictated while reading the RM277's
   // gunsmith, so that map IS this weapon's, whole. Referenced rather than
   // copied: a copy is what would silently go stale the first time a name is
@@ -994,27 +1036,23 @@ export function grantedSlots(fitted: string[]): GrantedSlot[] {
   return [...out];
 }
 
-/**
- * The slots still usable once `fitted` are on the gun.
+/*
+ * openSlots(fitted) used to sit here: base slots, plus what the fitted parts
+ * grant, minus what they conflict with. Deleted rather than fixed, for two
+ * reasons that arrived together.
  *
- * Base slots, plus what the fitted parts grant, minus what they conflict with.
- * CONFLICTS ARE APPLIED LAST AND WIN — one attachment can grant a slot another
- * blocks, and resolving that the other way round would leave a slot on the
- * board that cannot actually be filled.
+ * Nothing called it. The page runs its own copy, in the gunsmith script, which
+ * has to exist there anyway because the answer changes as the reader equips
+ * things.
  *
- * Reads PENDING_RULES as well as ATTACH_RULES, because the only slot conflicts
- * known so far belong to items the catalogue does not carry yet — leaving them
- * out would make this function quietly wrong for the exact case it exists for.
+ * And it was wrong in a way that would not have shown up until somebody used
+ * it: it started from `SLOT_TYPES.filter(kind === 'base')`, one global set of
+ * base slots for every weapon in the game. The MCX LT is the counterexample --
+ * it carries an upper rail and an upper patch on the bare rifle, and gets its
+ * side patches from a barrel, which is both halves of that assumption
+ * inverted. The page's version starts from the weapon's own traced slots and
+ * never had the problem.
  */
-export function openSlots(fitted: string[]): string[] {
-  const rules = (id: string): AttachRule => ATTACH_RULES[id] ?? PENDING_RULES[id] ?? {};
-  const open = new Set<string>(
-    SLOT_TYPES.filter((s) => s.kind === 'base').map((s) => s.id),
-  );
-  for (const id of fitted) for (const g of rules(id).grants ?? []) open.add(g);
-  for (const id of fitted) for (const c of rules(id).conflictSlots ?? []) open.delete(c);
-  return SLOT_TYPES.filter((s) => open.has(s.id)).map((s) => s.id);
-}
 
 /**
  * Patch entries the matching rail does not also accept.

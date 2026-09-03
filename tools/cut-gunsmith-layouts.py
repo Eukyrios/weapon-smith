@@ -301,6 +301,38 @@ def trace(g, cx, cy, marks, reach=900):
     return int(round(cx + r*np.cos(a))), int(round(cy + r*np.sin(a)))
 
 
+# --- where the game has moved the rifle to ---------------------------------
+
+def shift(clip, base, ref, reach=200):
+    """How far the weapon itself sits from where the base frame drew it.
+
+    An anchor is a point ON THE WEAPON, and the page draws one picture of the
+    weapon at one place whatever is fitted. So an anchor has to be recorded in
+    the base frame's coordinates -- and a clip does not always agree with the
+    base frame about where the rifle is. Fitting the MCX LT's Fierce Barrel
+    makes the rifle longer and the game slides the whole thing 78 pixels right
+    and 18 down to fit it on screen. Anchors traced in that clip and written
+    down raw would every one of them miss by that much: the Heat Shield's line
+    would stop short of the barrel, and the two patches would point at the air
+    beside the handguard.
+
+    Measured, not declared, by matching one patch of the weapon that nothing
+    fitted in these clips changes -- `anchor_ref` in the spec, which is the
+    receiver on every gun so far. A spec with no anchor_ref gets no correction,
+    which is right for the RM277 and the AR-57: their guns do not move, and the
+    tool that did those clips could not have known that it mattered.
+    """
+    x0, y0, x1, y1 = ref
+    tgt = base[y0:y1, x0:x1]
+    best = None
+    for dy in range(-reach // 4, reach // 4 + 1, 2):
+        for dx in range(-reach, reach + 1, 2):
+            v = float(np.abs(clip[y0+dy:y1+dy, x0+dx:x1+dx] - tgt).mean())
+            if best is None or v < best[0]:
+                best = (v, dx, dy)
+    return best[1], best[2], best[0]
+
+
 # --- putting it together ---------------------------------------------------
 
 def main():
@@ -318,6 +350,19 @@ def main():
     # anchor anywhere gets one traced.
     was = {(tuple(l['when']), tuple(l['blocks'])): l['chips']
            for l in d.get('layouts', [])}
+    # AND ONE MEASURED IN AN EARLIER CLIP COUNTS AS RECORDED. The anchor is a
+    # point on the weapon, so a slot that appears in three arrangements has one
+    # anchor between them, not three tries at it -- and three tries is worse
+    # than one, because the sweep can fail in a clip where the line is short or
+    # crosses something bright. The MCX LT's left patch is the case: traced
+    # cleanly onto the handguard from the barrel clip, and, in the clip with
+    # the riser as well, off the end of a line the sweep lost, landing in the
+    # sky above the rifle. First reading wins; the editor still overrules.
+    known = dict(base_anchor)
+
+    ref = spec.get('anchor_ref')
+    base_grey = np.array(Image.open(str(FRAMES / spec['base_frame']))
+                         .convert('L')).astype(float) if ref else None
 
     layouts, icons, checks = [], {}, []
     for c in spec['clips']:
@@ -325,6 +370,13 @@ def main():
         g = np.array(Image.open(path).convert('L')).astype(float)
         sc = ring(g)
         marks = markers(g)
+        dx = dy = 0
+        if ref is not None:
+            dx, dy, resid = shift(g, base_grey, ref)
+            if dx or dy:
+                print(f'  {c["key"]}: the game moved the rifle '
+                      f'{dx:+},{dy:+} here; anchors corrected back '
+                      f'(match {resid:.1f})')
         present = [s for s in base_xy if s not in c['occupies']] + c['grants']
 
         got = by_label(path, sc, names)
@@ -347,14 +399,16 @@ def main():
             kept = before.get(sid) or {}
             if kept.get('ax') is not None:
                 ax, ay = kept['ax'], kept['ay']
-            elif base_anchor.get(sid, (None,))[0] is not None:
-                ax, ay = base_anchor[sid]
+            elif known.get(sid, (None,))[0] is not None:
+                ax, ay = known[sid]
             else:
                 p = trace(g, x + S//2, y + S//2, marks)
                 if p is None:
                     raise SystemExit(f'{c["key"]}/{sid}: no leader line')
-                ax, ay = p
-                print(f'  traced {c["key"]}/{sid} -> {ax},{ay}')
+                ax, ay = p[0] - dx, p[1] - dy
+                print(f'  traced {c["key"]}/{sid} -> {ax},{ay}'
+                      + (f' (from {p[0]},{p[1]} in the clip)' if dx or dy else ''))
+            known[sid] = (ax, ay)
             chips[sid] = dict(x=x, y=y, ax=ax, ay=ay, label=names[sid])
         layouts.append(dict(when=sorted(c['grants']),
                             blocks=sorted(c['occupies']),

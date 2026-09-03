@@ -262,7 +262,19 @@ _z = ndimage.sum(strict, _l, range(1, _n + 1))
 strict = np.isin(_l, [i + 1 for i, v in enumerate(_z) if v > 800])
 m &= ndimage.binary_dilation(ndimage.binary_fill_holes(strict),
                              np.ones((3, 3)), iterations=40)
-m = ndimage.binary_fill_holes(ndimage.binary_closing(m, np.ones((5, 5))))
+# Sealing the silhouette, but ONLY SMALL HOLES. A rifle drawn side-on encloses
+# real background: the MCX LT's magazine, receiver and pistol grip make a ring
+# around the trigger guard, and filling every hole put a forty-thousand-pixel
+# slab of floor inside it -- visible on orange as a dark blue wedge with a
+# stair-stepped edge, and on the site as a solid block behind the trigger. The
+# holes this is FOR are the speckle the two-threshold pass leaves inside the
+# metal, which is orders of magnitude smaller. Same bargain, and same cap, as
+# the one that stops the glow mask swallowing a pistol grip.
+_filled = ndimage.binary_fill_holes(ndimage.binary_closing(m, np.ones((5, 5))))
+m = ndimage.binary_closing(m, np.ones((5, 5)))
+_h, _n = ndimage.label(_filled & ~m)
+_z = ndimage.sum(_filled & ~m, _h, range(1, _n + 1))
+m = m | np.isin(_h, [i + 1 for i, v in enumerate(_z) if v < 4000])
 _l, _n = ndimage.label(m)
 _z = ndimage.sum(m, _l, range(1, _n + 1))
 m = np.isin(_l, [i + 1 for i, v in enumerate(_z) if v > 400])

@@ -1,0 +1,790 @@
+{
+ "frame": {
+  "w": 1920,
+  "h": 1080
+ },
+ "slots": [
+  {
+   "slot": "muzzle",
+   "label": "Muzzle",
+   "x": 193,
+   "y": 419,
+   "ax": 615,
+   "ay": 462
+  },
+  {
+   "slot": "foregrip",
+   "label": "Foregrip",
+   "x": 276,
+   "y": 352,
+   "ax": 615,
+   "ay": 458
+  },
+  {
+   "slot": "left-rail",
+   "label": "Left Rail",
+   "x": 371,
+   "y": 304,
+   "ax": 685,
+   "ay": 447
+  },
+  {
+   "slot": "right-rail",
+   "label": "Right Rail",
+   "x": 472,
+   "y": 270,
+   "ax": 688,
+   "ay": 420
+  },
+  {
+   "slot": "barrel",
+   "label": "Barrel",
+   "x": 574,
+   "y": 245,
+   "ax": 715,
+   "ay": 389
+  },
+  {
+   "slot": "upper-rail",
+   "label": "Upper Rail",
+   "x": 679,
+   "y": 228,
+   "ax": 805,
+   "ay": 403
+  },
+  {
+   "slot": "upper-patch",
+   "label": "Upper Patch",
+   "x": 877,
+   "y": 212,
+   "ax": 933,
+   "ay": 403
+  },
+  {
+   "slot": "optics",
+   "label": "Optic",
+   "x": 1028,
+   "y": 213,
+   "ax": 1022,
+   "ay": 399
+  },
+  {
+   "slot": "offset-optics",
+   "label": "Offset Optic",
+   "x": 1215,
+   "y": 232,
+   "ax": 1133,
+   "ay": 392
+  },
+  {
+   "slot": "stock",
+   "label": "Stock",
+   "x": 1677,
+   "y": 423,
+   "ax": 1543,
+   "ay": 482
+  },
+  {
+   "slot": "rear-grip",
+   "label": "Rear Grip",
+   "x": 1559,
+   "y": 704,
+   "ax": 1226,
+   "ay": 631
+  },
+  {
+   "slot": "mag",
+   "label": "Mag",
+   "x": 871,
+   "y": 826,
+   "ax": 933,
+   "ay": 738
+  },
+  {
+   "slot": "mag-mount",
+   "label": "Mag Mount",
+   "x": 948,
+   "y": 827,
+   "ax": 967,
+   "ay": 746
+  }
+ ],
+ "weapon": {
+  "id": "mcx-lt",
+  "name": "MCX LT",
+  "source": "Screen Recording 2026-09-03 194921.mp4. Chips, art and anchors by tools/cut-gunsmith-frame.py from the bare rifle at 3s; the stat panel read off the item cards in the same recording. Every figure below is a shown value with the hovered part\u2019s own delta taken back off it, and each one was confirmed on a second card that moves a different row: the Fierce Barrel gives control, handling and accuracy, the White Phosphor gives handling and stability, and the two agree.",
+  "stats": [
+   {
+    "key": "Damage",
+    "base": 34
+   },
+   {
+    "key": "Range",
+    "base": 30
+   },
+   {
+    "key": "Control",
+    "base": 44
+   },
+   {
+    "key": "Handling",
+    "base": 61
+   },
+   {
+    "key": "Stability",
+    "base": 52
+   },
+   {
+    "key": "Accuracy",
+    "base": 57
+   },
+   {
+    "key": "Armour penetration",
+    "base": 26
+   },
+   {
+    "key": "Fire rate",
+    "base": 840
+   },
+   {
+    "key": "Capacity",
+    "base": 30
+   },
+   {
+    "key": "Muzzle velocity",
+    "base": 450
+   },
+   {
+    "key": "Gunshot heard",
+    "base": 500
+   }
+  ],
+  "specs": [
+   {
+    "key": "Fire modes",
+    "text": "Auto / Single"
+   }
+  ]
+ },
+ "layouts": [
+  {
+   "when": [
+    "heat-shield",
+    "left-patch",
+    "right-patch"
+   ],
+   "blocks": [
+    "muzzle"
+   ],
+   "by": [
+    "mcx-lt-fierce-barrel"
+   ],
+   "chips": {
+    "heat-shield": {
+     "x": 251,
+     "y": 368,
+     "ax": 670,
+     "ay": 460,
+     "label": "Heat Shield"
+    },
+    "left-rail": {
+     "x": 344,
+     "y": 316,
+     "ax": 685,
+     "ay": 447,
+     "label": "Left Rail"
+    },
+    "right-rail": {
+     "x": 444,
+     "y": 279,
+     "ax": 688,
+     "ay": 420,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 546,
+     "y": 251,
+     "ax": 715,
+     "ay": 389,
+     "label": "Barrel"
+    },
+    "foregrip": {
+     "x": 650,
+     "y": 232,
+     "ax": 615,
+     "ay": 458,
+     "label": "Foregrip"
+    },
+    "upper-rail": {
+     "x": 755,
+     "y": 219,
+     "ax": 805,
+     "ay": 403,
+     "label": "Upper Rail"
+    },
+    "left-patch": {
+     "x": 860,
+     "y": 212,
+     "ax": 888,
+     "ay": 462,
+     "label": "Left Patch"
+    },
+    "upper-patch": {
+     "x": 937,
+     "y": 211,
+     "ax": 933,
+     "ay": 403,
+     "label": "Upper Patch"
+    },
+    "right-patch": {
+     "x": 1042,
+     "y": 214,
+     "ax": 888,
+     "ay": 462,
+     "label": "Right Patch"
+    },
+    "mag-mount": {
+     "x": 1238,
+     "y": 803,
+     "ax": 967,
+     "ay": 746,
+     "label": "Mag Mount"
+    },
+    "optics": {
+     "x": 1291,
+     "y": 245,
+     "ax": 1022,
+     "ay": 399,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1409,
+     "y": 274,
+     "ax": 1133,
+     "ay": 392,
+     "label": "Offset Optic"
+    },
+    "mag": {
+     "x": 1476,
+     "y": 741,
+     "ax": 933,
+     "ay": 738,
+     "label": "Mag"
+    },
+    "rear-grip": {
+     "x": 1658,
+     "y": 635,
+     "ax": 1226,
+     "ay": 631,
+     "label": "Rear Grip"
+    },
+    "stock": {
+     "x": 1690,
+     "y": 440,
+     "ax": 1543,
+     "ay": 482,
+     "label": "Stock"
+    }
+   }
+  },
+  {
+   "when": [
+    "heat-shield",
+    "left-patch",
+    "right-patch",
+    "riser-optics",
+    "tactical-device"
+   ],
+   "blocks": [
+    "muzzle"
+   ],
+   "by": [
+    "mcx-lt-fierce-barrel",
+    "multi-purpose-tactical-riser"
+   ],
+   "chips": {
+    "heat-shield": {
+     "x": 235,
+     "y": 380,
+     "ax": 670,
+     "ay": 460,
+     "label": "Heat Shield"
+    },
+    "left-rail": {
+     "x": 326,
+     "y": 325,
+     "ax": 685,
+     "ay": 447,
+     "label": "Left Rail"
+    },
+    "right-rail": {
+     "x": 424,
+     "y": 285,
+     "ax": 688,
+     "ay": 420,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 526,
+     "y": 256,
+     "ax": 715,
+     "ay": 389,
+     "label": "Barrel"
+    },
+    "foregrip": {
+     "x": 630,
+     "y": 235,
+     "ax": 615,
+     "ay": 458,
+     "label": "Foregrip"
+    },
+    "upper-rail": {
+     "x": 735,
+     "y": 221,
+     "ax": 805,
+     "ay": 403,
+     "label": "Upper Rail"
+    },
+    "left-patch": {
+     "x": 840,
+     "y": 213,
+     "ax": 888,
+     "ay": 462,
+     "label": "Left Patch"
+    },
+    "upper-patch": {
+     "x": 945,
+     "y": 211,
+     "ax": 933,
+     "ay": 403,
+     "label": "Upper Patch"
+    },
+    "right-patch": {
+     "x": 1023,
+     "y": 213,
+     "ax": 888,
+     "ay": 462,
+     "label": "Right Patch"
+    },
+    "tactical-device": {
+     "x": 1128,
+     "y": 221,
+     "ax": 966,
+     "ay": 395,
+     "label": "Tactical Device"
+    },
+    "optics": {
+     "x": 1232,
+     "y": 234,
+     "ax": 1022,
+     "ay": 399,
+     "label": "Optic"
+    },
+    "mag-mount": {
+     "x": 1238,
+     "y": 803,
+     "ax": 967,
+     "ay": 746,
+     "label": "Mag Mount"
+    },
+    "riser-optics": {
+     "x": 1336,
+     "y": 255,
+     "ax": 1073,
+     "ay": 386,
+     "label": "Riser Optic"
+    },
+    "offset-optics": {
+     "x": 1438,
+     "y": 284,
+     "ax": 1133,
+     "ay": 392,
+     "label": "Offset Optic"
+    },
+    "mag": {
+     "x": 1476,
+     "y": 741,
+     "ax": 933,
+     "ay": 738,
+     "label": "Mag"
+    },
+    "rear-grip": {
+     "x": 1658,
+     "y": 635,
+     "ax": 1226,
+     "ay": 631,
+     "label": "Rear Grip"
+    },
+    "stock": {
+     "x": 1690,
+     "y": 440,
+     "ax": 1543,
+     "ay": 482,
+     "label": "Stock"
+    }
+   }
+  },
+  {
+   "when": [
+    "red-dot-optics"
+   ],
+   "blocks": [],
+   "by": [
+    "meo-micro-sight-riser"
+   ],
+   "chips": {
+    "muzzle": {
+     "x": 199,
+     "y": 411,
+     "ax": 615,
+     "ay": 462,
+     "label": "Muzzle"
+    },
+    "foregrip": {
+     "x": 284,
+     "y": 347,
+     "ax": 615,
+     "ay": 458,
+     "label": "Foregrip"
+    },
+    "left-rail": {
+     "x": 380,
+     "y": 301,
+     "ax": 685,
+     "ay": 447,
+     "label": "Left Rail"
+    },
+    "right-rail": {
+     "x": 481,
+     "y": 267,
+     "ax": 688,
+     "ay": 420,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 584,
+     "y": 243,
+     "ax": 715,
+     "ay": 389,
+     "label": "Barrel"
+    },
+    "upper-rail": {
+     "x": 688,
+     "y": 226,
+     "ax": 805,
+     "ay": 403,
+     "label": "Upper Rail"
+    },
+    "mag": {
+     "x": 877,
+     "y": 826,
+     "ax": 933,
+     "ay": 738,
+     "label": "Mag"
+    },
+    "upper-patch": {
+     "x": 881,
+     "y": 212,
+     "ax": 933,
+     "ay": 403,
+     "label": "Upper Patch"
+    },
+    "mag-mount": {
+     "x": 955,
+     "y": 827,
+     "ax": 967,
+     "ay": 746,
+     "label": "Mag Mount"
+    },
+    "red-dot-optics": {
+     "x": 965,
+     "y": 211,
+     "ax": 1028,
+     "ay": 373,
+     "label": "Optic"
+    },
+    "optics": {
+     "x": 1070,
+     "y": 216,
+     "ax": 1022,
+     "ay": 399,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1215,
+     "y": 232,
+     "ax": 1133,
+     "ay": 392,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1573,
+     "y": 696,
+     "ax": 1226,
+     "ay": 631,
+     "label": "Rear Grip"
+    },
+    "stock": {
+     "x": 1674,
+     "y": 419,
+     "ax": 1543,
+     "ay": 482,
+     "label": "Stock"
+    }
+   }
+  },
+  {
+   "when": [
+    "rear-grip-mount",
+    "red-dot-optics"
+   ],
+   "blocks": [],
+   "by": [
+    "meo-micro-sight-riser",
+    "ar-heavy-tower-grip"
+   ],
+   "chips": {
+    "muzzle": {
+     "x": 199,
+     "y": 411,
+     "ax": 615,
+     "ay": 462,
+     "label": "Muzzle"
+    },
+    "foregrip": {
+     "x": 284,
+     "y": 347,
+     "ax": 615,
+     "ay": 458,
+     "label": "Foregrip"
+    },
+    "left-rail": {
+     "x": 380,
+     "y": 301,
+     "ax": 685,
+     "ay": 447,
+     "label": "Left Rail"
+    },
+    "right-rail": {
+     "x": 481,
+     "y": 267,
+     "ax": 688,
+     "ay": 420,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 584,
+     "y": 243,
+     "ax": 715,
+     "ay": 389,
+     "label": "Barrel"
+    },
+    "upper-rail": {
+     "x": 688,
+     "y": 226,
+     "ax": 805,
+     "ay": 403,
+     "label": "Upper Rail"
+    },
+    "mag": {
+     "x": 877,
+     "y": 826,
+     "ax": 933,
+     "ay": 738,
+     "label": "Mag"
+    },
+    "upper-patch": {
+     "x": 881,
+     "y": 212,
+     "ax": 933,
+     "ay": 403,
+     "label": "Upper Patch"
+    },
+    "mag-mount": {
+     "x": 955,
+     "y": 827,
+     "ax": 967,
+     "ay": 746,
+     "label": "Mag Mount"
+    },
+    "red-dot-optics": {
+     "x": 965,
+     "y": 211,
+     "ax": 1028,
+     "ay": 373,
+     "label": "Optic"
+    },
+    "optics": {
+     "x": 1070,
+     "y": 216,
+     "ax": 1022,
+     "ay": 399,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1215,
+     "y": 232,
+     "ax": 1133,
+     "ay": 392,
+     "label": "Offset Optic"
+    },
+    "rear-grip-mount": {
+     "x": 1377,
+     "y": 773,
+     "ax": 1212,
+     "ay": 687,
+     "label": "Grip Mount"
+    },
+    "rear-grip": {
+     "x": 1642,
+     "y": 650,
+     "ax": 1226,
+     "ay": 631,
+     "label": "Rear Grip"
+    },
+    "stock": {
+     "x": 1674,
+     "y": 419,
+     "ax": 1543,
+     "ay": 482,
+     "label": "Stock"
+    }
+   }
+  },
+  {
+   "when": [
+    "rear-grip-patch",
+    "red-dot-optics"
+   ],
+   "blocks": [
+    "rear-grip-mount"
+   ],
+   "by": [
+    "meo-micro-sight-riser",
+    "ar-modular-rear-grip"
+   ],
+   "chips": {
+    "muzzle": {
+     "x": 199,
+     "y": 411,
+     "ax": 615,
+     "ay": 462,
+     "label": "Muzzle"
+    },
+    "foregrip": {
+     "x": 284,
+     "y": 347,
+     "ax": 615,
+     "ay": 458,
+     "label": "Foregrip"
+    },
+    "left-rail": {
+     "x": 380,
+     "y": 301,
+     "ax": 685,
+     "ay": 447,
+     "label": "Left Rail"
+    },
+    "right-rail": {
+     "x": 481,
+     "y": 267,
+     "ax": 688,
+     "ay": 420,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 584,
+     "y": 243,
+     "ax": 715,
+     "ay": 389,
+     "label": "Barrel"
+    },
+    "upper-rail": {
+     "x": 688,
+     "y": 226,
+     "ax": 805,
+     "ay": 403,
+     "label": "Upper Rail"
+    },
+    "mag": {
+     "x": 877,
+     "y": 826,
+     "ax": 933,
+     "ay": 738,
+     "label": "Mag"
+    },
+    "upper-patch": {
+     "x": 881,
+     "y": 212,
+     "ax": 933,
+     "ay": 403,
+     "label": "Upper Patch"
+    },
+    "mag-mount": {
+     "x": 955,
+     "y": 827,
+     "ax": 967,
+     "ay": 746,
+     "label": "Mag Mount"
+    },
+    "red-dot-optics": {
+     "x": 965,
+     "y": 211,
+     "ax": 1028,
+     "ay": 373,
+     "label": "Optic"
+    },
+    "optics": {
+     "x": 1070,
+     "y": 216,
+     "ax": 1022,
+     "ay": 399,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1215,
+     "y": 232,
+     "ax": 1133,
+     "ay": 392,
+     "label": "Offset Optic"
+    },
+    "rear-grip-patch": {
+     "x": 1573,
+     "y": 696,
+     "ax": 1192,
+     "ay": 608,
+     "label": "Rear Grip Patch"
+    },
+    "rear-grip": {
+     "x": 1660,
+     "y": 634,
+     "ax": 1226,
+     "ay": 631,
+     "label": "Rear Grip"
+    },
+    "stock": {
+     "x": 1674,
+     "y": 419,
+     "ax": 1543,
+     "ay": 482,
+     "label": "Stock"
+    }
+   }
+  }
+ ],
+ "chip": 70,
+ "gun": {
+  "src": "mcx-lt.png",
+  "x": 614,
+  "y": 356,
+  "w": 933,
+  "h": 396
+ },
+ "edits": {
+  "slots": {
+   "add": [],
+   "remove": []
+  },
+  "fits": {}
+ }
+}

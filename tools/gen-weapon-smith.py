@@ -378,6 +378,38 @@ SECTIONS = {
     ('stock-kit', 'Stock kit', 'The rear assembly as a whole. The RM277 has no equivalent.'),
     ('stock', 'Stock', ''),
   ],
+
+  # Twenty-one, from one recording: thirteen on the bare rifle and eight that
+  # arrive with something. No list behind any of them yet — an empty table
+  # here means unread, not empty.
+  #
+  # This is the rifle that broke the shape the other two taught. Its upper
+  # rail and upper patch are ON the bare gun, where the RM277 has to be given
+  # an upper rail by a barrel; and its left and right patches are NOT, which
+  # no other traced weapon does.
+  'mcx-lt': [
+    ('optics', 'Optics', 'The base optic slot.'),
+    ('red-dot-optics', 'Red dot optics', 'Opened by the MEO Micro Sight Riser.'),
+    ('riser-optics', 'Riser optics', 'Opened by the Multi-Purpose Tactical Riser.'),
+    ('offset-optics', 'Offset optics', ''),
+    ('tactical-device', 'Tactical device', 'Opened by the Multi-Purpose Tactical Riser.'),
+    ('muzzle', 'Muzzle', 'Taken away by the Fierce Barrel, which brings its own can.'),
+    ('barrel', 'Barrel', 'The MCX LT Fierce Barrel opens three slots at once &mdash; a heat shield and both side patches &mdash; and occupies the muzzle. No other attachment on this site does as much.'),
+    ('heat-shield', 'Heat shield', 'Round the barrel rather than on a rail, and opened by the Fierce Barrel. The first weapon here to have one.'),
+    ('foregrip', 'Foregrip', ''),
+    ('left-rail', 'Left rail', ''),
+    ('right-rail', 'Right rail', ''),
+    ('upper-rail', 'Upper rail', 'On the bare rifle, unlike the RM277&rsquo;s and the AR-57&rsquo;s, which have to be opened by a barrel.'),
+    ('left-patch', 'Left patch', 'Opened by the Fierce Barrel. Not on the bare rifle.'),
+    ('upper-patch', 'Upper patch', 'On the bare rifle, and the first upper patch on any weapon here.'),
+    ('right-patch', 'Right patch', 'Opened by the Fierce Barrel. Not on the bare rifle.'),
+    ('mag', 'Magazine', 'The MCX LT is chambered in .300 Blackout and holds 30.'),
+    ('mag-mount', 'Magazine mount', ''),
+    ('rear-grip', 'Rear grip', 'Two of them open further slots, and those two rule each other out.'),
+    ('rear-grip-patch', 'Rear grip patch', 'Opened by the AR Modular Rear Grip.'),
+    ('rear-grip-mount', 'Rear grip mount', 'Opened by the AR Heavy Tower Grip.'),
+    ('stock', 'Stock', ''),
+  ],
 }
 
 class Gun:
@@ -440,6 +472,20 @@ class Gun:
                                **{slot: title for slot, title, _ in sections})
         self.name = ((self.smith or {}).get('weapon', {}).get('name')
                      or WEAPON_NAME.get(wid, wid))
+
+    @property
+    def base_slots(self):
+        """The slots on the bare rifle, off this weapon's own traced layout.
+
+        Which is per weapon and not a property of the slot: see the note beside
+        `kind` in attach-rules.ts. A weapon nobody has traced falls back to the
+        family's usual answer, which is the best available and is only ever
+        used by a gun with no gunsmith page to draw.
+        """
+        traced = (self.smith or {}).get('slots')
+        if traced:
+            return {s['slot'] for s in traced}
+        return {t['id'] for t in SLOT_TYPES if t['kind'] == 'base'}
 
     @property
     def has_stats(self):
@@ -631,11 +677,19 @@ def graph(g):
     walking it drew a handguard, a stock and a functional slot on a rifle that
     has none of the three — each with a dash where the count should be, which is
     the tell nobody reads as a bug because a dash looks like an answer.
+
+    And rooted in the slots this weapon has ON THE BARE RIFLE, read off its own
+    traced layout, rather than in the ones SLOT_TYPES calls `base`. That field
+    is the usual case across the family and not a fact about any one gun: the
+    MCX LT carries an upper rail on the bare rifle, which the RM277 has to be
+    given by a barrel, and the tree simply lost it — the slot was in the
+    weapon's sections, was not `base` in the vocabulary, and had nothing
+    granting it, so it was drawn nowhere and the tripwire below said so.
     """
     mine = {slot for slot, _, _ in g.sections}
     tree = [(g.slot_title.get(t['id'], t['label']), t['id'],
              subtree(g, t['id'], {t['id']}))
-            for t in SLOT_TYPES if t['kind'] == 'base' and t['id'] in mine]
+            for t in SLOT_TYPES if t['id'] in g.base_slots and t['id'] in mine]
 
     parts, state = [], {'y': TOP}
 
@@ -717,7 +771,10 @@ CAT_LABEL = {'muzzle': 'Muzzle', 'barrel': 'Barrel', 'handguard': 'Handguard',
 # a handguard panel under Functional, not Handguard, which is exactly the sort
 # of thing a hand-written map gets wrong.
 SLOT_CAT_FALLBACK = {'barrel': 'barrel', 'cheek-pad': 'stock',
-                     'stock-pad': 'stock', 'rear-grip-patch': 'rear grip'}
+                     'stock-pad': 'stock', 'rear-grip-patch': 'rear grip',
+                     # Nothing catalogued sits in one yet, and the game files
+                     # the SUR Heat Shield beside the muzzle devices.
+                     'heat-shield': 'muzzle'}
 
 
 def slot_category(slot):

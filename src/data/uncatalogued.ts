@@ -67,6 +67,12 @@ export const UNCATALOGUED: Record<string, { name: string }> = {
   'qr-high-performance-stock': { name: 'QR High Performance Stock' },
   'ct-enhanced-stock': { name: 'CT Enhanced Stock' },
 
+  /* The MCX LT's own two. The barrel is the most consequential part in this
+ * file: it opens three slots and takes the muzzle, which is more than any
+ * other single attachment does. */
+  'mcx-lt-fierce-barrel': { name: 'MCX LT Fierce Barrel' },
+  'sur-heat-shield': { name: 'SUR Heat Shield' },
+
   /* Pads. */
   'rm277-cheek-pad': { name: 'RM277 Cheek Pad' },
   'rm277-pad': { name: 'RM277 Pad' },

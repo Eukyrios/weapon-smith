@@ -4,4 +4,5 @@ attachment/index.html
 index.html
 smithery/ar-57.html
 smithery/index.html
+smithery/mcx-lt.html
 smithery/rm277.html
