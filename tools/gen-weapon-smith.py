@@ -2312,7 +2312,9 @@ def gunsmith_body(g):
     Rebuilt from the game's own screen rather than invented, because the point
     of it is recognition — someone who has used the gunsmith should see the
     same picture. The artwork and the coordinates are cut from screen
-    recordings by tools/cut-gunsmith.py and tools/cut-gunsmith-granted.py; this
+    recordings by tools/cut-gunsmith-frame.py (the bare weapon: chips, art and
+    anchors) and tools/cut-gunsmith-layouts.py (one arrangement per configuration
+    a fitted part opens, out of a spec in data/cut-specs/); this
     only lays them out.
 
     Everything is positioned in the coordinates of the frame the art came from
@@ -3219,7 +3221,9 @@ def gunsmith_body(g):
 
       const out = document.createElement('div');
       out.className = 'devout';
-      out.innerHTML = '<p class="dlabel">data/gunsmith-rm277.json</p>'
+      // The weapon's own file, not the RM277's. This said rm277 flat out until
+      // there was a second weapon to be wrong about.
+      out.innerHTML = '<p class="dlabel">data/gunsmith-' + WID + '.json</p>'
         + '<textarea class="out" spellcheck="false" rows="10"></textarea>'
         + '<p><button class="btn" type="button">Copy</button>'
         + '<button class="btn btn--ghost" type="button">Undo everything</button></p>';

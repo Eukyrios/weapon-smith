@@ -1,0 +1,99 @@
+{
+ "weapon": "rm277",
+ "chip": 73,
+ "label_dy": 16,
+ "frames": "clips",
+ "base_frame": "base/f006.png",
+ "note": [
+  "The RM277's seven configurations, transcribed from tools/cut-gunsmith-",
+  "granted.py when that script was generalised into cut-gunsmith-layouts.py.",
+  "The layouts it produced are already in data/gunsmith-rm277.json and this has",
+  "NOT been re-run against them: the frames live in a clips/ directory outside",
+  "the repo that no longer exists here. It is kept so the reading is recorded",
+  "rather than lost -- which clip fitted what, and which chips the label reader",
+  "could not place on its own -- and so a re-recording has something to start",
+  "from. A re-run would keep every anchor already in the file, so it would move",
+  "chips and nothing else."
+ ],
+ "labels": {
+  "tactical-device": "Tactical Device",
+  "riser-optics": "Riser Optic",
+  "red-dot-optics": "Red Dot Optic",
+  "kill-flash": "Killflash",
+  "upper-rail": "Upper Rail",
+  "rear-grip-patch": "Rear Grip Patch",
+  "rear-grip-mount": "Rear Grip Mount"
+ },
+ "clips": [
+  {
+   "key": "riser",
+   "frame": "S_riser.png",
+   "items": ["multi-purpose-tactical-riser"],
+   "grants": ["tactical-device", "riser-optics"],
+   "occupies": [],
+   "seed": {"tactical-device": [739, 239], "riser-optics": [989, 226],
+            "optics": [889, 226]}
+  },
+  {
+   "key": "reddot",
+   "frame": "S_reddot.png",
+   "items": ["multi-purpose-tactical-riser", "meo-micro-sight-riser"],
+   "grants": ["tactical-device", "riser-optics", "red-dot-optics"],
+   "occupies": [],
+   "seed": {"tactical-device": [739, 239], "optics": [868, 226],
+            "riser-optics": [976, 226], "red-dot-optics": [1061, 226]},
+   "why": "The micro sight riser goes in a slot the tactical riser opened, so this clip has both parts on and its layout answers for both."
+  },
+  {
+   "key": "modular",
+   "frame": "S_modular.png",
+   "items": ["ar-modular-rear-grip"],
+   "grants": ["rear-grip-patch"],
+   "occupies": [],
+   "seed": {"rear-grip": [1394, 834], "rear-grip-patch": [1608, 765]}
+  },
+  {
+   "key": "tower",
+   "frame": "S_tower.png",
+   "items": ["ar-heavy-tower-grip"],
+   "grants": ["rear-grip-mount"],
+   "occupies": [],
+   "seed": {"rear-grip-mount": [1224, 864]}
+  },
+  {
+   "key": "integral",
+   "frame": "S_integral.png",
+   "items": ["rm277-heavy-integral-barrel"],
+   "grants": ["upper-rail"],
+   "occupies": ["muzzle", "rail-bipod"],
+   "seed": {"upper-rail": [333, 351]}
+  },
+  {
+   "key": "killflash",
+   "frame": "S_killflash.png",
+   "items": ["insight-3-7-sniper-scope"],
+   "grants": ["kill-flash"],
+   "occupies": [],
+   "seed": {"kill-flash": [670, 250], "left-patch": [347, 342]},
+   "why": "Filed under the muzzle brake but fits an Insight 3/7, whose card prints \"Adds Slots: Killflash\" -- the rule arrived at from the footage rather than from the rules file."
+  },
+  {
+   "key": "whale",
+   "frame": "S_whale.png",
+   "items": ["rm277-whale-shark-barrel-combo"],
+   "grants": ["upper-rail"],
+   "occupies": ["rail-bipod"],
+   "seed": {"upper-rail": [623, 257], "offset-optics": [1310, 250],
+            "mag": [1703, 714]}
+  }
+ ],
+ "icon_from": {
+  "tactical-device": "riser",
+  "riser-optics": "riser",
+  "red-dot-optics": "reddot",
+  "rear-grip-patch": "modular",
+  "rear-grip-mount": "tower",
+  "upper-rail": "integral",
+  "kill-flash": "killflash"
+ }
+}

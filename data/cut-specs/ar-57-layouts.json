@@ -1,0 +1,77 @@
+{
+ "weapon": "ar-57",
+ "chip": 70,
+ "label_dy": 15,
+ "frames": "/home/claude/ar57/layouts",
+ "base_frame": "base.png",
+ "from": {
+  "_": "Which clip each frame was cut from, at 2 fps, so they can be made again: ffmpeg -i <clip> -vf fps=2 f%04d.png",
+  "base.png": "gun rear grip slot.mp4 @ 21.0s",
+  "upper-rail.png": "gun rear grip slot.mp4 @ 10.5s",
+  "red-dot-optics.png": "gun red dot optic slot.mp4 @ 8.0s",
+  "kill-flash.png": "gun kill flash slot.mp4 @ 16.0s",
+  "rear-grip-mount.png": "gun grip mount slot-1.mp4 @ 8.0s",
+  "rear-grip-patch.png": "gun rear grip slot.mp4 @ 16.0s"
+ },
+ "note": [
+  "Five settled frames, one per configuration, pulled from the clips Al",
+  "recorded of each slot a part opens: gun upper rail slot, gun red dot optic",
+  "slot, gun kill flash slot, gun grip mount slot, gun rear grip slot. The",
+  "upper-rail and rear-grip-mount states appear in two clips each and agree to",
+  "a third of a grey level, which is how we know they are settled.",
+  "",
+  "These were recorded in a later session than the base frame the chips and",
+  "the artwork in data/gunsmith-ar-57.json came from, and the game rests the",
+  "fan a few pixels differently between sessions -- the camera is about 1.7%",
+  "wider here, so the weapon is drawn 15px shorter and the chips sit up to 12",
+  "pixels off their recorded base positions. No transform explains it (a",
+  "least-squares affine still leaves 6px), so the two are not reconciled: each",
+  "layout is internally consistent, which is what the page draws, and the",
+  "difference is smaller than the reflow the game itself does when a slot",
+  "opens. The base frame is not re-cut from this session because the rifle has",
+  "a charm hanging off it here, which would end up in the artwork."
+ ],
+ "clips": [
+  {
+   "key": "upper-rail",
+   "frame": "upper-rail.png",
+   "items": ["ar57-wave-blaster-ultra-long-barrel"],
+   "grants": ["upper-rail"],
+   "occupies": [],
+   "seed": {"upper-rail": [424, 285]}
+  },
+  {
+   "key": "red-dot-optics",
+   "frame": "red-dot-optics.png",
+   "items": ["meo-micro-sight-riser"],
+   "grants": ["red-dot-optics"],
+   "occupies": [],
+   "seed": {"optics": [1223, 233], "red-dot-optics": [1119, 220]}
+  },
+  {
+   "key": "kill-flash",
+   "frame": "kill-flash.png",
+   "items": ["recon-1-5-5-adjustable-scope", "ar-heavy-tower-grip"],
+   "grants": ["kill-flash", "rear-grip-mount"],
+   "occupies": [],
+   "seed": {"kill-flash": [950, 211], "rear-grip-mount": [1313, 788]}
+  },
+  {
+   "key": "rear-grip-mount",
+   "frame": "rear-grip-mount.png",
+   "items": ["ar-heavy-tower-grip"],
+   "grants": ["rear-grip-mount"],
+   "occupies": [],
+   "seed": {"rear-grip-mount": [1313, 788]}
+  },
+  {
+   "key": "rear-grip-patch",
+   "frame": "rear-grip-patch.png",
+   "items": ["ar-modular-rear-grip"],
+   "grants": ["rear-grip-patch"],
+   "occupies": [],
+   "seed": {"rear-grip-patch": [1713, 490]}
+  }
+ ],
+ "icon_from": {}
+}

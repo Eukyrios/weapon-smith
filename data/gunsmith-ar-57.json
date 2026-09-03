@@ -228,7 +228,562 @@
    "by": "a different rear grip"
   }
  ],
- "layouts": [],
+ "layouts": [
+  {
+   "when": [
+    "upper-rail"
+   ],
+   "blocks": [],
+   "by": [
+    "ar57-wave-blaster-ultra-long-barrel"
+   ],
+   "chips": {
+    "muzzle": {
+     "x": 162,
+     "y": 573,
+     "ax": 466,
+     "ay": 494,
+     "label": "Muzzle"
+    },
+    "left-rail": {
+     "x": 164,
+     "y": 460,
+     "ax": 466,
+     "ay": 491,
+     "label": "Left Rail"
+    },
+    "rail-bipod": {
+     "x": 230,
+     "y": 654,
+     "ax": 551,
+     "ay": 519,
+     "label": "Rail Bipod"
+    },
+    "right-rail": {
+     "x": 234,
+     "y": 380,
+     "ax": 520,
+     "ay": 443,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 325,
+     "y": 325,
+     "ax": 546,
+     "ay": 385,
+     "label": "Barrel"
+    },
+    "upper-rail": {
+     "x": 424,
+     "y": 285,
+     "ax": 684,
+     "ay": 435,
+     "label": "Upper Rail"
+    },
+    "left-patch": {
+     "x": 526,
+     "y": 256,
+     "ax": 702,
+     "ay": 419,
+     "label": "Left Patch"
+    },
+    "foregrip": {
+     "x": 629,
+     "y": 235,
+     "ax": 481,
+     "ay": 464,
+     "label": "Foregrip"
+    },
+    "right-patch": {
+     "x": 734,
+     "y": 221,
+     "ax": 753,
+     "ay": 420,
+     "label": "Right Patch"
+    },
+    "optics": {
+     "x": 1363,
+     "y": 261,
+     "ax": 1156,
+     "ay": 366,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1464,
+     "y": 293,
+     "ax": 1177,
+     "ay": 416,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1627,
+     "y": 661,
+     "ax": 1212,
+     "ay": 636,
+     "label": "Rear Grip"
+    },
+    "stock-kit": {
+     "x": 1696,
+     "y": 450,
+     "ax": 1569,
+     "ay": 507,
+     "label": "Stock Kit"
+    },
+    "stock": {
+     "x": 1708,
+     "y": 562,
+     "ax": 1567,
+     "ay": 580,
+     "label": "Stock"
+    }
+   }
+  },
+  {
+   "when": [
+    "red-dot-optics"
+   ],
+   "blocks": [],
+   "by": [
+    "meo-micro-sight-riser"
+   ],
+   "chips": {
+    "left-rail": {
+     "x": 163,
+     "y": 462,
+     "ax": 466,
+     "ay": 491,
+     "label": "Left Rail"
+    },
+    "muzzle": {
+     "x": 163,
+     "y": 575,
+     "ax": 466,
+     "ay": 494,
+     "label": "Muzzle"
+    },
+    "foregrip": {
+     "x": 232,
+     "y": 382,
+     "ax": 481,
+     "ay": 464,
+     "label": "Foregrip"
+    },
+    "rail-bipod": {
+     "x": 239,
+     "y": 662,
+     "ax": 551,
+     "ay": 519,
+     "label": "Rail Bipod"
+    },
+    "right-rail": {
+     "x": 323,
+     "y": 326,
+     "ax": 520,
+     "ay": 443,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 421,
+     "y": 286,
+     "ax": 546,
+     "ay": 385,
+     "label": "Barrel"
+    },
+    "left-patch": {
+     "x": 523,
+     "y": 257,
+     "ax": 702,
+     "ay": 419,
+     "label": "Left Patch"
+    },
+    "right-patch": {
+     "x": 627,
+     "y": 236,
+     "ax": 753,
+     "ay": 420,
+     "label": "Right Patch"
+    },
+    "red-dot-optics": {
+     "x": 1119,
+     "y": 220,
+     "ax": 1109,
+     "ay": 386,
+     "label": "Optic"
+    },
+    "optics": {
+     "x": 1223,
+     "y": 233,
+     "ax": 1156,
+     "ay": 366,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1327,
+     "y": 253,
+     "ax": 1177,
+     "ay": 416,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1527,
+     "y": 720,
+     "ax": 1212,
+     "ay": 636,
+     "label": "Rear Grip"
+    },
+    "stock-kit": {
+     "x": 1693,
+     "y": 445,
+     "ax": 1569,
+     "ay": 507,
+     "label": "Stock Kit"
+    },
+    "stock": {
+     "x": 1710,
+     "y": 556,
+     "ax": 1567,
+     "ay": 580,
+     "label": "Stock"
+    }
+   }
+  },
+  {
+   "when": [
+    "kill-flash",
+    "rear-grip-mount"
+   ],
+   "blocks": [],
+   "by": [
+    "recon-1-5-5-adjustable-scope",
+    "ar-heavy-tower-grip"
+   ],
+   "chips": {
+    "left-rail": {
+     "x": 163,
+     "y": 462,
+     "ax": 466,
+     "ay": 491,
+     "label": "Left Rail"
+    },
+    "muzzle": {
+     "x": 163,
+     "y": 575,
+     "ax": 466,
+     "ay": 494,
+     "label": "Muzzle"
+    },
+    "foregrip": {
+     "x": 232,
+     "y": 382,
+     "ax": 481,
+     "ay": 464,
+     "label": "Foregrip"
+    },
+    "rail-bipod": {
+     "x": 239,
+     "y": 662,
+     "ax": 551,
+     "ay": 519,
+     "label": "Rail Bipod"
+    },
+    "right-rail": {
+     "x": 323,
+     "y": 326,
+     "ax": 520,
+     "ay": 443,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 421,
+     "y": 286,
+     "ax": 546,
+     "ay": 385,
+     "label": "Barrel"
+    },
+    "left-patch": {
+     "x": 523,
+     "y": 257,
+     "ax": 702,
+     "ay": 419,
+     "label": "Left Patch"
+    },
+    "right-patch": {
+     "x": 627,
+     "y": 236,
+     "ax": 753,
+     "ay": 420,
+     "label": "Right Patch"
+    },
+    "kill-flash": {
+     "x": 950,
+     "y": 211,
+     "ax": 987,
+     "ay": 365,
+     "label": "Killflash"
+    },
+    "optics": {
+     "x": 1145,
+     "y": 223,
+     "ax": 1156,
+     "ay": 366,
+     "label": "Optic"
+    },
+    "rear-grip-mount": {
+     "x": 1313,
+     "y": 788,
+     "ax": 1181,
+     "ay": 699,
+     "label": "Grip Mount"
+    },
+    "offset-optics": {
+     "x": 1321,
+     "y": 252,
+     "ax": 1177,
+     "ay": 416,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1562,
+     "y": 702,
+     "ax": 1212,
+     "ay": 636,
+     "label": "Rear Grip"
+    },
+    "stock-kit": {
+     "x": 1693,
+     "y": 445,
+     "ax": 1569,
+     "ay": 507,
+     "label": "Stock Kit"
+    },
+    "stock": {
+     "x": 1710,
+     "y": 556,
+     "ax": 1567,
+     "ay": 580,
+     "label": "Stock"
+    }
+   }
+  },
+  {
+   "when": [
+    "rear-grip-mount"
+   ],
+   "blocks": [],
+   "by": [
+    "ar-heavy-tower-grip"
+   ],
+   "chips": {
+    "left-rail": {
+     "x": 163,
+     "y": 462,
+     "ax": 466,
+     "ay": 491,
+     "label": "Left Rail"
+    },
+    "muzzle": {
+     "x": 163,
+     "y": 575,
+     "ax": 466,
+     "ay": 494,
+     "label": "Muzzle"
+    },
+    "foregrip": {
+     "x": 232,
+     "y": 382,
+     "ax": 481,
+     "ay": 464,
+     "label": "Foregrip"
+    },
+    "rail-bipod": {
+     "x": 239,
+     "y": 662,
+     "ax": 551,
+     "ay": 519,
+     "label": "Rail Bipod"
+    },
+    "right-rail": {
+     "x": 323,
+     "y": 326,
+     "ax": 520,
+     "ay": 443,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 421,
+     "y": 286,
+     "ax": 546,
+     "ay": 385,
+     "label": "Barrel"
+    },
+    "left-patch": {
+     "x": 523,
+     "y": 257,
+     "ax": 702,
+     "ay": 419,
+     "label": "Left Patch"
+    },
+    "right-patch": {
+     "x": 627,
+     "y": 236,
+     "ax": 753,
+     "ay": 420,
+     "label": "Right Patch"
+    },
+    "optics": {
+     "x": 1212,
+     "y": 231,
+     "ax": 1156,
+     "ay": 366,
+     "label": "Optic"
+    },
+    "rear-grip-mount": {
+     "x": 1313,
+     "y": 788,
+     "ax": 1181,
+     "ay": 699,
+     "label": "Grip Mount"
+    },
+    "offset-optics": {
+     "x": 1325,
+     "y": 252,
+     "ax": 1177,
+     "ay": 416,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1562,
+     "y": 702,
+     "ax": 1212,
+     "ay": 636,
+     "label": "Rear Grip"
+    },
+    "stock-kit": {
+     "x": 1693,
+     "y": 445,
+     "ax": 1569,
+     "ay": 507,
+     "label": "Stock Kit"
+    },
+    "stock": {
+     "x": 1710,
+     "y": 556,
+     "ax": 1567,
+     "ay": 580,
+     "label": "Stock"
+    }
+   }
+  },
+  {
+   "when": [
+    "rear-grip-patch"
+   ],
+   "blocks": [],
+   "by": [
+    "ar-modular-rear-grip"
+   ],
+   "chips": {
+    "left-rail": {
+     "x": 163,
+     "y": 462,
+     "ax": 466,
+     "ay": 491,
+     "label": "Left Rail"
+    },
+    "muzzle": {
+     "x": 163,
+     "y": 575,
+     "ax": 466,
+     "ay": 494,
+     "label": "Muzzle"
+    },
+    "foregrip": {
+     "x": 232,
+     "y": 382,
+     "ax": 481,
+     "ay": 464,
+     "label": "Foregrip"
+    },
+    "rail-bipod": {
+     "x": 239,
+     "y": 662,
+     "ax": 551,
+     "ay": 519,
+     "label": "Rail Bipod"
+    },
+    "right-rail": {
+     "x": 323,
+     "y": 326,
+     "ax": 520,
+     "ay": 443,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 421,
+     "y": 286,
+     "ax": 546,
+     "ay": 385,
+     "label": "Barrel"
+    },
+    "left-patch": {
+     "x": 523,
+     "y": 257,
+     "ax": 702,
+     "ay": 419,
+     "label": "Left Patch"
+    },
+    "right-patch": {
+     "x": 627,
+     "y": 236,
+     "ax": 753,
+     "ay": 420,
+     "label": "Right Patch"
+    },
+    "optics": {
+     "x": 1212,
+     "y": 231,
+     "ax": 1156,
+     "ay": 366,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1321,
+     "y": 252,
+     "ax": 1177,
+     "ay": 416,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1564,
+     "y": 701,
+     "ax": 1212,
+     "ay": 636,
+     "label": "Rear Grip"
+    },
+    "stock-kit": {
+     "x": 1657,
+     "y": 401,
+     "ax": 1569,
+     "ay": 507,
+     "label": "Stock Kit"
+    },
+    "stock": {
+     "x": 1688,
+     "y": 601,
+     "ax": 1567,
+     "ay": 580,
+     "label": "Stock"
+    },
+    "rear-grip-patch": {
+     "x": 1713,
+     "y": 490,
+     "ax": 1099,
+     "ay": 549,
+     "label": "Rear Grip Patch"
+    }
+   }
+  }
+ ],
  "edits": {
   "slots": {
    "add": [],

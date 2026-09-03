@@ -2648,7 +2648,9 @@
 
       const out = document.createElement('div');
       out.className = 'devout';
-      out.innerHTML = '<p class="dlabel">data/gunsmith-rm277.json</p>'
+      // The weapon's own file, not the RM277's. This said rm277 flat out until
+      // there was a second weapon to be wrong about.
+      out.innerHTML = '<p class="dlabel">data/gunsmith-' + WID + '.json</p>'
         + '<textarea class="out" spellcheck="false" rows="10"></textarea>'
         + '<p><button class="btn" type="button">Copy</button>'
         + '<button class="btn btn--ghost" type="button">Undo everything</button></p>';
