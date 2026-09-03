@@ -97,8 +97,8 @@
    "label": "Stock Kit",
    "x": 1699,
    "y": 455,
-   "ax": 1569,
-   "ay": 507
+   "ax": 1528,
+   "ay": 514
   },
   {
    "slot": "stock",
@@ -113,14 +113,14 @@
    "label": "Rear Grip",
    "x": 1527,
    "y": 720,
-   "ax": 1212,
-   "ay": 636
+   "ax": 1163,
+   "ay": 620
   }
  ],
  "weapon": {
   "id": "ar-57",
   "name": "AR-57",
-  "source": "gun basic.mp4, second take (bare weapon), 2026-09-01. Chips, art and anchors by tools/cut-gunsmith-ar57.py; the stat panel read off the game and dictated, 2026-09-02.",
+  "source": "gun basic.mp4, second take (bare weapon), 2026-09-01. Chips, art and anchors by tools/cut-gunsmith-frame.py; the five other arrangements by tools/cut-gunsmith-layouts.py from data/cut-specs/ar-57-layouts.json, 2026-09-03. The stat panel read off the game and dictated, 2026-09-02. Five anchors then dragged by hand in the editor: rear grip, stock kit, killflash, rear grip patch and the red dot.",
   "stats": [
    {
     "key": "Damage",
@@ -318,15 +318,15 @@
     "rear-grip": {
      "x": 1627,
      "y": 661,
-     "ax": 1212,
-     "ay": 636,
+     "ax": 1163,
+     "ay": 620,
      "label": "Rear Grip"
     },
     "stock-kit": {
      "x": 1696,
      "y": 450,
-     "ax": 1569,
-     "ay": 507,
+     "ax": 1528,
+     "ay": 514,
      "label": "Stock Kit"
     },
     "stock": {
@@ -406,8 +406,8 @@
     "red-dot-optics": {
      "x": 1119,
      "y": 220,
-     "ax": 1109,
-     "ay": 386,
+     "ax": 1081,
+     "ay": 419,
      "label": "Optic"
     },
     "optics": {
@@ -427,15 +427,15 @@
     "rear-grip": {
      "x": 1527,
      "y": 720,
-     "ax": 1212,
-     "ay": 636,
+     "ax": 1163,
+     "ay": 620,
      "label": "Rear Grip"
     },
     "stock-kit": {
      "x": 1693,
      "y": 445,
-     "ax": 1569,
-     "ay": 507,
+     "ax": 1528,
+     "ay": 514,
      "label": "Stock Kit"
     },
     "stock": {
@@ -517,8 +517,8 @@
     "kill-flash": {
      "x": 950,
      "y": 211,
-     "ax": 987,
-     "ay": 365,
+     "ax": 986,
+     "ay": 421,
      "label": "Killflash"
     },
     "optics": {
@@ -545,15 +545,15 @@
     "rear-grip": {
      "x": 1562,
      "y": 702,
-     "ax": 1212,
-     "ay": 636,
+     "ax": 1163,
+     "ay": 620,
      "label": "Rear Grip"
     },
     "stock-kit": {
      "x": 1693,
      "y": 445,
-     "ax": 1569,
-     "ay": 507,
+     "ax": 1528,
+     "ay": 514,
      "label": "Stock Kit"
     },
     "stock": {
@@ -654,15 +654,15 @@
     "rear-grip": {
      "x": 1562,
      "y": 702,
-     "ax": 1212,
-     "ay": 636,
+     "ax": 1163,
+     "ay": 620,
      "label": "Rear Grip"
     },
     "stock-kit": {
      "x": 1693,
      "y": 445,
-     "ax": 1569,
-     "ay": 507,
+     "ax": 1528,
+     "ay": 514,
      "label": "Stock Kit"
     },
     "stock": {
@@ -756,15 +756,15 @@
     "rear-grip": {
      "x": 1564,
      "y": 701,
-     "ax": 1212,
-     "ay": 636,
+     "ax": 1163,
+     "ay": 620,
      "label": "Rear Grip"
     },
     "stock-kit": {
      "x": 1657,
      "y": 401,
-     "ax": 1569,
-     "ay": 507,
+     "ax": 1528,
+     "ay": 514,
      "label": "Stock Kit"
     },
     "stock": {
@@ -777,8 +777,8 @@
     "rear-grip-patch": {
      "x": 1713,
      "y": 490,
-     "ax": 1099,
-     "ay": 549,
+     "ax": 1148,
+     "ay": 595,
      "label": "Rear Grip Patch"
     }
    }

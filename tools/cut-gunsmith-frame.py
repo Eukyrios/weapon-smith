@@ -384,7 +384,26 @@ doc['frame'] = {'w': W, 'h': H}
 doc['chip'] = S
 doc['gun'] = {'src': f'{WID}.png', 'x': bx, 'y': by, 'w': bw, 'h': bh}
 was = {s['slot']: s for s in doc.get('slots', [])}
-doc['slots'] = [dict(was.get(c['slot'], {}), **c) for c in chips]
+# AN ANCHOR ALREADY IN THE FILE STAYS.
+#
+# The sweep above finds where a leader line leaves a chip and where it first
+# meets the weapon, which is a good guess and not the last word: the game aims
+# these at a point on the part, and on a rifle drawn side-on that point is
+# often a couple of dozen pixels inside the silhouette rather than on the edge
+# the sweep stops at. Five of the AR-57's were dragged into place by hand in
+# the editor's dev mode. Overwriting those on the next run would make every
+# hand correction worthless, and worse, would do it silently -- the file would
+# still look measured. Same rule as tools/cut-gunsmith-layouts.py, which was
+# written with it from the start; this one had to learn it.
+#
+# So a re-cut moves chips and art, and leaves anchors to whoever placed them.
+# To retrace one, clear its ax/ay in the JSON first.
+doc['slots'] = [
+    dict(was.get(c['slot'], {}),
+         **({k: v for k, v in c.items() if k not in ('ax', 'ay')}
+            if was.get(c['slot'], {}).get('ax') is not None else c))
+    for c in chips
+]
 path.write_text(json.dumps(doc, indent=1) + '\n', encoding='utf-8')
 
 # ---- the two pictures to look at -----------------------------------------
