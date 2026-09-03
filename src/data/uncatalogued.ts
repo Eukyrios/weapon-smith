@@ -60,6 +60,13 @@ export const UNCATALOGUED: Record<string, { name: string }> = {
   'ar-light-grip-piece': { name: 'AR Light Grip Piece' },
   'ar-heavy-grip-piece': { name: 'AR Heavy Grip Piece' },
 
+  /* Stocks. Three of the AR-57's eighteen; the other fifteen are catalogued,
+ * so whatever the import was compiled from was missing these rather than the
+ * whole family. */
+  'anchor-point-rail-stock': { name: 'Anchor Point Rail Stock' },
+  'qr-high-performance-stock': { name: 'QR High Performance Stock' },
+  'ct-enhanced-stock': { name: 'CT Enhanced Stock' },
+
   /* Pads. */
   'rm277-cheek-pad': { name: 'RM277 Cheek Pad' },
   'rm277-pad': { name: 'RM277 Pad' },

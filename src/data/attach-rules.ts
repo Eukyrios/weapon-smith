@@ -905,12 +905,36 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
     'left-patch': CATEGORY_FITS['left-patch'],
     'right-patch': CATEGORY_FITS['right-patch'],
 
-    // A Honeycomb Killflash was seen in this rifle's killflash slot and is
-    // deliberately NOT listed. That slot is granted by an optic, and this
-    // weapon's optic list has not been read, so a killflash list here would be
-    // a list on a slot the gun cannot yet be shown to have. It is recorded in
-    // data/gunsmith-ar-57.json under `granted`, and joins the moment the
-    // optics arrive.
+    // Eighteen, in the order the picker shows them, which is also the order
+    // they were dictated -- unlike the muzzles, so no reversal here. The tier
+    // bands were given as three runs and they fall where the picker sorts:
+    // five purple, eight blue, five green, best first. Fifteen are in the
+    // catalogue; the Anchor Point, the QR and the CT are not.
+    //
+    // The 416 and M4 parts in here are not a mistake. This rifle is an AR15
+    // lower -- its own card says so -- so it takes that family's buffer tubes
+    // and stocks, which is also why a P90-calibre carbine ends up sharing a
+    // stock list with a 416.
+    stock: [
+      'anchor-point-rail-stock',
+      'qr-high-performance-stock',
+      'ct-enhanced-stock',
+      'shadow-buffer-tube-stock',
+      'shadow-rail-stock',
+      'skeleton-sniper-stock',
+      'cardinal-advanced-combat-stock',
+      '416-stable-stock',
+      '416-light-stock',
+      'elite-light-stock',
+      'invasion-core-stock',
+      'cardinal-stable-stock',
+      'lightning-rail-stock',
+      'm4-recoil-buffer-tube',
+      'practical-light-stock',
+      'practical-tactical-stock',
+      'practical-stable-stock',
+      'core-rail-stock',
+    ],
   },
 };
 

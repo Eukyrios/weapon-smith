@@ -538,6 +538,50 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     tier: 'purple', read: true,
     stats: { Control: 10, Handling: -4, Stability: 3 },
   },
+
+  /*
+   * --- the AR-57's stocks: A TIER WITHOUT A READING ------------------------
+   *
+   * Everything above this line carries `read`, and until now every tier in
+   * this file did. That was not a rule, it was a coincidence of how the
+   * readings happened: the twenty-five captured cards gave a tier and the
+   * stats in the same pass, so the two always arrived together.
+   *
+   * These eighteen did not. They were dictated off the picker as three runs of
+   * colour -- five purple, then eight blue, then five green -- which is a real
+   * measurement of the tier and no measurement at all of what any of them does
+   * to the rifle. The picker shows the effects of the ONE item highlighted;
+   * the other seventeen are just names in a coloured band.
+   *
+   * So no `read` on any of them, and the pages go on hedging their figures.
+   * The catalogued fifteen show the import's stat lines under #not-tracked,
+   * which is exactly true -- those lines are real and nobody has checked them
+   * against a card. The three the import lacks show nothing at all, and say so
+   * twice over with #missing-info and #no-picture.
+   *
+   * Reading a tier off a list is worth writing down: it is what sorts a slot
+   * table and it is right. Letting it arrive with `read` attached, because
+   * that is the shape every other entry happens to have, would have quietly
+   * signed off fifteen sets of numbers nobody has looked at.
+   */
+  'anchor-point-rail-stock': { tier: 'purple' },
+  'qr-high-performance-stock': { tier: 'purple' },
+  'ct-enhanced-stock': { tier: 'purple' },
+  'shadow-buffer-tube-stock': { tier: 'purple' },
+  'shadow-rail-stock': { tier: 'purple' },
+  'skeleton-sniper-stock': { tier: 'blue' },
+  'cardinal-advanced-combat-stock': { tier: 'blue' },
+  '416-stable-stock': { tier: 'blue' },
+  '416-light-stock': { tier: 'blue' },
+  'elite-light-stock': { tier: 'blue' },
+  'invasion-core-stock': { tier: 'blue' },
+  'cardinal-stable-stock': { tier: 'blue' },
+  'lightning-rail-stock': { tier: 'blue' },
+  'm4-recoil-buffer-tube': { tier: 'green' },
+  'practical-light-stock': { tier: 'green' },
+  'practical-tactical-stock': { tier: 'green' },
+  'practical-stable-stock': { tier: 'green' },
+  'core-rail-stock': { tier: 'green' },
 };
 
 /**
