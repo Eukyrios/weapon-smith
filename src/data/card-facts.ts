@@ -554,13 +554,15 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * fifteen were checked against what the site already showed, and all but two
    * of them are signed off here.
    *
-   * THE TWO ARE THE POINT, so they are named. The Cardinal Stable Stock and
-   * the Practical Light Stock come out of the import with an EMPTY stat block,
-   * so unlike their thirteen neighbours there was nothing on screen to check.
-   * "Looks fine as it is" cannot be read as "moves nothing" for those two --
-   * that is a claim about the game, not a note about our data, and it is
-   * exactly the claim `read` licenses the site to make. They keep their
-   * #missing-info tag until somebody opens their cards.
+   * TWO OF THEM WERE HELD BACK, and holding them back was worth it. The
+   * Cardinal Stable Stock and the Practical Light Stock come out of the import
+   * with an EMPTY stat block, so unlike their thirteen neighbours there was
+   * nothing on screen for "looks fine as it is" to be agreeing with, and
+   * clearing them would have turned that into "this stock moves nothing" --
+   * a claim about the game rather than a note about our data. Their cards were
+   * then opened, and neither of them moves nothing: +6 control on one, +2
+   * handling on the other. Two figures that a confident clear would have
+   * buried under a badge saying the reading was complete.
    */
   'anchor-point-rail-stock': {
     tier: 'purple', read: true,
@@ -571,8 +573,9 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     stats: { Control: 3, Handling: -2, Stability: 3, Accuracy: 16 },
   },
   'ct-enhanced-stock': {
+    // Restated on a second pass: stability is +2, not the +6 first dictated.
     tier: 'purple', read: true,
-    stats: { Control: 2, Handling: 6, Stability: 6, Accuracy: -8 },
+    stats: { Control: 2, Handling: 6, Stability: 2, Accuracy: -8 },
   },
   'shadow-buffer-tube-stock': { tier: 'purple', read: true },
   'shadow-rail-stock': { tier: 'purple', read: true },
@@ -582,12 +585,16 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'cardinal-advanced-combat-stock': { tier: 'blue', read: true },
   '416-stable-stock': { tier: 'blue', read: true },
   '416-light-stock': { tier: 'blue', read: true },
-  'elite-light-stock': { tier: 'blue', read: true },
+  // The import has its +3 control and stops there; the card also gives it +3
+  // handling, which is the difference between a light stock and a decoration.
+  'elite-light-stock': { tier: 'blue', read: true, stats: { Handling: 3 } },
   'invasion-core-stock': { tier: 'blue', read: true },
-  'cardinal-stable-stock': { tier: 'blue' },   // empty in the import; see above
+  // The two the import carried empty. Their cards were opened rather than
+  // waved through, and neither of them moves nothing after all.
+  'cardinal-stable-stock': { tier: 'blue', read: true, stats: { Control: 6 } },
   'lightning-rail-stock': { tier: 'blue', read: true },
   'm4-recoil-buffer-tube': { tier: 'green', read: true },
-  'practical-light-stock': { tier: 'green' },  // empty in the import; see above
+  'practical-light-stock': { tier: 'green', read: true, stats: { Handling: 2 } },
   'practical-tactical-stock': { tier: 'green', read: true },
   'practical-stable-stock': { tier: 'green', read: true },
   'core-rail-stock': { tier: 'green', read: true },
