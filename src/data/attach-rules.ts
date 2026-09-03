@@ -803,6 +803,37 @@ export const PENDING_RULES: Record<string, AttachRule> = {
  * to the RM277 asserts three slots it does not have.
  */
 const NOT_ON_THE_RM277 = new Set(['handguard', 'stock', 'functional']);
+/*
+ * The muzzle devices a small-bore carbine takes.
+ *
+ * Dictated for the AR-57 and then, item for item and in the same order, for
+ * the MCX LT: fifteen of the catalogue's thirty-seven plus two it does not
+ * carry. Against the RM277's list it is that weapon's whole list bar the
+ * weapon-exclusive Breaker Suppressor, plus the FFC brake and the SMG Echo
+ * Suppressor -- which is the tell that muzzles ARE filtered, and filtered by
+ * calibre: a 5.7 carbine and a .300 Blackout carbine both get the SMG can, a
+ * 6.8 rifle does not.
+ */
+const SMALL_BORE_MUZZLES = [
+  'cobweb-titanium-muzzle-brake',
+  'ffc-double-port-muzzle-brake',
+  'spiral-fire-flash-hider',
+  'advanced-multi-caliber-suppressor',
+  'm7-practical-suppressor',
+  'smg-echo-suppressor',
+  'silent-suppressor',
+  'sandstorm-vertical-compensator',
+  'bastion-horizontal-compensator',
+  'poseidon-flash-hider',
+  'whisper-tactical-suppressor',
+  'titanium-contest-muzzle-brake',
+  'blazing-fire-suppressor',
+  'steel-muzzle-brake',
+  'practical-suppressor',
+  'birdcage-flash-hider',
+  'practical-flash-hider',
+];
+
 const RM277_FITS: Record<string, string[]> = Object.fromEntries(
   Object.entries(CATEGORY_FITS).filter(([slot]) => !NOT_ON_THE_RM277.has(slot)),
 );
@@ -817,10 +848,92 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
    * the ledes in SECTIONS say what they are.
    */
   'mcx-lt': {
-    barrel: ['mcx-lt-fierce-barrel'],
+    // Every list read off the picker in one pass. Six of them are shared word
+    // for word with a rifle already here, and are referenced rather than
+    // copied: the whole optic ladder and the rails and patches from the RM277,
+    // the small-bore muzzles from the AR-57.
+    optics: CATEGORY_FITS.optics,
+    'red-dot-optics': CATEGORY_FITS['red-dot-optics'],
+    'riser-optics': CATEGORY_FITS['riser-optics'],
+    'offset-optics': CATEGORY_FITS['offset-optics'],
+    'kill-flash': CATEGORY_FITS['kill-flash'],
+    muzzle: SMALL_BORE_MUZZLES,
+    'left-rail': CATEGORY_FITS['left-rail'],
+    'right-rail': CATEGORY_FITS['right-rail'],
+    'upper-rail': CATEGORY_FITS['upper-rail'],
+    'left-patch': CATEGORY_FITS['left-patch'],
+    'right-patch': CATEGORY_FITS['right-patch'],
+    'rear-grip': CATEGORY_FITS['rear-grip'],
+    'mag-mount': CATEGORY_FITS['mag-mount'],
+
+    // Both weapon-exclusive, neither in the catalogue, and one of them is the
+    // part that gives this rifle three of its slots.
+    barrel: ['mcx-lt-fierce-barrel', 'mcx-lt-hunter-barrel'],
     'heat-shield': ['sur-heat-shield'],
-    optics: ['multi-purpose-tactical-riser', 'meo-micro-sight-riser'],
-    'rear-grip': ['ar-heavy-tower-grip', 'ar-modular-rear-grip'],
+
+    // SIXTEEN OF THE TWENTY-THREE, and the correction to what the AR-57's list
+    // seemed to prove one commit ago. Two rifles agreeing on the whole
+    // foregrip category looked like evidence that the slot was not filtered;
+    // the third rifle takes a strict subset of it, in the same order, missing
+    // the Resonant MK III and MKII, both flashlight grips, the K1 Elite Bevel,
+    // the Secret Order Bevel and the Competition Hand Stop. Two weapons
+    // agreeing was a coincidence of those two weapons.
+    foregrip: [
+      'ec-universal-front-hand-stop',
+      'cr-prism-hand-stop',
+      'collapsible-bipod-grip',
+      'x25u-angled-combat-grip',
+      'resonant-ergonomic-grip',
+      'phantom-vertical-foregrip',
+      'tactical-vertical-foregrip',
+      'rk-0-foregrip',
+      'tactical-angled-foregrip',
+      'angled-hand-stop',
+      'phase-combat-foregrip',
+      'folding-grip',
+      'vfg-knight-foregrip',
+      'zfsg-tactical-grip',
+      'mini-hand-stop',
+      'practical-vertical-foregrip',
+    ],
+
+    // Nineteen: the AR-57's eighteen, less the Cardinal Advanced Combat, plus
+    // the MRGS Skeleton and the UR Spec Ops Tactical. Another slot filtered
+    // per weapon, and by a small enough margin that copying one list to the
+    // other would have looked right.
+    stock: [
+      'anchor-point-rail-stock',
+      'qr-high-performance-stock',
+      'ct-enhanced-stock',
+      'shadow-buffer-tube-stock',
+      'mrgs-skeleton-stock',
+      'ur-spec-ops-tactical-stock',
+      'shadow-rail-stock',
+      'skeleton-sniper-stock',
+      '416-stable-stock',
+      '416-light-stock',
+      'elite-light-stock',
+      'invasion-core-stock',
+      'cardinal-stable-stock',
+      'lightning-rail-stock',
+      'm4-recoil-buffer-tube',
+      'practical-light-stock',
+      'practical-tactical-stock',
+      'practical-stable-stock',
+      'core-rail-stock',
+    ],
+
+    // Five, and the names came off the picker rather than out of the
+    // dictation: four of the five were heard as "M4" and two of those are
+    // "AR". The import carries the two M4s and neither AR, which is the gap
+    // that only shows up when a whole list is read instead of sampled.
+    mag: [
+      'ar-60-round-extended-mag',
+      'm4-60-round-drum-mag',
+      'm4-45-round-extended-mag',
+      'ar-30-round-polymer-mag',
+      '5-56x45-30-round-polymer-mag',
+    ],
   },
 
   // Every list in CATEGORY_FITS was dictated while reading the RM277's
@@ -893,31 +1006,9 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
     // the slot has an opener and the gun can be shown to have it.
     'kill-flash': CATEGORY_FITS['kill-flash'],
 
-    // Dictated order, reversed as always. Fifteen of the catalogue's 37 plus
-    // two it does not carry, named by id like the rest. The overlap with the
-    // RM277 is the whole of its list bar the weapon-exclusive Breaker
-    // Suppressor, plus two this rifle takes and that one does not -- the FFC
-    // brake and the SMG Echo Suppressor, which is the tell that the filter is
-    // by calibre: a 5.7 carbine gets the SMG can, a 6.8 rifle does not.
-    muzzle: [
-      'cobweb-titanium-muzzle-brake',
-      'ffc-double-port-muzzle-brake',
-      'spiral-fire-flash-hider',
-      'advanced-multi-caliber-suppressor',
-      'm7-practical-suppressor',
-      'smg-echo-suppressor',
-      'silent-suppressor',
-      'sandstorm-vertical-compensator',
-      'bastion-horizontal-compensator',
-      'poseidon-flash-hider',
-      'whisper-tactical-suppressor',
-      'titanium-contest-muzzle-brake',
-      'blazing-fire-suppressor',
-      'steel-muzzle-brake',
-      'practical-suppressor',
-      'birdcage-flash-hider',
-      'practical-flash-hider',
-    ],
+    // Seventeen, and the MCX LT dictated the same seventeen in the same order,
+    // so they live in SMALL_BORE_MUZZLES above rather than twice down here.
+    muzzle: SMALL_BORE_MUZZLES,
 
     // Both weapon-exclusive and neither in the 414, like the RM277's pair.
     barrel: [
@@ -948,9 +1039,12 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
     'right-patch': CATEGORY_FITS['right-patch'],
 
     // And the foregrips, dictated as twenty-three names and matching the
-    // RM277's list item for item AND IN THE SAME ORDER, which is the strongest
-    // evidence yet that this slot is not filtered per weapon: the catalogue's
-    // whole foregrip category fits both rifles. Referenced rather than copied.
+    // RM277's list item for item and in the same order -- the catalogue's
+    // whole foregrip category, on both rifles. Referenced rather than copied.
+    //
+    // THIS LOOKED LIKE PROOF THAT THE SLOT IS NOT FILTERED. It was not. The
+    // MCX LT, read a day later, takes sixteen of the twenty-three. Two rifles
+    // agreeing on a whole category is a fact about those two rifles.
     //
     // Six of the twenty-three came through the dictation misheard, and each
     // resolved to exactly one catalogue name: Down Angle Flashlight TSK ->

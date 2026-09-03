@@ -598,6 +598,36 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'practical-tactical-stock': { tier: 'green', read: true },
   'practical-stable-stock': { tier: 'green', read: true },
   'core-rail-stock': { tier: 'green', read: true },
+
+  /*
+   * --- the MCX LT's own parts ---------------------------------------------
+   *
+   * Read off the cards in the recording rather than dictated, and NONE OF THEM
+   * IS CLEARED. A card in a video frame shows the six rows the frame happened
+   * to include; the five below it -- armour penetration, fire rate, capacity,
+   * muzzle velocity, gunshot range -- were off the bottom of every frame that
+   * had these cards open. That is the exact shape of reading that put a wrong
+   * muzzle velocity on the Wave Blaster, so these keep the hedge.
+   */
+  'mcx-lt-fierce-barrel': {
+    tier: 'purple',
+    stats: {
+      Control: 11, Handling: 2, Accuracy: -20,
+      // The one figure here the card does not print as a change: it shows 36
+      // against the rifle's 34, and lists Firing Damage among its effects.
+      Damage: 2,
+    },
+  },
+  'mcx-lt-hunter-barrel': { tier: 'blue' },
+  'sur-heat-shield': {
+    tier: 'purple',
+    // "Increased Fire Rate" on the card, and 870 against the rifle's 840.
+    stats: { 'Fire rate': 30, Stability: -2 },
+  },
+  'ar-60-round-extended-mag': {
+    tier: 'purple',
+    stats: { Holds: 60, Handling: -12 },
+  },
 };
 
 /**

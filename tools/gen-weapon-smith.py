@@ -392,6 +392,7 @@ SECTIONS = {
     ('red-dot-optics', 'Red dot optics', 'Opened by the MEO Micro Sight Riser.'),
     ('riser-optics', 'Riser optics', 'Opened by the Multi-Purpose Tactical Riser.'),
     ('offset-optics', 'Offset optics', ''),
+    ('kill-flash', 'Killflash', 'Opened by any of five magnified optics on the list above. The slot is certain &mdash; those five are on this rifle &mdash; but no recording has caught it open, so it has a table here and no chip on the stage yet.'),
     ('tactical-device', 'Tactical device', 'Opened by the Multi-Purpose Tactical Riser.'),
     ('muzzle', 'Muzzle', 'Taken away by the Fierce Barrel, which brings its own can.'),
     ('barrel', 'Barrel', 'The MCX LT Fierce Barrel opens three slots at once &mdash; a heat shield and both side patches &mdash; and occupies the muzzle. No other attachment on this site does as much.'),

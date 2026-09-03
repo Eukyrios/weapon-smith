@@ -71,7 +71,13 @@ export const UNCATALOGUED: Record<string, { name: string }> = {
  * file: it opens three slots and takes the muzzle, which is more than any
  * other single attachment does. */
   'mcx-lt-fierce-barrel': { name: 'MCX LT Fierce Barrel' },
+  'mcx-lt-hunter-barrel': { name: 'MCX LT Hunter Barrel' },
   'sur-heat-shield': { name: 'SUR Heat Shield' },
+  /* Two of its five magazines. Both are AR-pattern and the import carries the
+ * M4 ones beside them, which is the sort of gap that only shows up when a
+ * whole list is read rather than sampled. */
+  'ar-60-round-extended-mag': { name: 'AR 60-Round Extended Mag' },
+  'ar-30-round-polymer-mag': { name: 'AR 30-Round Polymer Mag' },
 
   /* Pads. */
   'rm277-cheek-pad': { name: 'RM277 Cheek Pad' },
