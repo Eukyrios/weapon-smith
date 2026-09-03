@@ -1517,6 +1517,7 @@ FORGE_CTRL = '''
       tick: document.getElementById('forge-tick'),
       out: document.getElementById('forge-out'),
       shut: document.getElementById('forge-close'),
+      lede: document.getElementById('forge-lede'),
       sort: document.getElementById('forge-sort'),
       mins: document.getElementById('forge-mins'),
       tally: document.getElementById('forge-tally'),
@@ -1755,8 +1756,15 @@ FORGE_CTRL = '''
         // is a fact about the part.
         const dead = must.filter((id) => !usage[id]).map((id) => NAMEOF[id]);
         forge.none.textContent = dead.length
+          // "Beaten" is the whole truth only while the grid is one point wide.
+          // Above that a part can be missing because something matched it
+          // closely rather than because something beat it, and saying beaten
+          // would be a stronger claim than the search made.
           ? 'Every build wearing ' + dead.join(' and ')
-            + ' is beaten by one that is not, so none of them are here.'
+            + (grid > 1
+                ? ' is beaten or matched to within ' + grid
+                  + ' points by one that is not, so none of them are here.'
+                : ' is beaten by one that is not, so none of them are here.')
           : must.length
             ? 'Nothing with those parts is that good at everything at once.'
             : 'Nothing is that good at everything at once. Pull a slider back down.';
@@ -1946,7 +1954,23 @@ FORGE_CTRL = '''
           // panel does not appear mid-sentence, and run them out quickly.
           if (sayQ.length > 2) sayQ = sayQ.slice(-2);
           sayGap = 110;
-          note(found.length.toLocaleString() + ' builds nothing else beats, in '
+          grid = data.eps || 1;
+          // The promise the panel makes has to be the one the search kept. On
+          // a wide grid these are not builds nothing beats -- they are builds
+          // nothing beats BY ENOUGH TO SEE, and one of them stands in for
+          // every build within a few points of it. Saying the stronger thing
+          // would be the easiest lie on the page to tell and the hardest to
+          // catch, because a frontier looks the same either way.
+          forge.lede.textContent = grid > 1
+            ? 'One of these is within ' + grid + ' points of any build you '
+              + 'could have made, on every stat at once. Click one to fit it.'
+            : 'Each of these is the best there is at something and beaten by '
+              + 'nothing at everything. Click one to fit it.';
+          note(found.length.toLocaleString()
+            + (grid > 1
+                ? ' builds, none within ' + grid + ' points of another on '
+                  + 'every stat, in '
+                : ' builds nothing else beats, in ')
             + ((performance.now() - t0) / 1000).toFixed(1) + 's');
           barTo = 1;
           forge.goLabel.textContent = 'Builds';
@@ -1978,7 +2002,8 @@ FORGE_CTRL = '''
     // A part can be asked for and turn out to be in none of the builds worth
     // keeping. That is worth saying rather than leaving as an empty list: it
     // means every build wearing it is beaten by one that is not, which is a
-    // fact about the part.
+    // fact about the part rather than about the search -- and on a wide grid,
+    // beaten OR matched, which the message below is careful to distinguish.
     const NAMEOF = {};
     for (const c of document.querySelectorAll('.pcard')) {
       const n = c.querySelector('.pcard__n');
@@ -2006,6 +2031,11 @@ FORGE_CTRL = '''
     }
 
     let must = [], usage = {}, folded = false;
+    // How wide the search's grid ended up. One means the frontier is exact;
+    // more means builds within that many points of each other on every stat
+    // were treated as the same build. Read back off the worker rather than
+    // assumed, because it is the worker that decides how far it had to go.
+    let grid = 1;
 
     function countUses() {
       usage = {};
@@ -2179,25 +2209,91 @@ function census(ORDER, pool, opens, base) {
 // Keep the rows nothing else beats. Sorting by the total first means the
 // strong rows are tested against almost nothing and the weak ones die against
 // the first thing they meet, which is what keeps this quick in practice.
-function prune(rows, D) {
+// Options in a slot that nothing else in that slot beats.
+//
+// Exact, and it costs nothing at the far end: a build wearing a part that
+// another part in the same slot beats outright is itself beaten by the build
+// that swaps them, so it was never going to survive the last prune anyway.
+// Doing it here instead means it never gets built. On the AR-57 that takes 76
+// options out of 148 -- every offset optic and the rail bipod among them,
+// which are pure cost on every stat anyone has read, so no build wearing one
+// is on the frontier and the panel says exactly that when you ask for one.
+//
+// An option that opens or shuts a slot is always kept. Its value is not in its
+// own numbers, and dropping a barrel for being weak would take a whole rail
+// with it.
+function winnow(pool, delta, opens, D) {
+  const Z = new Array(D).fill(0);
+  const beats = (a, b) => {
+    for (let d = 0; d < D; d++) if (a[d] < b[d]) return false;
+    return true;
+  };
+  const out = {};
+  for (const [slot, ids] of Object.entries(pool)) {
+    const seen = new Set();
+    out[slot] = ids.filter((i) => {
+      if (opens[i]) return true;
+      const v = delta[i] || Z, key = v.join(',');
+      if (seen.has(key)) return false;   // same numbers twice: keep the first
+      seen.add(key);
+      if (beats(Z, v)) return false;     // beaten by fitting nothing at all
+      return !ids.some((j) => {
+        if (j === i || opens[j]) return false;
+        const w = delta[j] || Z;
+        return beats(w, v) && w.join(',') !== key;
+      });
+    });
+  }
+  return out;
+}
+
+// Builds nothing else beats -- or, when `eps` is above one, nothing else beats
+// by enough to matter.
+//
+// WHY THERE IS AN EPS AT ALL. The exact frontier of this search is not big, it
+// is unreachable. Eight stats move independently and fifteen slots each offer
+// a handful of options that trade against each other, and in eight dimensions
+// almost nothing dominates anything: on the AR-57, with every list read, the
+// frontier passed eighty-eight thousand builds partway through and the browser
+// was still grinding at ten minutes. That is not a slow implementation of a
+// good answer. Eighty-eight thousand builds is not an answer anyone can use,
+// and the true figure is larger again.
+//
+// So builds are compared on a grid `eps` points wide instead of exactly. Two
+// builds in the same box are treated as the same build and the better-summing
+// one stands for both. The guarantee that replaces "nothing beats this" is
+// worth stating and the page does state it: whatever build you could have had,
+// something in this list is within eps points of it on every stat.
+function prune(rows, D, eps) {
   rows.sort((a, b) => b.sum - a.sum);
-  const keep = [];
+  const keep = [], boxes = [];
   outer:
   for (const r of rows) {
-    for (const k of keep) {
+    const bx = eps > 1 ? Array.from(r.v, (x) => Math.floor(x / eps)) : r.v;
+    for (const k of boxes) {
       let beats = true;
-      for (let d = 0; d < D; d++) if (k.v[d] < r.v[d]) { beats = false; break; }
+      for (let d = 0; d < D; d++) if (k[d] < bx[d]) { beats = false; break; }
       if (beats) continue outer;        // equal counts as beaten: no repeats
     }
+    boxes.push(bx);
     keep.push(r);
   }
   return keep;
 }
 
+// How many part-way builds are worth carrying before the grid is widened.
+// Chosen from what the work actually costs: pruning is every survivor against
+// every other, so it grows with the square, and six thousand is about a second
+// per slot on a laptop. Past that the reader is watching a progress bar tick
+// towards a list they could not read anyway.
+const CAP = 6000;
+
 onmessage = ({data}) => {
-  const {pool, delta, opens, base, keys} = data;
+  const {delta, opens, base, keys} = data;
   const D = keys.length;
   const BASE = new Set(base);
+  const pool = winnow(data.pool, delta, opens, D);
+  let eps = 1;
   const ORDER = order(pool, opens, BASE);
   const cares = new Set();
   for (const r of Object.values(opens))
@@ -2253,17 +2349,30 @@ onmessage = ({data}) => {
     }
     let kept = 0;
     for (const [key, rows] of merged) {
-      const cut = prune(rows, D);
+      const cut = prune(rows, D, eps);
       merged.set(key, cut);
       kept += cut.length;
     }
+    // Still too many to carry. Widen the grid and sieve what survived rather
+    // than starting the slot again: a set that covers every build to within
+    // eps still covers every build to within eps + 1, so the coarser pass can
+    // run over the finer one's output and the guarantee holds.
+    while (kept > CAP) {
+      eps++;
+      kept = 0;
+      for (const [key, rows] of merged) {
+        const cut = prune(rows, D, eps);
+        merged.set(key, cut);
+        kept += cut.length;
+      }
+    }
     cur = merged;
-    postMessage({step: k + 1, of: ORDER.length, slot, raw, kept});
+    postMessage({step: k + 1, of: ORDER.length, slot, raw, kept, eps});
   }
 
   let all = [];
   for (const rows of cur.values()) all = all.concat(rows);
-  postMessage({done: prune(all, D).map((r) => ({v: [...r.v], fit: r.fit}))});
+  postMessage({eps, done: prune(all, D, eps).map((r) => ({v: [...r.v], fit: r.fit}))});
 };
 """
 
@@ -2594,8 +2703,8 @@ def gunsmith_body(g):
         <button class="fside__x" id="forge-close" type="button"
                 aria-label="Close">&times;</button>
       </header>
-      <p class="fside__lede">Each of these is the best there is at something and
-      beaten by nothing at everything. Click one to fit it.</p>
+      <p class="fside__lede" id="forge-lede">Each of these is the best there is
+      at something and beaten by nothing at everything. Click one to fit it.</p>
 
       <div class="freq">
         <div class="freq__bar">
