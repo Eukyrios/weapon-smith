@@ -512,6 +512,32 @@ export const CARD_FACTS: Record<string, CardFacts> = {
       'Muzzle velocity': 95, 'Gunshot heard': -90,
     },
   },
+  /*
+   * The AR-57's two stock kits, both purple.
+   *
+   * The catalogue has three lines for the Resonant 2 — control, accuracy,
+   * stability — and no handling at all, so the page printed a stock kit that
+   * did nothing for how the rifle carries, which is most of what a stock kit
+   * is for. The card says +10. Written here as one more line rather than as a
+   * replacement block, because stats_for lays the card over the catalogue key
+   * by key: the three the import already had are right, and this is the one it
+   * was missing.
+   */
+  'resonant-2-integral-stock': {
+    tier: 'purple', read: true,
+    stats: { Handling: 10 },
+  },
+  'restricted-zone-integral-stock': { tier: 'purple', read: true },
+  /*
+   * An AR-57 muzzle brake the import does not carry, so every figure on it is
+   * off the card and there is no picture of it yet — which the page now says
+   * out loud, with #no-picture, rather than quietly closing the gap where the
+   * image would have been.
+   */
+  'ffc-double-port-muzzle-brake': {
+    tier: 'purple', read: true,
+    stats: { Control: 10, Handling: -4, Stability: 3 },
+  },
 };
 
 /**

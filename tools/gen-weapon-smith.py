@@ -271,6 +271,22 @@ def needs_art(iid):
     return bool((CARD_FACTS.get(iid) or {}).get('imageChange'))
 
 
+def needs_picture(iid):
+    """Is there no picture of this item at all? The #no-picture tag.
+
+    Asked of the filesystem, like has_art, and for the same reason: what
+    settles it is whether a file is committed, not what any record claims.
+
+    Every one of the catalogued items came with art, so this only ever fires on
+    an item read off a card the import does not carry — and there it fires the
+    moment the item is named, which is the point. Until now a missing picture
+    showed up as nothing whatever: the <img> removes itself on error, so the
+    page quietly closed over the hole and the only way to find one was to
+    notice a blank space. A debt nobody can see is a debt nobody pays.
+    """
+    return not has_art('att', iid)
+
+
 # MISSING used to sit here: for each weapon and slot, the names a transcript
 # gave that the catalogue does not carry, each with the index it occupies in
 # the dictated order. It was two facts in one table -- what the item is called,
@@ -492,6 +508,8 @@ def table(g, slot, prefix=UP):
                 if unread else '')
         tag += (' <span class="tag tag--soft">#image-change</span>'
                 if needs_art(item_id(name)) else '')
+        tag += (' <span class="tag tag--soft">#no-picture</span>'
+                if needs_picture(item_id(name)) else '')
         cls = ' class="is-gap"' if missing else ''
         adds = ADDS.get(name, '')
         blocks = BLOCKS.get(name, '')
@@ -850,6 +868,8 @@ def item_section(item, accepted_in):
             if needs_extra(item['id']) else '')
     tag += (' <span class="tag tag--soft">#image-change</span>'
             if needs_art(item['id']) else '')
+    tag += (' <span class="tag tag--soft">#no-picture</span>'
+            if needs_picture(item['id']) else '')
     kind = CAT_LABEL.get(item['cat'], item['cat']) if item['cat'] else ''
     sub = kind if kind else 'Named in a slot list.'
     return (f'  <section class="entry" id="{item["id"]}" '
@@ -1263,6 +1283,8 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
             out.append('not-tracked')
         if needs_art(i['id']):
             out.append('image-change')
+        if needs_picture(i['id']):
+            out.append('no-picture')
         return tuple(out)
 
     def att_tile(i):
@@ -1291,6 +1313,9 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
     n_art = sum(1 for i in items.values() if needs_art(i['id']))
     if n_art:
         links += tag_link('image-change', 'Drawn with the wrong picture', n_art)
+    n_pic = sum(1 for i in items.values() if needs_picture(i['id']))
+    if n_pic:
+        links += tag_link('no-picture', 'No picture cut out for it yet', n_pic)
     nav_group('Attachments', len(items), links)
 
     body = [f"""  <div class="browse">
