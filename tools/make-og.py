@@ -64,19 +64,38 @@ def font(kind):
 
 
 def counts():
-    """The three numbers, from the data the site itself is built from."""
-    data = lambda n: json.loads((ROOT / 'data' / f'{n}.json').read_text(encoding='utf-8'))
-    weapons, ammo, attach = data('weapons'), data('ammo'), data('attachments')
+    """The three numbers, from the data the site itself is built from.
 
-    # The catalogue also carries items named in a slot list that the game
-    # catalogue has no entry for. The site counts those as attachments, so the
-    # card has to as well or the two disagree in public.
-    gen = (ROOT / 'tools' / 'gen-weapon-smith.py').read_text(encoding='utf-8')
-    block = re.search(r'^MISSING = \{.*?^\}', gen, re.S | re.M)
-    named = set(re.findall(r"\(\d+, '([^']+)'\)", block.group(0))) if block else set()
-    known = {a['name'] for a in attach}
-    extra = len(named - known)
-    return len(weapons), len(ammo), len(attach) + extra
+    The attachment figure is the catalogue plus the items a slot list names
+    that the catalogue does not carry -- the site gives every one of those a
+    page, so the card has to count them or the two disagree in public.
+
+    THIS USED TO READ THE SECOND GROUP BY REGEX out of gen-weapon-smith.py,
+    scraping the names out of a MISSING = {...} block. That block was moved
+    into data/uncatalogued.json a while ago, and because the regex simply found
+    nothing it added nothing and said nothing: the card went on rendering, one
+    item short for every uncatalogued part added since. Eleven of them, by the
+    time anyone looked at the picture. It is the exact failure this file's own
+    header warns about -- wrong in the one place nobody looks -- committed by
+    the script written to prevent it.
+
+    So it reads the file, and if a file it needs is missing it stops rather
+    than quietly drawing a smaller number.
+    """
+    def data(n):
+        p = ROOT / 'data' / f'{n}.json'
+        if not p.is_file():
+            raise SystemExit(f'{p.relative_to(ROOT)} is not there; run '
+                             '`npm run gen` before drawing the card.')
+        return json.loads(p.read_text(encoding='utf-8'))
+
+    weapons, ammo = data('weapons'), data('ammo')
+    attach, extra = data('attachments'), data('uncatalogued')
+    both = {a['id'] for a in attach} & set(extra)
+    if both:
+        raise SystemExit('counted twice, catalogued and not: '
+                         + ', '.join(sorted(both)))
+    return len(weapons), len(ammo), len(attach) + len(extra)
 
 
 def mark(px):
