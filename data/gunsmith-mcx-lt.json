@@ -819,8 +819,8 @@
     "kill-flash": {
      "x": 786,
      "y": 216,
-     "ax": 840,
-     "ay": 353,
+     "ax": 871,
+     "ay": 406,
      "label": "Killflash"
     },
     "mag": {
