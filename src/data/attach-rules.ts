@@ -865,6 +865,14 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
     'right-patch': CATEGORY_FITS['right-patch'],
     'rear-grip': CATEGORY_FITS['rear-grip'],
     'mag-mount': CATEGORY_FITS['mag-mount'],
+    'tactical-device': CATEGORY_FITS['tactical-device'],
+    'rear-grip-patch': CATEGORY_FITS['rear-grip-patch'],
+    'rear-grip-mount': CATEGORY_FITS['rear-grip-mount'],
+    // The five handguard panels, same as the two side patches on this rifle
+    // and on the RM277. The one place "same as the RM277" could not be taken
+    // at its word: that weapon has no upper patch to copy. This is the patch
+    // list, which all three of this rifle's patch slots share.
+    'upper-patch': CATEGORY_FITS['left-patch'],
 
     // Both weapon-exclusive, neither in the catalogue, and one of them is the
     // part that gives this rifle three of its slots.
