@@ -22,6 +22,11 @@ WHAT A SPEC HOLDS
             rifle is, and this is what says which difference is the weapon.
     seeds   [slot, label, x, y] per chip, and optionally "pinned" as a fifth
             element for a chip whose border is too faint to snap to.
+    erase   optional [x0, y0, x1, y1] rectangles of the frame that are NOT the
+            weapon whatever the measurements say -- a shadow the gun throws on
+            the lit floor with its own leader line running through it, which no
+            test tells from a smooth panel of the gun. Hand-placed, like the
+            seeds, and for the same reason.
 
 Nothing else. The two bands of bare ground the background is first guessed
 from are derived from `box`, and so is the gradient between them.
@@ -262,19 +267,62 @@ _z = ndimage.sum(strict, _l, range(1, _n + 1))
 strict = np.isin(_l, [i + 1 for i, v in enumerate(_z) if v > 800])
 m &= ndimage.binary_dilation(ndimage.binary_fill_holes(strict),
                              np.ones((3, 3)), iterations=40)
-# Sealing the silhouette, but ONLY SMALL HOLES. A rifle drawn side-on encloses
-# real background: the MCX LT's magazine, receiver and pistol grip make a ring
-# around the trigger guard, and filling every hole put a forty-thousand-pixel
-# slab of floor inside it -- visible on orange as a dark blue wedge with a
-# stair-stepped edge, and on the site as a solid block behind the trigger. The
-# holes this is FOR are the speckle the two-threshold pass leaves inside the
-# metal, which is orders of magnitude smaller. Same bargain, and same cap, as
-# the one that stops the glow mask swallowing a pistol grip.
+# Sealing the silhouette, but NOT WHERE THE HOLE IS REALLY A HOLE. A rifle
+# drawn side-on encloses real background -- magazine, receiver and pistol grip
+# make a ring around the trigger guard -- and filling every hole puts a slab of
+# floor inside it, visible on orange as a stair-edged wedge and on the site as
+# a block behind the trigger. The holes this is FOR are the speckle the
+# two-threshold pass leaves inside metal.
+#
+# THIS USED TO BE A SIZE CAP: fill anything under 4,000px. Size was never the
+# question, only a proxy for it, and the MK47 walked straight through -- its
+# trigger guard is a thousand pixels, so it was filled, and the site drew a
+# block behind its trigger exactly as the MCX LT once did.
+#
+# The question is whether what shows through the hole is the ground. bg2 models
+# the ground and is interpolated across the weapon, so it predicts a see-through
+# hole well and metal badly, and the three weapons separate with room to spare:
+#
+#     see-through   1.3  1.4  1.5  1.9      (up to 6,519px)
+#     speckle       3.0 .. 8.4              (up to 963px)
+#     metal        29.7                     (the AR-57's, 1,418px)
+#
+# A measurement, where there was a number chosen to make one weapon come out
+# right.
 _filled = ndimage.binary_fill_holes(ndimage.binary_closing(m, np.ones((5, 5))))
 m = ndimage.binary_closing(m, np.ones((5, 5)))
 _h, _n = ndimage.label(_filled & ~m)
-_z = ndimage.sum(_filled & ~m, _h, range(1, _n + 1))
-m = m | np.isin(_h, [i + 1 for i, v in enumerate(_z) if v < 4000])
+_dev = ndimage.mean(np.abs(a - bg2).sum(axis=2), _h, range(1, _n + 1))
+m = m | np.isin(_h, [i + 1 for i, v in enumerate(_dev) if v > 2.5])
+# AND A SLAB THAT LOOKS EXACTLY LIKE THE FLOOR IS THE FLOOR, even when it is
+# joined to the weapon. The bound above keeps anything within forty pixels of
+# the silhouette, which is what stops a buttplate being trimmed off across a
+# gap -- and it also kept the shadow the MK47's magazine throws on the lit
+# floor, a wedge of ground with the mag's own leader line running through it,
+# hanging off the bottom of the magazine.
+#
+# Same measurement as the holes, one step stricter, and only on lumps: a patch
+# of mask that agrees with the background model to within 8 and runs to more
+# than 150px is not a soft edge, it is ground. A real fringe -- the top of a
+# buffer tube fading out over three pixels -- is neither that flat nor that
+# big. Checked on all three weapons: it takes the wedge and nothing else.
+# AND WHAT IS LEFT, SOMEBODY POINTS AT. The MK47's magazine throws a shadow on
+# the lit floor and the mag's own leader line runs through it, so a wedge of
+# ground hangs off the magazine, inside the forty-pixel bound that keeps a
+# buttplate attached. Three measurements were tried on it and none separates it
+# from the weapon: it agrees with the background model no better than the dark
+# parts of the receiver do, and its local texture (3.96) is ROUGHER than the
+# buttstock's flat panel (1.81), because the leader line crosses it. A rule
+# tuned to take it takes pieces of every rifle with it -- that was tested, and
+# it ate a stripe of the MK47's receiver and two chunks of its stock.
+#
+# So it is named in the spec, the same bargain the seeds make: hand-placed to
+# the right object, machine-placed to the right pixel. A rectangle written down
+# in a file is a claim somebody can check against the picture; a threshold
+# chosen until one weapon came out right is not.
+for x0, y0, x1, y1 in spec.get('erase', []):
+    m[y0:y1, x0:x1] = False
+
 _l, _n = ndimage.label(m)
 _z = ndimage.sum(m, _l, range(1, _n + 1))
 m = np.isin(_l, [i + 1 for i, v in enumerate(_z) if v > 400])
@@ -501,5 +549,18 @@ for c in chips:
     dr.ellipse([c['ax']-6, c['ay']-6, c['ax']+6, c['ay']+6],
                outline=(255, 230, 0), width=3)
 im.resize((im.width * 3 // 4, im.height * 3 // 4)).save(checks / f'{WID}-chips.png')
+# Slot pictures, on the same crop convention as the layouts cutter: the chip's
+# inside, without its border, resampled to 70.
+_want = set(spec.get('icons', []))
+if _want:
+    _icons = ROOT / 'smith/slot'
+    _icons.mkdir(parents=True, exist_ok=True)
+    _src = Image.open(spec['frame']).convert('RGB')
+    for c in chips:
+        if c['slot'] in _want:
+            _src.crop((c['x'] + 2, c['y'] + 2, c['x'] + S - 1, c['y'] + S - 1)) \
+                .resize((70, 70), Image.LANCZOS).save(_icons / f"{c['slot']}.png")
+            print(f"  icon {c['slot']}")
+
 print(f'\nwrote smith/{WID}.png, data/gunsmith-{WID}.json, '
       f'and two checks in tools/cut-checks/')

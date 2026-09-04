@@ -2,7 +2,12 @@
  "weapon": "mcx-lt",
  "frame": "/home/claude/mcx-lt/base.png",
  "chip": 70,
- "box": [615, 336, 1570, 775],
+ "box": [
+  615,
+  336,
+  1570,
+  775
+ ],
  "note": [
   "Screen Recording 2026-09-03 194921.mp4 at 3s, the bare rifle, settled and",
   "with no charm hanging off it.",
@@ -12,21 +17,94 @@
   "derived from this box, so Y0 has about twenty pixels of room between the",
   "left-rail chip above and the front sight below. The bottom clears the",
   "magazine, which hangs to y750 -- much lower than anything on the other two",
-  "rifles, and the reason Y1 is not simply copied."
+  "rifles, and the reason Y1 is not simply copied.",
+  "",
+  "smith/slot/mag.png is cut from here. The one the site had was carrying a",
+  "floor light in its bottom-right corner -- 171 teal pixels where every other",
+  "slot icon has none, measured across all twenty-six -- and nothing recorded",
+  "which frame it came from. This chip sits on clean ground."
  ],
  "seeds": [
-  ["muzzle", "Muzzle", 193, 419],
-  ["foregrip", "Foregrip", 276, 352],
-  ["left-rail", "Left Rail", 371, 304],
-  ["right-rail", "Right Rail", 472, 270],
-  ["barrel", "Barrel", 574, 245],
-  ["upper-rail", "Upper Rail", 679, 228],
-  ["upper-patch", "Upper Patch", 877, 212],
-  ["optics", "Optic", 1028, 213],
-  ["offset-optics", "Offset Optic", 1215, 232],
-  ["stock", "Stock", 1677, 423],
-  ["rear-grip", "Rear Grip", 1559, 704],
-  ["mag", "Mag", 871, 826],
-  ["mag-mount", "Mag Mount", 948, 827]
+  [
+   "muzzle",
+   "Muzzle",
+   193,
+   419
+  ],
+  [
+   "foregrip",
+   "Foregrip",
+   276,
+   352
+  ],
+  [
+   "left-rail",
+   "Left Rail",
+   371,
+   304
+  ],
+  [
+   "right-rail",
+   "Right Rail",
+   472,
+   270
+  ],
+  [
+   "barrel",
+   "Barrel",
+   574,
+   245
+  ],
+  [
+   "upper-rail",
+   "Upper Rail",
+   679,
+   228
+  ],
+  [
+   "upper-patch",
+   "Upper Patch",
+   877,
+   212
+  ],
+  [
+   "optics",
+   "Optic",
+   1028,
+   213
+  ],
+  [
+   "offset-optics",
+   "Offset Optic",
+   1215,
+   232
+  ],
+  [
+   "stock",
+   "Stock",
+   1677,
+   423
+  ],
+  [
+   "rear-grip",
+   "Rear Grip",
+   1559,
+   704
+  ],
+  [
+   "mag",
+   "Mag",
+   871,
+   826
+  ],
+  [
+   "mag-mount",
+   "Mag Mount",
+   948,
+   827
+  ]
+ ],
+ "icons": [
+  "mag"
  ]
 }

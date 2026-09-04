@@ -31,7 +31,14 @@
   "other spec here. Written as centres the first time, which put all fifteen",
   "35px down and right of the box, and the snap then locked each one onto a",
   "weak local maximum a few pixels away rather than the border it was meant",
-  "to find. The ring scores gave it away: 3 and 4 against the MCX LT's 17."
+  "to find. The ring scores gave it away: 3 and 4 against the MCX LT's 17.",
+  "",
+  "The erase rectangle is the shadow the magazine throws on the lit floor, with",
+  "the mag's own leader line running diagonally through it. It sits inside the",
+  "forty-pixel bound that keeps a buttplate attached, and no measurement tells",
+  "it from the weapon: it matches the background model no better than the dark",
+  "half of the receiver does, and its local texture is ROUGHER than the",
+  "buttstock's flat panel because of the line. So it is pointed at by hand. The second rectangle is a single floor-light fragment caught at the bottom of the pistol grip."
  ],
  "seeds": [
   [
@@ -123,6 +130,20 @@
    "Mag Mount",
    1178,
    810
+  ]
+ ],
+ "erase": [
+  [
+   1024,
+   634,
+   1100,
+   700
+  ],
+  [
+   1200,
+   658,
+   1224,
+   678
   ]
  ]
 }
