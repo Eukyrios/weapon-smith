@@ -652,9 +652,7 @@
     "rear-grip-patch",
     "red-dot-optics"
    ],
-   "blocks": [
-    "rear-grip-mount"
-   ],
+   "blocks": [],
    "by": [
     "meo-micro-sight-riser",
     "ar-modular-rear-grip"

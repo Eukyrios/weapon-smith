@@ -466,9 +466,7 @@
    "when": [
     "rear-grip-patch"
    ],
-   "blocks": [
-    "rear-grip-mount"
-   ],
+   "blocks": [],
    "by": [
     "ar-modular-rear-grip"
    ],

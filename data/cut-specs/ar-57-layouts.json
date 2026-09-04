@@ -119,16 +119,14 @@
    "grants": [
     "rear-grip-patch"
    ],
-   "occupies": [
-    "rear-grip-mount"
-   ],
+   "occupies": [],
    "seed": {
     "rear-grip-patch": [
      1713,
      490
     ]
    },
-   "why": "The modular grip's card prints Grip Mount under Conflicting Slots. Nothing is visibly removed here, but the layout has to say what the rule says or the page stops matching it and composes a picture instead of using the one that was watched."
+   "why": "The modular grip's card prints Grip Mount under Conflicting Slots and this clip was cut believing that mattered. It cannot: the mount is opened by a DIFFERENT rear grip, so no build has both. The conflict is out of the rules and out of this layout, which is what was really watched -- nothing was removed here, because nothing was there to remove."
   }
  ],
  "icon_from": {}

@@ -740,10 +740,26 @@ export const PENDING_RULES: Record<string, AttachRule> = {
   },
   'ar-modular-rear-grip': {
     grants: ['rear-grip-patch'],
-    // Printed on its own card, under "Conflicting Slots", and read off the
-    // MCX LT's gunsmith. It was there on the RM277's card too and nobody
-    // looked: a grip carries either a patch or a mount, not both.
-    conflictSlots: ['rear-grip-mount'],
+    /*
+     * Its card prints Grip Mount under "Conflicting Slots", and this rule used
+     * to carry it. IT CANNOT EVER FIRE, so it is gone.
+     *
+     * The mount is opened by the AR Heavy Tower Grip, which goes in the rear
+     * grip slot -- the same slot this grip is in. Fitting one takes the other
+     * off, so the mount does not exist in any build that has the modular grip
+     * in it. The rule was true and had nothing to be true about.
+     *
+     * It was not free, either. A conflict is part of what the page matches a
+     * traced layout against, so declaring one obliged all three weapons to
+     * record `blocks: ["rear-grip-mount"]` on an arrangement where no mount
+     * was ever open; get that wrong and the page silently composes a picture
+     * instead of using the one that was watched, and every chip drifts a few
+     * pixels. Three specs and three layout files carried that just to agree
+     * with a rule that could not apply.
+     *
+     * The lesson is not that the card was wrong. It is that a rule copied from
+     * a card wants asking whether the situation it forbids can happen.
+     */
   },
   /*
    * The MCX LT's two barrels, and between them the counterexample to the shape

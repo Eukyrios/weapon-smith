@@ -354,8 +354,19 @@ def main():
 
     # An anchor already recorded stays: see the header. Only a slot with no
     # anchor anywhere gets one traced.
-    was = {(tuple(l['when']), tuple(l['blocks'])): l['chips']
-           for l in d.get('layouts', [])}
+    #
+    # WHICH ARRANGEMENT A RECORDED LAYOUT IS is decided by the slots it has
+    # OPEN, and by nothing else. It used to be decided by the open set and the
+    # blocked set together, which meant that correcting a conflict in the rules
+    # -- exactly the sort of edit that sends someone back to this script --
+    # missed every anchor in the arrangement whose conflict changed and traced
+    # them all again from scratch. Dropping ar-modular-rear-grip's dead grip-
+    # mount conflict moved the AR-57's Rear Grip Patch anchor 64px, off a spot
+    # that had been dragged there by hand. Two layouts of the same weapon with
+    # the same slots open but different ones blocked would collide here; none
+    # exists, and if one ever does, the anchors are still the same points on
+    # the same weapon.
+    was = {tuple(sorted(l['when'])): l['chips'] for l in d.get('layouts', [])}
     # AND ONE MEASURED IN AN EARLIER CLIP COUNTS AS RECORDED. The anchor is a
     # point on the weapon, so a slot that appears in three arrangements has one
     # anchor between them, not three tries at it -- and three tries is worse
@@ -400,8 +411,7 @@ def main():
         if missing:
             raise SystemExit(f'{c["key"]}: no chip found for {missing}')
 
-        before = was.get((tuple(sorted(c['grants'])),
-                          tuple(sorted(c['occupies'])))) or {}
+        before = was.get(tuple(sorted(c['grants']))) or {}
         chips = {}
         for sid, (x, y) in sorted(got.items(), key=lambda kv: kv[1]):
             kept = before.get(sid) or {}
