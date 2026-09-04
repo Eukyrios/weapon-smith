@@ -129,20 +129,71 @@ def has_art(folder, iid):
     return (ROOT / folder / (iid + '.png')).is_file()
 
 
-def thumb(folder, iid, show=True, up=UP):
-    """A 40px card thumbnail.
+# thumb() used to sit here: a 40px span with a background image, chosen over an
+# <img> precisely so that a missing file left an empty box instead of the
+# browser's torn-page glyph. Nothing has called it for a long time, and the
+# argument it was built on is the one art_debt() below reverses, so keeping a
+# dead function around to argue the losing side of a settled question is worse
+# than deleting it. Its .card .thumb rule went with it.
 
-    A span with a background image rather than an <img>: a missing file then
-    simply leaves the empty box, where a broken <img> draws the browser's own
-    torn-page glyph. With 539 of these on one page and a picture mirror that is
-    always a little behind the transcripts, the failure mode is the thing worth
-    designing for. Browsers defer offscreen background images, so this stays
-    lazy without the intrinsic-size trap that makes loading="lazy" never fire.
+
+def art_debt(iid, folder='att'):
+    """Why this item cannot be shown as it is -- or None, meaning it can.
+
+    Two different debts land in the same place on the page. EITHER there is no
+    picture of the item at all, OR there is one and it is somebody else's,
+    borrowed from a part that looks close enough that nobody noticed.
+
+    The second is the worse of the two and used to be the invisible one. A
+    missing picture at least left a hole; a wrong picture is read as the item.
+    So both are drawn the same way now -- the torn-page mark, in place of the
+    art rather than beside it -- and it is the title and the tag that say which
+    debt it is. A borrowed picture is worth less than no picture, because a
+    reader believes it.
+
+    This reverses the note that stood on thumb() for most of this file's life,
+    which argued that an empty box was the kinder failure. It is kinder to the
+    page and no use at all to the person who has to go and pay the debt, and
+    the point of these marks is that somebody eventually does.
+
+    The rounds get the same treatment for the same reason: twenty-six of the
+    eighty-nine have no picture, and until now every one of them was a blank
+    rectangle indistinguishable from a slow-loading one. They carry no
+    #no-picture tag, because that tag counts a debt on the attachment
+    catalogue, but the hole is the same hole.
     """
-    if not show:
-        return '<span class="thumb" aria-hidden="true"></span>'
-    return (f'<span class="thumb" aria-hidden="true" '
-            f'style="background-image:url({up}{folder}/{iid}.png)"></span>')
+    if folder == 'att' and needs_art(iid):
+        return 'wrong'
+    if not has_art(folder, iid):
+        return 'none'
+    return None
+
+
+TORN_TITLE = {
+    'none': 'No picture of this one yet',
+    'wrong': 'Drawn with another part&rsquo;s picture, so it is not shown',
+}
+
+# A checkout where tools/sync-from-roulette.py has not been run has no att/ or
+# ammo/ pictures at all, and nothing the generator can see says so. Every <img>
+# that might 404 therefore relabels itself as the same mark instead of removing
+# itself, which is what it used to do: a page that silently dropped every
+# picture looked like a page that was never meant to have any.
+TORN_ONERROR = ("onerror=\"this.className='shot shot--torn torn torn--none';"
+                "this.title='Picture not found'\"")
+
+
+def torn(iid, folder='att', extra=''):
+    """The mark that stands in for an item's picture when there is not one.
+
+    Returns '' for an item whose own art is committed, so a caller can paste it
+    unconditionally next to whatever it was going to draw.
+    """
+    why = art_debt(iid, folder)
+    if not why:
+        return ''
+    cls = f'torn torn--{why}' + (f' {extra}' if extra else '')
+    return f'<span class="{cls}" title="{TORN_TITLE[why]}"></span>'
 
 
 def anchor(kind, value):
@@ -883,15 +934,25 @@ def item_section(item, accepted_in):
     fact_rows = ''.join(
         f'          <tr><td>{k}</td><td class="v">{v}</td></tr>\n' for k, v in facts)
 
-    img = ''
-    if item['known'] or has_art('att', item['id']):
-        # att/ is filled by tools/sync-from-roulette.py; a page must still read
-        # correctly on a checkout where the sync has not been run.
-        # Every mirrored picture is a 512x256 canvas, so a square frame spent
-        # half its height on nothing and showed the art at a fifth of the
-        # pixels it has. The frame matches the canvas instead.
+    # att/ is filled by tools/sync-from-roulette.py; a page must still read
+    # correctly on a checkout where the sync has not been run. Every mirrored
+    # picture is a 512x256 canvas, so a square frame spent half its height on
+    # nothing and showed the art at a fifth of the pixels it has. The frame
+    # matches the canvas instead.
+    #
+    # onerror used to remove the <img>, which closed the page over the hole.
+    # It now turns the frame into the torn mark, so a checkout without the
+    # sync run looks like what it is rather than like a page with no pictures
+    # in it.
+    debt = art_debt(item['id'])
+    if debt:
+        img = (f'      <span class="shot shot--torn torn torn--{debt}" '
+               f'title="{TORN_TITLE[debt]}"></span>\n')
+    elif item['known'] or has_art('att', item['id']):
         img = (f'      <img class="shot" src="{DEEP}att/{item["id"]}.png" alt="" '
-               'width="280" height="140" onerror="this.remove()">\n')
+               f'width="280" height="140" {TORN_ONERROR}>\n')
+    else:
+        img = ''
 
     slots_html = ''
     if accepted_in:
@@ -1006,8 +1067,11 @@ def gun_fragment(w):
         # the same picture twice.
         img = ''
     else:
-        img = (f'      <img class="shot" src="{DEEP}gear/{w["id"]}.png" alt="" '
-               'width="280" height="140" onerror="this.remove()">\n')
+        img = (f'      <span class="shot shot--torn torn torn--none" '
+               f'title="{TORN_TITLE["none"]}"></span>\n'
+               if art_debt(w['id'], 'gear') else
+               f'      <img class="shot" src="{DEEP}gear/{w["id"]}.png" alt="" '
+               f'width="280" height="140" {TORN_ONERROR}>\n')
 
     if w['id'] in DOCUMENTED:
         n = len(g.sections)
@@ -1157,8 +1221,13 @@ def ammo_section(a, guns):
     rows = ''.join(f'          <tr><td>{k}</td><td class="v">{v}</td></tr>\n'
                    for k, v in facts)
 
-    img = (f'      <img class="shot" src="{DEEP}ammo/{a["id"]}.png" alt="" '
-           'width="280" height="140" onerror="this.remove()">\n')
+    # Twenty-six of the eighty-nine rounds have no picture mirrored yet, and
+    # every one of them used to render as nothing whatever.
+    img = (f'      <span class="shot shot--torn torn torn--none" '
+           f'title="{TORN_TITLE["none"]}"></span>\n'
+           if art_debt(a['id'], 'ammo') else
+           f'      <img class="shot" src="{DEEP}ammo/{a["id"]}.png" alt="" '
+           f'width="280" height="140" {TORN_ONERROR}>\n')
 
     chambers = ''
     if guns:
@@ -1215,8 +1284,13 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
     to `#class-assault-rifle` still lands on the right group — which matters,
     because the weapon pages link into here by exactly those ids.
     """
-    def tile(href, name, pic, gap=False, tags=(), done=False):
+    def tile(href, name, pic, gap=False, tags=(), done=False, debt=None):
         """One item: its picture, with its name laid over the bottom of it.
+
+        `debt` says the picture cannot be trusted -- see art_debt(). The tile
+        then draws the torn mark in the picture's place rather than the
+        picture, which is the whole point: a borrowed picture at tile size is
+        indistinguishable from a right one.
 
         `tags` are what the search box's #words match on. They are not printed:
         a tile is 96px wide and the tag is a property of the record rather than
@@ -1228,12 +1302,15 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         page that answers questions and a page that lists names.
         """
         cls = 'tile tile--gap' if gap else 'tile'
-        bg = (f' style="background-image:url({art}{pic})"' if pic else '')
+        bg = (f' style="background-image:url({art}{pic})"'
+              if pic and not debt else '')
         tg = f' data-tags="{" ".join(tags)}"' if tags else ''
         mark = ('<span class="tile__done" title="Read to the end">&#10003;</span>'
                 if done else '')
+        hole = (f'<span class="torn torn--{debt} torn--tile" '
+                f'title="{TORN_TITLE[debt]}"></span>' if debt else '')
         return (f'      <a class="{cls}" href="{pages}{href}"{tg}>'
-                f'<span class="tile__art"{bg}></span>{mark}'
+                f'<span class="tile__art"{bg}></span>{hole}{mark}'
                 f'<span class="tile__name">{name}</span></a>\n')
 
     groups, nav = [], []
@@ -1281,7 +1358,7 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
             tile(gun_href(w['id'], pages), w['name'],
                  f'gear/{w["id"]}.png' if has_art('gear', w['id']) else None,
                  tags=('complete',) if finished(w['id']) else (),
-                 done=finished(w['id']))
+                 done=finished(w['id']), debt=art_debt(w['id'], 'gear'))
             for w in rows), len(rows))
         links += nav_link(gid, cls, len(rows))
     n_done = sum(1 for w in WEAPONS if finished(w['id']))
@@ -1299,7 +1376,8 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         group(gid, cal, ''.join(
             tile(ammo_href(a['id'], pages), a['name'],
                  f'ammo/{a["id"]}.png'
-                 if (a['hasArt'] or has_art('ammo', a['id'])) else None)
+                 if (a['hasArt'] or has_art('ammo', a['id'])) else None,
+                 debt=art_debt(a['id'], 'ammo'))
             for a in rows), len(rows))
         links += nav_link(gid, cal, len(rows))
     nav_group('Ammunition', len(AMMO), links)
@@ -1349,7 +1427,8 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         return tile(item_href(i['id'], pages), i['name'],
                     f'att/{i["id"]}.png'
                     if (i['known'] or has_art('att', i['id'])) else None,
-                    gap=needs_info(i['id']), tags=item_tags(i))
+                    gap=needs_info(i['id']), tags=item_tags(i),
+                    debt=art_debt(i['id']))
 
     links = ''
     for cat in ['muzzle', 'barrel', 'handguard', 'foregrip', 'rear grip',
@@ -2470,12 +2549,13 @@ def slot_panel(g, slot, label):
     for i, (name, missing, unread) in enumerate(rows_for(g, slot)):
         iid = item_id(name)
         tier = (CARD_FACTS.get(iid) or {}).get('tier') or 'none'
+        debt = art_debt(iid)
         art = (f' style="background-image:url({DEEP}att/{iid}.png)"'
-               if has_art('att', iid) or iid in BY_ID else '')
+               if not debt and (has_art('att', iid) or iid in BY_ID) else '')
         cards += (f'          <button class="pcard{" is-on" if i == 0 else ""}" '
                   f'data-item="{iid}" type="button">'
                   f'<span class="pcard__n tier-{tier}">{name}</span>'
-                  f'<span class="pcard__art"{art}></span></button>\n')
+                  f'<span class="pcard__art"{art}>{torn(iid)}</span></button>\n')
         details += pick_detail(name, slot)
 
     n = len(rows_for(g, slot))
@@ -3698,6 +3778,12 @@ CSS = """
 
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  /* A picture frame with a tear running through it, used as a MASK so the one
+     shape serves both debts and takes its colour from whatever paints it.
+     Inlined rather than a file because it appears on every page and a torn
+     mark that itself fails to load would be a poor joke. */
+  --torn-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3.5' width='18' height='17' rx='2.4'/%3E%3Cpath d='M12.9 3.5l-2.1 5.2 3.4 2-2.7 4.1 2.2 1.4-1.8 4.3'/%3E%3C/svg%3E");
 }
 
 * { box-sizing: border-box; }
@@ -3862,12 +3948,6 @@ tr.is-gap td:first-child a { color: var(--red); }
 }
 .card--thin { border-style: dashed; color: var(--text-dim); }
 .card--thin:hover { color: var(--red); border-color: var(--red); }
-.card .thumb {
-  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 4px;
-  background-color: var(--surface-2); background-repeat: no-repeat;
-  background-position: center; background-size: contain;
-  box-shadow: inset 0 0 0 1px var(--line);
-}
 .card em {
   font-family: var(--mono); font-size: 10px; font-style: normal;
   letter-spacing: 0.06em; color: var(--text-faint); white-space: nowrap;
@@ -3910,6 +3990,43 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
   object-fit: contain; padding: 10px;
 }
+/* The frame kept, the picture replaced. A span here is the same box an <img>
+   would have been, so nothing round it moves when the mark stands in. */
+.shot--torn {
+  display: inline-block; box-sizing: border-box; width: 280px; height: 140px;
+}
+
+/* ---------------------------------------------------------------------------
+   THE TORN MARK: what a missing or borrowed picture looks like.
+
+   One glyph for both debts, in two colours. A hole in the record should look
+   like a hole -- the page used to leave an empty box, which reads as art that
+   has not loaded yet and so reads as nothing at all. The mark is a picture
+   frame with a corner torn out of it, drawn as a mask so it takes its colour
+   from the theme rather than carrying one baked into the data URI.
+
+   `wrong` is the louder of the two on purpose. A borrowed picture is worse
+   than no picture, because a reader believes it. */
+.torn {
+  --torn-ink: var(--text-faint);
+  --torn-size: 34px;
+  position: absolute; inset: 0; pointer-events: none;
+}
+/* The glyph goes on a pseudo-element, not on the box itself. A mask clips
+   everything its element paints -- border and background included -- so
+   masking .shot directly erased the frame along with the picture and left the
+   mark floating in the gap where a framed picture used to be. */
+.torn::after {
+  content: ""; position: absolute; inset: 0;
+  background-color: var(--torn-ink);
+  -webkit-mask: var(--torn-svg) no-repeat center / var(--torn-size);
+  mask: var(--torn-svg) no-repeat center / var(--torn-size);
+}
+.torn--wrong { --torn-ink: var(--red); opacity: 0.62; }
+.torn--tile { z-index: 1; }
+.shot--torn.torn { position: relative; inset: auto; --torn-size: 56px; }
+/* The picker card's art box is 46px tall, so the mark has to come down to it. */
+.pcard__art .torn { --torn-size: 26px; }
 
 .slots > h2 { border-bottom: 1px solid var(--line); }
 .slots .hint {
@@ -4081,7 +4198,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   background: rgba(255, 255, 255, 0.07);
 }
 .pcard__art {
-  display: block; height: 46px; margin-top: 3px;
+  display: block; position: relative; height: 46px; margin-top: 3px;
   background-repeat: no-repeat; background-position: center; background-size: contain;
 }
 .pcard:hover { border-color: var(--line-2); }

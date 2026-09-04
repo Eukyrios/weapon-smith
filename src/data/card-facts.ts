@@ -608,8 +608,8 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * That is the exact shape of reading that put a wrong muzzle velocity on the
    * Wave Blaster, so all four kept the hedge until someone scrolled the card.
    *
-   * The two barrels have now been read that way and are cleared. The heat
-   * shield and the 60-round mag have not, and still say so on the page.
+   * Everything here has now been read that way and is cleared EXCEPT the SUR
+   * Heat Shield, which still says so on the page.
    */
   'mcx-lt-fierce-barrel': {
     tier: 'purple',
@@ -638,9 +638,23 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     // "Increased Fire Rate" on the card, and 870 against the rifle's 840.
     stats: { 'Fire rate': 30, Stability: -2 },
   },
+  /*
+   * Two of the five magazines, both AR-pattern and neither in the catalogue.
+   *
+   * `Holds` is the set value, not a change: weapon-stats.ts carries Capacity
+   * with mode 'set', so 30 here means the rifle holds 30 with this mag in,
+   * which happens to be what it holds without one. That is a real reading and
+   * not a missing one -- the polymer mag is the standard-size option and buys
+   * its stability without costing a round.
+   */
   'ar-60-round-extended-mag': {
     tier: 'purple',
     stats: { Holds: 60, Handling: -12 },
+    read: true,
+  },
+  'ar-30-round-polymer-mag': {
+    stats: { Holds: 30, Stability: 2 },
+    read: true,
   },
 };
 

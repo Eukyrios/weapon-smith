@@ -67,6 +67,12 @@
 
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  /* A picture frame with a tear running through it, used as a MASK so the one
+     shape serves both debts and takes its colour from whatever paints it.
+     Inlined rather than a file because it appears on every page and a torn
+     mark that itself fails to load would be a poor joke. */
+  --torn-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3.5' width='18' height='17' rx='2.4'/%3E%3Cpath d='M12.9 3.5l-2.1 5.2 3.4 2-2.7 4.1 2.2 1.4-1.8 4.3'/%3E%3C/svg%3E");
 }
 
 * { box-sizing: border-box; }
@@ -231,12 +237,6 @@ tr.is-gap td:first-child a { color: var(--red); }
 }
 .card--thin { border-style: dashed; color: var(--text-dim); }
 .card--thin:hover { color: var(--red); border-color: var(--red); }
-.card .thumb {
-  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 4px;
-  background-color: var(--surface-2); background-repeat: no-repeat;
-  background-position: center; background-size: contain;
-  box-shadow: inset 0 0 0 1px var(--line);
-}
 .card em {
   font-family: var(--mono); font-size: 10px; font-style: normal;
   letter-spacing: 0.06em; color: var(--text-faint); white-space: nowrap;
@@ -279,6 +279,43 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
   object-fit: contain; padding: 10px;
 }
+/* The frame kept, the picture replaced. A span here is the same box an <img>
+   would have been, so nothing round it moves when the mark stands in. */
+.shot--torn {
+  display: inline-block; box-sizing: border-box; width: 280px; height: 140px;
+}
+
+/* ---------------------------------------------------------------------------
+   THE TORN MARK: what a missing or borrowed picture looks like.
+
+   One glyph for both debts, in two colours. A hole in the record should look
+   like a hole -- the page used to leave an empty box, which reads as art that
+   has not loaded yet and so reads as nothing at all. The mark is a picture
+   frame with a corner torn out of it, drawn as a mask so it takes its colour
+   from the theme rather than carrying one baked into the data URI.
+
+   `wrong` is the louder of the two on purpose. A borrowed picture is worse
+   than no picture, because a reader believes it. */
+.torn {
+  --torn-ink: var(--text-faint);
+  --torn-size: 34px;
+  position: absolute; inset: 0; pointer-events: none;
+}
+/* The glyph goes on a pseudo-element, not on the box itself. A mask clips
+   everything its element paints -- border and background included -- so
+   masking .shot directly erased the frame along with the picture and left the
+   mark floating in the gap where a framed picture used to be. */
+.torn::after {
+  content: ""; position: absolute; inset: 0;
+  background-color: var(--torn-ink);
+  -webkit-mask: var(--torn-svg) no-repeat center / var(--torn-size);
+  mask: var(--torn-svg) no-repeat center / var(--torn-size);
+}
+.torn--wrong { --torn-ink: var(--red); opacity: 0.62; }
+.torn--tile { z-index: 1; }
+.shot--torn.torn { position: relative; inset: auto; --torn-size: 56px; }
+/* The picker card's art box is 46px tall, so the mark has to come down to it. */
+.pcard__art .torn { --torn-size: 26px; }
 
 .slots > h2 { border-bottom: 1px solid var(--line); }
 .slots .hint {
@@ -450,7 +487,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   background: rgba(255, 255, 255, 0.07);
 }
 .pcard__art {
-  display: block; height: 46px; margin-top: 3px;
+  display: block; position: relative; height: 46px; margin-top: 3px;
   background-repeat: no-repeat; background-position: center; background-size: contain;
 }
 .pcard:hover { border-color: var(--line-2); }
@@ -1279,8 +1316,8 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
           <a class="navlink" href="#cat-optic" data-group="cat-optic">Optic<em>42</em></a>
           <a class="navlink" href="#cat-functional" data-group="cat-functional">Functional<em>39</em></a>
           <span class="navdiv">By tag</span>
-          <a class="navlink navlink--tag" href="#missing-info" data-tag="missing-info" title="Base stats not read yet"><code>#missing-info</code><em>13</em></a>
-          <a class="navlink navlink--tag" href="#not-tracked" data-tag="not-tracked" title="Damage, penetration, fire rate, muzzle velocity and gunshot range not read yet"><code>#not-tracked</code><em>312</em></a>
+          <a class="navlink navlink--tag" href="#missing-info" data-tag="missing-info" title="Base stats not read yet"><code>#missing-info</code><em>12</em></a>
+          <a class="navlink navlink--tag" href="#not-tracked" data-tag="not-tracked" title="Damage, penetration, fire rate, muzzle velocity and gunshot range not read yet"><code>#not-tracked</code><em>310</em></a>
           <a class="navlink navlink--tag" href="#image-change" data-tag="image-change" title="Drawn with the wrong picture"><code>#image-change</code><em>6</em></a>
           <a class="navlink navlink--tag" href="#no-picture" data-tag="no-picture" title="No picture cut out for it yet"><code>#no-picture</code><em>11</em></a>
         </div>
@@ -1397,15 +1434,15 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
     <section class="group" id="caliber-300-blackout" hidden>
       <h2>.300 Blackout <span class="count">3</span></h2>
       <div class="tiles">
-      <a class="tile" href="ammo/#300-blk-tac-tx"><span class="tile__art"></span><span class="tile__name">.300 BLK TAC-TX</span></a>
-      <a class="tile" href="ammo/#300blk-bcp-sub"><span class="tile__art"></span><span class="tile__name">.300BLK BCP SUB</span></a>
-      <a class="tile" href="ammo/#300blk-v-sub"><span class="tile__art"></span><span class="tile__name">.300BLK V SUB</span></a>
+      <a class="tile" href="ammo/#300-blk-tac-tx"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">.300 BLK TAC-TX</span></a>
+      <a class="tile" href="ammo/#300blk-bcp-sub"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">.300BLK BCP SUB</span></a>
+      <a class="tile" href="ammo/#300blk-v-sub"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">.300BLK V SUB</span></a>
       </div>
     </section>
     <section class="group" id="caliber-338-lapua-magnum" hidden>
       <h2>.338 Lapua Magnum <span class="count">1</span></h2>
       <div class="tiles">
-      <a class="tile" href="ammo/#338-lap-mag-ap"><span class="tile__art"></span><span class="tile__name">.338 Lap Mag AP</span></a>
+      <a class="tile" href="ammo/#338-lap-mag-ap"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">.338 Lap Mag AP</span></a>
       </div>
     </section>
     <section class="group" id="caliber-357-magnum" hidden>
@@ -1421,7 +1458,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <h2>.45 ACP <span class="count">6</span></h2>
       <div class="tiles">
       <a class="tile" href="ammo/#45-acp-ap"><span class="tile__art" style="background-image:url(ammo/45-acp-ap.png)"></span><span class="tile__name">.45 ACP AP</span></a>
-      <a class="tile" href="ammo/#45-acp-ct"><span class="tile__art"></span><span class="tile__name">.45 ACP CT</span></a>
+      <a class="tile" href="ammo/#45-acp-ct"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">.45 ACP CT</span></a>
       <a class="tile" href="ammo/#45-acp-fmj"><span class="tile__art" style="background-image:url(ammo/45-acp-fmj.png)"></span><span class="tile__name">.45 ACP FMJ</span></a>
       <a class="tile" href="ammo/#45-acp-hs"><span class="tile__art" style="background-image:url(ammo/45-acp-hs.png)"></span><span class="tile__name">.45 ACP HS</span></a>
       <a class="tile" href="ammo/#45-acp-jhp"><span class="tile__art" style="background-image:url(ammo/45-acp-jhp.png)"></span><span class="tile__name">.45 ACP JHP</span></a>
@@ -1431,15 +1468,15 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
     <section class="group" id="caliber-45-70-government" hidden>
       <h2>.45-70 Government <span class="count">3</span></h2>
       <div class="tiles">
-      <a class="tile" href="ammo/#45-70-govt-fmj"><span class="tile__art"></span><span class="tile__name">45-70 Govt FMJ</span></a>
-      <a class="tile" href="ammo/#45-70-govt-ftx"><span class="tile__art"></span><span class="tile__name">45-70 Govt FTX</span></a>
-      <a class="tile" href="ammo/#45-70-govt-rn"><span class="tile__art"></span><span class="tile__name">45-70 Govt RN</span></a>
+      <a class="tile" href="ammo/#45-70-govt-fmj"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">45-70 Govt FMJ</span></a>
+      <a class="tile" href="ammo/#45-70-govt-ftx"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">45-70 Govt FTX</span></a>
+      <a class="tile" href="ammo/#45-70-govt-rn"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">45-70 Govt RN</span></a>
       </div>
     </section>
     <section class="group" id="caliber-50-ae" hidden>
       <h2>.50 AE <span class="count">4</span></h2>
       <div class="tiles">
-      <a class="tile" href="ammo/#50-ae-ap"><span class="tile__art"></span><span class="tile__name">.50 AE AP</span></a>
+      <a class="tile" href="ammo/#50-ae-ap"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">.50 AE AP</span></a>
       <a class="tile" href="ammo/#50-ae-fmj"><span class="tile__art" style="background-image:url(ammo/50-ae-fmj.png)"></span><span class="tile__name">.50 AE FMJ</span></a>
       <a class="tile" href="ammo/#50-ae-hp"><span class="tile__art" style="background-image:url(ammo/50-ae-hp.png)"></span><span class="tile__name">.50 AE HP</span></a>
       <a class="tile" href="ammo/#50-ae-jhp"><span class="tile__art" style="background-image:url(ammo/50-ae-jhp.png)"></span><span class="tile__name">.50 AE JHP</span></a>
@@ -1448,16 +1485,16 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
     <section class="group" id="caliber-50-bmg" hidden>
       <h2>.50 BMG <span class="count">3</span></h2>
       <div class="tiles">
-      <a class="tile" href="ammo/#50-bmg-m10-razor"><span class="tile__art"></span><span class="tile__name">.50 BMG M10 RAZOR</span></a>
-      <a class="tile" href="ammo/#50-bmg-m3-k-0"><span class="tile__art"></span><span class="tile__name">.50 BMG M3 K-0</span></a>
-      <a class="tile" href="ammo/#50-bmg-m903-slap"><span class="tile__art"></span><span class="tile__name">.50 BMG M903 SLAP</span></a>
+      <a class="tile" href="ammo/#50-bmg-m10-razor"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">.50 BMG M10 RAZOR</span></a>
+      <a class="tile" href="ammo/#50-bmg-m3-k-0"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">.50 BMG M3 K-0</span></a>
+      <a class="tile" href="ammo/#50-bmg-m903-slap"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">.50 BMG M903 SLAP</span></a>
       </div>
     </section>
     <section class="group" id="caliber-12-gauge" hidden>
       <h2>12 Gauge <span class="count">7</span></h2>
       <div class="tiles">
-      <a class="tile" href="ammo/#12-gauge-85mm-buckshot"><span class="tile__art"></span><span class="tile__name">12 Gauge 8.5mm Buckshot</span></a>
-      <a class="tile" href="ammo/#12-gauge-dragons-breath"><span class="tile__art"></span><span class="tile__name">12 Gauge Dragon's Breath</span></a>
+      <a class="tile" href="ammo/#12-gauge-85mm-buckshot"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">12 Gauge 8.5mm Buckshot</span></a>
+      <a class="tile" href="ammo/#12-gauge-dragons-breath"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">12 Gauge Dragon's Breath</span></a>
       <a class="tile" href="ammo/#12-gauge-flechette"><span class="tile__art" style="background-image:url(ammo/12-gauge-flechette.png)"></span><span class="tile__name">12 Gauge Flechette</span></a>
       <a class="tile" href="ammo/#12-gauge-slug-ap-20"><span class="tile__art" style="background-image:url(ammo/12-gauge-slug-ap-20.png)"></span><span class="tile__name">12 Gauge Slug AP-20</span></a>
       <a class="tile" href="ammo/#12-gauge-slug-ftx"><span class="tile__art" style="background-image:url(ammo/12-gauge-slug-ftx.png)"></span><span class="tile__name">12 Gauge Slug FTX</span></a>
@@ -1469,17 +1506,17 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <h2>12.7x55mm <span class="count">4</span></h2>
       <div class="tiles">
       <a class="tile" href="ammo/#12-7x55mm-pd12"><span class="tile__art" style="background-image:url(ammo/12-7x55mm-pd12.png)"></span><span class="tile__name">12.7x55mm PD12</span></a>
-      <a class="tile" href="ammo/#12-7x55mm-ps12"><span class="tile__art"></span><span class="tile__name">12.7x55mm PS12</span></a>
-      <a class="tile" href="ammo/#12-7x55mm-ps12a"><span class="tile__art"></span><span class="tile__name">12.7x55mm PS12A</span></a>
-      <a class="tile" href="ammo/#12-7x55mm-ps12b"><span class="tile__art"></span><span class="tile__name">12.7x55mm PS12B</span></a>
+      <a class="tile" href="ammo/#12-7x55mm-ps12"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">12.7x55mm PS12</span></a>
+      <a class="tile" href="ammo/#12-7x55mm-ps12a"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">12.7x55mm PS12A</span></a>
+      <a class="tile" href="ammo/#12-7x55mm-ps12b"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">12.7x55mm PS12B</span></a>
       </div>
     </section>
     <section class="group" id="caliber-4-6x30mm" hidden>
       <h2>4.6x30mm <span class="count">3</span></h2>
       <div class="tiles">
-      <a class="tile" href="ammo/#4-6x30mm-ap-sx"><span class="tile__art"></span><span class="tile__name">4.6x30mm AP SX</span></a>
-      <a class="tile" href="ammo/#4-6x30mm-fmj-sx"><span class="tile__art"></span><span class="tile__name">4.6x30mm FMJ SX</span></a>
-      <a class="tile" href="ammo/#4-6x30mm-subsonic-sx"><span class="tile__art"></span><span class="tile__name">4.6x30mm Subsonic SX</span></a>
+      <a class="tile" href="ammo/#4-6x30mm-ap-sx"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">4.6x30mm AP SX</span></a>
+      <a class="tile" href="ammo/#4-6x30mm-fmj-sx"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">4.6x30mm FMJ SX</span></a>
+      <a class="tile" href="ammo/#4-6x30mm-subsonic-sx"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">4.6x30mm Subsonic SX</span></a>
       </div>
     </section>
     <section class="group" id="caliber-5-45x39mm" hidden>
@@ -1517,10 +1554,10 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <h2>5.8x42mm <span class="count">6</span></h2>
       <div class="tiles">
       <a class="tile" href="ammo/#5-8x42mm-dbp10"><span class="tile__art" style="background-image:url(ammo/5-8x42mm-dbp10.png)"></span><span class="tile__name">5.8x42mm DBP10</span></a>
-      <a class="tile" href="ammo/#5-8x42mm-dbp10-p"><span class="tile__art"></span><span class="tile__name">5.8x42mm DBP10 +P</span></a>
+      <a class="tile" href="ammo/#5-8x42mm-dbp10-p"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">5.8x42mm DBP10 +P</span></a>
       <a class="tile" href="ammo/#5-8x42mm-dbp87"><span class="tile__art" style="background-image:url(ammo/5-8x42mm-dbp87.png)"></span><span class="tile__name">5.8x42mm DBP87</span></a>
       <a class="tile" href="ammo/#5-8x42mm-dvc12"><span class="tile__art" style="background-image:url(ammo/5-8x42mm-dvc12.png)"></span><span class="tile__name">5.8x42mm DVC12</span></a>
-      <a class="tile" href="ammo/#5-8x42mm-dvc12-p"><span class="tile__art"></span><span class="tile__name">5.8x42mm DVC12 +P</span></a>
+      <a class="tile" href="ammo/#5-8x42mm-dvc12-p"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">5.8x42mm DVC12 +P</span></a>
       <a class="tile" href="ammo/#5-8x42mm-dvp88"><span class="tile__art" style="background-image:url(ammo/5-8x42mm-dvp88.png)"></span><span class="tile__name">5.8x42mm DVP88</span></a>
       </div>
     </section>
@@ -1551,7 +1588,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="ammo/#7-62x51mm-bpz"><span class="tile__art" style="background-image:url(ammo/7-62x51mm-bpz.png)"></span><span class="tile__name">7.62x51mm BPZ</span></a>
       <a class="tile" href="ammo/#7-62x51mm-m62"><span class="tile__art" style="background-image:url(ammo/7-62x51mm-m62.png)"></span><span class="tile__name">7.62x51mm M62</span></a>
       <a class="tile" href="ammo/#7-62x51mm-m80"><span class="tile__art" style="background-image:url(ammo/7-62x51mm-m80.png)"></span><span class="tile__name">7.62x51mm M80</span></a>
-      <a class="tile" href="ammo/#7-62x51mm-ultra-nosler"><span class="tile__art"></span><span class="tile__name">7.62x51mm Ultra Nosler</span></a>
+      <a class="tile" href="ammo/#7-62x51mm-ultra-nosler"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">7.62x51mm Ultra Nosler</span></a>
       </div>
     </section>
     <section class="group" id="caliber-7-62x54r" hidden>
@@ -1583,9 +1620,9 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
     <section class="group" id="caliber-arrow" hidden>
       <h2>Arrow <span class="count">3</span></h2>
       <div class="tiles">
-      <a class="tile" href="ammo/#arrow-carbon-armor-piercing"><span class="tile__art"></span><span class="tile__name">Carbon Fiber Armor-Piercing Arrow</span></a>
-      <a class="tile" href="ammo/#arrow-carbon-bone-piercer"><span class="tile__art"></span><span class="tile__name">Carbon Fiber Bone-Piercer Arrow</span></a>
-      <a class="tile" href="ammo/#arrow-fiberglass-willow"><span class="tile__art"></span><span class="tile__name">Fiberglass Willow Arrow</span></a>
+      <a class="tile" href="ammo/#arrow-carbon-armor-piercing"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">Carbon Fiber Armor-Piercing Arrow</span></a>
+      <a class="tile" href="ammo/#arrow-carbon-bone-piercer"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">Carbon Fiber Bone-Piercer Arrow</span></a>
+      <a class="tile" href="ammo/#arrow-fiberglass-willow"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">Fiberglass Willow Arrow</span></a>
       </div>
     </section>
     <section class="group" id="cat-muzzle" hidden>
@@ -1602,7 +1639,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="attachment/#dtk-muzzle-brake" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/dtk-muzzle-brake.png)"></span><span class="tile__name">DTK Muzzle Brake</span></a>
       <a class="tile" href="attachment/#elite-pistol-muzzle-brake" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/elite-pistol-muzzle-brake.png)"></span><span class="tile__name">Elite Pistol Muzzle Brake</span></a>
       <a class="tile" href="attachment/#ember-suppressor" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ember-suppressor.png)"></span><span class="tile__name">Ember Suppressor</span></a>
-      <a class="tile" href="attachment/#ffc-double-port-muzzle-brake" data-tags="no-picture"><span class="tile__art"></span><span class="tile__name">FFC Double Port Muzzle Brake</span></a>
+      <a class="tile" href="attachment/#ffc-double-port-muzzle-brake" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">FFC Double Port Muzzle Brake</span></a>
       <a class="tile" href="attachment/#m7-practical-suppressor"><span class="tile__art" style="background-image:url(att/m7-practical-suppressor.png)"></span><span class="tile__name">M7 Practical Suppressor</span></a>
       <a class="tile" href="attachment/#ops-suppressor" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ops-suppressor.png)"></span><span class="tile__name">OPS Suppressor</span></a>
       <a class="tile" href="attachment/#pbs-russian-suppressor" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/pbs-russian-suppressor.png)"></span><span class="tile__name">PBS Russian Suppressor</span></a>
@@ -1616,7 +1653,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="attachment/#russian-smg-precision-suppressor" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/russian-smg-precision-suppressor.png)"></span><span class="tile__name">Russian SMG Precision Suppressor</span></a>
       <a class="tile" href="attachment/#smg-echo-suppressor" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/smg-echo-suppressor.png)"></span><span class="tile__name">SMG Echo Suppressor</span></a>
       <a class="tile" href="attachment/#sr-3m-stealth-suppressor" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/sr-3m-stealth-suppressor.png)"></span><span class="tile__name">SR-3M Stealth Suppressor</span></a>
-      <a class="tile" href="attachment/#sur-heat-shield" data-tags="not-tracked no-picture"><span class="tile__art"></span><span class="tile__name">SUR Heat Shield</span></a>
+      <a class="tile" href="attachment/#sur-heat-shield" data-tags="not-tracked no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">SUR Heat Shield</span></a>
       <a class="tile" href="attachment/#sandstorm-vertical-compensator"><span class="tile__art" style="background-image:url(att/sandstorm-vertical-compensator.png)"></span><span class="tile__name">Sandstorm Vertical Compensator</span></a>
       <a class="tile" href="attachment/#shotgun-cage-compensator" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/shotgun-cage-compensator.png)"></span><span class="tile__name">Shotgun Cage Compensator</span></a>
       <a class="tile" href="attachment/#shotgun-cannon-muzzle-brake" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/shotgun-cannon-muzzle-brake.png)"></span><span class="tile__name">Shotgun Cannon Muzzle Brake</span></a>
@@ -1658,7 +1695,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="attachment/#ar-specops-integrally-suppressed-combo" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ar-specops-integrally-suppressed-combo.png)"></span><span class="tile__name">AR SpecOps Integrally Suppressed Combo</span></a>
       <a class="tile" href="attachment/#ar-standard-barrel-combo" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ar-standard-barrel-combo.png)"></span><span class="tile__name">AR Standard Barrel Combo</span></a>
       <a class="tile" href="attachment/#ar-trench-standard-barrel-combo" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ar-trench-standard-barrel-combo.png)"></span><span class="tile__name">AR Trench Standard Barrel Combo</span></a>
-      <a class="tile" href="attachment/#ar57-wave-blaster-ultra-long-barrel" data-tags="no-picture"><span class="tile__art"></span><span class="tile__name">AR57 Wave Blaster Ultra-Long Barrel</span></a>
+      <a class="tile" href="attachment/#ar57-wave-blaster-ultra-long-barrel" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">AR57 Wave Blaster Ultra-Long Barrel</span></a>
       <a class="tile" href="attachment/#ash-12-annihilator-precision-long-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ash-12-annihilator-precision-long-barrel.png)"></span><span class="tile__name">ASh-12 Annihilator Precision Long Barrel</span></a>
       <a class="tile" href="attachment/#ash-12-cqb-short-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ash-12-cqb-short-barrel.png)"></span><span class="tile__name">ASh-12 CQB Short Barrel</span></a>
       <a class="tile" href="attachment/#aug-dawn-zero-integrally-suppressed-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/aug-dawn-zero-integrally-suppressed-barrel.png)"></span><span class="tile__name">AUG Dawn Zero Integrally Suppressed Barrel</span></a>
@@ -1695,8 +1732,8 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="attachment/#m700-predator-military-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/m700-predator-military-barrel.png)"></span><span class="tile__name">M700 Predator Military Barrel</span></a>
       <a class="tile" href="attachment/#m700-stratosphere-long-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/m700-stratosphere-long-barrel.png)"></span><span class="tile__name">M700 Stratosphere Long Barrel</span></a>
       <a class="tile" href="attachment/#m870-extended-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/m870-extended-barrel.png)"></span><span class="tile__name">M870 Extended Barrel</span></a>
-      <a class="tile" href="attachment/#mcx-lt-fierce-barrel" data-tags="no-picture"><span class="tile__art"></span><span class="tile__name">MCX LT Fierce Barrel</span></a>
-      <a class="tile" href="attachment/#mcx-lt-hunter-barrel" data-tags="no-picture"><span class="tile__art"></span><span class="tile__name">MCX LT Hunter Barrel</span></a>
+      <a class="tile" href="attachment/#mcx-lt-fierce-barrel" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">MCX LT Fierce Barrel</span></a>
+      <a class="tile" href="attachment/#mcx-lt-hunter-barrel" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">MCX LT Hunter Barrel</span></a>
       <a class="tile" href="attachment/#mp5-performance-barrel-combo" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/mp5-performance-barrel-combo.png)"></span><span class="tile__name">MP5 Performance Barrel Combo</span></a>
       <a class="tile" href="attachment/#mp5-scout-long-barrel-combo" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/mp5-scout-long-barrel-combo.png)"></span><span class="tile__name">MP5 Scout Long Barrel Combo</span></a>
       <a class="tile" href="attachment/#mp5-stealth-short-barrel-combo" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/mp5-stealth-short-barrel-combo.png)"></span><span class="tile__name">MP5 Stealth Short Barrel Combo</span></a>
@@ -1706,7 +1743,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="attachment/#mp7-stinger-long-barrel-combo" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/mp7-stinger-long-barrel-combo.png)"></span><span class="tile__name">MP7 Stinger Long Barrel Combo</span></a>
       <a class="tile" href="attachment/#mp7-wolf-fang-light-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/mp7-wolf-fang-light-barrel.png)"></span><span class="tile__name">MP7 Wolf Fang Light Barrel</span></a>
       <a class="tile" href="attachment/#mini-14-enhanced-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/mini-14-enhanced-barrel.png)"></span><span class="tile__name">Mini-14 Enhanced Barrel</span></a>
-      <a class="tile" href="attachment/#night-gale-integrally-suppressed-combo" data-tags="no-picture"><span class="tile__art"></span><span class="tile__name">Night Gale Integrally Suppressed Combo</span></a>
+      <a class="tile" href="attachment/#night-gale-integrally-suppressed-combo" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">Night Gale Integrally Suppressed Combo</span></a>
       <a class="tile" href="attachment/#p90-cheetah-heavy-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/p90-cheetah-heavy-barrel.png)"></span><span class="tile__name">P90 Cheetah Heavy Barrel</span></a>
       <a class="tile" href="attachment/#p90-heavy-assault-long-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/p90-heavy-assault-long-barrel.png)"></span><span class="tile__name">P90 Heavy Assault Long Barrel</span></a>
       <a class="tile" href="attachment/#pkm-horizon-heavy-barrel" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/pkm-horizon-heavy-barrel.png)"></span><span class="tile__name">PKM Horizon Heavy Barrel</span></a>
@@ -1874,8 +1911,8 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="attachment/#ash-12-skeleton-stock" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ash-12-skeleton-stock.png)"></span><span class="tile__name">ASh-12 Skeleton Stock</span></a>
       <a class="tile" href="attachment/#ash-12-sniper-stock" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ash-12-sniper-stock.png)"></span><span class="tile__name">ASh-12 Sniper Stock</span></a>
       <a class="tile" href="attachment/#aug-stock-pad" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/aug-stock-pad.png)"></span><span class="tile__name">AUG Stock Pad</span></a>
-      <a class="tile" href="attachment/#anchor-point-rail-stock" data-tags="no-picture"><span class="tile__art"></span><span class="tile__name">Anchor Point Rail Stock</span></a>
-      <a class="tile" href="attachment/#ct-enhanced-stock" data-tags="no-picture"><span class="tile__art"></span><span class="tile__name">CT Enhanced Stock</span></a>
+      <a class="tile" href="attachment/#anchor-point-rail-stock" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">Anchor Point Rail Stock</span></a>
+      <a class="tile" href="attachment/#ct-enhanced-stock" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">CT Enhanced Stock</span></a>
       <a class="tile" href="attachment/#cardinal-advanced-combat-stock"><span class="tile__art" style="background-image:url(att/cardinal-advanced-combat-stock.png)"></span><span class="tile__name">Cardinal Advanced Combat Stock</span></a>
       <a class="tile" href="attachment/#cardinal-stable-stock"><span class="tile__art" style="background-image:url(att/cardinal-stable-stock.png)"></span><span class="tile__name">Cardinal Stable Stock</span></a>
       <a class="tile" href="attachment/#core-rail-stock"><span class="tile__art" style="background-image:url(att/core-rail-stock.png)"></span><span class="tile__name">Core Rail Stock</span></a>
@@ -1905,7 +1942,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="attachment/#practical-stable-stock"><span class="tile__art" style="background-image:url(att/practical-stable-stock.png)"></span><span class="tile__name">Practical Stable Stock</span></a>
       <a class="tile" href="attachment/#practical-tactical-stock"><span class="tile__art" style="background-image:url(att/practical-tactical-stock.png)"></span><span class="tile__name">Practical Tactical Stock</span></a>
       <a class="tile" href="attachment/#qbz-cheek-pad" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/qbz-cheek-pad.png)"></span><span class="tile__name">QBZ Cheek Pad</span></a>
-      <a class="tile" href="attachment/#qr-high-performance-stock" data-tags="no-picture"><span class="tile__art"></span><span class="tile__name">QR High Performance Stock</span></a>
+      <a class="tile" href="attachment/#qr-high-performance-stock" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">QR High Performance Stock</span></a>
       <a class="tile" href="attachment/#rm277-cheek-pad"><span class="tile__art" style="background-image:url(att/rm277-cheek-pad.png)"></span><span class="tile__name">RM277 Cheek Pad</span></a>
       <a class="tile" href="attachment/#rm277-pad"><span class="tile__art" style="background-image:url(att/rm277-pad.png)"></span><span class="tile__name">RM277 Pad</span></a>
       <a class="tile" href="attachment/#s12k-bump-stock" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/s12k-bump-stock.png)"></span><span class="tile__name">S12K Bump Stock</span></a>
@@ -1915,7 +1952,7 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="attachment/#sr-3m-bolt-cover" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/sr-3m-bolt-cover.png)"></span><span class="tile__name">SR-3M Bolt Cover</span></a>
       <a class="tile" href="attachment/#shadow-buffer-tube-stock"><span class="tile__art" style="background-image:url(att/shadow-buffer-tube-stock.png)"></span><span class="tile__name">Shadow Buffer Tube Stock</span></a>
       <a class="tile" href="attachment/#shadow-rail-stock"><span class="tile__art" style="background-image:url(att/shadow-rail-stock.png)"></span><span class="tile__name">Shadow Rail Stock</span></a>
-      <a class="tile" href="attachment/#skeleton-sniper-stock" data-tags="image-change"><span class="tile__art" style="background-image:url(att/skeleton-sniper-stock.png)"></span><span class="tile__name">Skeleton Sniper Stock</span></a>
+      <a class="tile" href="attachment/#skeleton-sniper-stock" data-tags="image-change"><span class="tile__art"></span><span class="torn torn--wrong torn--tile" title="Drawn with another part&rsquo;s picture, so it is not shown"></span><span class="tile__name">Skeleton Sniper Stock</span></a>
       <a class="tile" href="attachment/#ur-spec-ops-tactical-stock" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ur-spec-ops-tactical-stock.png)"></span><span class="tile__name">UR Spec Ops Tactical Stock</span></a>
       <a class="tile" href="attachment/#uzi-bolt-cover" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/uzi-bolt-cover.png)"></span><span class="tile__name">UZI Bolt Cover</span></a>
       <a class="tile" href="attachment/#uzi-stock" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/uzi-stock.png)"></span><span class="tile__name">UZI Stock</span></a>
@@ -1942,8 +1979,8 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile tile--gap" href="attachment/#aks-74-30-round-mag" data-tags="missing-info not-tracked"><span class="tile__art" style="background-image:url(att/aks-74-30-round-mag.png)"></span><span class="tile__name">AKS-74 30-Round Mag</span></a>
       <a class="tile" href="attachment/#aks-74-45-round-extended-mag" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/aks-74-45-round-extended-mag.png)"></span><span class="tile__name">AKS-74 45-Round Extended Mag</span></a>
       <a class="tile" href="attachment/#aks-74-75-round-polymer-drum-mag" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/aks-74-75-round-polymer-drum-mag.png)"></span><span class="tile__name">AKS-74 75-Round Polymer Drum Mag</span></a>
-      <a class="tile tile--gap" href="attachment/#ar-30-round-polymer-mag" data-tags="missing-info not-tracked no-picture"><span class="tile__art"></span><span class="tile__name">AR 30-Round Polymer Mag</span></a>
-      <a class="tile" href="attachment/#ar-60-round-extended-mag" data-tags="not-tracked no-picture"><span class="tile__art"></span><span class="tile__name">AR 60-Round Extended Mag</span></a>
+      <a class="tile" href="attachment/#ar-30-round-polymer-mag" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">AR 30-Round Polymer Mag</span></a>
+      <a class="tile" href="attachment/#ar-60-round-extended-mag" data-tags="no-picture"><span class="tile__art"></span><span class="torn torn--none torn--tile" title="No picture of this one yet"></span><span class="tile__name">AR 60-Round Extended Mag</span></a>
       <a class="tile" href="attachment/#ash-12-30-round-extended-mag" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/ash-12-30-round-extended-mag.png)"></span><span class="tile__name">ASh-12 30-Round Extended Mag</span></a>
       <a class="tile" href="attachment/#aug-60-round-drum-mag" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/aug-60-round-drum-mag.png)"></span><span class="tile__name">AUG 60-Round Drum Mag</span></a>
       <a class="tile" href="attachment/#bizon-64-round-helical-mag" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/bizon-64-round-helical-mag.png)"></span><span class="tile__name">Bizon 64-Round Helical Mag</span></a>
@@ -2017,11 +2054,11 @@ figcaption { font-size: 13px; color: var(--text-dim); max-width: 78ch; }
       <a class="tile" href="attachment/#multi-purpose-tactical-riser"><span class="tile__art" style="background-image:url(att/multi-purpose-tactical-riser.png)"></span><span class="tile__name">Multi-Purpose Tactical Riser</span></a>
       <a class="tile" href="attachment/#okp-7-reflex-sight"><span class="tile__art" style="background-image:url(att/okp-7-reflex-sight.png)"></span><span class="tile__name">OKP-7 Reflex Sight</span></a>
       <a class="tile" href="attachment/#osight-red-dot"><span class="tile__art" style="background-image:url(att/osight-red-dot.png)"></span><span class="tile__name">OSIGHT Red Dot</span></a>
-      <a class="tile" href="attachment/#offset-combat-red-dot-sight" data-tags="image-change"><span class="tile__art" style="background-image:url(att/offset-combat-red-dot-sight.png)"></span><span class="tile__name">Offset Combat Red Dot Sight</span></a>
-      <a class="tile" href="attachment/#offset-mini-red-dot-sight" data-tags="image-change"><span class="tile__art" style="background-image:url(att/offset-mini-red-dot-sight.png)"></span><span class="tile__name">Offset Mini Red Dot Sight</span></a>
-      <a class="tile" href="attachment/#offset-osight-red-dot" data-tags="image-change"><span class="tile__art" style="background-image:url(att/offset-osight-red-dot.png)"></span><span class="tile__name">Offset OSIGHT Red Dot</span></a>
-      <a class="tile" href="attachment/#offset-panoramic-red-dot-sight" data-tags="image-change"><span class="tile__art" style="background-image:url(att/offset-panoramic-red-dot-sight.png)"></span><span class="tile__name">Offset Panoramic Red Dot Sight</span></a>
-      <a class="tile" href="attachment/#offset-xro-quick-response-sight" data-tags="image-change"><span class="tile__art" style="background-image:url(att/offset-xro-quick-response-sight.png)"></span><span class="tile__name">Offset XRO Quick Response Sight</span></a>
+      <a class="tile" href="attachment/#offset-combat-red-dot-sight" data-tags="image-change"><span class="tile__art"></span><span class="torn torn--wrong torn--tile" title="Drawn with another part&rsquo;s picture, so it is not shown"></span><span class="tile__name">Offset Combat Red Dot Sight</span></a>
+      <a class="tile" href="attachment/#offset-mini-red-dot-sight" data-tags="image-change"><span class="tile__art"></span><span class="torn torn--wrong torn--tile" title="Drawn with another part&rsquo;s picture, so it is not shown"></span><span class="tile__name">Offset Mini Red Dot Sight</span></a>
+      <a class="tile" href="attachment/#offset-osight-red-dot" data-tags="image-change"><span class="tile__art"></span><span class="torn torn--wrong torn--tile" title="Drawn with another part&rsquo;s picture, so it is not shown"></span><span class="tile__name">Offset OSIGHT Red Dot</span></a>
+      <a class="tile" href="attachment/#offset-panoramic-red-dot-sight" data-tags="image-change"><span class="tile__art"></span><span class="torn torn--wrong torn--tile" title="Drawn with another part&rsquo;s picture, so it is not shown"></span><span class="tile__name">Offset Panoramic Red Dot Sight</span></a>
+      <a class="tile" href="attachment/#offset-xro-quick-response-sight" data-tags="image-change"><span class="tile__art"></span><span class="torn torn--wrong torn--tile" title="Drawn with another part&rsquo;s picture, so it is not shown"></span><span class="tile__name">Offset XRO Quick Response Sight</span></a>
       <a class="tile" href="attachment/#optical-sniper-8x-scope" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/optical-sniper-8x-scope.png)"></span><span class="tile__name">Optical Sniper 8x Scope</span></a>
       <a class="tile" href="attachment/#pso-battle-2-5x-scope" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/pso-battle-2-5x-scope.png)"></span><span class="tile__name">PSO Battle 2.5x Scope</span></a>
       <a class="tile" href="attachment/#pso-sniper-8x-scope" data-tags="not-tracked"><span class="tile__art" style="background-image:url(att/pso-sniper-8x-scope.png)"></span><span class="tile__name">PSO Sniper 8x Scope</span></a>

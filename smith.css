@@ -41,6 +41,12 @@
 
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  /* A picture frame with a tear running through it, used as a MASK so the one
+     shape serves both debts and takes its colour from whatever paints it.
+     Inlined rather than a file because it appears on every page and a torn
+     mark that itself fails to load would be a poor joke. */
+  --torn-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3.5' width='18' height='17' rx='2.4'/%3E%3Cpath d='M12.9 3.5l-2.1 5.2 3.4 2-2.7 4.1 2.2 1.4-1.8 4.3'/%3E%3C/svg%3E");
 }
 
 * { box-sizing: border-box; }
@@ -205,12 +211,6 @@ tr.is-gap td:first-child a { color: var(--red); }
 }
 .card--thin { border-style: dashed; color: var(--text-dim); }
 .card--thin:hover { color: var(--red); border-color: var(--red); }
-.card .thumb {
-  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 4px;
-  background-color: var(--surface-2); background-repeat: no-repeat;
-  background-position: center; background-size: contain;
-  box-shadow: inset 0 0 0 1px var(--line);
-}
 .card em {
   font-family: var(--mono); font-size: 10px; font-style: normal;
   letter-spacing: 0.06em; color: var(--text-faint); white-space: nowrap;
@@ -253,6 +253,43 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
   object-fit: contain; padding: 10px;
 }
+/* The frame kept, the picture replaced. A span here is the same box an <img>
+   would have been, so nothing round it moves when the mark stands in. */
+.shot--torn {
+  display: inline-block; box-sizing: border-box; width: 280px; height: 140px;
+}
+
+/* ---------------------------------------------------------------------------
+   THE TORN MARK: what a missing or borrowed picture looks like.
+
+   One glyph for both debts, in two colours. A hole in the record should look
+   like a hole -- the page used to leave an empty box, which reads as art that
+   has not loaded yet and so reads as nothing at all. The mark is a picture
+   frame with a corner torn out of it, drawn as a mask so it takes its colour
+   from the theme rather than carrying one baked into the data URI.
+
+   `wrong` is the louder of the two on purpose. A borrowed picture is worse
+   than no picture, because a reader believes it. */
+.torn {
+  --torn-ink: var(--text-faint);
+  --torn-size: 34px;
+  position: absolute; inset: 0; pointer-events: none;
+}
+/* The glyph goes on a pseudo-element, not on the box itself. A mask clips
+   everything its element paints -- border and background included -- so
+   masking .shot directly erased the frame along with the picture and left the
+   mark floating in the gap where a framed picture used to be. */
+.torn::after {
+  content: ""; position: absolute; inset: 0;
+  background-color: var(--torn-ink);
+  -webkit-mask: var(--torn-svg) no-repeat center / var(--torn-size);
+  mask: var(--torn-svg) no-repeat center / var(--torn-size);
+}
+.torn--wrong { --torn-ink: var(--red); opacity: 0.62; }
+.torn--tile { z-index: 1; }
+.shot--torn.torn { position: relative; inset: auto; --torn-size: 56px; }
+/* The picker card's art box is 46px tall, so the mark has to come down to it. */
+.pcard__art .torn { --torn-size: 26px; }
 
 .slots > h2 { border-bottom: 1px solid var(--line); }
 .slots .hint {
@@ -424,7 +461,7 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   background: rgba(255, 255, 255, 0.07);
 }
 .pcard__art {
-  display: block; height: 46px; margin-top: 3px;
+  display: block; position: relative; height: 46px; margin-top: 3px;
   background-repeat: no-repeat; background-position: center; background-size: contain;
 }
 .pcard:hover { border-color: var(--line-2); }
