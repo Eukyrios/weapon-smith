@@ -89,8 +89,8 @@
    "label": "Rear Grip",
    "x": 1559,
    "y": 704,
-   "ax": 1226,
-   "ay": 631
+   "ax": 1216,
+   "ay": 628
   },
   {
    "slot": "mag",
@@ -272,8 +272,8 @@
     "rear-grip": {
      "x": 1658,
      "y": 635,
-     "ax": 1226,
-     "ay": 631,
+     "ax": 1216,
+     "ay": 628,
      "label": "Rear Grip"
     },
     "stock": {
@@ -407,8 +407,8 @@
     "rear-grip": {
      "x": 1658,
      "y": 635,
-     "ax": 1226,
-     "ay": 631,
+     "ax": 1216,
+     "ay": 628,
      "label": "Rear Grip"
     },
     "stock": {
@@ -495,8 +495,8 @@
     "red-dot-optics": {
      "x": 965,
      "y": 211,
-     "ax": 1028,
-     "ay": 373,
+     "ax": 1001,
+     "ay": 403,
      "label": "Optic"
     },
     "optics": {
@@ -516,8 +516,8 @@
     "rear-grip": {
      "x": 1573,
      "y": 696,
-     "ax": 1226,
-     "ay": 631,
+     "ax": 1216,
+     "ay": 628,
      "label": "Rear Grip"
     },
     "stock": {
@@ -606,8 +606,8 @@
     "red-dot-optics": {
      "x": 965,
      "y": 211,
-     "ax": 1028,
-     "ay": 373,
+     "ax": 1001,
+     "ay": 403,
      "label": "Optic"
     },
     "optics": {
@@ -627,15 +627,15 @@
     "rear-grip-mount": {
      "x": 1377,
      "y": 773,
-     "ax": 1212,
-     "ay": 687,
+     "ax": 1198,
+     "ay": 668,
      "label": "Grip Mount"
     },
     "rear-grip": {
      "x": 1642,
      "y": 650,
-     "ax": 1226,
-     "ay": 631,
+     "ax": 1216,
+     "ay": 628,
      "label": "Rear Grip"
     },
     "stock": {
@@ -724,8 +724,8 @@
     "red-dot-optics": {
      "x": 965,
      "y": 211,
-     "ax": 1028,
-     "ay": 373,
+     "ax": 1001,
+     "ay": 403,
      "label": "Optic"
     },
     "optics": {
@@ -752,8 +752,8 @@
     "rear-grip": {
      "x": 1660,
      "y": 634,
-     "ax": 1226,
-     "ay": 631,
+     "ax": 1216,
+     "ay": 628,
      "label": "Rear Grip"
     },
     "stock": {
