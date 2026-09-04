@@ -11,13 +11,14 @@
   520
  ],
  "from": {
-  "_": "All six out of Screen Recording 2026-09-03 194921.mp4, at 2 fps: ffmpeg -i <clip> -vf fps=2 f%04d.png",
+  "_": "Which clip and second each frame was cut from, so they can be made again: ffmpeg -i <clip> -vf fps=2 f%04d.png. All but the last are from Screen Recording 2026-09-03 194921.mp4.",
   "base.png": "3.0s",
   "fierce-barrel.png": "25.5s",
   "fierce-barrel-riser.png": "44.5s",
   "red-dot.png": "60.5s",
   "grip-mount.png": "70.5s",
-  "grip-patch.png": "81.0s"
+  "grip-patch.png": "81.0s",
+  "kill-flash.png": "Screen Recording 2026-09-05 002404.mp4 @ 1.5s"
  },
  "note": [
   "The MCX LT is the weapon that broke the house assumption about which slots",
@@ -28,15 +29,21 @@
   "",
   "What the Fierce Barrel does not do is take the muzzle. Both frames below",
   "were cut believing it did, because neither draws a muzzle chip; the game",
-  "says otherwise. So these two arrangements are recorded a chip short rather",
-  "than re-cut from a frame nobody has, and the muzzle sits in the same",
-  "position as the killflash -- a table on the page, no chip on the stage.",
+  "says otherwise. So those two arrangements are recorded a chip short rather",
+  "than re-cut from a frame nobody has, and the muzzle is the one slot on this",
+  "rifle with a table on the page and no chip on the stage.",
+  "",
+  "It used to be two. The killflash was the other, and the last clip below is a",
+  "second recording made for it alone: the slot was certain from the rules --",
+  "five of this rifle's own optics open it -- but nothing had filmed it. Fitting",
+  "the M157 and pointing a camera at it is cheaper than arguing about it.",
   "",
   "Every chip in every frame is seeded by hand here rather than left to the",
   "label reader. Two of these arrangements put three chips in a row all called",
   "'Optic' or '...Patch' with the name clipped, and the reader cannot tell a",
   "Left Patch from an Upper Patch from a Right Patch by its tail alone. Seeded",
-  "to the right object, snapped to the right pixel."
+  "to the right object, snapped to the right pixel. The killflash clip is the",
+  "exception: nothing is ambiguous in it and the reader placed all fourteen."
  ],
  "labels": {
   "heat-shield": "Heat Shield",
@@ -46,7 +53,8 @@
   "riser-optics": "Riser Optic",
   "red-dot-optics": "Optic",
   "rear-grip-mount": "Grip Mount",
-  "rear-grip-patch": "Rear Grip Patch"
+  "rear-grip-patch": "Rear Grip Patch",
+  "kill-flash": "Killflash"
  },
  "clips": [
   {
@@ -437,6 +445,19 @@
     ]
    },
    "why": "The modular grip's card prints Grip Mount under Conflicting Slots and this clip was cut believing that mattered. It cannot: the mount is opened by a DIFFERENT rear grip, so no build has both. The conflict is out of the rules and out of this layout, which is what was really watched -- nothing was removed here, because nothing was there to remove."
+  },
+  {
+   "key": "kill-flash",
+   "frame": "kill-flash.png",
+   "items": [
+    "m157-fire-control-system"
+   ],
+   "grants": [
+    "kill-flash"
+   ],
+   "occupies": [],
+   "why": "The last chip this rifle was missing. The killflash slot was certain from the rules -- five magnified optics on the MCX LT's own list open it -- but no recording had caught it, so it had a table and no chip. This is a second recording, made for it. The optic fitted is the M157 Fire Control System, identified by its art: tan, boxy, the only one of the five that is not black.",
+   "seed": {}
   }
  ],
  "icon_from": {

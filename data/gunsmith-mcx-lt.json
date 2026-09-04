@@ -764,6 +764,115 @@
      "label": "Stock"
     }
    }
+  },
+  {
+   "when": [
+    "kill-flash"
+   ],
+   "blocks": [],
+   "by": [
+    "m157-fire-control-system"
+   ],
+   "chips": {
+    "muzzle": {
+     "x": 195,
+     "y": 417,
+     "ax": 615,
+     "ay": 462,
+     "label": "Muzzle"
+    },
+    "foregrip": {
+     "x": 278,
+     "y": 350,
+     "ax": 615,
+     "ay": 458,
+     "label": "Foregrip"
+    },
+    "left-rail": {
+     "x": 374,
+     "y": 304,
+     "ax": 685,
+     "ay": 447,
+     "label": "Left Rail"
+    },
+    "right-rail": {
+     "x": 474,
+     "y": 269,
+     "ax": 688,
+     "ay": 420,
+     "label": "Right Rail"
+    },
+    "barrel": {
+     "x": 577,
+     "y": 245,
+     "ax": 715,
+     "ay": 389,
+     "label": "Barrel"
+    },
+    "upper-rail": {
+     "x": 681,
+     "y": 227,
+     "ax": 805,
+     "ay": 403,
+     "label": "Upper Rail"
+    },
+    "kill-flash": {
+     "x": 786,
+     "y": 216,
+     "ax": 840,
+     "ay": 353,
+     "label": "Killflash"
+    },
+    "mag": {
+     "x": 877,
+     "y": 826,
+     "ax": 933,
+     "ay": 738,
+     "label": "Mag"
+    },
+    "upper-patch": {
+     "x": 892,
+     "y": 211,
+     "ax": 933,
+     "ay": 403,
+     "label": "Upper Patch"
+    },
+    "mag-mount": {
+     "x": 955,
+     "y": 827,
+     "ax": 967,
+     "ay": 746,
+     "label": "Mag Mount"
+    },
+    "optics": {
+     "x": 975,
+     "y": 211,
+     "ax": 1022,
+     "ay": 399,
+     "label": "Optic"
+    },
+    "offset-optics": {
+     "x": 1215,
+     "y": 232,
+     "ax": 1133,
+     "ay": 392,
+     "label": "Offset Optic"
+    },
+    "rear-grip": {
+     "x": 1573,
+     "y": 696,
+     "ax": 1216,
+     "ay": 628,
+     "label": "Rear Grip"
+    },
+    "stock": {
+     "x": 1674,
+     "y": 419,
+     "ax": 1543,
+     "ay": 482,
+     "label": "Stock"
+    }
+   }
   }
  ],
  "chip": 70,
