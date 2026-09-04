@@ -23,8 +23,14 @@
   "The MCX LT is the weapon that broke the house assumption about which slots",
   "are on a gun and which are opened. Its upper rail and upper patch are on the",
   "bare rifle -- the RM277 has to be given an upper rail by a barrel -- and its",
-  "LEFT AND RIGHT PATCHES are not on the rifle at all: the Fierce Barrel brings",
-  "them, along with a heat shield, and takes the muzzle away in exchange.",
+  "LEFT AND RIGHT PATCHES are not on the rifle at all: either barrel brings",
+  "them, and the Fierce Barrel brings a heat shield as well.",
+  "",
+  "What the Fierce Barrel does not do is take the muzzle. Both frames below",
+  "were cut believing it did, because neither draws a muzzle chip; the game",
+  "says otherwise. So these two arrangements are recorded a chip short rather",
+  "than re-cut from a frame nobody has, and the muzzle sits in the same",
+  "position as the killflash -- a table on the page, no chip on the stage.",
   "",
   "Every chip in every frame is seeded by hand here rather than left to the",
   "label reader. Two of these arrangements put three chips in a row all called",
@@ -54,9 +60,7 @@
     "left-patch",
     "right-patch"
    ],
-   "occupies": [
-    "muzzle"
-   ],
+   "occupies": [],
    "seed": {
     "heat-shield": [
      251,
@@ -118,7 +122,11 @@
      1690,
      440
     ]
-   }
+   },
+   "why": "The Fierce Barrel does NOT take the muzzle slot -- checked in the game after this was cut. But no muzzle chip is drawn in this frame, and there is bare screen to the left of the heat shield where one would sit, so the arrangement recorded here is one chip short of the truth. Left as watched rather than invented: the muzzle keeps its table on the page and goes without a chip on the stage until a clip catches it, the same way the killflash does.",
+   "unshown": [
+    "muzzle"
+   ]
   },
   {
    "key": "fierce-barrel-riser",
@@ -134,10 +142,8 @@
     "tactical-device",
     "riser-optics"
    ],
-   "occupies": [
-    "muzzle"
-   ],
-   "why": "The riser goes in a slot the bare rifle already has, so this clip answers for the barrel and the riser together and for nothing else.",
+   "occupies": [],
+   "why": "The Fierce Barrel does NOT take the muzzle slot -- checked in the game after this was cut. But no muzzle chip is drawn in this frame, and there is bare screen to the left of the heat shield where one would sit, so the arrangement recorded here is one chip short of the truth. Left as watched rather than invented: the muzzle keeps its table on the page and goes without a chip on the stage until a clip catches it, the same way the killflash does. The riser is fitted in a slot the bare rifle already has, so this clip answers for the barrel and the riser together and for nothing else.",
    "seed": {
     "heat-shield": [
      235,
@@ -207,7 +213,10 @@
      1690,
      440
     ]
-   }
+   },
+   "unshown": [
+    "muzzle"
+   ]
   },
   {
    "key": "red-dot",

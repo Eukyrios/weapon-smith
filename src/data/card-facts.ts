@@ -602,12 +602,14 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   /*
    * --- the MCX LT's own parts ---------------------------------------------
    *
-   * Read off the cards in the recording rather than dictated, and NONE OF THEM
-   * IS CLEARED. A card in a video frame shows the six rows the frame happened
-   * to include; the five below it -- armour penetration, fire rate, capacity,
-   * muzzle velocity, gunshot range -- were off the bottom of every frame that
-   * had these cards open. That is the exact shape of reading that put a wrong
-   * muzzle velocity on the Wave Blaster, so these keep the hedge.
+   * These were read off the cards in the recording, where a frame shows the six
+   * rows it happens to include and the five below it -- armour penetration,
+   * fire rate, capacity, muzzle velocity, gunshot range -- sit off the bottom.
+   * That is the exact shape of reading that put a wrong muzzle velocity on the
+   * Wave Blaster, so all four kept the hedge until someone scrolled the card.
+   *
+   * The two barrels have now been read that way and are cleared. The heat
+   * shield and the 60-round mag have not, and still say so on the page.
    */
   'mcx-lt-fierce-barrel': {
     tier: 'purple',
@@ -617,8 +619,20 @@ export const CARD_FACTS: Record<string, CardFacts> = {
       // against the rifle's 34, and lists Firing Damage among its effects.
       Damage: 2,
     },
+    read: true,
   },
-  'mcx-lt-hunter-barrel': { tier: 'blue' },
+  'mcx-lt-hunter-barrel': {
+    tier: 'blue',
+    stats: {
+      Range: 9, Control: 12, Handling: -7, Stability: 5, Accuracy: -36,
+      // Given as the card's figure, 760, not as a change -- the same way the
+      // Fierce Barrel's damage was given. The rifle leaves the rack at 450, so
+      // this is the longest barrel on the site by a distance: the RM277's
+      // Heavy Integral is +195 and nothing else clears +160.
+      'Muzzle velocity': 310,
+    },
+    read: true,
+  },
   'sur-heat-shield': {
     tier: 'purple',
     // "Increased Fire Rate" on the card, and 870 against the rifle's 840.

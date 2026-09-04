@@ -51,7 +51,13 @@ WHAT A SPEC HOLDS
     labels      on-screen name per slot, for slots the weapon's own file does
                 not already name (its `slots` and `granted` blocks do most)
     clips       one entry each: key, frame, items (the ids fitted), grants
-                (slots opened), occupies (base slots taken away), seed
+                (slots opened), occupies (base slots taken away), seed,
+                and optionally unshown -- slots the rules say are open in this
+                arrangement but which the frame does not draw a chip for. That
+                is a claim about the RECORDING, not about the weapon: occupies
+                means the slot is gone, unshown means it is there and this
+                picture is short of it. Keep the two apart or the page will
+                tell people a slot does not exist because a video missed it.
     icon_from   which clip to cut each new slot's icon from -- one where the
                 slot is EMPTY, so the picture is the slot's own rather than
                 whatever happens to be fitted in it
@@ -377,12 +383,14 @@ def main():
                 print(f'  {c["key"]}: the game moved the rifle '
                       f'{dx:+},{dy:+} here; anchors corrected back '
                       f'(match {resid:.1f})')
-        present = [s for s in base_xy if s not in c['occupies']] + c['grants']
+        gone = set(c['occupies']) | set(c.get('unshown', ()))
+        present = [s for s in base_xy if s not in gone] + [
+            s for s in c['grants'] if s not in gone]
 
         got = by_label(path, sc, names)
         got.update(by_art(path, str(FRAMES / spec['base_frame']), got,
                           {k: v for k, v in base_xy.items()
-                           if k not in c['occupies']}))
+                           if k not in gone}))
         for sid, (sx, sy) in c.get('seed', {}).items():    # hand seeds win
             x, y, _ = snap(sc, sx, sy, r=8)
             got[sid] = (x, y)
@@ -415,7 +423,9 @@ def main():
                             by=c['items'], chips=chips))
         checks.append((c['key'], path, chips))
         print(f'{c["key"]:<16} {len(chips)} chips, '
-              f'{len(c["grants"])} opened, {len(c["occupies"])} taken')
+              f'{len(c["grants"])} opened, {len(c["occupies"])} taken'
+              + (f', {len(c["unshown"])} open but not drawn'
+                 if c.get('unshown') else ''))
 
         for sid, key in spec.get('icon_from', {}).items():
             if key == c['key'] and sid in got:

@@ -746,16 +746,24 @@ export const PENDING_RULES: Record<string, AttachRule> = {
     conflictSlots: ['rear-grip-mount'],
   },
   /*
-   * The MCX LT's own barrel, and the most consequential single part in this
-   * file. It opens THREE slots -- a heat shield round the barrel and both side
-   * patches -- and takes the muzzle in exchange, because it comes with its own
-   * can. Which makes this rifle the counterexample to the shape the other two
-   * taught: left and right patches are not something a gun has, they are
-   * something a barrel can bring.
+   * The MCX LT's two barrels, and between them the counterexample to the shape
+   * the other two rifles taught: LEFT AND RIGHT PATCHES ARE NOT SOMETHING A GUN
+   * HAS. They are something a barrel brings, and on this rifle either barrel
+   * brings them. The bare MCX LT has an upper patch and no side patches at all.
+   *
+   * The Fierce Barrel opens a third slot on top of that, a heat shield round
+   * the barrel, which no other weapon here has. It takes nothing away: it is
+   * drawn with a fat can on the front and the recording of it shows no muzzle
+   * chip, which is why this rule said it occupied the muzzle for one commit.
+   * Al has since checked in the game -- the muzzle slot survives it. The
+   * recorded arrangement is the one that is wrong, and it is short a chip
+   * rather than short a slot; see the note in data/cut-specs/mcx-lt-layouts.json.
    */
   'mcx-lt-fierce-barrel': {
     grants: ['heat-shield', 'left-patch', 'right-patch'],
-    conflictSlots: ['muzzle'],
+  },
+  'mcx-lt-hunter-barrel': {
+    grants: ['left-patch', 'right-patch'],
   },
   'm157-fire-control-system': {
     grants: ['kill-flash'],

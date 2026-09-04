@@ -112,7 +112,7 @@
  "weapon": {
   "id": "mcx-lt",
   "name": "MCX LT",
-  "source": "Screen Recording 2026-09-03 194921.mp4. Chips, art and anchors by tools/cut-gunsmith-frame.py from the bare rifle at 3s; the stat panel read off the item cards in the same recording. Every figure below is a shown value with the hovered part\u2019s own delta taken back off it, and each one was confirmed on a second card that moves a different row: the Fierce Barrel gives control, handling and accuracy, the White Phosphor gives handling and stability, and the two agree.",
+  "source": "Screen Recording 2026-09-03 194921.mp4. Chips, art and anchors by tools/cut-gunsmith-frame.py from the bare rifle at 3s. The eleven figures below were first read off the item cards in the same recording, by taking the hovered part\u2019s own delta back off a shown value; Al has since read them straight off the bare rifle and every one agreed, so they are the weapon\u2019s and not a reconstruction of it.",
   "stats": [
    {
     "key": "Damage",
@@ -173,9 +173,7 @@
     "left-patch",
     "right-patch"
    ],
-   "blocks": [
-    "muzzle"
-   ],
+   "blocks": [],
    "by": [
     "mcx-lt-fierce-barrel"
    ],
@@ -295,9 +293,7 @@
     "riser-optics",
     "tactical-device"
    ],
-   "blocks": [
-    "muzzle"
-   ],
+   "blocks": [],
    "by": [
     "mcx-lt-fierce-barrel",
     "multi-purpose-tactical-riser"
