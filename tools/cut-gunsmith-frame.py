@@ -355,18 +355,75 @@ print(f'\nweapon {int(m.sum()):,}px  box x{bx} y{by} w{bw} h{bh}')
 # Which way each chip's leader line leaves it, then how far along that line the
 # weapon is. Swept rather than guessed: the line is the brightest thing in a
 # ring around the chip, and it is the only thing out there that is.
+# THE LINE IS THE BRIGHTEST *THIN* THING, and thin is the word that matters.
+# Sweeping raw brightness above the modelled background sounds like the same
+# question and is not: bg is fitted from two bands of bare ground either side
+# of the weapon, so it is only honest inside the box, and out where the chips
+# live it drifts into a broad smooth ramp. The sweep then follows the ramp. On
+# the MK47 that sent fourteen of fifteen chips off toward 210 degrees together
+# -- not one of them at its own line, all of them downhill.
+#
+# A median filter of the neighbourhood subtracted off leaves what a hairline
+# is and a gradient is not. Any smooth ramp cancels; a one-pixel line survives
+# nearly whole, because a 7x7 median of a field containing a single thin line
+# is the field without it.
 lift = (a - bg).mean(axis=2)
-for c in chips:
+lift = lift - ndimage.median_filter(lift, 7)
+
+# ANOTHER CHIP'S BOX IS NOT A DIRECTION. A ray that has to cross a neighbour to
+# leave is not the way the line goes, and a chip's border is far brighter than
+# the hairline, so on a crowded fan two neighbours will happily point at each
+# other -- which is what the MK47's Barrel and Upper Rail did, one at 2 degrees
+# and the other at 183, dead at one another. Samples landing inside a DIFFERENT
+# chip are dropped, and a direction with too few left over is not a direction.
+#
+# A chip's own box and its own label stay in. The line starts inside the box
+# and the first samples along it are still within a label's height of the top;
+# masking those cost the MCX LT's magazine pair their anchors, which is how the
+# distinction got drawn.
+owner = np.full((H, W), -1, np.int16)
+for i, c in enumerate(chips):
+    owner[c['y']:c['y'] + S, c['x']:c['x'] + S] = i
+
+for n, c in enumerate(chips):
     cx, cy = c['x'] + S / 2, c['y'] + S / 2
-    best = (-1e9, 0.0)
-    for deg in np.arange(0, 360, 0.4):
+    degs = np.arange(0, 360, 0.4)
+    vals = np.full(len(degs), -99.0)
+    for i, deg in enumerate(degs):
         th = np.radians(deg)
-        vs = [lift[int(round(cy + r*np.sin(th))), int(round(cx + r*np.cos(th)))]
-              for r in range(S//2 + 8, S//2 + 46)
-              if 0 <= cy + r*np.sin(th) < H and 0 <= cx + r*np.cos(th) < W]
-        v = float(np.median(vs)) if vs else -99
-        if v > best[0]:
-            best = (v, deg)
+        pts = [(int(round(cy + r*np.sin(th))), int(round(cx + r*np.cos(th))))
+               for r in range(S//2 + 8, S//2 + 46)
+               if 0 <= cy + r*np.sin(th) < H and 0 <= cx + r*np.cos(th) < W]
+        vs = [lift[y, x] for y, x in pts if owner[y, x] in (-1, n)]
+        if len(vs) < 0.6 * len(pts):
+            continue
+        # A HIGH PERCENTILE, NOT THE MEDIAN, because not every leader line is
+        # solid. The MK47's are dotted -- roughly half line, half gap -- and
+        # the median of a dotted line is the gap, which is the ground, which
+        # is nothing. Fourteen of its fifteen chips found no line at all while
+        # the line was plainly there in the picture. The median was never
+        # measuring "is there a line this way", it was measuring "is there a
+        # line this way WITHOUT GAPS", and only one recording had ever been
+        # asked. The 70th percentile answers the question that was meant: on a
+        # solid line it is the line, on a dotted one it is still the line, and
+        # on bare ground it is still bare ground.
+        vals[i] = float(np.percentile(vs, 70)) if vs else -99
+
+    # A LINE IS NARROW IN ANGLE. What is left after the background model is not
+    # flat: it is interpolated row by row, so what survives streaks sideways,
+    # and a ray that runs along a streak scores as well as one that runs along
+    # a line. On the MK47 that put thirteen of fifteen chips at 176 degrees --
+    # all of them pointing dead left, off the screen, together.
+    #
+    # The two are easy to tell apart by asking a different question. A leader
+    # line occupies a couple of degrees and its neighbours eight degrees away
+    # see nothing; a streak is broad, and eight degrees away is still on it. So
+    # score a direction by how much it beats its own neighbourhood, not by how
+    # bright it is. Brightness alone was never the discriminating measurement.
+    off = int(round(8 / 0.4))
+    rel = vals - np.maximum(np.roll(vals, off), np.roll(vals, -off))
+    i = int(np.argmax(rel))
+    best = (float(rel[i]), float(degs[i]))
     th = np.radians(best[1])
     c['ax'] = c['ay'] = None
     for r in range(S // 2 + 4, 1600):

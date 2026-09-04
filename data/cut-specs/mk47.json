@@ -1,0 +1,128 @@
+{
+ "weapon": "mk47",
+ "frame": "/home/claude/mk47/base.png",
+ "chip": 70,
+ "box": [
+  470,
+  355,
+  1628,
+  700
+ ],
+ "note": [
+  "Screen Recording 2026-09-05 002254.mp4 at 8s, the bare rifle. The clip goes",
+  "on for another hundred seconds and most of it is unusable for artwork: at",
+  "27s Al puts a bright pink appearance on the rifle and never takes it off.",
+  "Everything cut from this weapon's own picture has to come from the first",
+  "twenty-six seconds. Text does not care about the skin, so the slot lists",
+  "later in the clip are still readable.",
+  "",
+  "The box stops at x1628 rather than running to the stock's chip, because on",
+  "this rifle the Rear Grip chip sits at x1673 -- only 45px past the end of the",
+  "buttstock. A box wide enough to be comfortable would have taken the chip",
+  "into the weapon's own silhouette.",
+  "",
+  "FIFTEEN BASE SLOTS, the most of any weapon here, and all three patches are",
+  "on the bare rifle. On the MCX LT the side patches are brought by a barrel",
+  "and on the RM277 there is no upper patch at all; this one simply has the",
+  "lot. Which is the third different answer three weapons have given to the",
+  "question of whose slots the patches are.",
+  "",
+  "Seeds are the chip's TOP-LEFT corner, not its centre -- the same as every",
+  "other spec here. Written as centres the first time, which put all fifteen",
+  "35px down and right of the box, and the snap then locked each one onto a",
+  "weak local maximum a few pixels away rather than the border it was meant",
+  "to find. The ring scores gave it away: 3 and 4 against the MCX LT's 17."
+ ],
+ "seeds": [
+  [
+   "muzzle",
+   "Muzzle",
+   169,
+   589
+  ],
+  [
+   "left-rail",
+   "Left Rail",
+   158,
+   476
+  ],
+  [
+   "right-rail",
+   "Right Rail",
+   220,
+   390
+  ],
+  [
+   "foregrip",
+   "Foregrip",
+   309,
+   330
+  ],
+  [
+   "barrel",
+   "Barrel",
+   406,
+   289
+  ],
+  [
+   "upper-rail",
+   "Upper Rail",
+   508,
+   254
+  ],
+  [
+   "left-patch",
+   "Left Patch",
+   612,
+   238
+  ],
+  [
+   "right-patch",
+   "Right Patch",
+   716,
+   221
+  ],
+  [
+   "upper-patch",
+   "Upper Patch",
+   821,
+   213
+  ],
+  [
+   "optics",
+   "Optic",
+   1204,
+   229
+  ],
+  [
+   "offset-optics",
+   "Offset Optic",
+   1381,
+   266
+  ],
+  [
+   "stock",
+   "Stock",
+   1708,
+   477
+  ],
+  [
+   "rear-grip",
+   "Rear Grip",
+   1638,
+   650
+  ],
+  [
+   "mag",
+   "Mag",
+   1418,
+   760
+  ],
+  [
+   "mag-mount",
+   "Mag Mount",
+   1178,
+   810
+  ]
+ ]
+}

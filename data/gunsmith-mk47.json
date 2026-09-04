@@ -1,0 +1,141 @@
+{
+ "frame": {
+  "w": 1920,
+  "h": 1080
+ },
+ "slots": [
+  {
+   "slot": "muzzle",
+   "label": "Muzzle",
+   "x": 170,
+   "y": 588,
+   "ax": 492,
+   "ay": 486
+  },
+  {
+   "slot": "left-rail",
+   "label": "Left Rail",
+   "x": 158,
+   "y": 476,
+   "ax": 493,
+   "ay": 482
+  },
+  {
+   "slot": "right-rail",
+   "label": "Right Rail",
+   "x": 221,
+   "y": 391,
+   "ax": 495,
+   "ay": 453
+  },
+  {
+   "slot": "foregrip",
+   "label": "Foregrip",
+   "x": 310,
+   "y": 333,
+   "ax": 553,
+   "ay": 429
+  },
+  {
+   "slot": "barrel",
+   "label": "Barrel",
+   "x": 408,
+   "y": 291,
+   "ax": 583,
+   "ay": 388
+  },
+  {
+   "slot": "upper-rail",
+   "label": "Upper Rail",
+   "x": 509,
+   "y": 260,
+   "ax": 679,
+   "ay": 416
+  },
+  {
+   "slot": "left-patch",
+   "label": "Left Patch",
+   "x": 613,
+   "y": 238,
+   "ax": 769,
+   "ay": 422
+  },
+  {
+   "slot": "right-patch",
+   "label": "Right Patch",
+   "x": 717,
+   "y": 223,
+   "ax": 805,
+   "ay": 422
+  },
+  {
+   "slot": "upper-patch",
+   "label": "Upper Patch",
+   "x": 822,
+   "y": 214,
+   "ax": 892,
+   "ay": 418
+  },
+  {
+   "slot": "optics",
+   "label": "Optic",
+   "x": 1205,
+   "y": 230,
+   "ax": 1105,
+   "ay": 415
+  },
+  {
+   "slot": "offset-optics",
+   "label": "Offset Optic",
+   "x": 1382,
+   "y": 267,
+   "ax": 1224,
+   "ay": 415
+  },
+  {
+   "slot": "stock",
+   "label": "Stock",
+   "x": 1709,
+   "y": 477,
+   "ax": 1621,
+   "ay": 520
+  },
+  {
+   "slot": "rear-grip",
+   "label": "Rear Grip",
+   "x": 1639,
+   "y": 652,
+   "ax": 1259,
+   "ay": 608
+  },
+  {
+   "slot": "mag",
+   "label": "Mag",
+   "x": 1420,
+   "y": 760,
+   "ax": 1223,
+   "ay": 682
+  },
+  {
+   "slot": "mag-mount",
+   "label": "Mag Mount",
+   "x": 1180,
+   "y": 811,
+   "ax": 1074,
+   "ay": 681
+  }
+ ],
+ "weapon": {
+  "id": "mk47",
+  "name": "mk47"
+ },
+ "layouts": [],
+ "chip": 70,
+ "gun": {
+  "src": "mk47.png",
+  "x": 487,
+  "y": 369,
+  "w": 1138,
+  "h": 315
+ }
+}
