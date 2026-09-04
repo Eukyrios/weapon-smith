@@ -212,8 +212,15 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * No rarity, because none was read. The card would have printed one.
    */
   'm4-45-round-extended-mag': {
-    read: true, stats: { Handling: -9 },
+    tier: 'blue', read: true, stats: { Handling: -9 },
   },
+  /*
+   * The rest of the MCX LT's five, by rarity only. Read down that list and the
+   * bands are purple, then blue for three, then green for the last -- the same
+   * shape every slot on this site has, most to least.
+   */
+  'm4-60-round-drum-mag': { tier: 'blue' },
+  '5-56x45-30-round-polymer-mag': { tier: 'green' },
   'grizzly-full-p-mag-assist-sand': { tier: 'green', read: true },
   'grizzly-full-p-mag-assist-green': { tier: 'green', read: true },
   'grizzly-full-p-mag-assist-black': { tier: 'green', read: true },
@@ -588,6 +595,16 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     stats: { Control: 2, Handling: 6, Stability: 2, Accuracy: -8 },
   },
   'shadow-buffer-tube-stock': { tier: 'purple', read: true },
+  /*
+   * The two the MCX LT takes and the AR-57 does not, which is why they had no
+   * rarity when the other sixteen did: this list was read off the AR-57 first
+   * and these were not on it. Rarity only, no stats -- the AR-57's purple band
+   * ran Anchor Point Rail Stock to Shadow Rail Stock and on the MCX LT's list
+   * these two sit inside it, so the band is what says they are purple, not a
+   * card anybody has opened. They keep the hedge.
+   */
+  'mrgs-skeleton-stock': { tier: 'purple' },
+  'ur-spec-ops-tactical-stock': { tier: 'purple' },
   'shadow-rail-stock': { tier: 'purple', read: true },
   // Drawn with somebody else's stock. The figures are right; the picture is
   // not, which is what imageChange is for.
@@ -663,6 +680,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     read: true,
   },
   'ar-30-round-polymer-mag': {
+    tier: 'blue',
     stats: { Holds: 30, Stability: 2 },
     read: true,
   },
