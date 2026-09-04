@@ -445,9 +445,15 @@ if missed:
 # hand -- the stat block, the granted slots, the layouts, the dev-mode edits --
 # and re-running the cutter must not cost any of it.
 path = ROOT / f'data/gunsmith-{WID}.json'
+# A NEW WEAPON'S NAME COMES FROM THE CATALOGUE, not from its id. Falling back
+# on the id put "mk47" in the editor's own tab where every other weapon shows
+# its proper name, which is the sort of thing a default hides until the first
+# time the default is used.
+_named = {w['id']: w['name'] for w in
+          json.loads((ROOT / 'data/weapons.json').read_text(encoding='utf-8'))}
 doc = json.loads(path.read_text(encoding='utf-8')) if path.is_file() else {
     'frame': {'w': W, 'h': H}, 'slots': [],
-    'weapon': {'id': WID, 'name': WID}, 'layouts': [],
+    'weapon': {'id': WID, 'name': _named.get(WID, WID)}, 'layouts': [],
 }
 doc['frame'] = {'w': W, 'h': H}
 doc['chip'] = S

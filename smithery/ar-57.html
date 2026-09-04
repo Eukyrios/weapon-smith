@@ -2243,11 +2243,14 @@
               + 'could have made, on every stat at once. Click one to fit it.'
             : 'Each of these is the best there is at something and beaten by '
               + 'nothing at everything. Click one to fit it.';
+          // "1 builds" was unreachable until a weapon arrived with no lists
+          // at all, where the only build there is is the bare rifle.
+          const plural = found.length === 1 ? ' build' : ' builds';
           note(found.length.toLocaleString()
             + (grid > 1
-                ? ' builds, none within ' + grid + ' points of another on '
+                ? plural + ', none within ' + grid + ' points of another on '
                   + 'every stat, in '
-                : ' builds nothing else beats, in ')
+                : plural + ' nothing else beats, in ')
             + ((performance.now() - t0) / 1000).toFixed(1) + 's');
           barTo = 1;
           forge.goLabel.textContent = 'Builds';

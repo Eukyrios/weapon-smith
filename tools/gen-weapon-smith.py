@@ -255,6 +255,12 @@ def item_href(iid, up=''):
     return f'#{iid}' if up == SELF else f'{up}{ITEMS_AT}#{iid}'
 
 
+# Small counts read better as words in a sentence and as digits in a table.
+# Only as far as the number of weapons that could plausibly be traced by hand.
+NUM = {1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six',
+       7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten', 11: 'eleven', 12: 'twelve'}
+
+
 def gun_href(wid, up=''):
     return f'#{wid}' if up == SELF else f'{up}{SMITH_AT}#{wid}'
 
@@ -490,6 +496,34 @@ SECTIONS = {
     ('rear-grip', 'Rear grip', 'Two of them open further slots, and only ever one of the two &mdash; a grip goes in this slot and there is one of it.'),
     ('rear-grip-patch', 'Rear grip patch', 'Opened by the AR Modular Rear Grip. Two pieces, neither in the catalogue.'),
     ('rear-grip-mount', 'Rear grip mount', 'Opened by the AR Heavy Tower Grip. Two bases.'),
+    ('stock', 'Stock', ''),
+  ],
+  # The MK47, TRACED BUT NOT TRANSCRIBED. All fifteen of these are on the bare
+  # rifle: it opens with the most base slots of any weapon here and is the first
+  # to carry all three patches without being given them by anything. What it
+  # does not have yet is a single list.
+  #
+  # It is here anyway, because the stage is real -- measured off the game, chips
+  # and leader lines and all -- and a page that shows the rifle with fifteen
+  # empty tables under it says something true and useful, where "Not transcribed
+  # yet" says only that nobody has typed anything. The slot panels have always
+  # been built to tell those two silences apart; this is the first weapon that
+  # needed them to.
+  'mk47': [
+    ('optics', 'Optics', ''),
+    ('offset-optics', 'Offset optics', ''),
+    ('muzzle', 'Muzzle', ''),
+    ('barrel', 'Barrel', ''),
+    ('foregrip', 'Foregrip', ''),
+    ('left-rail', 'Left rail', ''),
+    ('right-rail', 'Right rail', ''),
+    ('upper-rail', 'Upper rail', 'On the bare rifle, like the MCX LT&rsquo;s and unlike the RM277&rsquo;s and the AR-57&rsquo;s, which have to be opened by a barrel.'),
+    ('left-patch', 'Left patch', 'On the bare rifle. The MCX LT has to be given this one by a barrel and the RM277 has it outright, so the three weapons here have now answered the patch question three different ways.'),
+    ('upper-patch', 'Upper patch', 'On the bare rifle. Only the MCX LT has one at all, and the RM277 has none.'),
+    ('right-patch', 'Right patch', 'On the bare rifle, like the left.'),
+    ('mag', 'Magazine', 'The MK47 is chambered in 7.62x39mm and holds 20 &mdash; the smallest magazine on any weapon traced here.'),
+    ('mag-mount', 'Magazine mount', ''),
+    ('rear-grip', 'Rear grip', ''),
     ('stock', 'Stock', ''),
   ],
 }
@@ -1158,9 +1192,13 @@ def smithery_page():
                        for x in sorted(by_cls[cls], key=by_worked))
                    + '\n    </div>\n')
 
+    # "the two with a traced gunsmith" was written when there were two and
+    # stayed true for exactly one commit. Counted now, like everything else.
+    n_traced = len(DOCUMENTED)
     body = f"""  <p class="lede kind-lede">Every slot on a weapon, what each one
-  accepts, and which attachments open more. Pick a weapon; the two with a
-  traced gunsmith open the editor, the rest carry what the catalogue knows.</p>
+  accepts, and which attachments open more. Pick a weapon; the {NUM.get(n_traced, n_traced)}
+  with a traced gunsmith open the editor, the rest carry what the catalogue
+  knows.</p>
 
   <div id="smithery" class="smithery-slot"></div>
 
@@ -2076,11 +2114,14 @@ FORGE_CTRL = '''
               + 'could have made, on every stat at once. Click one to fit it.'
             : 'Each of these is the best there is at something and beaten by '
               + 'nothing at everything. Click one to fit it.';
+          // "1 builds" was unreachable until a weapon arrived with no lists
+          // at all, where the only build there is is the bare rifle.
+          const plural = found.length === 1 ? ' build' : ' builds';
           note(found.length.toLocaleString()
             + (grid > 1
-                ? ' builds, none within ' + grid + ' points of another on '
+                ? plural + ', none within ' + grid + ' points of another on '
                   + 'every stat, in '
-                : ' builds nothing else beats, in ')
+                : plural + ' nothing else beats, in ')
             + ((performance.now() - t0) / 1000).toFixed(1) + 's');
           barTo = 1;
           forge.goLabel.textContent = 'Builds';
@@ -5213,12 +5254,26 @@ def banner(path=''):
                 'for it.')
     else:
         head = f'None of the {total} weapons is finished yet.'
+    # THREE STATES, NOT TWO. A weapon can be finished, or have lists that are
+    # still being read, or -- new with the MK47 -- have been traced off the
+    # game with not one list transcribed yet. Lumping the third in with the
+    # second had the banner announce that the MK47 "has lists", on a page whose
+    # every table read zero.
+    listed = [w for w in started if any(FITS.get(w, {}).values())]
+    bare = [w for w in started if w not in listed]
     part = ''
-    if started:
-        s_named = ', '.join(WEAPON_NAME.get(w, w) for w in started)
-        part = (f' {s_named} {"has" if len(started) == 1 else "have"} a list '
-                'and is still being read.' if len(started) == 1 else
-                f' {s_named} have lists and are still being read.')
+    if listed:
+        s_named = ', '.join(WEAPON_NAME.get(w, w) for w in listed)
+        part += (f' {s_named} {"has" if len(listed) == 1 else "have"} a list '
+                 'and is still being read.' if len(listed) == 1 else
+                 f' {s_named} have lists and are still being read.')
+    if bare:
+        b_named = ', '.join(WEAPON_NAME.get(w, w) for w in bare)
+        part += (f' The {b_named} is traced off the game &mdash; every slot and '
+                 'where it sits &mdash; and none of its lists is written down '
+                 'yet.' if len(bare) == 1 else
+                 f' {b_named} are traced off the game and none of their lists '
+                 'is written down yet.')
     return (
         '<aside class="banner">\n'
         f'    <strong>Early days.</strong> This site is being written as the '
