@@ -204,6 +204,16 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'm7-6-8-45-round-drum-mag': {
     tier: 'purple', read: true, stats: { Handling: -6 },
   },
+  /*
+   * This one fills a blank instead. The catalogue has its 45 rounds and no
+   * handling at all -- not zero, absent -- and an extended magazine that costs
+   * nothing to handle would be the only one on the site. It costs 9.
+   *
+   * No rarity, because none was read. The card would have printed one.
+   */
+  'm4-45-round-extended-mag': {
+    read: true, stats: { Handling: -9 },
+  },
   'grizzly-full-p-mag-assist-sand': { tier: 'green', read: true },
   'grizzly-full-p-mag-assist-green': { tier: 'green', read: true },
   'grizzly-full-p-mag-assist-black': { tier: 'green', read: true },
