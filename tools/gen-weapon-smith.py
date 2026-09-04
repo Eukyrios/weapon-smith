@@ -1155,7 +1155,7 @@ def smithery_page():
                    + '\n'.join(
                        f'      <a class="chip{" chip--on" if x["id"] in DOCUMENTED else ""}"'
                        f' href="#{x["id"]}">{x["name"]}</a>'
-                       for x in sorted(by_cls[cls], key=lambda x: x['name']))
+                       for x in sorted(by_cls[cls], key=by_worked))
                    + '\n    </div>\n')
 
     body = f"""  <p class="lede kind-lede">Every slot on a weapon, what each one
@@ -1383,7 +1383,7 @@ def catalogue_browser(items, by_caliber, pages='', art=''):
         if cls not in by_cls:
             continue
         gid = anchor('class', cls)
-        rows = sorted(by_cls[cls], key=lambda x: x['name'])
+        rows = sorted(by_cls[cls], key=by_worked)
         group(gid, cls, ''.join(
             tile(gun_href(w['id'], pages), w['name'],
                  f'gear/{w["id"]}.png' if has_art('gear', w['id']) else None,
@@ -2506,11 +2506,24 @@ def stat_bar(name, delta):
             f'</span></div>\n')
 
 
+def has_slot_icon(sid):
+    """Is a picture of this slot committed?
+
+    Cut by tools/cut-gunsmith-layouts.py from a frame where the slot is empty,
+    so a slot only gets one once some recording has caught it open. A slot the
+    rules know about and no video has shown -- the MCX LT's killflash is the
+    standing example -- has none, and used to draw a blank box.
+    """
+    return (ROOT / 'smith' / 'slot' / f'{sid}.png').is_file()
+
+
 def slot_tile(sid):
     """A slot as the game draws it in "Adds Slots": named box with its icon."""
-    icon = (f' style="background-image:url({DEEP}smith/slot/{sid}.png)"'
-            if (ROOT / 'smith' / 'slot' / f'{sid}.png').is_file() else '')
-    return (f'<span class="stile"{icon}>'
+    ok = has_slot_icon(sid)
+    icon = f' style="background-image:url({DEEP}smith/slot/{sid}.png)"' if ok else ''
+    hole = ('' if ok else
+            f'<span class="torn torn--none" title="{TORN_TITLE["none"]}"></span>')
+    return (f'<span class="stile"{icon}>{hole}'
             f'<em>{SLOT_LABEL.get(sid, sid)}</em></span>')
 
 
@@ -2656,8 +2669,12 @@ def gunsmith_body(g):
             f'data-slot="{s["slot"]}" title="{s["label"]}"'
             f'{" hidden" if granted else ""}>'
             f'<span class="chip3__label">{s["label"]}</span>'
-            f'<span class="chip3__art" style="background-image:'
-            f'url({DEEP}smith/slot/{s["slot"]}.png)"></span>'
+            f'<span class="chip3__art"'
+            + (f' style="background-image:url({DEEP}smith/slot/{s["slot"]}.png)">'
+               if has_slot_icon(s['slot']) else
+               f'><span class="torn torn--none" '
+               f'title="{TORN_TITLE["none"]}"></span>')
+            + '</span>'
             + (f'<em>{n}</em>' if n else '') + '</a>\n')
         panels.append(slot_panel(g, s['slot'], label))
         if s.get('ax') is not None:
@@ -4509,9 +4526,15 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   .chip3 { transition: none; }
 }
 .chip3__art {
-  display: block; width: 100%; height: 100%;
+  display: block; position: relative; width: 100%; height: 100%;
   background-repeat: no-repeat; background-position: center; background-size: contain;
 }
+/* A slot with no icon cut for it yet. Sized as a share of the chip rather than
+   in pixels, because the whole stage is laid out as a percentage of the frame
+   and scales with the page -- a fixed 34px mark would be a different size at
+   every width. */
+.chip3__art .torn { --torn-size: 46%; }
+.stile .torn { --torn-size: 44%; }
 /* Clipped to the chip's width, and clipped at the front, which is why the game
    shows a Riser Optic as "ser Optic". Without it the long names on the optic
    arm -- Tactical Device, Riser Optic, Red Dot Optic, three in a row -- print
@@ -4998,7 +5021,22 @@ WEAPON_NAME = {w['id']: w['name'] for w in WEAPONS}
 # Weapons with a slot list of their own. Derived from the lists themselves
 # rather than typed twice: a weapon is documented exactly when SECTIONS has
 # something to say about it.
-DOCUMENTED = {wid for wid, secs in SECTIONS.items() if secs}
+# The order the weapons were worked on, oldest first, which is the order
+# SECTIONS itself is written in -- a dict keeps what it was given. So the
+# catalogue can list a class with the traced guns at the top in the order they
+# were read rather than alphabetically, which is the order somebody following
+# the site wants them in: the finished one, then the one after it, then the one
+# being read now. Everything untraced keeps its name order behind them.
+WORKED = [wid for wid, secs in SECTIONS.items() if secs]
+DOCUMENTED = set(WORKED)
+
+
+def by_worked(w):
+    """Sort key: traced weapons first in the order they were read, then names."""
+    wid = w['id'] if isinstance(w, dict) else w
+    return (WORKED.index(wid) if wid in DOCUMENTED else len(WORKED),
+            '' if wid in DOCUMENTED else (w['name'] if isinstance(w, dict)
+                                          else WEAPON_NAME.get(wid, wid)))
 # Weapons whose gunsmith layout has been traced from the game. Also derived —
 # from whether the traced file is actually on disk.
 GUNSMITHS = {wid for wid in DOCUMENTED
@@ -5191,7 +5229,7 @@ def banner(path=''):
         'carries what the catalogue knows and says so.'
         + ''.join(f'\n    <a class="banner__go" href="{gun_href(w, up)}">'
                   f'See the {WEAPON_NAME.get(w, w)} &rarr;</a>'
-                  for w in sorted(DOCUMENTED))
+                  for w in WORKED)
         + '\n</aside>\n')
 
 

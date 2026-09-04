@@ -742,9 +742,15 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   .chip3 { transition: none; }
 }
 .chip3__art {
-  display: block; width: 100%; height: 100%;
+  display: block; position: relative; width: 100%; height: 100%;
   background-repeat: no-repeat; background-position: center; background-size: contain;
 }
+/* A slot with no icon cut for it yet. Sized as a share of the chip rather than
+   in pixels, because the whole stage is laid out as a percentage of the frame
+   and scales with the page -- a fixed 34px mark would be a different size at
+   every width. */
+.chip3__art .torn { --torn-size: 46%; }
+.stile .torn { --torn-size: 44%; }
 /* Clipped to the chip's width, and clipped at the front, which is why the game
    shows a Riser Optic as "ser Optic". Without it the long names on the optic
    arm -- Tactical Device, Riser Optic, Red Dot Optic, three in a row -- print
