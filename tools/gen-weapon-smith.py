@@ -119,6 +119,36 @@ def item_id(name):
 # Weapons, rounds and attachments share one flat folder, so their filenames are
 # prefixed. Subfolders would read better in a URL and cost a third level of
 # ../../.. in every link; this is the boring option that cannot break.
+def balanced(css):
+    """The stylesheet, or a stack trace naming the line that broke it.
+
+    Two stray closing braces sat in this sheet for eleven commits. Every
+    browser drew the site correctly the whole time -- CSS error recovery is to
+    skip the token and carry on, so nothing looked wrong and none of the
+    Playwright runs noticed. What noticed was postcss, the first time anyone
+    ran the dev server: it refuses the file outright, and the site would not
+    start.
+
+    A generator that emits a broken sheet and says nothing is worse than one
+    that crashes, because the sheet is 1,700 lines of string literal and the
+    brace that went missing is nowhere near the symptom. So it counts.
+    """
+    depth = 0
+    for n, line in enumerate(css.split('\n'), 1):
+        for ch in line:
+            if ch == '{':
+                depth += 1
+            elif ch == '}':
+                depth -= 1
+                if depth < 0:
+                    raise SystemExit(
+                        f'smith.css line {n}: a closing brace with nothing '
+                        f'open.\n  {line.strip()}')
+    if depth:
+        raise SystemExit(f'smith.css: {depth} block(s) left open at the end.')
+    return css
+
+
 def has_art(folder, iid):
     """Is a picture actually committed for this item?
 
@@ -4441,9 +4471,6 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   .dpane { width: 55%; }
   .equip { position: static; display: block; width: 100%; margin-top: 10px; }
 }
-}
-
-}
 
 .shotlink { position: relative; display: inline-block; text-decoration: none; }
 .shotlink__cue {
@@ -5341,7 +5368,7 @@ if __name__ == '__main__':
 
     (out / 'index.html').write_text(
         index_page(items, by_caliber), encoding='utf-8')
-    (out / 'smith.css').write_text(CSS, encoding='utf-8')
+    (out / 'smith.css').write_text(balanced(CSS), encoding='utf-8')
 
     # Site furniture. Generated too, so a new weapon page reaches the sitemap
     # without anyone remembering to add it.

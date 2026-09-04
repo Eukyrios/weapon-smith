@@ -704,9 +704,6 @@ a.big:hover, a.big:focus-visible { border-color: var(--accent-dim); }
   .dpane { width: 55%; }
   .equip { position: static; display: block; width: 100%; margin-top: 10px; }
 }
-}
-
-}
 
 .shotlink { position: relative; display: inline-block; text-decoration: none; }
 .shotlink__cue {
