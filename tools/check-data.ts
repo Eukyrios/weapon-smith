@@ -12,7 +12,9 @@ import {
   danglingRuleIds, ladderViolations, unknownSlotKeys,
   unknownConflictSlots, panelSubsetViolations,
 } from '../src/data/attach-rules'
-import { unanchoredCardFacts } from '../src/data/card-facts'
+import { unanchoredCardFacts, CARD_FACTS } from '../src/data/card-facts'
+import { ATTACHMENTS } from '../src/data/attachments'
+import { WEAPON_STAT_ROWS } from '../src/data/weapon-stats'
 
 /**
  * Does each recorded gunsmith layout still say what the rules say?
@@ -62,6 +64,35 @@ function layoutsAgainstRules(): string[] {
   return out
 }
 
+/**
+ * Does every stat key name a row the site can draw?
+ *
+ * A stat under a name nothing renders is worse than a missing one: it turns up
+ * on the attachment page as a row of its own, looking exactly as authoritative
+ * as the eleven that mean something. The Blazing Fire Suppressor carried
+ * "Muzzle Flash": 1 that way -- one key, one item, out of 414, a trait that had
+ * fallen into the stats bag when the catalogue was compiled, and it sat there
+ * until somebody read the card and asked what it was.
+ *
+ * Both sources are checked. The catalogue arrives compiled from elsewhere and
+ * card facts are typed by hand, and either can invent a column.
+ */
+function unknownStatKeys(): string[] {
+  const known = new Set<string>()
+  for (const r of WEAPON_STAT_ROWS) {
+    known.add(r.key)
+    if (r.from) known.add(r.from)
+  }
+  const out: string[] = []
+  for (const a of ATTACHMENTS)
+    for (const k of Object.keys(a.stats ?? {}))
+      if (!known.has(k)) out.push(`${a.name}: catalogue stat "${k}"`)
+  for (const [id, f] of Object.entries(CARD_FACTS))
+    for (const k of Object.keys(f.stats ?? {}))
+      if (!known.has(k)) out.push(`${id}: card stat "${k}"`)
+  return out
+}
+
 const checks: [string, string[]][] = [
   ['rules pointing at missing items', danglingRuleIds()],
   ['optic pools that do not nest', ladderViolations()],
@@ -69,6 +100,7 @@ const checks: [string, string[]][] = [
   ['conflicts naming a missing slot', unknownConflictSlots()],
   ['patch entries the rail refuses', panelSubsetViolations()],
   ['card facts anchored to nothing', unanchoredCardFacts()],
+  ['stat keys nothing can draw', unknownStatKeys()],
   ['layouts disagreeing with the rules', layoutsAgainstRules()],
 ]
 

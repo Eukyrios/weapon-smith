@@ -345,12 +345,16 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     * lines were checked, and a tier is not a licence to drop the hedge on
     * five stats this reading never looked at.
     */
-  'spiral-fire-flash-hider': { tier: 'purple', read: true },
+  'spiral-fire-flash-hider': { tier: 'purple', read: true,
+    stats: { Control: 4, Stability: 1 } },
   'advanced-multi-caliber-suppressor': { tier: 'purple', read: true,
-    stats: { 'Muzzle velocity': 117, 'Gunshot heard': -250 } },
-  'm7-practical-suppressor': { tier: 'purple', read: true, stats: { 'Gunshot heard': -250 } },
+    stats: { Range: 5, Control: 9, Handling: -6, Accuracy: -4,
+             'Muzzle velocity': 117, 'Gunshot heard': -250 } },
+  'm7-practical-suppressor': { tier: 'purple', read: true,
+    stats: { Control: 8, Handling: -4, Stability: 2, 'Gunshot heard': -250 } },
   'silent-suppressor': { tier: 'purple', read: true,
-    stats: { 'Fire rate': -71, 'Muzzle velocity': 156, 'Gunshot heard': -250 } },
+    stats: { Range: 7, Control: 8, Handling: -13, Stability: -5,
+             'Fire rate': -71, 'Muzzle velocity': 156, 'Gunshot heard': -250 } },
   'sandstorm-vertical-compensator': {
     tier: 'purple',
     read: true,
@@ -363,11 +367,13 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   },
   'poseidon-flash-hider': { tier: 'purple', read: true },
   'whisper-tactical-suppressor': { tier: 'purple', read: true,
-    stats: { 'Muzzle velocity': 117, 'Gunshot heard': -150 } },
+    stats: { Range: 5, Control: 6, Handling: -5, Stability: 2, Accuracy: -4,
+             'Muzzle velocity': 117, 'Gunshot heard': -150 } },
   'titanium-contest-muzzle-brake': { tier: 'purple', read: true },
   'blazing-fire-suppressor': { tier: 'purple', read: true },
   'steel-muzzle-brake': { tier: 'blue', read: true },
-  'practical-suppressor': { tier: 'blue', read: true, stats: { 'Gunshot heard': -150 } },
+  'practical-suppressor': { tier: 'blue', read: true,
+    stats: { Control: 2, Stability: 2, 'Gunshot heard': -150 } },
   'birdcage-flash-hider': { tier: 'green', read: true },
   'practical-flash-hider': { tier: 'green', read: true },
   // Read on the MCX LT, where it had been sitting in the list uncoloured and
@@ -394,11 +400,16 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * the other AK in the list and the one in the right place. The data caught
    * it; nothing here is a guess about which he meant.
    */
-  'dtk-muzzle-brake': { tier: 'purple' },
-  'ak-bravefire-suppressor': { tier: 'purple' },
-  'pbs-russian-suppressor': { tier: 'purple' },
-  'ak-practical-compensator': { tier: 'blue' },
-  'bell-mouth-flash-hider': { tier: 'green' },
+  'dtk-muzzle-brake': { tier: 'purple', read: true,
+    stats: { Control: 6, Accuracy: 12 } },
+  'ak-bravefire-suppressor': { tier: 'purple', read: true,
+    stats: { Range: 5, Control: 3, Handling: -4, Stability: 3, Accuracy: -8,
+             'Muzzle velocity': 95, 'Gunshot heard': -150 } },
+  'pbs-russian-suppressor': { tier: 'purple', read: true,
+    stats: { Control: 10, Handling: -4, 'Gunshot heard': -250 } },
+  // Read and unchanged: the catalogue already had both its lines right.
+  'ak-practical-compensator': { tier: 'blue', read: true },
+  'bell-mouth-flash-hider': { tier: 'green', read: true },
 
   // --- foregrips ----------------------------------------------------------
   /*

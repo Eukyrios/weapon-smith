@@ -7,6 +7,14 @@
  * render their loadouts client-side, so the dispenser deliberately ignores fit
  * and can hand you an M249 handguard for your MP5. That is a choice, not a bug.
  *
+ * ONE FIGURE HERE HAS BEEN CORRECTED BY HAND. The Blazing Fire Suppressor
+ * carried a stat called "Muzzle Flash": 1 -- the only stat key in all 414
+ * items that is not one of the eleven the site tracks, and plainly a trait
+ * that fell into the stats bag when this was compiled. "Muzzle Flash" is a
+ * trait on four other items and reads correctly there. It is deleted, and
+ * check-data.ts now refuses any stat key that is not a tracked row, so the
+ * next one cannot arrive unnoticed.
+ *
  * PICTURES ARE LOCAL ONLY. The upstream URLs live in tools/att-sources.json,
  * which the mirroring script reads and the browser never sees, so the app
  * makes no request to anyone else's server. `hasArt` says whether a mirrored
@@ -3391,7 +3399,6 @@ export const ATTACHMENTS: Attachment[] = [
   price: 19633,
   stats: {
    "Control": 6,
-   "Muzzle Flash": 1,
    "Handling": -1
   },
   traits: [],
