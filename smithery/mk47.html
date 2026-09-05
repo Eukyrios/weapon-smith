@@ -411,10 +411,10 @@
     window.__smithStop = () => AC.abort();
 
     const WID = "mk47";
-    const WEAPON = [{"key": "Damage", "max": 100, "base": 42, "tracked": false, "lower": false}, {"key": "Range", "max": 100, "unit": "m", "base": 30, "tracked": true, "lower": false}, {"key": "Control", "max": 100, "base": 35, "tracked": true, "lower": false}, {"key": "Handling", "max": 100, "base": 55, "tracked": true, "lower": false}, {"key": "Stability", "max": 100, "base": 50, "tracked": true, "lower": false}, {"key": "Accuracy", "max": 100, "base": 53, "tracked": true, "lower": false}, {"key": "Armour penetration", "max": 100, "base": 46, "tracked": false, "lower": false}, {"key": "Fire rate", "max": 1200, "unit": " rpm", "base": 625, "tracked": true, "lower": false}, {"key": "Capacity", "max": 100, "from": "Holds", "mode": "set", "base": 20, "tracked": false, "lower": false}, {"key": "Muzzle velocity", "max": 1200, "unit": " m/s", "base": 525, "tracked": true, "lower": false}, {"key": "Gunshot heard", "max": 1000, "unit": " m", "base": 500, "tracked": true, "lower": true}];
+    const WEAPON = [{"key": "Damage", "max": 100, "base": 42, "tracked": false, "lower": false}, {"key": "Range", "max": 100, "unit": "m", "base": 30, "tracked": true, "lower": false}, {"key": "Control", "max": 100, "base": 35, "tracked": true, "lower": false}, {"key": "Handling", "max": 100, "base": 55, "tracked": true, "lower": false}, {"key": "Stability", "max": 100, "base": 50, "tracked": true, "lower": false}, {"key": "Accuracy", "max": 100, "base": 53, "tracked": true, "lower": false}, {"key": "Armour penetration", "max": 100, "base": 46, "tracked": false, "lower": false}, {"key": "Fire rate", "max": 1200, "unit": " rpm", "mode": "scale", "base": 625, "tracked": true, "lower": false}, {"key": "Capacity", "max": 100, "from": "Holds", "mode": "set", "base": 20, "tracked": false, "lower": false}, {"key": "Muzzle velocity", "max": 1200, "unit": " m/s", "mode": "scale", "base": 525, "tracked": true, "lower": false}, {"key": "Gunshot heard", "max": 1000, "unit": " m", "mode": "scale", "base": 500, "tracked": true, "lower": true}];
     const SPECS = [{"key": "Fire modes", "text": "Single / Auto"}];
     const READ = new Set(["1p-29-russian-3x-sight", "1p-33-2-4x-scope", "3-7-adjustable-scope", "416-light-stock", "416-practical-rear-grip", "416-stable-stock", "acog-precision-6x-scope", "advanced-multi-caliber-suppressor", "advanced-thermal-fusion-holographic-sight", "ak-bravefire-suppressor", "ak-practical-compensator", "anchor-point-rail-stock", "angled-hand-stop", "ap5000-reflex-sight", "ar-30-round-polymer-mag", "ar-60-round-extended-mag", "ar-heavy-grip-piece", "ar-heavy-tower-grip", "ar-light-grip-piece", "ar-modular-rear-grip", "ar-moe-rear-grip", "ar57-wave-blaster-ultra-long-barrel", "balanced-grip-base", "bastion-horizontal-compensator", "bell-mouth-flash-hider", "birdcage-flash-hider", "blazing-fire-suppressor", "cardinal-advanced-combat-stock", "cardinal-stable-stock", "cobra-accuracy-sight", "cobweb-titanium-muzzle-brake", "collapsible-bipod-grip", "combat-red-dot-sight", "competition-hand-stop", "core-rail-stock", "cr-prism-hand-stop", "ct-enhanced-stock", "dawn-angled-flashlight-grip", "daybreak-vertical-flashlight-grip", "dbal-x2-purple-laser-light-combo", "dd-python-handguard-panel", "dtk-muzzle-brake", "ec-universal-front-hand-stop", "elite-light-stock", "ffc-double-port-muzzle-brake", "flare-tactical-flashlight", "folding-grip", "grizzly-full-p-mag-assist-black", "grizzly-full-p-mag-assist-green", "grizzly-full-p-mag-assist-sand", "hamr-combined-scope", "holographic-sight", "holographic-sight-type-ii", "honeycomb-killflash", "hornet-handguard", "hurricane-d-1-rear-grip", "insight-3-7-sniper-scope", "invasion-core-stock", "invasion-rear-grip", "k1-elite-bevel-foregrip", "kc-hound-handguard", "la-3c-green-laser-light-combo", "lightning-rail-stock", "lpvo-scope", "m157-fire-control-system", "m4-45-round-extended-mag", "m4-recoil-buffer-tube", "m7-6-8-45-round-drum-mag", "m7-practical-suppressor", "m7-stable-rear-grip", "marksman-d-2-rear-grip", "mcx-lt-fierce-barrel", "mcx-lt-hunter-barrel", "meo-micro-sight-riser", "micro-sight-riser", "mini-hand-stop", "mini-red-dot-sight", "modular-handguard-panel", "multi-purpose-tactical-riser", "night-gale-integrally-suppressed-combo", "offset-combat-red-dot-sight", "offset-mini-red-dot-sight", "offset-osight-red-dot", "offset-panoramic-red-dot-sight", "offset-xro-quick-response-sight", "okp-7-reflex-sight", "olight-baldr-pro-r-multi-function-flashlight", "olight-odin-s-tactical-flashlight", "olight-warrior-3s-tactical-flashlight", "osight-red-dot", "panoramic-red-dot-sight", "pbs-russian-suppressor", "peq-2-red-laser-light-combo", "perst-7-blue-laser-light-combo", "phantom-rear-grip", "phantom-vertical-foregrip", "phase-combat-foregrip", "poseidon-flash-hider", "practical-bipod", "practical-flash-hider", "practical-light-stock", "practical-stable-stock", "practical-suppressor", "practical-tactical-stock", "practical-vertical-foregrip", "practical-weapon-light", "prism-universal-2x-optic", "qr-high-performance-stock", "ranger-handguard", "recon-1-5-5-adjustable-scope", "reflex-sight", "resonant-2-integral-stock", "resonant-ergonomic-grip", "resonant-mk-iii-grip", "resonant-mkii-foregrip", "restricted-zone-integral-stock", "rk-0-foregrip", "rm277-breaker-suppressor", "rm277-cheek-pad", "rm277-heavy-integral-barrel", "rm277-pad", "rm277-whale-shark-barrel-combo", "russian-accuracy-2x-scope", "sandstorm-vertical-compensator", "secret-order-bevel-foregrip", "shadow-buffer-tube-stock", "shadow-rail-stock", "silent-suppressor", "skeleton-sniper-stock", "smg-echo-suppressor", "spiral-fire-flash-hider", "stable-grip-base", "steel-muzzle-brake", "tactical-angled-foregrip", "tactical-vertical-foregrip", "titanium-contest-muzzle-brake", "uhx-holographic-sight", "vfg-knight-foregrip", "viewpoint-3x-scope", "vmx-frameless-sight", "whisper-tactical-suppressor", "white-phosphor-thermal-scope", "x25u-angled-combat-grip", "xcog-assault-3-5x-scope", "xro-quick-response-sight", "zfsg-tactical-grip"]);
-    const DELTA = {"cobweb-titanium-muzzle-brake": {"Control": 7, "Stability": -2, "Accuracy": 8}, "ffc-double-port-muzzle-brake": {"Control": 10, "Handling": -4, "Stability": 3}, "spiral-fire-flash-hider": {"Stability": 1, "Control": 4}, "advanced-multi-caliber-suppressor": {"Handling": -6, "Stability": -3, "Range": 5, "Control": 9, "Accuracy": -4, "Muzzle velocity": 117, "Gunshot heard": -250}, "dtk-muzzle-brake": {"Accuracy": 12, "Control": 6}, "m7-practical-suppressor": {"Control": 8, "Handling": -4, "Stability": 2, "Gunshot heard": -250}, "ak-bravefire-suppressor": {"Range": 5, "Stability": 3, "Handling": -4, "Control": 3, "Accuracy": -8, "Muzzle velocity": 95, "Gunshot heard": -150}, "pbs-russian-suppressor": {"Control": 10, "Handling": -4, "Gunshot heard": -250}, "silent-suppressor": {"Handling": -13, "Stability": -5, "Range": 7, "Control": 8, "Fire rate": -71, "Muzzle velocity": 156, "Gunshot heard": -250}, "sandstorm-vertical-compensator": {"Control": 9}, "bastion-horizontal-compensator": {"Control": 9}, "poseidon-flash-hider": {"Control": 7}, "whisper-tactical-suppressor": {"Range": 5, "Control": 6, "Handling": -5, "Stability": 2, "Accuracy": -4, "Muzzle velocity": 117, "Gunshot heard": -150}, "titanium-contest-muzzle-brake": {"Control": 12, "Handling": -3}, "blazing-fire-suppressor": {"Control": 6, "Handling": -1}, "ak-practical-compensator": {"Control": 7, "Stability": -2}, "steel-muzzle-brake": {"Control": 6, "Stability": -1}, "practical-suppressor": {"Control": 2, "Stability": 2, "Gunshot heard": -150}, "bell-mouth-flash-hider": {"Control": 3}, "practical-flash-hider": {"Control": 2}};
+    const DELTA = {"cobweb-titanium-muzzle-brake": {"Control": 7, "Stability": -2, "Accuracy": 8}, "ffc-double-port-muzzle-brake": {"Control": 10, "Handling": -4, "Stability": 3}, "spiral-fire-flash-hider": {"Stability": 1, "Control": 4}, "advanced-multi-caliber-suppressor": {"Handling": -6, "Stability": -3, "Range": 5, "Control": 9, "Accuracy": -4, "Muzzle velocity": 1.18, "Gunshot heard": 0.5}, "dtk-muzzle-brake": {"Accuracy": 12, "Control": 6}, "m7-practical-suppressor": {"Control": 8, "Handling": -4, "Stability": 2, "Gunshot heard": 0.5}, "ak-bravefire-suppressor": {"Range": 5, "Stability": 3, "Handling": -4, "Control": 3, "Accuracy": -8, "Muzzle velocity": 1.18, "Gunshot heard": 0.7}, "pbs-russian-suppressor": {"Control": 10, "Handling": -4, "Gunshot heard": 0.5}, "silent-suppressor": {"Handling": -13, "Stability": -5, "Range": 7, "Control": 8, "Fire rate": 0.87, "Muzzle velocity": 1.24, "Gunshot heard": 0.5}, "sandstorm-vertical-compensator": {"Control": 9}, "bastion-horizontal-compensator": {"Control": 9}, "poseidon-flash-hider": {"Control": 7}, "whisper-tactical-suppressor": {"Range": 5, "Control": 6, "Handling": -5, "Stability": 2, "Accuracy": -4, "Muzzle velocity": 1.18, "Gunshot heard": 0.7}, "titanium-contest-muzzle-brake": {"Control": 12, "Handling": -3}, "blazing-fire-suppressor": {"Control": 6, "Handling": -1}, "ak-practical-compensator": {"Control": 7, "Stability": -2}, "steel-muzzle-brake": {"Control": 6, "Stability": -1}, "practical-suppressor": {"Control": 2, "Stability": 2, "Gunshot heard": 0.7}, "bell-mouth-flash-hider": {"Control": 3}, "practical-flash-hider": {"Control": 2}};
     const OPENS = {};
     const LAYOUTS = [{"when": [], "blocks": [], "chips": {"muzzle": {"x": 170, "y": 588, "ax": 492, "ay": 486}, "left-rail": {"x": 158, "y": 476, "ax": 493, "ay": 482}, "right-rail": {"x": 221, "y": 391, "ax": 495, "ay": 453}, "foregrip": {"x": 310, "y": 333, "ax": 553, "ay": 429}, "barrel": {"x": 408, "y": 291, "ax": 583, "ay": 388}, "upper-rail": {"x": 509, "y": 260, "ax": 679, "ay": 416}, "left-patch": {"x": 613, "y": 238, "ax": 769, "ay": 422}, "right-patch": {"x": 717, "y": 223, "ax": 805, "ay": 422}, "upper-patch": {"x": 822, "y": 214, "ax": 892, "ay": 418}, "optics": {"x": 1205, "y": 230, "ax": 1105, "ay": 415}, "offset-optics": {"x": 1382, "y": 267, "ax": 1224, "ay": 415}, "stock": {"x": 1709, "y": 477, "ax": 1621, "ay": 520}, "rear-grip": {"x": 1639, "y": 652, "ax": 1259, "ay": 608}, "mag": {"x": 1420, "y": 760, "ax": 1223, "ay": 682}, "mag-mount": {"x": 1180, "y": 811, "ax": 1074, "ay": 681}}}];
     const FW = 1920, FH = 1080, CHIP = 70;
@@ -657,23 +657,33 @@
     const MAP = {};
     for (const s of WEAPON) MAP[s.from || s.key] = s;
 
-    function apply(out, iid) {
+    // Three rows multiply rather than add, and the value stored for them IS the
+    // multiplier -- 0.7, not -150. See weapon-stats.ts. They are gathered
+    // separately and applied at the end of totals(), so two parts that both
+    // scale one stat compound the way the game compounds them, and the number
+    // is rounded UP exactly once rather than once per attachment.
+    function apply(out, mul, iid) {
       for (const [k, v] of Object.entries(DELTA[iid] || {})) {
         const s = MAP[k];
-        if (s && s.mode === 'set') out[s.key] = v;      // "Holds 45" is 45, not +45
+        if (s && s.mode === 'scale') mul[s.key] = (mul[s.key] ?? 1) * v;
+        else if (s && s.mode === 'set') out[s.key] = v;  // "Holds 45" is 45, not +45
         else if (s) out[s.key] = (out[s.key] ?? 0) + v;
-        else out[k] = (out[k] ?? 0) + v;                // a stat with no row of its own
+        else out[k] = (out[k] ?? 0) + v;                 // a stat with no row of its own
       }
     }
 
     function totals(skipSlot, add) {
-      const out = {};
+      const out = {}, mul = {};
       for (const s of WEAPON) out[s.key] = s.base;
       for (const [slot, iid] of Object.entries(fitted)) {
         if (slot === skipSlot) continue;
-        apply(out, iid);
+        apply(out, mul, iid);
       }
-      if (add) apply(out, add);
+      if (add) apply(out, mul, add);
+      // Rounded up, once, at the end: the game shows 620 for x1.18 of 525,
+      // which is 619.5, and 683 for x1.3 of 525, which is 682.5.
+      for (const [k, m] of Object.entries(mul))
+        if (out[k] !== undefined) out[k] = Math.ceil(out[k] * m);
       return out;
     }
 
@@ -750,8 +760,8 @@
       // this part moves this stat -- so a line we hold a number for is not
       // hedged, however much of the rest of the card is still unread. The
       // Wave Blaster is the case: its muzzle velocity is known and its damage
-      // is not, and printing "not tracked" beside +158 says the opposite of
-      // what the +158 says.
+      // is not, and printing "not tracked" beside a muzzle velocity of x1.3
+      // says the opposite of what the x1.3 says.
       const held = DELTA[iid] || {};
       const hedge = (s) => !READ.has(iid) && !CORE.has(s.key)
                         && s.mode !== 'set' && !((s.from || s.key) in held);
@@ -763,14 +773,24 @@
         // resulting figure and no bar; there is still the change, which is the
         // part's own and is known.
         if (s.base === undefined) {
-          const d = (a || 0) - (b || 0);
-          const c = (s.lower ? d < 0 : d > 0) ? 'up' : 'down';
-          html += '<div class="sr' + (d ? '' : ' is-flat') + '">'
+          // No base to add to, and for a scaled row no base to multiply
+          // either -- so it shows the percentage, which is the whole of what
+          // the part itself says about that stat.
+          const m = s.mode === 'scale' ? held[s.from || s.key] : undefined;
+          const d = m === undefined ? (a || 0) - (b || 0) : 0;
+          const moved = m === undefined ? d !== 0 : m !== 1;
+          const good = m === undefined ? (s.lower ? d < 0 : d > 0)
+                                       : (s.lower ? m < 1 : m > 1);
+          const txt = m === undefined
+            ? (d > 0 ? '+' : '&minus;') + Math.abs(d)
+            : (m > 1 ? '+' : '&minus;') + (Math.abs(m - 1) * 100).toPrecision(3)
+                                            .replace(/\.?0+$/, '') + '%';
+          html += '<div class="sr' + (moved ? '' : ' is-flat') + '">'
                + '<span class="sr__n">' + s.key
                + (hedge(s) ? ' <i class="untracked">not tracked</i>' : '')
                + '</span><span class="sr__v"><em class="unread">&mdash;</em>'
-               + (d ? ' <i class="' + c + '">' + (d > 0 ? '+' : '&minus;')
-                      + Math.abs(d) + '</i>' : '')
+               + (moved ? ' <i class="' + (good ? 'up' : 'down') + '">' + txt
+                          + '</i>' : '')
                + '</span><span class="sr__bar"></span></div>';
           continue;
         }
@@ -1384,11 +1404,24 @@
       for (const l of lists)
         pool[l.id.slice(3)] = [...l.querySelectorAll('.pcard')]
                                 .map((c) => c.dataset.item);
+      // THE SEARCH ADDS; three of the eleven stats multiply. Each multiplier is
+      // turned into the flat change it makes ON THIS WEAPON, which is exact
+      // whenever one part scales a stat -- the normal case, since a gun has one
+      // muzzle -- and slightly under the truth when two compound, because
+      // x1.3 then x1.18 is more than the two increases added. The shortlist can
+      // rank such a build a little low; the figures it then SHOWS come from
+      // totals(), which multiplies properly, so nothing displayed is ever the
+      // approximation.
       const delta = {};
       for (const [iid, st] of Object.entries(DELTA))
         delta[iid] = FKEYS.map((k) => {
           const w = WEAPON.find((s) => s.key === k);
-          return (st[w.from || k] || 0) * SIGN[k];
+          const v = st[w.from || k];
+          if (v === undefined) return 0;
+          if (w.mode === 'scale')
+            return (w.base === undefined ? 0
+                    : Math.ceil(w.base * v) - w.base) * SIGN[k];
+          return v * SIGN[k];
         });
 
       const w = new Worker(URL.createObjectURL(

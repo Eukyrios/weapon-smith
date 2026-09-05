@@ -51,6 +51,26 @@ UNCAT = json.loads((ROOT / 'data/uncatalogued.json').read_text(encoding='utf-8')
 STAT_ROWS = json.loads(
     (ROOT / 'data/weapon-stats.json').read_text(encoding='utf-8'))
 
+# The three rows an attachment MULTIPLIES rather than adds to, keyed the way an
+# attachment's stat block keys them. See weapon-stats.ts for why, and for the
+# readings that settle it; the short version is that a flat number for these is
+# only true of the weapon it was read on, and an attachment belongs to the
+# catalogue rather than to any weapon.
+SCALED = {r.get('from') or r['key'] for r in STAT_ROWS if r.get('mode') == 'scale'}
+
+
+def as_pct(m):
+    """A multiplier as the percentage a reader can hold in their head.
+
+    On a weapon page there is a base to multiply and the resulting figure is
+    what gets shown. The attachment page has no weapon, so there is no figure
+    -- x1.18 is not "+117", it is "+18%" of whatever it is bolted to, and that
+    is the only honest thing to print there.
+    """
+    pct = (m - 1) * 100
+    txt = f'{abs(pct):.4g}'
+    return ('+' if pct > 0 else '&minus;' if pct < 0 else '') + txt + '%'
+
 # One catalogue name carries stray bidi and zero-width marks — invisible in the
 # source, but they survive into the page and come back as mojibake the moment
 # anyone copies the text out of it. Strip them once, here, rather than teach
@@ -963,10 +983,17 @@ def item_section(item, accepted_in):
     stat_lines = stats_for(item['id'])
     if stat_lines:
         for k, v in stat_lines.items():
-            sign = '+' if v > 0 else ''
-            cls = 'up' if v > 0 else ('down' if v < 0 else '')
+            if k in SCALED:
+                # A quieter gunshot is the good one, so the colour follows the
+                # effect and not the sign of the number.
+                good = v < 1 if k == 'Gunshot heard' else v > 1
+                cls = 'up' if good else ('down' if v != 1 else '')
+                cell = as_pct(v)
+            else:
+                cls = 'up' if v > 0 else ('down' if v < 0 else '')
+                cell = ('+' if v > 0 else '') + str(v)
             rows += (f'          <tr><td>{k}</td>'
-                     f'<td class="num {cls}">{sign}{v}</td></tr>\n')
+                     f'<td class="num {cls}">{cell}</td></tr>\n')
         stats = ('    <div class="tablewrap">\n      <table>\n'
                  '        <thead><tr><th>Stat</th><th>Change</th></tr></thead>\n'
                  f'        <tbody>\n{rows}        </tbody>\n      </table>\n    </div>\n')
@@ -2063,11 +2090,24 @@ FORGE_CTRL = '''
       for (const l of lists)
         pool[l.id.slice(3)] = [...l.querySelectorAll('.pcard')]
                                 .map((c) => c.dataset.item);
+      // THE SEARCH ADDS; three of the eleven stats multiply. Each multiplier is
+      // turned into the flat change it makes ON THIS WEAPON, which is exact
+      // whenever one part scales a stat -- the normal case, since a gun has one
+      // muzzle -- and slightly under the truth when two compound, because
+      // x1.3 then x1.18 is more than the two increases added. The shortlist can
+      // rank such a build a little low; the figures it then SHOWS come from
+      // totals(), which multiplies properly, so nothing displayed is ever the
+      // approximation.
       const delta = {};
       for (const [iid, st] of Object.entries(DELTA))
         delta[iid] = FKEYS.map((k) => {
           const w = WEAPON.find((s) => s.key === k);
-          return (st[w.from || k] || 0) * SIGN[k];
+          const v = st[w.from || k];
+          if (v === undefined) return 0;
+          if (w.mode === 'scale')
+            return (w.base === undefined ? 0
+                    : Math.ceil(w.base * v) - w.base) * SIGN[k];
+          return v * SIGN[k];
         });
 
       const w = new Worker(URL.createObjectURL(
@@ -3180,23 +3220,33 @@ def gunsmith_body(g):
     const MAP = {{}};
     for (const s of WEAPON) MAP[s.from || s.key] = s;
 
-    function apply(out, iid) {{
+    // Three rows multiply rather than add, and the value stored for them IS the
+    // multiplier -- 0.7, not -150. See weapon-stats.ts. They are gathered
+    // separately and applied at the end of totals(), so two parts that both
+    // scale one stat compound the way the game compounds them, and the number
+    // is rounded UP exactly once rather than once per attachment.
+    function apply(out, mul, iid) {{
       for (const [k, v] of Object.entries(DELTA[iid] || {{}})) {{
         const s = MAP[k];
-        if (s && s.mode === 'set') out[s.key] = v;      // "Holds 45" is 45, not +45
+        if (s && s.mode === 'scale') mul[s.key] = (mul[s.key] ?? 1) * v;
+        else if (s && s.mode === 'set') out[s.key] = v;  // "Holds 45" is 45, not +45
         else if (s) out[s.key] = (out[s.key] ?? 0) + v;
-        else out[k] = (out[k] ?? 0) + v;                // a stat with no row of its own
+        else out[k] = (out[k] ?? 0) + v;                 // a stat with no row of its own
       }}
     }}
 
     function totals(skipSlot, add) {{
-      const out = {{}};
+      const out = {{}}, mul = {{}};
       for (const s of WEAPON) out[s.key] = s.base;
       for (const [slot, iid] of Object.entries(fitted)) {{
         if (slot === skipSlot) continue;
-        apply(out, iid);
+        apply(out, mul, iid);
       }}
-      if (add) apply(out, add);
+      if (add) apply(out, mul, add);
+      // Rounded up, once, at the end: the game shows 620 for x1.18 of 525,
+      // which is 619.5, and 683 for x1.3 of 525, which is 682.5.
+      for (const [k, m] of Object.entries(mul))
+        if (out[k] !== undefined) out[k] = Math.ceil(out[k] * m);
       return out;
     }}
 
@@ -3273,8 +3323,8 @@ def gunsmith_body(g):
       // this part moves this stat -- so a line we hold a number for is not
       // hedged, however much of the rest of the card is still unread. The
       // Wave Blaster is the case: its muzzle velocity is known and its damage
-      // is not, and printing "not tracked" beside +158 says the opposite of
-      // what the +158 says.
+      // is not, and printing "not tracked" beside a muzzle velocity of x1.3
+      // says the opposite of what the x1.3 says.
       const held = DELTA[iid] || {{}};
       const hedge = (s) => !READ.has(iid) && !CORE.has(s.key)
                         && s.mode !== 'set' && !((s.from || s.key) in held);
@@ -3286,14 +3336,24 @@ def gunsmith_body(g):
         // resulting figure and no bar; there is still the change, which is the
         // part's own and is known.
         if (s.base === undefined) {{
-          const d = (a || 0) - (b || 0);
-          const c = (s.lower ? d < 0 : d > 0) ? 'up' : 'down';
-          html += '<div class="sr' + (d ? '' : ' is-flat') + '">'
+          // No base to add to, and for a scaled row no base to multiply
+          // either -- so it shows the percentage, which is the whole of what
+          // the part itself says about that stat.
+          const m = s.mode === 'scale' ? held[s.from || s.key] : undefined;
+          const d = m === undefined ? (a || 0) - (b || 0) : 0;
+          const moved = m === undefined ? d !== 0 : m !== 1;
+          const good = m === undefined ? (s.lower ? d < 0 : d > 0)
+                                       : (s.lower ? m < 1 : m > 1);
+          const txt = m === undefined
+            ? (d > 0 ? '+' : '&minus;') + Math.abs(d)
+            : (m > 1 ? '+' : '&minus;') + (Math.abs(m - 1) * 100).toPrecision(3)
+                                            .replace(/\.?0+$/, '') + '%';
+          html += '<div class="sr' + (moved ? '' : ' is-flat') + '">'
                + '<span class="sr__n">' + s.key
                + (hedge(s) ? ' <i class="untracked">not tracked</i>' : '')
                + '</span><span class="sr__v"><em class="unread">&mdash;</em>'
-               + (d ? ' <i class="' + c + '">' + (d > 0 ? '+' : '&minus;')
-                      + Math.abs(d) + '</i>' : '')
+               + (moved ? ' <i class="' + (good ? 'up' : 'down') + '">' + txt
+                          + '</i>' : '')
                + '</span><span class="sr__bar"></span></div>';
           continue;
         }}

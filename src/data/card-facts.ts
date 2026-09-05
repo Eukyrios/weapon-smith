@@ -239,7 +239,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     tier: 'purple', weight: 0.15, read: true,
     stats: {
       Range: 10, Control: 5, Accuracy: -8,
-      'Muzzle velocity': 117, 'Gunshot heard': -150,
+      'Muzzle velocity': 1.18, 'Gunshot heard': 0.7,
     },
   },
   'cobweb-titanium-muzzle-brake': {
@@ -257,14 +257,14 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     tier: 'purple', weight: 0.4, read: true,
     stats: {
       Range: 17, Control: 8, Handling: -9, Stability: 5, Accuracy: -12,
-      'Muzzle velocity': 195,
+      'Muzzle velocity': 1.3,
     },
   },
   'rm277-heavy-integral-barrel': {
     tier: 'purple', weight: 0.5, read: true,
     stats: {
       Range: 10, Control: 7, Handling: -2, Stability: 5, Accuracy: 12,
-      'Muzzle velocity': 117,
+      'Muzzle velocity': 1.18,
     },
   },
 
@@ -349,12 +349,12 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     stats: { Control: 4, Stability: 1 } },
   'advanced-multi-caliber-suppressor': { tier: 'purple', read: true,
     stats: { Range: 5, Control: 9, Handling: -6, Accuracy: -4,
-             'Muzzle velocity': 117, 'Gunshot heard': -250 } },
+             'Muzzle velocity': 1.18, 'Gunshot heard': 0.5 } },
   'm7-practical-suppressor': { tier: 'purple', read: true,
-    stats: { Control: 8, Handling: -4, Stability: 2, 'Gunshot heard': -250 } },
+    stats: { Control: 8, Handling: -4, Stability: 2, 'Gunshot heard': 0.5 } },
   'silent-suppressor': { tier: 'purple', read: true,
     stats: { Range: 7, Control: 8, Handling: -13, Stability: -5,
-             'Fire rate': -71, 'Muzzle velocity': 156, 'Gunshot heard': -250 } },
+             'Fire rate': 0.87, 'Muzzle velocity': 1.24, 'Gunshot heard': 0.5 } },
   'sandstorm-vertical-compensator': {
     tier: 'purple',
     read: true,
@@ -368,12 +368,12 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'poseidon-flash-hider': { tier: 'purple', read: true },
   'whisper-tactical-suppressor': { tier: 'purple', read: true,
     stats: { Range: 5, Control: 6, Handling: -5, Stability: 2, Accuracy: -4,
-             'Muzzle velocity': 117, 'Gunshot heard': -150 } },
+             'Muzzle velocity': 1.18, 'Gunshot heard': 0.7 } },
   'titanium-contest-muzzle-brake': { tier: 'purple', read: true },
   'blazing-fire-suppressor': { tier: 'purple', read: true },
   'steel-muzzle-brake': { tier: 'blue', read: true },
   'practical-suppressor': { tier: 'blue', read: true,
-    stats: { Control: 2, Stability: 2, 'Gunshot heard': -150 } },
+    stats: { Control: 2, Stability: 2, 'Gunshot heard': 0.7 } },
   'birdcage-flash-hider': { tier: 'green', read: true },
   'practical-flash-hider': { tier: 'green', read: true },
   // Read on the MCX LT, where it had been sitting in the list uncoloured and
@@ -404,9 +404,9 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     stats: { Control: 6, Accuracy: 12 } },
   'ak-bravefire-suppressor': { tier: 'purple', read: true,
     stats: { Range: 5, Control: 3, Handling: -4, Stability: 3, Accuracy: -8,
-             'Muzzle velocity': 95, 'Gunshot heard': -150 } },
+             'Muzzle velocity': 1.18, 'Gunshot heard': 0.7 } },
   'pbs-russian-suppressor': { tier: 'purple', read: true,
-    stats: { Control: 10, Handling: -4, 'Gunshot heard': -250 } },
+    stats: { Control: 10, Handling: -4, 'Gunshot heard': 0.5 } },
   // Read and unchanged: the catalogue already had both its lines right.
   'ak-practical-compensator': { tier: 'blue', read: true },
   'bell-mouth-flash-hider': { tier: 'green', read: true },
@@ -546,7 +546,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
       // 683 on the card against the rifle's 525, so +158. Stored as the change
       // for the same reason the RM277's barrels are: what the card prints is
       // where this barrel LEAVES the gun, and the site adds up changes.
-      'Muzzle velocity': 158,
+      'Muzzle velocity': 1.3,
     },
   },
   /*
@@ -566,7 +566,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     stats: {
       Range: 6, Control: 8, Handling: -2, Stability: 8, Accuracy: -4,
       // 620 and 210 on the card, against the rifle's 525 and 300.
-      'Muzzle velocity': 95, 'Gunshot heard': -90,
+      'Muzzle velocity': 1.18, 'Gunshot heard': 0.7,
     },
   },
   /*
@@ -696,14 +696,14 @@ export const CARD_FACTS: Record<string, CardFacts> = {
       // Fierce Barrel's damage was given. The rifle leaves the rack at 450, so
       // this is the longest barrel on the site by a distance: the RM277's
       // Heavy Integral is +195 and nothing else clears +160.
-      'Muzzle velocity': 310,
+      'Muzzle velocity': 1.688,
     },
     read: true,
   },
   'sur-heat-shield': {
     tier: 'purple',
     // "Increased Fire Rate" on the card, and 870 against the rifle's 840.
-    stats: { 'Fire rate': 30, Stability: -2 },
+    stats: { 'Fire rate': 1.035, Stability: -2 },
   },
   /*
    * Two of the five magazines, both AR-pattern and neither in the catalogue.

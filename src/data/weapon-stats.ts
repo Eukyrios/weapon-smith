@@ -31,8 +31,35 @@ export interface WeaponStatRow {
   unit?: string;
   /** The attachment-data key this row is fed by, when it differs. */
   from?: string;
-  /** 'set' replaces rather than adds: "Holds 45" is 45, not +45. */
-  mode?: 'set';
+  /**
+   * How an attachment's number combines with this row.
+   *
+   *   (none)  adds:      control +8 on a rifle at 44 gives 52.
+   *   'set'   replaces:  "Holds 45" is 45, not +45.
+   *   'scale' MULTIPLIES, and the number stored is the multiplier itself:
+   *           0.7 on a gunshot row, not -150.
+   *
+   * THE LAST OF THOSE IS NOT A PREFERENCE, IT IS WHAT THE GAME DOES. These
+   * three were recorded as flat changes for a long time and it worked, because
+   * every one of them had been read on a single weapon. Reading the same parts
+   * on a second and a third proved it: the Advanced Multi-Caliber Suppressor
+   * was written down as +117 muzzle velocity, which is x1.18 of the RM277's
+   * 650 -- and on the MK47's 525 the game shows 620, which is x1.18 again, not
+   * 525+117. The Night Gale settles the gunshot row on its own, being the only
+   * suppressor on a weapon whose gunshot base is not 500: it takes the AR-57's
+   * 300 down to 210, which is the same x0.7 the RM277's Breaker applies to 500
+   * to reach 350. Two different bases, one multiplier, two unrelated-looking
+   * flat numbers.
+   *
+   * A flat number for these is therefore only true of the gun it was read on,
+   * and an attachment belongs to the catalogue rather than to any gun.
+   *
+   * THE GAME ROUNDS UP. Every one of the twenty-one readings on file is
+   * reproduced exactly by ceil(base x multiplier) and by no other rounding:
+   * x1.18 of 525 is 619.5 and the game shows 620, x1.3 of 525 is 682.5 and it
+   * shows 683, x1.035 of 840 is 869.4 and it shows 870.
+   */
+  mode?: 'set' | 'scale';
 }
 
 export const WEAPON_STAT_ROWS: WeaponStatRow[] = [
@@ -43,8 +70,8 @@ export const WEAPON_STAT_ROWS: WeaponStatRow[] = [
   { key: 'Stability', max: 100 },
   { key: 'Accuracy', max: 100 },
   { key: 'Armour penetration', max: 100 },
-  { key: 'Fire rate', max: 1200, unit: ' rpm' },
+  { key: 'Fire rate', max: 1200, unit: ' rpm', mode: 'scale' },
   { key: 'Capacity', max: 100, from: 'Holds', mode: 'set' },
-  { key: 'Muzzle velocity', max: 1200, unit: ' m/s' },
-  { key: 'Gunshot heard', max: 1000, unit: ' m' },
+  { key: 'Muzzle velocity', max: 1200, unit: ' m/s', mode: 'scale' },
+  { key: 'Gunshot heard', max: 1000, unit: ' m', mode: 'scale' },
 ];
