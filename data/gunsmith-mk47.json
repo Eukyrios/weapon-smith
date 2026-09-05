@@ -127,7 +127,60 @@
  ],
  "weapon": {
   "id": "mk47",
-  "name": "MK47"
+  "name": "MK47",
+  "source": "Screen Recording 2026-09-05 002254.mp4. Chips, art and anchors by tools/cut-gunsmith-frame.py from the bare rifle at 8s \u2014 the clip runs to 110s but at 27s a bright pink appearance goes on the rifle and never comes off, so everything cut from the weapon\u2019s own picture comes from the first twenty-six seconds. The eleven figures below are read off the loadout panel at 1.5s with nothing fitted, and five of them are confirmed a second way: the MK47 Battle Barrel\u2019s card at 12s prints range 25 (\u22125), control 43 (+8), handling 61 (+6), stability 54 (+4) and accuracy 57 (+4), and every one of those subtracts back to the figure below.",
+  "stats": [
+   {
+    "key": "Damage",
+    "base": 42
+   },
+   {
+    "key": "Range",
+    "base": 30
+   },
+   {
+    "key": "Control",
+    "base": 35
+   },
+   {
+    "key": "Handling",
+    "base": 55
+   },
+   {
+    "key": "Stability",
+    "base": 50
+   },
+   {
+    "key": "Accuracy",
+    "base": 53
+   },
+   {
+    "key": "Armour penetration",
+    "base": 46
+   },
+   {
+    "key": "Fire rate",
+    "base": 625
+   },
+   {
+    "key": "Capacity",
+    "base": 20
+   },
+   {
+    "key": "Muzzle velocity",
+    "base": 525
+   },
+   {
+    "key": "Gunshot heard",
+    "base": 500
+   }
+  ],
+  "specs": [
+   {
+    "key": "Fire modes",
+    "text": "Single / Auto"
+   }
+  ]
  },
  "layouts": [],
  "chip": 70,
