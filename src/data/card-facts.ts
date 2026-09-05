@@ -696,7 +696,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
       // Fierce Barrel's damage was given. The rifle leaves the rack at 450, so
       // this is the longest barrel on the site by a distance: the RM277's
       // Heavy Integral is +195 and nothing else clears +160.
-      'Muzzle velocity': 1.688,
+      'Muzzle velocity': 1.687,
     },
     read: true,
   },

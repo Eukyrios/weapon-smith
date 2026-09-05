@@ -1,0 +1,192 @@
+{
+ "advanced-multi-caliber-suppressor": {
+  "Gunshot heard": [
+   {
+    "shown": 250,
+    "weapon": "rm277"
+   },
+   {
+    "shown": 250,
+    "weapon": "mk47"
+   }
+  ],
+  "Muzzle velocity": [
+   {
+    "shown": 767,
+    "weapon": "rm277"
+   },
+   {
+    "shown": 620,
+    "weapon": "mk47"
+   }
+  ]
+ },
+ "ak-bravefire-suppressor": {
+  "Gunshot heard": [
+   {
+    "shown": 350,
+    "weapon": "mk47"
+   }
+  ],
+  "Muzzle velocity": [
+   {
+    "shown": 620,
+    "weapon": "mk47"
+   }
+  ]
+ },
+ "ar57-wave-blaster-ultra-long-barrel": {
+  "Muzzle velocity": [
+   {
+    "shown": 683,
+    "weapon": "ar-57"
+   }
+  ]
+ },
+ "m7-practical-suppressor": {
+  "Gunshot heard": [
+   {
+    "shown": 250,
+    "weapon": "rm277"
+   },
+   {
+    "shown": 250,
+    "weapon": "mk47"
+   }
+  ]
+ },
+ "mcx-lt-hunter-barrel": {
+  "Muzzle velocity": [
+   {
+    "shown": 760,
+    "weapon": "mcx-lt"
+   }
+  ]
+ },
+ "night-gale-integrally-suppressed-combo": {
+  "Gunshot heard": [
+   {
+    "shown": 210,
+    "weapon": "ar-57"
+   }
+  ],
+  "Muzzle velocity": [
+   {
+    "shown": 620,
+    "weapon": "ar-57"
+   }
+  ]
+ },
+ "pbs-russian-suppressor": {
+  "Gunshot heard": [
+   {
+    "shown": 250,
+    "weapon": "mk47"
+   }
+  ]
+ },
+ "practical-suppressor": {
+  "Gunshot heard": [
+   {
+    "shown": 350,
+    "weapon": "rm277"
+   },
+   {
+    "shown": 350,
+    "weapon": "mk47"
+   }
+  ]
+ },
+ "rm277-breaker-suppressor": {
+  "Gunshot heard": [
+   {
+    "shown": 350,
+    "weapon": "rm277"
+   }
+  ],
+  "Muzzle velocity": [
+   {
+    "shown": 767,
+    "weapon": "rm277"
+   }
+  ]
+ },
+ "rm277-heavy-integral-barrel": {
+  "Muzzle velocity": [
+   {
+    "shown": 767,
+    "weapon": "rm277"
+   }
+  ]
+ },
+ "rm277-whale-shark-barrel-combo": {
+  "Muzzle velocity": [
+   {
+    "shown": 845,
+    "weapon": "rm277"
+   }
+  ]
+ },
+ "silent-suppressor": {
+  "Fire rate": [
+   {
+    "shown": 479,
+    "weapon": "rm277"
+   },
+   {
+    "shown": 543,
+    "weapon": "mk47"
+   }
+  ],
+  "Gunshot heard": [
+   {
+    "shown": 250,
+    "weapon": "rm277"
+   },
+   {
+    "shown": 250,
+    "weapon": "mk47"
+   }
+  ],
+  "Muzzle velocity": [
+   {
+    "shown": 806,
+    "weapon": "rm277"
+   },
+   {
+    "shown": 651,
+    "weapon": "mk47"
+   }
+  ]
+ },
+ "sur-heat-shield": {
+  "Fire rate": [
+   {
+    "shown": 870,
+    "weapon": "mcx-lt"
+   }
+  ]
+ },
+ "whisper-tactical-suppressor": {
+  "Gunshot heard": [
+   {
+    "shown": 350,
+    "weapon": "rm277"
+   },
+   {
+    "shown": 350,
+    "weapon": "mk47"
+   }
+  ],
+  "Muzzle velocity": [
+   {
+    "shown": 767,
+    "weapon": "rm277"
+   },
+   {
+    "shown": 620,
+    "weapon": "mk47"
+   }
+  ]
+ }
+}
