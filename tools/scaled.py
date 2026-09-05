@@ -206,6 +206,48 @@ def report(item, stat, rs, B):
     return True
 
 
+def show(item, stat, e, was_basis, was_mult, was_read, B):
+    """What this reading changed, and what the site will do differently.
+
+    The point of the whole arrangement is that a reading can only add truth, so
+    the useful thing to print is not the new state but the TRANSITION -- an
+    assumption becoming a finding, or a multiplier being withdrawn and every
+    weapon falling back to the card it has of its own.
+    """
+    fits = json.loads((ROOT / 'data/fits.json').read_text(encoding='utf-8'))
+    takes = sorted({w for w, b in fits.items()
+                    for ids in b.values() if item in ids})
+    fmt = lambda m: 'no multiplier' if m is None else f'x{m:g}'
+    moved = (was_basis, was_mult) != (e['basis'], e['multiplier'])
+    print(f'\n  was        {was_basis}, {fmt(was_mult)}')
+    print(f'  now        {e["basis"]}, {fmt(e["multiplier"])}'
+          + ('' if moved else '   (unchanged)'))
+    if e['basis'] == 'contested' and was_mult is not None:
+        print('  ->         THE MULTIPLIER IS WITHDRAWN. Every weapon now uses '
+              'the figure its own card showed, and a weapon with no card shows '
+              'no change rather than a wrong one.')
+    elif e['basis'] == 'proven' and was_basis != 'proven':
+        print('  ->         an assumption became a finding: read on a second '
+              'base, and the multiplier is now the only one that fits both.')
+    print('\n  what the site shows for this part now:')
+    for w in takes:
+        b = B.get(w, {}).get(stat)
+        if b is None:
+            continue
+        old_v = (was_read.get(w) if w in was_read else
+                 (math.ceil(b * was_mult - 1e-9) if was_mult is not None else None))
+        if w in e['read']:
+            new_v, how = e['read'][w], 'its own card'
+        elif e['multiplier'] is not None:
+            new_v, how = math.ceil(b * e['multiplier'] - 1e-9), f'x{e["multiplier"]:g}'
+        else:
+            new_v, how = None, 'no claim'
+        a = '--' if new_v is None else str(new_v)
+        note = '' if old_v == new_v else (
+            f'   (was {"--" if old_v is None else old_v})')
+        print(f'     {w:8} {a:>6}   {how}{note}')
+
+
 def main(argv):
     if len(argv) < 2:
         raise SystemExit(__doc__.strip().split('\n\n')[0])
@@ -224,6 +266,8 @@ def main(argv):
                              'Weapons that do: ' + ', '.join(sorted(B)))
         e = d['items'].setdefault(item, {}).setdefault(
             stat, {'read': {}, 'basis': 'assumed', 'multiplier': None})
+        was_basis, was_mult = e.get('basis'), e.get('multiplier')
+        was_read = dict(e['read'])
         was = e['read'].get(weapon)
         if was == int(shown):
             print('already recorded, unchanged')
@@ -236,9 +280,7 @@ def main(argv):
         print()
         rs = [{'weapon': w, 'shown': v} for w, v in e['read'].items()]
         ok = report(item, stat, rs, B)
-        print(f'  recorded   basis {e["basis"]}, '
-              + (f'multiplier {e["multiplier"]:g}' if e['multiplier'] is not None
-                 else 'no multiplier -- every weapon falls back to its own reading'))
+        show(item, stat, e, was_basis, was_mult, was_read, B)
         return 0 if ok else 1
 
     if cmd == 'solve':
