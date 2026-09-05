@@ -174,6 +174,54 @@ def main(argv):
             raise SystemExit(f'no readings recorded for {item} :: {stat}')
         return 0 if report(item, stat, rs, B) else 1
 
+    if cmd == 'table':
+        # Every reading, laid out the way it was gathered: one row per part and
+        # stat, one column per weapon. What was READ is printed plain; what the
+        # multiplier PREDICTS for a weapon nobody has checked it on is in
+        # brackets. The difference matters -- a bracketed figure is this file's
+        # own arithmetic and cannot confirm anything, and a second real reading
+        # in one of those columns is exactly what tightens the multiplier.
+        facts = json.loads((ROOT / 'data/card-facts.json').read_text(encoding='utf-8'))
+        att = {a['id']: a['name'] for a in
+               json.loads((ROOT / 'data/attachments.json').read_text(encoding='utf-8'))}
+        unc = json.loads((ROOT / 'data/uncatalogued.json').read_text(encoding='utf-8'))
+        fits = json.loads((ROOT / 'data/fits.json').read_text(encoding='utf-8'))
+        name = lambda i: att.get(i) or (unc.get(i) or {}).get('name') or i
+        guns = sorted(B)
+        rows, nread, npred = [], 0, 0
+        for item, stats in sorted(d.items(), key=lambda kv: name(kv[0]).lower()):
+            takes = {w for w, b in fits.items()
+                     for ids in b.values() if item in ids}
+            for stat, rs in sorted(stats.items()):
+                got = {r['weapon']: r['shown'] for r in rs}
+                m = ((facts.get(item) or {}).get('stats') or {}).get(stat)
+                cells = []
+                for w in guns:
+                    b = B.get(w, {}).get(stat)
+                    if w in got:
+                        cells.append(str(got[w])); nread += 1
+                    elif w not in takes or b is None:
+                        cells.append('-')
+                    elif m is not None:
+                        cells.append(f'({math.ceil(b * m)})'); npred += 1
+                    else:
+                        cells.append('?')
+                rows.append((name(item), stat, f'{m:g}' if m else '?', cells))
+        w0 = max(len(r[0]) for r in rows) + 2
+        w1 = max(len(r[1]) for r in rows) + 2
+        print(f'{"":{w0}}{"":{w1}}{"x":>7}' + ''.join(f'{g:>9}' for g in guns))
+        print(f'{"":{w0}}{"base":{w1}}{"":>7}'
+              + ''.join(f'{"":>9}' for g in guns))
+        last = None
+        for nm, stat, m, cells in rows:
+            b = ''.join(f'{B.get(g, {}).get(stat, "-"):>9}' for g in guns)
+            print(f'{nm if nm != last else "":{w0}}{stat:{w1}}{m:>7}{b}   base')
+            print(f'{"":{w0}}{"":{w1}}{"":>7}' + ''.join(f'{c:>9}' for c in cells))
+            last = nm
+        print(f'\n{nread} read, {npred} predicted from the multiplier '
+              f'(in brackets), - where the weapon does not take the part.')
+        return 0
+
     if cmd == 'check':
         facts = json.loads((ROOT / 'data/card-facts.json').read_text(encoding='utf-8'))
         bad = 0
@@ -206,7 +254,7 @@ def main(argv):
               f'{bad} problem(s)')
         return 1 if bad else 0
 
-    raise SystemExit(f'unknown command {cmd!r}; try add, solve or check')
+    raise SystemExit(f'unknown command {cmd!r}; try add, solve, table or check')
 
 
 if __name__ == '__main__':
