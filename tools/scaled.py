@@ -73,6 +73,52 @@ def window(base, shown):
     return ((shown - 1) / base, shown / base)
 
 
+def basis(stat, rs, B):
+    """What these readings ESTABLISH about this part, on their own.
+
+    Never across parts. Two suppressors that both come out at x0.7 say nothing
+    about either of them: the goal is the multiplier for THIS attachment, and a
+    coincidence between two different ones is not evidence about either.
+
+    Everything turns on how many DIFFERENT bases the part has been read on:
+
+      one base    flat and scaled fit identically and always will. A delta and
+                  a multiplier that agree on one weapon are the same claim
+                  there and different claims everywhere else, and nothing in
+                  the readings picks between them. UNDETERMINED, whatever is
+                  stored.
+      two or more the two models make different predictions and the readings
+                  choose. This is the only thing that establishes anything.
+    """
+    pts = [(B.get(r['weapon'], {}).get(stat), r['shown']) for r in rs]
+    pts = [(b, s) for b, s in pts if b is not None]
+    nb = len({b for b, _ in pts})
+    if nb < 2:
+        return 'one base', None, None
+    flat = min((max(abs((b + d) - s) for b, s in pts), d)
+               for d in sorted({s - b for b, s in pts}))
+    lo = max((s - 1) / b for b, s in pts)
+    hi = min(s / b for b, s in pts)
+    if lo < hi:
+        return f'{nb} bases', flat[0], 0
+    scal = min((max(abs(math.ceil(b * r) - s) for b, s in pts), r)
+               for r in [s / b for b, s in pts])
+    return f'{nb} bases', flat[0], scal[0]
+
+
+def verdict(stat, rs, B):
+    """One line saying what is known, in the terms that matter."""
+    where, fmiss, smiss = basis(stat, rs, B)
+    if where == 'one base':
+        return ('ONE BASE ONLY -- flat and scaled fit this identically; '
+                'the multiplier below is an assumption, not a finding')
+    if smiss == 0:
+        return (f'read on {where}: scaled fits exactly, flat is out '
+                f'(best flat delta misses by {fmiss})')
+    return (f'read on {where}: neither fits exactly -- scaled misses by '
+            f'{smiss}, flat by {fmiss}')
+
+
 def solve(item, stat, rs, B):
     """(multiplier, how it was chosen, low, high, conflicts) from the readings."""
     lo, hi, seen = 0.0, float('inf'), []
@@ -117,6 +163,7 @@ def report(item, stat, rs, B):
     reads = ', '.join(f"{r['weapon']} {r['shown']}" for r in rs)
     print(f'{item}  ::  {stat}')
     print(f'  readings   {reads}')
+    print(f'  basis      {verdict(stat, rs, B)}')
     if lo < hi:
         print(f'  window     {lo:.6f} .. {hi:.6f}'
               f'   ({(hi - lo) * 100:.3f} percentage points wide)')
@@ -206,20 +253,30 @@ def main(argv):
                         cells.append(f'({math.ceil(b * m)})'); npred += 1
                     else:
                         cells.append('?')
-                rows.append((name(item), stat, f'{m:g}' if m else '?', cells))
+                where, fm, sm = basis(stat, rs, B)
+                mark = ('assumed' if where == 'one base'
+                        else 'proven' if sm == 0 else 'CONTESTED')
+                rows.append((name(item), stat, f'{m:g}' if m else '?', cells, mark))
         w0 = max(len(r[0]) for r in rows) + 2
         w1 = max(len(r[1]) for r in rows) + 2
-        print(f'{"":{w0}}{"":{w1}}{"x":>7}' + ''.join(f'{g:>9}' for g in guns))
-        print(f'{"":{w0}}{"base":{w1}}{"":>7}'
-              + ''.join(f'{"":>9}' for g in guns))
+        print(f'{"":{w0}}{"":{w1}}{"x":>7}{"basis":>11}'
+              + ''.join(f'{g:>9}' for g in guns))
         last = None
-        for nm, stat, m, cells in rows:
+        for nm, stat, m, cells, mark in rows:
             b = ''.join(f'{B.get(g, {}).get(stat, "-"):>9}' for g in guns)
-            print(f'{nm if nm != last else "":{w0}}{stat:{w1}}{m:>7}{b}   base')
-            print(f'{"":{w0}}{"":{w1}}{"":>7}' + ''.join(f'{c:>9}' for c in cells))
+            print(f'{nm if nm != last else "":{w0}}{stat:{w1}}{m:>7}{mark:>11}{b}   base')
+            print(f'{"":{w0}}{"":{w1}}{"":>7}{"":>11}'
+                  + ''.join(f'{c:>9}' for c in cells))
             last = nm
-        print(f'\n{nread} read, {npred} predicted from the multiplier '
-              f'(in brackets), - where the weapon does not take the part.')
+        tally = {}
+        for *_, mark in rows:
+            tally[mark] = tally.get(mark, 0) + 1
+        print(f'\n{nread} read, {npred} predicted (in brackets), '
+              f'- where the weapon does not take the part.')
+        print('basis: ' + ', '.join(f'{v} {k}' for k, v in sorted(tally.items())))
+        print('  proven    read on two or more bases, and scaled fits where flat does not')
+        print('  assumed   read on ONE base, where flat and scaled are the same claim')
+        print('  CONTESTED read on two bases and nothing fits both')
         return 0
 
     if cmd == 'check':

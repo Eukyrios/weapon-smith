@@ -39,20 +39,38 @@ export interface WeaponStatRow {
    *   'scale' MULTIPLIES, and the number stored is the multiplier itself:
    *           0.7 on a gunshot row, not -150.
    *
-   * THE LAST OF THOSE IS NOT A PREFERENCE, IT IS WHAT THE GAME DOES. These
-   * three were recorded as flat changes for a long time and it worked, because
-   * every one of them had been read on a single weapon. Reading the same parts
-   * on a second and a third proved it: the Advanced Multi-Caliber Suppressor
-   * was written down as +117 muzzle velocity, which is x1.18 of the RM277's
-   * 650 -- and on the MK47's 525 the game shows 620, which is x1.18 again, not
-   * 525+117. The Night Gale settles the gunshot row on its own, being the only
-   * suppressor on a weapon whose gunshot base is not 500: it takes the AR-57's
-   * 300 down to 210, which is the same x0.7 the RM277's Breaker applies to 500
-   * to reach 350. Two different bases, one multiplier, two unrelated-looking
-   * flat numbers.
+   * MULTIPLYING IS PROVEN FOR SOME PARTS AND ASSUMED FOR THE REST, and the
+   * difference is worth keeping straight.
    *
-   * A flat number for these is therefore only true of the gun it was read on,
-   * and an attachment belongs to the catalogue rather than to any gun.
+   * A part read on ONE weapon tells you nothing about which it is. A delta and
+   * a multiplier that agree on that weapon are the same claim there and
+   * different claims everywhere else; the reading cannot choose between them
+   * and never will. Only a part read on TWO DIFFERENT BASES decides, because
+   * only then do the two models predict different things.
+   *
+   * AND ONLY ITS OWN READINGS COUNT. Two different suppressors both landing on
+   * x0.7 says nothing about either of them -- the thing being determined is
+   * the multiplier for one attachment, and a coincidence between two of them
+   * is not evidence about either. An earlier version of this comment argued
+   * exactly that from the Night Gale and the RM277 Breaker, and it was wrong
+   * to.
+   *
+   * Three parts clear that bar today, all on muzzle velocity, and they clear
+   * it decisively. The Silent Suppressor shows 806 on the RM277's 650 and 651
+   * on the MK47's 525: x1.24 fits both exactly, and the best single flat delta
+   * misses by 30. The Advanced Multi-Caliber and the Whisper Tactical are
+   * x1.18 the same way, flat missing by 22.
+   *
+   * NOTHING ELSE IS ESTABLISHED. Seventeen of the twenty-one part-and-stat
+   * pairs on file have been read on one base only -- including EVERY gunshot
+   * value, because every suppressor read so far sits on a weapon whose gunshot
+   * base is 500. For those, the multiplier stored here reproduces the reading
+   * it came from and is a guess about every other weapon. It is the right
+   * guess to make, since multiplying is the only shape any part has been shown
+   * to have and no part has been shown to add, but it is a guess.
+   *
+   * `python tools/scaled.py table` prints which is which, and the readings
+   * that would settle the rest.
    *
    * THE GAME ROUNDS UP, and this was solved rather than guessed. For each
    * rounding rule and each reading there is an exact interval of multipliers
@@ -67,6 +85,13 @@ export interface WeaponStatRow {
    *
    * Floor is out on its own evidence. Ceil beats round on the SUR Heat Shield,
    * which lands on x1.035 under ceil and on nothing tidy under round. So: ceil.
+   *
+   * FIRE RATE MIGHT NOT MULTIPLY AT ALL. It has one part read on two bases,
+   * the Silent Suppressor, and that part is the one whose readings disagree --
+   * so the row is set to scale by analogy with muzzle velocity rather than on
+   * its own evidence. What its two readings do say is that flat is worse: a
+   * single delta misses them by 11, where x0.87 misses by 1. The SUR Heat
+   * Shield, the only other part with a fire-rate figure, has one reading.
    *
    * TWO READINGS DISAGREE WITH IT BY EXACTLY ONE, and both are cases where the
    * exact product is fractional:
