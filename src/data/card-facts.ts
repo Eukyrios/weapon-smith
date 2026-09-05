@@ -370,6 +370,35 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'practical-suppressor': { tier: 'blue', read: true, stats: { 'Gunshot heard': -150 } },
   'birdcage-flash-hider': { tier: 'green', read: true },
   'practical-flash-hider': { tier: 'green', read: true },
+  // Read on the MCX LT, where it had been sitting in the list uncoloured and
+  // unread since the muzzle slot was transcribed.
+  'smg-echo-suppressor': { tier: 'purple', read: true },
+
+  /*
+   * The five the MK47 brings, all of them AK-pattern and none of them on a
+   * weapon here before. RARITY ONLY -- nobody has opened these cards.
+   *
+   * The colour comes from where each one falls in the MK47's muzzle list, and
+   * that list is a better witness than it sounds. The game orders a slot's
+   * parts by rarity, most to least, and fifteen of the twenty already had a
+   * colour on record from other weapons: everything from the Cobweb Titanium
+   * down to the Blazing Fire reads purple, the Steel Muzzle Brake and the
+   * Practical Suppressor read blue, the Practical Flash Hider reads green.
+   * Fifteen independent readings, no contradictions, and the five unknowns
+   * sit inside bands the other fifteen have already fixed the edges of.
+   *
+   * That also settled a name. Al gave the blue band as "AK Bravefire
+   * Suppressor to Practical Suppressor", and the AK Bravefire is seventh in
+   * the list -- six places inside a purple run that the recorded tiers put
+   * beyond doubt. The band he meant starts at the AK Practical Compensator,
+   * the other AK in the list and the one in the right place. The data caught
+   * it; nothing here is a guess about which he meant.
+   */
+  'dtk-muzzle-brake': { tier: 'purple' },
+  'ak-bravefire-suppressor': { tier: 'purple' },
+  'pbs-russian-suppressor': { tier: 'purple' },
+  'ak-practical-compensator': { tier: 'blue' },
+  'bell-mouth-flash-hider': { tier: 'green' },
 
   // --- foregrips ----------------------------------------------------------
   /*

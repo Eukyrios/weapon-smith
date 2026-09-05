@@ -512,7 +512,7 @@ SECTIONS = {
   'mk47': [
     ('optics', 'Optics', ''),
     ('offset-optics', 'Offset optics', ''),
-    ('muzzle', 'Muzzle', ''),
+    ('muzzle', 'Muzzle', 'Twenty, and the first list on this site where the calibre shows. It is the small-bore seventeen the MCX LT and the AR-57 take, less the two that only ever go on something small &mdash; the SMG Echo Suppressor and the Birdcage Flash Hider &mdash; plus five AK-pattern muzzles that appear here for the first time.'),
     ('barrel', 'Barrel', ''),
     ('foregrip', 'Foregrip', ''),
     ('left-rail', 'Left rail', ''),

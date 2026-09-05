@@ -1127,6 +1127,45 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
       'core-rail-stock',
     ],
   },
+
+  /*
+   * The MK47, in 7.62x39mm, and the first weapon here whose calibre is visible
+   * in a list. Its muzzles are the small-bore seventeen MINUS the two that are
+   * only ever on something small -- the SMG Echo Suppressor and the Birdcage
+   * Flash Hider -- PLUS five that belong to the AK family and appear here for
+   * the first time on this site: the DTK and AK Practical Compensator, the AK
+   * Bravefire and PBS Russian suppressors, and the Bell Mouth Flash Hider.
+   *
+   * Written out rather than derived from SMALL_BORE_MUZZLES, because THE ORDER
+   * IS DATA. The game lists a slot's parts by rarity, most to least, and that
+   * order is what says where one rarity band ends and the next begins -- it is
+   * how the five new ones got their colour without a card being opened. A
+   * derived list would keep the right items and throw the evidence away.
+   */
+  mk47: {
+    muzzle: [
+      'cobweb-titanium-muzzle-brake',
+      'ffc-double-port-muzzle-brake',
+      'spiral-fire-flash-hider',
+      'advanced-multi-caliber-suppressor',
+      'dtk-muzzle-brake',
+      'm7-practical-suppressor',
+      'ak-bravefire-suppressor',
+      'pbs-russian-suppressor',
+      'silent-suppressor',
+      'sandstorm-vertical-compensator',
+      'bastion-horizontal-compensator',
+      'poseidon-flash-hider',
+      'whisper-tactical-suppressor',
+      'titanium-contest-muzzle-brake',
+      'blazing-fire-suppressor',
+      'ak-practical-compensator',
+      'steel-muzzle-brake',
+      'practical-suppressor',
+      'bell-mouth-flash-hider',
+      'practical-flash-hider',
+    ],
+  },
 };
 
 /**
