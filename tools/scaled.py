@@ -36,7 +36,7 @@ import pathlib
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-READINGS = ROOT / 'data/scaled-readings.json'
+STATS = ROOT / 'data/scaled-stats.json'
 
 # Whole percents first, then halves, then tenths. A game's numbers are round;
 # twenty-one arbitrary decimals would not be. Where the window admits a tidy
@@ -61,11 +61,35 @@ def scaled_keys():
 
 
 def load():
-    return json.loads(READINGS.read_text(encoding='utf-8')) if READINGS.is_file() else {}
+    """The whole file. `items` is what everything below works on."""
+    return json.loads(STATS.read_text(encoding='utf-8'))
 
 
-def save(d):
-    READINGS.write_text(json.dumps(d, indent=1, sort_keys=True) + '\n', encoding='utf-8')
+def readings_of(doc):
+    """Readings in the shape the solver wants: item, stat -> [{weapon, shown}]."""
+    return {i: {k: [{'weapon': w, 'shown': v} for w, v in sorted(e['read'].items())]
+                for k, e in st.items()}
+            for i, st in doc['items'].items()}
+
+
+def resolve(doc, B):
+    """Rewrite every `basis` and `multiplier` from the readings. Derived data
+    does not get to drift from the thing it is derived from."""
+    for item, st in doc['items'].items():
+        for stat, e in st.items():
+            rs = [{'weapon': w, 'shown': v} for w, v in e['read'].items()]
+            m, how, lo, hi, _ = solve(item, stat, rs, B)
+            nb = len({B[r['weapon']][stat] for r in rs
+                      if stat in B.get(r['weapon'], {})})
+            e['basis'] = ('contested' if m is None and nb >= 2
+                          else 'assumed' if nb < 2 else 'proven')
+            e['multiplier'] = None if e['basis'] == 'contested' else m
+
+
+def save(doc):
+    doc['items'] = {i: {k: doc['items'][i][k] for k in sorted(doc['items'][i])}
+                    for i in sorted(doc['items'])}
+    STATS.write_text(json.dumps(doc, indent=1) + '\n', encoding='utf-8')
 
 
 def window(base, shown):
@@ -198,25 +222,28 @@ def main(argv):
             raise SystemExit(f'{weapon!r} has no base figures on file, so a shown '
                              'value there says nothing about a multiplier.\n'
                              'Weapons that do: ' + ', '.join(sorted(B)))
-        rs = d.setdefault(item, {}).setdefault(stat, [])
-        for r in rs:
-            if r['weapon'] == weapon:
-                if r['shown'] == int(shown):
-                    print('already recorded, unchanged')
-                    break
-                print(f'{weapon} was {r["shown"]}, now {shown}')
-                r['shown'] = int(shown)
-                break
-        else:
-            rs.append({'weapon': weapon, 'shown': int(shown)})
-        rs.sort(key=lambda r: r['weapon'])
+        e = d['items'].setdefault(item, {}).setdefault(
+            stat, {'read': {}, 'basis': 'assumed', 'multiplier': None})
+        was = e['read'].get(weapon)
+        if was == int(shown):
+            print('already recorded, unchanged')
+        elif was is not None:
+            print(f'{weapon} was {was}, now {shown}')
+        e['read'][weapon] = int(shown)
+        e['read'] = dict(sorted(e['read'].items()))
+        resolve(d, B)
         save(d)
         print()
-        return 0 if report(item, stat, rs, B) else 1
+        rs = [{'weapon': w, 'shown': v} for w, v in e['read'].items()]
+        ok = report(item, stat, rs, B)
+        print(f'  recorded   basis {e["basis"]}, '
+              + (f'multiplier {e["multiplier"]:g}' if e['multiplier'] is not None
+                 else 'no multiplier -- every weapon falls back to its own reading'))
+        return 0 if ok else 1
 
     if cmd == 'solve':
         _, _, item, stat = argv
-        rs = (d.get(item) or {}).get(stat)
+        rs = (readings_of(d).get(item) or {}).get(stat)
         if not rs:
             raise SystemExit(f'no readings recorded for {item} :: {stat}')
         return 0 if report(item, stat, rs, B) else 1
@@ -236,12 +263,12 @@ def main(argv):
         name = lambda i: att.get(i) or (unc.get(i) or {}).get('name') or i
         guns = sorted(B)
         rows, nread, npred = [], 0, 0
-        for item, stats in sorted(d.items(), key=lambda kv: name(kv[0]).lower()):
+        for item, stats in sorted(readings_of(d).items(), key=lambda kv: name(kv[0]).lower()):
             takes = {w for w, b in fits.items()
                      for ids in b.values() if item in ids}
             for stat, rs in sorted(stats.items()):
                 got = {r['weapon']: r['shown'] for r in rs}
-                m = ((facts.get(item) or {}).get('stats') or {}).get(stat)
+                m = (d['items'][item][stat]).get('multiplier')
                 cells = []
                 for w in guns:
                     b = B.get(w, {}).get(stat)
@@ -280,35 +307,42 @@ def main(argv):
         return 0
 
     if cmd == 'check':
-        facts = json.loads((ROOT / 'data/card-facts.json').read_text(encoding='utf-8'))
+        # Two things: that the derived fields still follow from the readings,
+        # and that every reading is reproduced by what the site will use for
+        # that weapon -- which is the reading itself, so this is really a check
+        # that nothing in the file has been hand-edited into disagreeing.
+        import copy
+        before = copy.deepcopy(d['items'])
+        resolve(d, B)
         bad = 0
-        for item, stats in sorted(d.items()):
-            for stat, rs in sorted(stats.items()):
-                held = ((facts.get(item) or {}).get('stats') or {}).get(stat)
-                m, how, lo, hi, _ = solve(item, stat, rs, B)
-                for r in rs:
-                    b = B.get(r['weapon'], {}).get(stat)
-                    if b is None or held is None:
-                        continue
-                    got = math.ceil(b * held)
-                    if got != r['shown']:
+        for item, st in sorted(d['items'].items()):
+            for stat, e in sorted(st.items()):
+                was = before[item][stat]
+                if (was.get('basis'), was.get('multiplier')) != (e['basis'], e['multiplier']):
+                    bad += 1
+                    print(f'STALE    {item} :: {stat}  file says '
+                          f'{was.get("basis")}/{was.get("multiplier")}, '
+                          f'readings say {e["basis"]}/{e["multiplier"]}'
+                          f'   -- run `scaled.py solve` or re-add a reading')
+                m = e['multiplier']
+                if m is None:
+                    continue
+                for w, shown in e['read'].items():
+                    b = B.get(w, {}).get(stat)
+                    if b is not None and math.ceil(b * m - 1e-9) != shown:
                         bad += 1
-                        print(f'MISMATCH {item} :: {stat} :: {r["weapon"]}  '
-                              f'card-facts has {held:g}, which shows {got}, '
-                              f'but the reading is {r["shown"]}')
-                if held is None:
-                    bad += 1
-                    print(f'MISSING  {item} :: {stat} has readings and no '
-                          f'multiplier in card-facts.ts'
-                          + (f' (solve says {m:g})' if m else ''))
-                elif m is not None and not (lo < held <= hi):
-                    bad += 1
-                    print(f'LOOSE    {item} :: {stat}  card-facts has {held:g}, '
-                          f'outside the window {lo:.6f}..{hi:.6f}')
-        n = sum(len(v) for v in d.values())
-        print(f'{"FAIL" if bad else "ok"}  {n} scaled stats, '
-              f'{sum(len(r) for v in d.values() for r in v.values())} readings, '
-              f'{bad} problem(s)')
+                        print(f'MISMATCH {item} :: {stat} :: {w}  multiplier '
+                              f'{m:g} shows {math.ceil(b * m - 1e-9)}, '
+                              f'reading is {shown}')
+        n = sum(len(v) for v in d['items'].values())
+        nr = sum(len(e['read']) for v in d['items'].values() for e in v.values())
+        tal = {}
+        for v in d['items'].values():
+            for e in v.values():
+                tal[e['basis']] = tal.get(e['basis'], 0) + 1
+        print(f'{"FAIL" if bad else "ok"}  {n} scaled stats, {nr} readings, '
+              + ', '.join(f'{v} {k}' for k, v in sorted(tal.items()))
+              + f', {bad} problem(s)')
         return 1 if bad else 0
 
     raise SystemExit(f'unknown command {cmd!r}; try add, solve, table or check')

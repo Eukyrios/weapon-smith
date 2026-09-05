@@ -59,6 +59,39 @@ STAT_ROWS = json.loads(
 SCALED = {r.get('from') or r['key'] for r in STAT_ROWS if r.get('mode') == 'scale'}
 
 
+SCALED_STATS = json.loads(
+    (ROOT / 'data/scaled-stats.json').read_text(encoding='utf-8'))['items']
+
+
+def scaled_for(iid, wid, base):
+    """This part's scaled stats ON THIS WEAPON, as multipliers, or {}.
+
+    THE READING WINS. A figure the game showed on this weapon is not improved
+    by being recomputed from a multiplier, and it is what the page should
+    print, so where there is one it is turned straight back into the
+    multiplier that reproduces it -- shown / base, which ceil()s back to shown
+    exactly. Only a weapon with no reading of its own gets the derived
+    multiplier, and only when there is one: a contested part has none, and a
+    weapon without a reading then gets no line at all rather than a wrong one.
+
+    Which is what makes adding a weapon safe. A new card can only ever add
+    truth here: if it disagrees, the part goes contested, its multiplier is
+    dropped, and every weapon falls back to the figure its own card showed. No
+    page that was right stops being right because a gun was added.
+    """
+    out = {}
+    for stat, e in (SCALED_STATS.get(iid) or {}).items():
+        b = base.get(stat)
+        if b is None:
+            continue
+        shown = (e.get('read') or {}).get(wid)
+        if shown is not None:
+            out[stat] = shown / b
+        elif e.get('multiplier') is not None:
+            out[stat] = e['multiplier']
+    return out
+
+
 def as_pct(m):
     """A multiplier as the percentage a reader can hold in their head.
 
@@ -980,8 +1013,19 @@ def item_section(item, accepted_in):
     # An item the catalogue does not carry can still have had its stat lines
     # read off the game and written into card-facts.ts. Those are the same
     # numbers in the same keys, so they render as the same table.
-    stat_lines = stats_for(item['id'])
-    if stat_lines:
+    # The three scaled rows come from their own file and have no weapon here to
+    # be multiplied by, so they show as the percentage. A contested part has no
+    # multiplier at all -- there the figures its cards actually showed are
+    # listed instead, which is the whole of what is known.
+    stat_lines = dict(stats_for(item['id']))
+    scaled_notes = {}
+    for stat, e in (SCALED_STATS.get(item['id']) or {}).items():
+        if e.get('multiplier') is not None:
+            stat_lines[stat] = e['multiplier']
+        else:
+            scaled_notes[stat] = ', '.join(
+                f'{WEAPON_NAME.get(w, w)} {v}' for w, v in sorted(e['read'].items()))
+    if stat_lines or scaled_notes:
         for k, v in stat_lines.items():
             if k in SCALED:
                 # A quieter gunshot is the good one, so the colour follows the
@@ -994,6 +1038,9 @@ def item_section(item, accepted_in):
                 cell = ('+' if v > 0 else '') + str(v)
             rows += (f'          <tr><td>{k}</td>'
                      f'<td class="num {cls}">{cell}</td></tr>\n')
+        for k, txt in scaled_notes.items():
+            rows += (f'          <tr><td>{k}</td>'
+                     f'<td class="v">{txt}</td></tr>\n')
         stats = ('    <div class="tablewrap">\n      <table>\n'
                  '        <thead><tr><th>Stat</th><th>Change</th></tr></thead>\n'
                  f'        <tbody>\n{rows}        </tbody>\n      </table>\n    </div>\n')
@@ -2783,11 +2830,16 @@ def gunsmith_body(g):
     # Every stat line the page might need to add up, by item, so the arithmetic
     # happens against the build the reader has assembled rather than against a
     # blank rifle.
+    # The three SCALED rows are resolved here, per weapon, rather than carried
+    # as one number for every gun: this page gets the figure the game showed on
+    # THIS rifle where anybody has read one, and the derived multiplier only
+    # where nobody has. See scaled_for().
+    wbase = {r["key"]: r["base"] for r in ((g.smith or {}).get("weapon", {}).get("stats") or [])}
     deltas = {}
     for s in order:
         for name, _m, _x in rows_for(g, s['slot']):
             iid = item_id(name)
-            st = stats_for(iid)
+            st = {**stats_for(iid), **scaled_for(iid, g.id, wbase)}
             if st:
                 deltas[iid] = st
     # Which stats anything we hold can actually move. A row nobody modifies is

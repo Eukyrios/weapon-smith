@@ -12,6 +12,16 @@
  * few lines is a bad trade — but an attachment page is about what fitting the
  * thing does to the gun, so that is all it shows.
  *
+ * FIRE RATE, MUZZLE VELOCITY AND GUNSHOT HEARD ARE NOT IN THIS FILE.
+ *
+ * The game SCALES those three rather than adding to them, so one number here
+ * could only ever be true of one weapon. They live in data/scaled-stats.json
+ * instead, which keeps the figure each card showed on each weapon and derives
+ * a multiplier where two weapons disagree enough to settle one. The site reads
+ * a weapon's own figure first and falls back to the multiplier only for guns
+ * nobody has checked. Everything else about those parts -- rarity, weight, the
+ * eight stats that add, whether anybody has read the card -- is still here.
+ *
  * TIER IS A COLOUR, NOT A WORD
  *
  * The card does not print a rarity. It prints a coloured diamond beside the
@@ -100,40 +110,40 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   // Stats below are read in the order the site's own Optics table lists them.
   'white-phosphor-thermal-scope': {
     tier: 'red', weight: 0.6, stats: { Handling: -8, Stability: -2 },
-    read: true,
+    read: true
   },
   'advanced-thermal-fusion-holographic-sight': {
     tier: 'red', weight: 0.3, stats: { Handling: -2, Stability: -2 },
-    read: true,
+    read: true
   },
   'vmx-frameless-sight': {
     tier: 'purple', weight: 0.55, stats: { Handling: -2 },
-    read: true,
+    read: true
   },
   '1p-33-2-4x-scope': {
     // Restated. An earlier reading of -4 / +3 turned out to be the Prism's.
     tier: 'purple', weight: 0.6, stats: { Handling: -6, Stability: 4 },
-    read: true,
+    read: true
   },
   'uhx-holographic-sight': {
     tier: 'purple', weight: 0.15, stats: { Handling: -2 },
-    read: true,
+    read: true
   },
   'prism-universal-2x-optic': {
     tier: 'purple', weight: 0.3, stats: { Handling: -4, Stability: 3 },
-    read: true,
+    read: true
   },
   'm157-fire-control-system': {
     tier: 'purple', weight: 0.6, stats: { Handling: -6 },
-    read: true,
+    read: true
   },
   '1p-29-russian-3x-sight': {
     tier: 'purple', weight: 0.6, stats: { Handling: -4 },
-    read: true,
+    read: true
   },
   'meo-micro-sight-riser': {
     tier: 'blue', weight: 0.3, stats: { Handling: -1, Stability: 2 },
-    read: true,
+    read: true
   },
 
   // --- optics: the whole slot, cleared ------------------------------------
@@ -180,19 +190,19 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'offset-osight-red-dot': { tier: 'purple', imageChange: true, read: true },
   'offset-combat-red-dot-sight': {
     tier: 'purple', imageChange: true,
-    read: true,
+    read: true
   },
   'offset-mini-red-dot-sight': {
     tier: 'purple', imageChange: true,
-    read: true,
+    read: true
   },
   'offset-xro-quick-response-sight': {
     tier: 'purple', imageChange: true,
-    read: true,
+    read: true
   },
   'offset-panoramic-red-dot-sight': {
     tier: 'purple', imageChange: true,
-    read: true,
+    read: true
   },
 
   // --- magazine and its mount ---------------------------------------------
@@ -202,7 +212,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * the catalogue already had right.
    */
   'm7-6-8-45-round-drum-mag': {
-    tier: 'purple', read: true, stats: { Handling: -6 },
+    tier: 'purple', read: true, stats: { Handling: -6 }
   },
   /*
    * This one fills a blank instead. The catalogue has its 45 rounds and no
@@ -212,7 +222,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * No rarity, because none was read. The card would have printed one.
    */
   'm4-45-round-extended-mag': {
-    tier: 'blue', read: true, stats: { Handling: -9 },
+    tier: 'blue', read: true, stats: { Handling: -9 }
   },
   /*
    * The rest of the MCX LT's five, by rarity only. Read down that list and the
@@ -238,13 +248,12 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'rm277-breaker-suppressor': {
     tier: 'purple', weight: 0.15, read: true,
     stats: {
-      Range: 10, Control: 5, Accuracy: -8,
-      'Muzzle velocity': 1.18, 'Gunshot heard': 0.7,
-    },
+      Range: 10, Control: 5, Accuracy: -8
+    }
   },
   'cobweb-titanium-muzzle-brake': {
     tier: 'purple', weight: 0.2, stats: { Control: 7, Stability: -2, Accuracy: 8 },
-    read: true,
+    read: true
   },
   /*
    * Both barrels re-read for muzzle velocity, which nothing carried until the
@@ -256,61 +265,59 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'rm277-whale-shark-barrel-combo': {
     tier: 'purple', weight: 0.4, read: true,
     stats: {
-      Range: 17, Control: 8, Handling: -9, Stability: 5, Accuracy: -12,
-      'Muzzle velocity': 1.3,
-    },
+      Range: 17, Control: 8, Handling: -9, Stability: 5, Accuracy: -12
+    }
   },
   'rm277-heavy-integral-barrel': {
     tier: 'purple', weight: 0.5, read: true,
     stats: {
-      Range: 10, Control: 7, Handling: -2, Stability: 5, Accuracy: 12,
-      'Muzzle velocity': 1.18,
-    },
+      Range: 10, Control: 7, Handling: -2, Stability: 5, Accuracy: 12
+    }
   },
 
   // --- grips, pads and panels ---------------------------------------------
   'rm277-pad': {
     tier: 'purple', weight: 0.2,
     stats: { Control: 4, Handling: 2, Accuracy: -8 },
-    read: true,
+    read: true
   },
   'rm277-cheek-pad': {
     tier: 'purple', weight: 0.2,
     stats: { Control: 2, Handling: -2, Stability: 4 },
-    read: true,
+    read: true
   },
   // Dictated as "Resonant MK II". The RM277's foregrip list holds one Resonant
   // grip and it is the MK III.
   'resonant-mk-iii-grip': {
     tier: 'purple', weight: 0.2,
     stats: { Control: 4, Handling: -2, Stability: 4, Accuracy: 8 },
-    read: true,
+    read: true
   },
   // Dictated as "EU universal" — the EC Universal Front Hand Stop.
   'ec-universal-front-hand-stop': {
     tier: 'purple', weight: 0.13,
     stats: { Control: -4, Handling: 6, Stability: 2, Accuracy: 16 },
-    read: true,
+    read: true
   },
   'ar-light-grip-piece': {
     tier: 'purple', weight: 0.2, stats: { Handling: 2, Stability: 4 },
-    read: true,
+    read: true
   },
   'ar-heavy-grip-piece': {
     tier: 'purple', weight: 0.2,
     stats: { Control: 8, Handling: -6, Stability: 4 },
-    read: true,
+    read: true
   },
   'ar-modular-rear-grip': {
     tier: 'purple', weight: 0.2, stats: { Control: 2, Handling: 2 },
-    read: true,
+    read: true
   },
   'ar-moe-rear-grip': {
     tier: 'blue', weight: 0.2, stats: { Control: 3, Stability: 3 },
-    read: true,
+    read: true
   },
   'dd-python-handguard-panel': {
-    tier: 'green', weight: 0.1, read: true, stats: { Handling: 1 },
+    tier: 'green', weight: 0.1, read: true, stats: { Handling: 1 }
   },
 
   // --- muzzles --------------------------------------------------------------
@@ -348,32 +355,29 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'spiral-fire-flash-hider': { tier: 'purple', read: true,
     stats: { Control: 4, Stability: 1 } },
   'advanced-multi-caliber-suppressor': { tier: 'purple', read: true,
-    stats: { Range: 5, Control: 9, Handling: -6, Accuracy: -4,
-             'Muzzle velocity': 1.18, 'Gunshot heard': 0.5 } },
+    stats: { Range: 5, Control: 9, Handling: -6, Accuracy: -4 } },
   'm7-practical-suppressor': { tier: 'purple', read: true,
-    stats: { Control: 8, Handling: -4, Stability: 2, 'Gunshot heard': 0.5 } },
+    stats: { Control: 8, Handling: -4, Stability: 2 } },
   'silent-suppressor': { tier: 'purple', read: true,
-    stats: { Range: 7, Control: 8, Handling: -13, Stability: -5,
-             'Fire rate': 0.87, 'Muzzle velocity': 1.24, 'Gunshot heard': 0.5 } },
+    stats: { Range: 7, Control: 8, Handling: -13, Stability: -5 } },
   'sandstorm-vertical-compensator': {
     tier: 'purple',
     read: true,
-    stats: { Control: 9 },
+    stats: { Control: 9 }
   },
   'bastion-horizontal-compensator': {
     tier: 'purple',
     read: true,
-    stats: { Control: 9 },
+    stats: { Control: 9 }
   },
   'poseidon-flash-hider': { tier: 'purple', read: true },
   'whisper-tactical-suppressor': { tier: 'purple', read: true,
-    stats: { Range: 5, Control: 6, Handling: -5, Stability: 2, Accuracy: -4,
-             'Muzzle velocity': 1.18, 'Gunshot heard': 0.7 } },
+    stats: { Range: 5, Control: 6, Handling: -5, Stability: 2, Accuracy: -4 } },
   'titanium-contest-muzzle-brake': { tier: 'purple', read: true },
   'blazing-fire-suppressor': { tier: 'purple', read: true },
   'steel-muzzle-brake': { tier: 'blue', read: true },
   'practical-suppressor': { tier: 'blue', read: true,
-    stats: { Control: 2, Stability: 2, 'Gunshot heard': 0.7 } },
+    stats: { Control: 2, Stability: 2 } },
   'birdcage-flash-hider': { tier: 'green', read: true },
   'practical-flash-hider': { tier: 'green', read: true },
   // Read on the MCX LT, where it had been sitting in the list uncoloured and
@@ -403,10 +407,9 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'dtk-muzzle-brake': { tier: 'purple', read: true,
     stats: { Control: 6, Accuracy: 12 } },
   'ak-bravefire-suppressor': { tier: 'purple', read: true,
-    stats: { Range: 5, Control: 3, Handling: -4, Stability: 3, Accuracy: -8,
-             'Muzzle velocity': 1.18, 'Gunshot heard': 0.7 } },
+    stats: { Range: 5, Control: 3, Handling: -4, Stability: 3, Accuracy: -8 } },
   'pbs-russian-suppressor': { tier: 'purple', read: true,
-    stats: { Control: 10, Handling: -4, 'Gunshot heard': 0.5 } },
+    stats: { Control: 10, Handling: -4 } },
   // Read and unchanged: the catalogue already had both its lines right.
   'ak-practical-compensator': { tier: 'blue', read: true },
   'bell-mouth-flash-hider': { tier: 'green', read: true },
@@ -484,16 +487,15 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * Nobody has published them. They come off the game's own cards or not at all.
    */
   'olight-baldr-pro-r-multi-function-flashlight': {
-    tier: 'purple', read: true, stats: { Handling: -5, Accuracy: -8 },
+    tier: 'purple', read: true, stats: { Handling: -5, Accuracy: -8 }
   },
   'olight-warrior-3s-tactical-flashlight': {
     tier: 'purple', weight: 0.1,
-    read: true,
-    stats: {},
-  },
+    read: true
+      },
   'olight-odin-s-tactical-flashlight': {
     tier: 'purple', weight: 0.1, stats: { Handling: -1 },
-    read: true,
+    read: true
   },
   /*
    * The rest of the rail, read in one pass, and rarity dictated as runs the way
@@ -507,17 +509,17 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    * for any of them.
    */
   'dbal-x2-purple-laser-light-combo': {
-    tier: 'purple', read: true, stats: { Handling: -4 },
+    tier: 'purple', read: true, stats: { Handling: -4 }
   },
   'perst-7-blue-laser-light-combo': {
-    tier: 'purple', read: true, stats: { Handling: -4 },
+    tier: 'purple', read: true, stats: { Handling: -4 }
   },
   'flare-tactical-flashlight': { tier: 'purple', read: true },
   'la-3c-green-laser-light-combo': {
-    tier: 'purple', read: true, stats: { Handling: -4 },
+    tier: 'purple', read: true, stats: { Handling: -4 }
   },
   'peq-2-red-laser-light-combo': {
-    tier: 'purple', read: true, stats: { Handling: -4 },
+    tier: 'purple', read: true, stats: { Handling: -4 }
   },
   'practical-weapon-light': { tier: 'blue', read: true },
   'modular-handguard-panel': { tier: 'green', read: true },
@@ -543,11 +545,8 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     tier: 'blue', read: true,
     stats: {
       Range: 11, Control: 9, Handling: -7, Stability: 4, Accuracy: -12,
-      // 683 on the card against the rifle's 525, so +158. Stored as the change
-      // for the same reason the RM277's barrels are: what the card prints is
-      // where this barrel LEAVES the gun, and the site adds up changes.
-      'Muzzle velocity': 1.3,
-    },
+      // Its muzzle velocity is not here. See data/scaled-stats.json.
+    }
   },
   /*
    * Its integrally suppressed sibling, and the trade reads exactly as one:
@@ -566,8 +565,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     stats: {
       Range: 6, Control: 8, Handling: -2, Stability: 8, Accuracy: -4,
       // 620 and 210 on the card, against the rifle's 525 and 300.
-      'Muzzle velocity': 1.18, 'Gunshot heard': 0.7,
-    },
+    }
   },
   /*
    * The AR-57's two stock kits, both purple.
@@ -582,7 +580,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    */
   'resonant-2-integral-stock': {
     tier: 'purple', read: true,
-    stats: { Handling: 10 },
+    stats: { Handling: 10 }
   },
   'restricted-zone-integral-stock': { tier: 'purple', read: true },
   /*
@@ -593,7 +591,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    */
   'ffc-double-port-muzzle-brake': {
     tier: 'purple', read: true,
-    stats: { Control: 10, Handling: -4, Stability: 3 },
+    stats: { Control: 10, Handling: -4, Stability: 3 }
   },
 
   /*
@@ -623,16 +621,16 @@ export const CARD_FACTS: Record<string, CardFacts> = {
    */
   'anchor-point-rail-stock': {
     tier: 'purple', read: true,
-    stats: { Control: 4, Handling: -2, Stability: 6 },
+    stats: { Control: 4, Handling: -2, Stability: 6 }
   },
   'qr-high-performance-stock': {
     tier: 'purple', read: true,
-    stats: { Control: 3, Handling: -2, Stability: 3, Accuracy: 16 },
+    stats: { Control: 3, Handling: -2, Stability: 3, Accuracy: 16 }
   },
   'ct-enhanced-stock': {
     // Restated on a second pass: stability is +2, not the +6 first dictated.
     tier: 'purple', read: true,
-    stats: { Control: 2, Handling: 6, Stability: 2, Accuracy: -8 },
+    stats: { Control: 2, Handling: 6, Stability: 2, Accuracy: -8 }
   },
   'shadow-buffer-tube-stock': { tier: 'purple', read: true },
   /*
@@ -684,9 +682,9 @@ export const CARD_FACTS: Record<string, CardFacts> = {
       Control: 11, Handling: 2, Accuracy: -20,
       // The one figure here the card does not print as a change: it shows 36
       // against the rifle's 34, and lists Firing Damage among its effects.
-      Damage: 2,
+      Damage: 2
     },
-    read: true,
+    read: true
   },
   'mcx-lt-hunter-barrel': {
     tier: 'blue',
@@ -696,14 +694,13 @@ export const CARD_FACTS: Record<string, CardFacts> = {
       // Fierce Barrel's damage was given. The rifle leaves the rack at 450, so
       // this is the longest barrel on the site by a distance: the RM277's
       // Heavy Integral is +195 and nothing else clears +160.
-      'Muzzle velocity': 1.687,
     },
-    read: true,
+    read: true
   },
   'sur-heat-shield': {
     tier: 'purple',
-    // "Increased Fire Rate" on the card, and 870 against the rifle's 840.
-    stats: { 'Fire rate': 1.035, Stability: -2 },
+    // "Increased Fire Rate" on the card. The figure is in scaled-stats.json.
+    stats: { Stability: -2 }
   },
   /*
    * Two of the five magazines, both AR-pattern and neither in the catalogue.
@@ -717,13 +714,13 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'ar-60-round-extended-mag': {
     tier: 'purple',
     stats: { Holds: 60, Handling: -12 },
-    read: true,
+    read: true
   },
   'ar-30-round-polymer-mag': {
     tier: 'blue',
     stats: { Holds: 30, Stability: 2 },
-    read: true,
-  },
+    read: true
+  }
 };
 
 /**
@@ -743,8 +740,8 @@ export const UNPLACED_CARDS: Record<string, CardFacts & { name: string }> = {
   '8x-adv-thermal-vision-sniper-scope': {
     name: '8x Adv. Thermal Vision Sniper S…',
     tier: 'red',
-    weight: 0.6,
-  },
+    weight: 0.6
+  }
 };
 
 /**

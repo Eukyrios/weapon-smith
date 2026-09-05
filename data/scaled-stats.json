@@ -1,0 +1,218 @@
+{
+ "_": [
+  "Every attachment that moves a stat the game SCALES rather than adds, with the",
+  "figure its card showed on each weapon it has been read on, and the multiplier",
+  "those figures imply.",
+  "",
+  "WHAT THE SITE USES, IN THIS ORDER",
+  "  1. `read` for that weapon, when there is one. A figure the game showed is",
+  "     not improved by being recomputed, and it is what the page prints.",
+  "  2. `multiplier`, for a weapon with no reading -- an extrapolation, and the",
+  "     only way one entry can serve a gun nobody has checked it on.",
+  "  3. nothing. A contested part has no multiplier, so weapons without a",
+  "     reading simply do not get that line rather than getting a wrong one.",
+  "",
+  "Which means a new weapon can only ever ADD truth here. If its card disagrees",
+  "with the multiplier, `basis` goes to contested, the multiplier is dropped,",
+  "and every weapon falls back to the figure its own card showed -- no page",
+  "stops being right because a gun was added.",
+  "",
+  "BASIS, and it is about this attachment alone -- never about another one that",
+  "happens to behave similarly:",
+  "  proven     read on two or more DIFFERENT bases and one multiplier fits all",
+  "  assumed    read on one base only. A delta and a multiplier are the same",
+  "             claim there and differ everywhere else; the reading cannot pick",
+  "             between them, so the multiplier is a guess about other weapons",
+  "  contested  read on two or more bases and no multiplier fits them",
+  "",
+  "`read` is written by hand or by `python tools/scaled.py add`. `basis` and",
+  "`multiplier` are derived from it and rewritten by that tool; do not edit",
+  "them. `python tools/scaled.py check` fails if they have gone stale."
+ ],
+ "items": {
+  "advanced-multi-caliber-suppressor": {
+   "Gunshot heard": {
+    "read": {
+     "mk47": 250,
+     "rm277": 250
+    },
+    "basis": "assumed",
+    "multiplier": 0.5
+   },
+   "Muzzle velocity": {
+    "read": {
+     "mk47": 620,
+     "rm277": 767
+    },
+    "basis": "proven",
+    "multiplier": 1.18
+   }
+  },
+  "ak-bravefire-suppressor": {
+   "Gunshot heard": {
+    "read": {
+     "mk47": 350
+    },
+    "basis": "assumed",
+    "multiplier": 0.7
+   },
+   "Muzzle velocity": {
+    "read": {
+     "mk47": 620
+    },
+    "basis": "assumed",
+    "multiplier": 1.18
+   }
+  },
+  "ar57-wave-blaster-ultra-long-barrel": {
+   "Muzzle velocity": {
+    "read": {
+     "ar-57": 683
+    },
+    "basis": "assumed",
+    "multiplier": 1.3
+   }
+  },
+  "m7-practical-suppressor": {
+   "Gunshot heard": {
+    "read": {
+     "mk47": 250,
+     "rm277": 250
+    },
+    "basis": "assumed",
+    "multiplier": 0.5
+   }
+  },
+  "mcx-lt-hunter-barrel": {
+   "Muzzle velocity": {
+    "read": {
+     "mcx-lt": 760
+    },
+    "basis": "assumed",
+    "multiplier": 1.687
+   }
+  },
+  "night-gale-integrally-suppressed-combo": {
+   "Gunshot heard": {
+    "read": {
+     "ar-57": 210
+    },
+    "basis": "assumed",
+    "multiplier": 0.7
+   },
+   "Muzzle velocity": {
+    "read": {
+     "ar-57": 620
+    },
+    "basis": "assumed",
+    "multiplier": 1.18
+   }
+  },
+  "pbs-russian-suppressor": {
+   "Gunshot heard": {
+    "read": {
+     "mk47": 250
+    },
+    "basis": "assumed",
+    "multiplier": 0.5
+   }
+  },
+  "practical-suppressor": {
+   "Gunshot heard": {
+    "read": {
+     "mk47": 350,
+     "rm277": 350
+    },
+    "basis": "assumed",
+    "multiplier": 0.7
+   }
+  },
+  "rm277-breaker-suppressor": {
+   "Gunshot heard": {
+    "read": {
+     "rm277": 350
+    },
+    "basis": "assumed",
+    "multiplier": 0.7
+   },
+   "Muzzle velocity": {
+    "read": {
+     "rm277": 767
+    },
+    "basis": "assumed",
+    "multiplier": 1.18
+   }
+  },
+  "rm277-heavy-integral-barrel": {
+   "Muzzle velocity": {
+    "read": {
+     "rm277": 767
+    },
+    "basis": "assumed",
+    "multiplier": 1.18
+   }
+  },
+  "rm277-whale-shark-barrel-combo": {
+   "Muzzle velocity": {
+    "read": {
+     "rm277": 845
+    },
+    "basis": "assumed",
+    "multiplier": 1.3
+   }
+  },
+  "silent-suppressor": {
+   "Fire rate": {
+    "read": {
+     "mk47": 543,
+     "rm277": 479
+    },
+    "basis": "contested",
+    "multiplier": null
+   },
+   "Gunshot heard": {
+    "read": {
+     "mk47": 250,
+     "rm277": 250
+    },
+    "basis": "assumed",
+    "multiplier": 0.5
+   },
+   "Muzzle velocity": {
+    "read": {
+     "mk47": 651,
+     "rm277": 806
+    },
+    "basis": "proven",
+    "multiplier": 1.24
+   }
+  },
+  "sur-heat-shield": {
+   "Fire rate": {
+    "read": {
+     "mcx-lt": 870
+    },
+    "basis": "assumed",
+    "multiplier": 1.035
+   }
+  },
+  "whisper-tactical-suppressor": {
+   "Gunshot heard": {
+    "read": {
+     "mk47": 350,
+     "rm277": 350
+    },
+    "basis": "assumed",
+    "multiplier": 0.7
+   },
+   "Muzzle velocity": {
+    "read": {
+     "mk47": 620,
+     "rm277": 767
+    },
+    "basis": "proven",
+    "multiplier": 1.18
+   }
+  }
+ }
+}
