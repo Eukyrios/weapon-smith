@@ -54,10 +54,33 @@ export interface WeaponStatRow {
    * A flat number for these is therefore only true of the gun it was read on,
    * and an attachment belongs to the catalogue rather than to any gun.
    *
-   * THE GAME ROUNDS UP. Every one of the twenty-one readings on file is
-   * reproduced exactly by ceil(base x multiplier) and by no other rounding:
-   * x1.18 of 525 is 619.5 and the game shows 620, x1.3 of 525 is 682.5 and it
-   * shows 683, x1.035 of 840 is 869.4 and it shows 870.
+   * THE GAME ROUNDS UP, and this was solved rather than guessed. For each
+   * rounding rule and each reading there is an exact interval of multipliers
+   * that reproduces it; intersecting the intervals for one part across two
+   * weapons gives the only multipliers that can be right, and the test is then
+   * how many of the twenty-one land on a whole percent -- because a game's
+   * numbers do, and twenty-one arbitrary decimals would not.
+   *
+   *     ceil    19 of 21 whole percent, 1 half percent, 1 neither
+   *     round   19 of 21 whole percent, 0 half,          2 neither
+   *     floor   14 of 21 whole percent, 0 half,          7 neither
+   *
+   * Floor is out on its own evidence. Ceil beats round on the SUR Heat Shield,
+   * which lands on x1.035 under ceil and on nothing tidy under round. So: ceil.
+   *
+   * TWO READINGS DISAGREE WITH IT BY EXACTLY ONE, and both are cases where the
+   * exact product is fractional:
+   *
+   *     Silent Suppressor fire rate   x0.87 of 625 = 543.75, ceil 544, read 543
+   *     MCX LT Hunter Barrel velocity x1.69 of 450 = 760.5,  ceil 761, read 760
+   *
+   * The Silent Suppressor is kept at 0.87 because that is the only whole
+   * percent that fits either of its two readings, and it fits the RM277's 479
+   * exactly. The Hunter Barrel is kept at 1.688 -- untidy, and deliberately so:
+   * it has ONE reading and 1.688 reproduces it, where 1.69 would overrule the
+   * only evidence there is with a preference for round numbers. If both cards
+   * really do read 543 and 760, the rounding is not plain ceil and this whole
+   * comment wants redoing; two cards, and it is settled.
    */
   mode?: 'set' | 'scale';
 }
