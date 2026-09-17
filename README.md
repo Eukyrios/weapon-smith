@@ -22,8 +22,19 @@ combinations rather than an afternoon in the gunsmith.
     src/data/*.ts         the attachment data, authored here
     package.json          Vite, for `npm run dev` and the TypeScript
 
-GitHub Pages serves the committed HTML from the repo root, so there is no build
-step. Vite is here for the dev server and the TypeScript, not to build the site.
+The generated files are **not committed**. `.github/workflows/pages.yml` runs
+`npm run gen` and uploads the result, so the site is built on every push and the
+HTML exists only in the deployed artifact. Vite is here for the dev server and
+the TypeScript, not to build the site — the generator is standard-library
+Python, which is why CI needs no more than node, python and `npm ci`.
+
+They used to be committed, and that put a second copy of every page on
+`raw.githubusercontent.com`. That host serves no robots.txt, so crawlers
+indexed the repo's copy and ranked it above the real site on GitHub's domain
+authority; a canonical pointing home is only a cross-domain hint and was being
+ignored. With nothing generated in git, those URLs 404 instead.
+
+Run `npm run gen` after cloning, or the site is not there to serve.
 
 ## Working on it
 

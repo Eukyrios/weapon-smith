@@ -5,3 +5,44 @@ Thumbs.db
 # Cut checks: pictures to look at, not things to keep. Written by
 # tools/cut-gunsmith-frame.py every run.
 tools/cut-checks/
+
+# ---------------------------------------------------------------------------
+# Written by `npm run gen`, built in CI, not committed.
+#
+# These were committed until now, which put every page of the site on
+# raw.githubusercontent.com as well. That host answers /robots.txt with a 404,
+# crawlers read that as "crawl everything", and the repo's copy got indexed and
+# outranked the real site on GitHub's domain authority. Keeping generated pages
+# out of git leaves one copy of each in existence, and the raw URLs 404 —
+# which deindexes them faster and more surely than any meta tag on a live page.
+#
+# Keep in step with what tools/gen-weapon-smith.py writes (the `out / ...`
+# calls at the end of main) and what tools/dump-data.ts dumps. The generator
+# also records the pages it wrote in data/generated-pages.txt, which the
+# workflow checks against.
+# ---------------------------------------------------------------------------
+
+# The pages, as listed in the manifest.
+/index.html
+/404.html
+/attachment/index.html
+/ammo/index.html
+/smithery/
+
+# Site furniture, written alongside them.
+/smith.css
+/favicon.svg
+/robots.txt
+/sitemap.xml
+/.nojekyll
+/data/generated-pages.txt
+
+# Dumped from src/data/*.ts by tools/dump-data.ts. Everything else under data/
+# is an input and stays: weapons.json and ammo.json come from `npm run sync`,
+# gunsmith-*.json from the cut tools, scaled-stats.json from tools/scaled.py.
+/data/attachments.json
+/data/fits.json
+/data/rules.json
+/data/card-facts.json
+/data/uncatalogued.json
+/data/weapon-stats.json
