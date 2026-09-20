@@ -720,7 +720,35 @@ export const CARD_FACTS: Record<string, CardFacts> = {
     tier: 'blue',
     stats: { Holds: 30, Stability: 2 },
     read: true
-  }
+  },
+  /*
+   * The MK47's two barrels, both MK47-exclusive and so absent from a catalogue
+   * compiled by category -- the fourth weapon in a row whose barrels are.
+   *
+   * COLOUR ONLY. Al gave the rarity band and no stat line, and neither card has
+   * been opened, so there is no `read` and both keep the #not-tracked tag. Two
+   * purples with nothing to tell them apart is exactly what an unread pair
+   * should look like; the day one is read it stops being a twin.
+   *
+   * No slot rule on either. The MK47 already carries an upper rail and all
+   * three patches on the bare rifle, so unlike the RM277's and the AR-57's
+   * barrels there is nothing here for a barrel to hand it -- which is why this
+   * weapon's barrel list is two items long and does not branch.
+   */
+  'mk47-battle-barrel': { tier: 'purple' },
+  'mk47-ember-barrel': { tier: 'purple' },
+  /*
+   * COLOUR READ OFF THE ORDER, not off a card. The game lists a slot by rarity,
+   * most to least, and this stock is fourth in a nineteen-item list whose first
+   * eight -- the Anchor Point Rail Stock through the Shadow Rail Stock -- are
+   * all purple. Fourth place is inside that run with purples on both sides of
+   * it, so there is only one band it can be in.
+   *
+   * That is the same argument that coloured five AK muzzles on this weapon, and
+   * it is only as good as the position: an item at the seam between two bands
+   * gets no colour this way. The APX Hybrid Sight below is exactly that case.
+   */
+  'mk47-dominator-stock': { tier: 'purple' }
 };
 
 /**

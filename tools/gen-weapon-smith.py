@@ -551,33 +551,36 @@ SECTIONS = {
     ('rear-grip-mount', 'Rear grip mount', 'Opened by the AR Heavy Tower Grip. Two bases.'),
     ('stock', 'Stock', ''),
   ],
-  # The MK47, TRACED BUT NOT TRANSCRIBED. All fifteen of these are on the bare
-  # rifle: it opens with the most base slots of any weapon here and is the first
-  # to carry all three patches without being given them by anything. What it
-  # does not have yet is a single list.
+  # The MK47. All fifteen slots are on the bare rifle: it opens with the most
+  # base slots of any weapon here and is the first to carry all three patches
+  # without being given them by anything.
   #
-  # It is here anyway, because the stage is real -- measured off the game, chips
-  # and leader lines and all -- and a page that shows the rifle with fifteen
-  # empty tables under it says something true and useful, where "Not transcribed
-  # yet" says only that nobody has typed anything. The slot panels have always
-  # been built to tell those two silences apart; this is the first weapon that
-  # needed them to.
+  # FOURTEEN OF THE FIFTEEN ARE READ, and six granted slots with them. The
+  # magazine mount is the last base slot with nothing behind it, and riser
+  # optics and the tactical device are open but untranscribed -- all three mean
+  # unread, not empty, which the slot panels are built to say.
   'mk47': [
-    ('optics', 'Optics', ''),
-    ('offset-optics', 'Offset optics', ''),
+    ('optics', 'Optics', 'Eighteen. Seventeen are a strict subset of the RM277&rsquo;s thirty-one; the eighteenth, the APX Hybrid Sight, is new to the site and opens a red dot mount. Not a subset of the AR-57&rsquo;s twenty-four &mdash; this rifle takes six the AR-57 does not.'),
+    ('red-dot-optics', 'Red dot optics', 'Opened by either micro sight riser, by the 3/7 Adjustable Scope&rsquo;s own dot mount, and by the APX Hybrid Sight &mdash; the first thing to open this slot that is not a riser. The same six as on the RM277.'),
+    ('riser-optics', 'Riser optics', 'Opened by the Multi-Purpose Tactical Riser. Not dictated for this weapon yet.'),
+    ('kill-flash', 'Killflash', 'Opened by any of five magnified optics on the list above. One option.'),
+    ('tactical-device', 'Tactical device', 'Opened by the Multi-Purpose Tactical Riser. Not dictated for this weapon yet.'),
+    ('offset-optics', 'Offset optics', 'The offset twins of the five red dots, the same five in the same order as on every other weapon here. All five are drawn with somebody else&rsquo;s picture.'),
     ('muzzle', 'Muzzle', 'Twenty, and the first list on this site where the calibre shows. It is the small-bore seventeen the MCX LT and the AR-57 take, less the two that only ever go on something small &mdash; the SMG Echo Suppressor and the Birdcage Flash Hider &mdash; plus five AK-pattern muzzles that appear here for the first time.'),
-    ('barrel', 'Barrel', ''),
-    ('foregrip', 'Foregrip', ''),
-    ('left-rail', 'Left rail', ''),
-    ('right-rail', 'Right rail', ''),
-    ('upper-rail', 'Upper rail', 'On the bare rifle, like the MCX LT&rsquo;s and unlike the RM277&rsquo;s and the AR-57&rsquo;s, which have to be opened by a barrel.'),
-    ('left-patch', 'Left patch', 'On the bare rifle. The MCX LT has to be given this one by a barrel and the RM277 has it outright, so the three weapons here have now answered the patch question three different ways.'),
-    ('upper-patch', 'Upper patch', 'On the bare rifle. Only the MCX LT has one at all, and the RM277 has none.'),
-    ('right-patch', 'Right patch', 'On the bare rifle, like the left.'),
-    ('mag', 'Magazine', 'The MK47 is chambered in 7.62x39mm and holds 20 &mdash; the smallest magazine on any weapon traced here.'),
+    ('barrel', 'Barrel', 'Two, both MK47-exclusive and absent from the catalogue, and neither opens anything &mdash; this rifle already has the upper rail and the patches a barrel hands the others. The shortest barrel list here, and the only one that does not branch.'),
+    ('foregrip', 'Foregrip', 'The whole foregrip category, twenty-three items, matching the RM277&rsquo;s and the AR-57&rsquo;s item for item and in the same order. This slot is not filtered.'),
+    ('left-rail', 'Left rail', 'Eight lights and lasers and no handguard panels, which is new: every other weapon read here puts the five panels on its side rails as well. The OLIGHT Warrior 3S is not on this rifle at all.'),
+    ('right-rail', 'Right rail', 'The left rail&rsquo;s eight again, in the same order &mdash; including the OLIGHT Odin S, which on the RM277 fits the left side only.'),
+    ('upper-rail', 'Upper rail', 'On the bare rifle, like the MCX LT&rsquo;s and unlike the RM277&rsquo;s and the AR-57&rsquo;s, which have to be opened by a barrel. Five lights and lasers plus all five panels &mdash; on this weapon the panels go up here and on the patches, never on a side rail.'),
+    ('left-patch', 'Left patch', 'On the bare rifle. The MCX LT has to be given this one by a barrel and the RM277 has it outright, so the three weapons here have now answered the patch question three different ways. Handguard panels only.'),
+    ('upper-patch', 'Upper patch', 'On the bare rifle. Only the MCX LT has one at all, and the RM277 has none. The same five panels.'),
+    ('right-patch', 'Right patch', 'On the bare rifle, like the left, and the same five panels again.'),
+    ('mag', 'Magazine', 'The MK47 is chambered in 7.62x39mm and holds 20 &mdash; the smallest magazine on any weapon traced here, and the shortest magazine list, at two.'),
     ('mag-mount', 'Magazine mount', ''),
-    ('rear-grip', 'Rear grip', ''),
-    ('stock', 'Stock', ''),
+    ('rear-grip', 'Rear grip', 'The RM277&rsquo;s nine, item for item and in the same order. Two of them open further slots, and only ever one of the two.'),
+    ('rear-grip-patch', 'Rear grip patch', 'Opened by the AR Modular Rear Grip. Two pieces, neither in the catalogue.'),
+    ('rear-grip-mount', 'Rear grip mount', 'Opened by the AR Heavy Tower Grip. Two bases.'),
+    ('stock', 'Stock', 'The MCX LT&rsquo;s nineteen in the same order with one item swapped: no M4 Recoil Buffer Tube, and the MK47 Dominator Stock in fourth place. Everything else matches position for position.'),
   ],
 }
 
@@ -2780,7 +2783,48 @@ def gunsmith_body(g):
         for slot, c in lay['chips'].items():
             if slot not in base and slot not in extra:
                 extra[slot] = dict(c, slot=slot)
+
+    # A GRANTED SLOT NOBODY HAS FILMED STILL GETS A CHIP.
+    #
+    # `extra` above is what the recordings caught. It used to be the whole of
+    # it, and the consequence was quiet: on a weapon with no layouts yet, every
+    # slot its own parts open -- six of them on the MK47 -- had a list on the
+    # page and no way to reach it in the editor. Fit the riser and nothing
+    # happened. The data was there and the chip was the only thing missing.
+    #
+    # So the rest are derived from the rules: any slot something in this
+    # weapon's own lists opens, seeded a chip's height below whatever slot that
+    # opener sits in, because that is the one thing certainly known about where
+    # it belongs -- a sub-slot appears beside the part that opened it. It is a
+    # guess about POSITION only; that the slot opens at all is read off a card.
+    # separate() moves it off its neighbours at fit time, and it gets no leader
+    # line, because an anchor is a measurement and this is not one.
+    seeds = {}
+    for slot, _, _ in g.sections:
+        for name, _, _ in rows_for(g, slot):
+            for gs in (RULES.get(item_id(name)) or {}).get('grants') or []:
+                if gs in base or gs in extra or gs in seeds:
+                    continue
+                home = base.get(slot)
+                if home:
+                    y = home['y'] + C + 8
+                    if y + C > fh:
+                        y = home['y'] - C - 8
+                    seeds[gs] = {'slot': gs, 'x': home['x'], 'y': y,
+                                 'label': SLOT_LABEL.get(gs, gs)}
+    for gs, c in seeds.items():
+        extra[gs] = dict(c, derived=True)
+
     order = list(base.values()) + [extra[k] for k in sorted(extra)]
+
+    # Which pictures exist, for the two places the page paints a chip after the
+    # server has gone. Same test the card lists use, so a part cannot be drawn
+    # one way in its list and another way in the chip it is fitted to.
+    art_ok = sorted({
+        iid for slot, _, _ in g.sections
+        for iid in (item_id(n) for n, _, _ in rows_for(g, slot))
+        if not art_debt(iid) and (has_art('att', iid) or iid in BY_ID)})
+    icon_ok = sorted({s['slot'] for s in order if has_slot_icon(s['slot'])})
 
     chips, lines, panels = [], [], []
     for s in order:
@@ -2794,8 +2838,9 @@ def gunsmith_body(g):
             f'style="left:{pc(s["x"], fw)};'
             f'top:{pc(s["y"], fh)};width:{pc(C, fw)};height:{pc(C, fh)}" '
             f'href="#{g.id}#slot-{s["slot"]}" '
-            f'data-slot="{s["slot"]}" title="{s["label"]}"'
-            f'{" hidden" if granted else ""}>'
+            f'data-slot="{s["slot"]}" title="{s["label"]}'
+            + ('&nbsp;&mdash; position not filmed' if s.get('derived') else '')
+            + f'"{" hidden" if granted else ""}>'
             f'<span class="chip3__label">{s["label"]}</span>'
             f'<span class="chip3__art"'
             + (f' style="background-image:url({DEEP}smith/slot/{s["slot"]}.png)">'
@@ -3032,6 +3077,13 @@ def gunsmith_body(g):
     const DELTA = {json.dumps(deltas)};
     const OPENS = {json.dumps(opens)};
     const LAYOUTS = {json.dumps(lays)};
+    // Where to put a granted chip no recording has ever shown. Derived from the
+    // rules rather than measured -- see the note beside `seeds` in the
+    // generator -- and used only when LAYOUTS has nothing to offer, so a filmed
+    // position always wins.
+    const SEED = {json.dumps(seeds)};
+    const ART = new Set({json.dumps(art_ok)});
+    const SLOT_ICON = new Set({json.dumps(icon_ok)});
     const FW = {fw}, FH = {fh}, CHIP = {C};
     const SLOTS = {json.dumps([{'id': s['id'], 'label': SLOT_LABEL.get(s['id'], s['id'])} for s in SLOT_TYPES])};
     const FORGE_SRC = {json.dumps(FORGE_JS)};
@@ -3110,13 +3162,33 @@ def gunsmith_body(g):
     const sameSet = (set, list) =>
       set.size === list.length && list.every((x) => set.has(x));
 
+    // WHAT TO DRAW IN A CHIP, given a picture that may not exist.
+    //
+    // The card lists have always asked art_debt() before drawing and put the
+    // torn mark where the picture would go. The chips did not: fit() pasted
+    // att/<id>.png and unfit() pasted smith/slot/<slot>.png whatever was on
+    // disk, so an item with no art -- every one read off a card and not yet cut
+    // out -- gave the chip a silent 404 and an empty box, and a slot no clip
+    // has caught open did the same. Same debt, same mark, wherever it lands.
+    function paintChipArt(chip, url, has) {{
+      const art = chip.querySelector('.chip3__art');
+      if (has) {{
+        art.innerHTML = '';
+        art.style.backgroundImage = 'url(' + url + ')';
+        return;
+      }}
+      art.style.backgroundImage = '';
+      art.innerHTML = '<span class="torn torn--none" title="'
+        + {json.dumps(TORN_TITLE['none'])} + '"></span>';
+    }}
+
     function unfit(slot) {{
       delete fitted[slot];
       const chip = chipFor(slot);
       if (chip) {{
         chip.classList.remove('has-item');
-        chip.querySelector('.chip3__art').style.backgroundImage =
-          'url({DEEP}smith/slot/' + slot + '.png)';
+        paintChipArt(chip, '{DEEP}smith/slot/' + slot + '.png',
+                     SLOT_ICON.has(slot));
       }}
       for (const b of document.querySelectorAll('#sl-' + slot + ' .pcard'))
         b.classList.remove('is-fitted');
@@ -3201,6 +3273,7 @@ def gunsmith_body(g):
           if (chips[slot]) continue;
           const src = LAYOUTS.find((l) => l.chips[slot]);
           if (src) chips[slot] = src.chips[slot];
+          else if (SEED[slot]) chips[slot] = SEED[slot];
         }}
       }}
       for (const slot of blocks) delete chips[slot];
@@ -3485,8 +3558,7 @@ def gunsmith_body(g):
       fitted[slot] = iid;
       if (chip) {{
         chip.classList.add('has-item');
-        chip.querySelector('.chip3__art').style.backgroundImage =
-          'url({DEEP}att/' + iid + '.png)';
+        paintChipArt(chip, '{DEEP}att/' + iid + '.png', ART.has(iid));
       }}
       for (const b of document.querySelectorAll('#sl-' + slot + ' .pcard'))
         b.classList.toggle('is-fitted', iid === b.dataset.item);

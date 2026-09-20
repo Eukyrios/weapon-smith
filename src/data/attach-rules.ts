@@ -728,6 +728,17 @@ export const PENDING_RULES: Record<string, AttachRule> = {
   },
 
   /*
+   * The third thing to open a red dot mount, after the two micro sight risers
+   * and the 3/7 Adjustable Scope's own. Unlike those it is not a riser at all
+   * but a sight in its own right, which is what "hybrid" is saying.
+   *
+   * First seen on the MK47 and not in the 414, so it waits here.
+   */
+  'apx-hybrid-sight': {
+    grants: ['red-dot-optics'],
+  },
+
+  /*
    * The first attachments that REMOVE slots, and the first slot rules outside
    * the optic ladder. Both are RM277-exclusive and absent from the 414, so they
    * park here rather than dangling in ATTACH_RULES — but the rules are the
@@ -1164,6 +1175,209 @@ export const WEAPON_FITS: Record<string, Partial<Record<string, string[]>>> = {
       'practical-suppressor',
       'bell-mouth-flash-hider',
       'practical-flash-hider',
+    ],
+    /*
+     * THE OLIGHT WARRIOR 3S IS ON NONE OF THE THREE RAILS. It is on the MCX
+     * LT's right and upper rails, and its absence here is consistent across
+     * all three of this rifle's lists rather than a gap in one -- which is the
+     * only reason it is recorded as absence and not as an unread line.
+     *
+     * The side rails take NO handguard panels, and the upper rail takes all
+     * five. Every other weapon here that has been read puts panels on both.
+     * So on this rifle a panel goes on top or on a patch, and never on a side
+     * rail, which is the second shape the MK47 has broken.
+     */
+    'left-rail': [
+      'olight-odin-s-tactical-flashlight',
+      'olight-baldr-pro-r-multi-function-flashlight',
+      'dbal-x2-purple-laser-light-combo',
+      'perst-7-blue-laser-light-combo',
+      'flare-tactical-flashlight',
+      'la-3c-green-laser-light-combo',
+      'peq-2-red-laser-light-combo',
+      'practical-weapon-light',
+    ],
+    /*
+     * The left rail's list again, item for item and in the same order --
+     * INCLUDING THE OLIGHT ODIN S, which on the RM277 is the one light that
+     * fits the left side only. Two weapons, two answers, and this one was
+     * dictated with the Odin S at the top of both lists.
+     */
+    'right-rail': [
+      'olight-odin-s-tactical-flashlight',
+      'olight-baldr-pro-r-multi-function-flashlight',
+      'dbal-x2-purple-laser-light-combo',
+      'perst-7-blue-laser-light-combo',
+      'flare-tactical-flashlight',
+      'la-3c-green-laser-light-combo',
+      'peq-2-red-laser-light-combo',
+      'practical-weapon-light',
+    ],
+    'upper-rail': [
+      'dbal-x2-purple-laser-light-combo',
+      'perst-7-blue-laser-light-combo',
+      'flare-tactical-flashlight',
+      'la-3c-green-laser-light-combo',
+      'peq-2-red-laser-light-combo',
+      'modular-handguard-panel',
+      'hornet-handguard',
+      'dd-python-handguard-panel',
+      'kc-hound-handguard',
+      'ranger-handguard',
+    ],
+    /*
+     * The whole foregrip category, twenty-three items, matching the RM277's and
+     * the AR-57's list for item and for order. The MCX LT's sixteen is the odd
+     * one out, not this.
+     */
+    foregrip: [
+      'resonant-mk-iii-grip',
+      'ec-universal-front-hand-stop',
+      'dawn-angled-flashlight-grip',
+      'daybreak-vertical-flashlight-grip',
+      'cr-prism-hand-stop',
+      'resonant-mkii-foregrip',
+      'collapsible-bipod-grip',
+      'k1-elite-bevel-foregrip',
+      'x25u-angled-combat-grip',
+      'resonant-ergonomic-grip',
+      'phantom-vertical-foregrip',
+      'tactical-vertical-foregrip',
+      'secret-order-bevel-foregrip',
+      'rk-0-foregrip',
+      'tactical-angled-foregrip',
+      'angled-hand-stop',
+      'competition-hand-stop',
+      'phase-combat-foregrip',
+      'folding-grip',
+      'vfg-knight-foregrip',
+      'zfsg-tactical-grip',
+      'mini-hand-stop',
+      'practical-vertical-foregrip',
+    ],
+    barrel: [
+      'mk47-battle-barrel',
+      'mk47-ember-barrel',
+    ],
+    /* All three patches, the same five panels, all on the bare rifle. */
+    'left-patch': [
+      'modular-handguard-panel',
+      'hornet-handguard',
+      'dd-python-handguard-panel',
+      'kc-hound-handguard',
+      'ranger-handguard',
+    ],
+    'right-patch': [
+      'modular-handguard-panel',
+      'hornet-handguard',
+      'dd-python-handguard-panel',
+      'kc-hound-handguard',
+      'ranger-handguard',
+    ],
+    'upper-patch': [
+      'modular-handguard-panel',
+      'hornet-handguard',
+      'dd-python-handguard-panel',
+      'kc-hound-handguard',
+      'ranger-handguard',
+    ],
+    'offset-optics': [
+      'offset-osight-red-dot',
+      'offset-combat-red-dot-sight',
+      'offset-mini-red-dot-sight',
+      'offset-xro-quick-response-sight',
+      'offset-panoramic-red-dot-sight',
+    ],
+    /*
+     * Eighteen. Seventeen of them are a strict subset of the RM277's
+     * thirty-one, and the eighteenth is the APX Hybrid Sight, which appears
+     * here for the first time on this site and opens a red dot mount.
+     *
+     * NOT a subset of the AR-57's twenty-four -- this rifle takes six the
+     * AR-57 does not, the Multi-Purpose Tactical Riser among them, so it gets
+     * riser optics and a tactical device where the AR-57 has neither slot.
+     */
+    optics: [
+      'white-phosphor-thermal-scope',
+      'advanced-thermal-fusion-holographic-sight',
+      'apx-hybrid-sight',
+      'vmx-frameless-sight',
+      '1p-33-2-4x-scope',
+      'uhx-holographic-sight',
+      'prism-universal-2x-optic',
+      'insight-3-7-sniper-scope',
+      'm157-fire-control-system',
+      'viewpoint-3x-scope',
+      '1p-29-russian-3x-sight',
+      'lpvo-scope',
+      '3-7-adjustable-scope',
+      'recon-1-5-5-adjustable-scope',
+      'hamr-combined-scope',
+      'meo-micro-sight-riser',
+      'multi-purpose-tactical-riser',
+      'micro-sight-riser',
+    ],
+    'red-dot-optics': [
+      'vmx-frameless-sight',
+      'osight-red-dot',
+      'combat-red-dot-sight',
+      'mini-red-dot-sight',
+      'xro-quick-response-sight',
+      'panoramic-red-dot-sight',
+    ],
+    'kill-flash': ['honeycomb-killflash'],
+    'rear-grip': [
+      'ar-modular-rear-grip',
+      'ar-heavy-tower-grip',
+      'invasion-rear-grip',
+      'phantom-rear-grip',
+      'ar-moe-rear-grip',
+      'marksman-d-2-rear-grip',
+      'hurricane-d-1-rear-grip',
+      'm7-stable-rear-grip',
+      '416-practical-rear-grip',
+    ],
+    'rear-grip-patch': ['ar-light-grip-piece', 'ar-heavy-grip-piece'],
+    'rear-grip-mount': ['balanced-grip-base', 'stable-grip-base'],
+    /*
+     * THE MCX LT'S NINETEEN, IN THE SAME ORDER, with one swapped for another:
+     * the M4 Recoil Buffer Tube is gone and the MK47 Dominator Stock is in at
+     * the fourth place. Everything else matches item for item and position for
+     * position, which is a stronger check on this list than anything the site
+     * could run -- two transcripts of nineteen items agreeing that exactly on
+     * a list read months apart is not a thing that happens by accident.
+     *
+     * The Dominator's fourth place is also what gives it its colour: the run
+     * from the Anchor Point Rail Stock to the Shadow Rail Stock is purple, and
+     * position four is inside it.
+     */
+    stock: [
+      'anchor-point-rail-stock',
+      'qr-high-performance-stock',
+      'ct-enhanced-stock',
+      'mk47-dominator-stock',
+      'shadow-buffer-tube-stock',
+      'mrgs-skeleton-stock',
+      'ur-spec-ops-tactical-stock',
+      'shadow-rail-stock',
+      'skeleton-sniper-stock',
+      '416-stable-stock',
+      '416-light-stock',
+      'elite-light-stock',
+      'invasion-core-stock',
+      'cardinal-stable-stock',
+      'lightning-rail-stock',
+      'practical-light-stock',
+      'practical-tactical-stock',
+      'practical-stable-stock',
+      'core-rail-stock',
+    ],
+    mag: ['mk47-30-round-mag', 'akm-40-round-extended-mag'],
+    /* The same three as the RM277's and the MCX LT's, in the same order. */
+    'mag-mount': [
+      'grizzly-full-p-mag-assist-sand',
+      'grizzly-full-p-mag-assist-green',
+      'grizzly-full-p-mag-assist-black',
     ],
   },
 };

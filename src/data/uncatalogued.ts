@@ -44,6 +44,16 @@ export const UNCATALOGUED: Record<string, { name: string }> = {
   'rm277-heavy-integral-barrel': { name: 'RM277 Heavy Integral Barrel' },
   'night-gale-integrally-suppressed-combo': { name: 'Night Gale Integrally Suppressed Combo' },
   'ar57-wave-blaster-ultra-long-barrel': { name: 'AR57 Wave Blaster Ultra-Long Barrel' },
+  'mk47-battle-barrel': { name: 'MK47 Battle Barrel' },
+  'mk47-ember-barrel': { name: 'MK47 Ember Barrel' },
+
+  /* An optic the catalogue does not carry, and the first new one since the
+ * RM277's nine. It opens a red dot mount, so it has a rule as well. */
+  'apx-hybrid-sight': { name: 'APX Hybrid Sight' },
+
+  /* A stock and a magazine, both MK47-exclusive. */
+  'mk47-dominator-stock': { name: 'MK47 Dominator Stock' },
+  'mk47-30-round-mag': { name: 'MK47 30-Round Mag' },
 
   /* Foregrips. */
   'resonant-mk-iii-grip': { name: 'Resonant MK III Grip' },
