@@ -1,8 +1,23 @@
 # Deploy the site to GitHub Pages.
 #
-# There is no build step: the pages are generated locally by
-# `npm run gen` and committed at the repo root, so this uploads the
-# checkout as-is. See vite.config.ts for why.
+# THE PAGES ARE BUILT HERE, NOT COMMITTED. Everything the generator writes is
+# in .gitignore, so a checkout on its own is a repo with no index.html in it --
+# which is exactly what GitHub Pages serves as a 404. This job is the only
+# thing that puts a site at the other end of the URL.
+#
+# That was learned the hard way: the generated files were removed from git in
+# cae3cf1 and this workflow still said "there is no build step" and uploaded
+# the checkout as-is. The deploy succeeded, reported green, and published
+# nothing. A deploy that cannot fail is not the same as a deploy that works,
+# which is why the manifest check below exists.
+#
+# The generator is standard-library Python and the dumper is vite-node, so the
+# runner needs python and node and nothing else -- no pip install step.
+#
+# NOTE: this only reaches the live site if the repository's Pages source is set
+# to "GitHub Actions" (Settings -> Pages -> Build and deployment -> Source).
+# Left on "Deploy from a branch", the artifact this builds is ignored and the
+# bare branch is served instead, which is a 404 with the generated files gone.
 name: Deploy to Pages
 
 on:
@@ -28,9 +43,64 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # `npm run gen` calls `python`, not `python3`. setup-python provides
+      # both; ubuntu-latest on its own provides only python3, and the script
+      # would fail with "python: command not found" after a clean install.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: npm ci
+
+      # The eight data checks. They run against src/data/*.ts, so they catch a
+      # bad edit before it is baked into 450 pages -- and a failure here stops
+      # the deploy with the old site still up, which is the right way round.
+      - run: npm run check
+
+      - run: npm run gen
+
+      # Did the generator actually write what it said it would?
+      #
+      # `upload-pages-artifact` is happy to upload an empty directory and
+      # `deploy-pages` is happy to publish it, so nothing downstream of here
+      # can tell a built site from an unbuilt one. This can. It reads the
+      # manifest the generator just wrote and insists every path in it exists
+      # and is non-empty.
+      - name: Check the generated pages exist
+        run: |
+          test -s data/generated-pages.txt || {
+            echo "::error::data/generated-pages.txt is missing or empty -- the generator wrote no manifest."
+            exit 1
+          }
+          missing=0
+          while IFS= read -r page; do
+            [ -n "$page" ] || continue
+            if [ ! -s "$page" ]; then
+              echo "::error file=$page::listed in the manifest but not written (or empty)"
+              missing=$((missing + 1))
+            fi
+          done < data/generated-pages.txt
+          test -s index.html || {
+            echo "::error::no index.html at the repo root -- Pages would serve a 404 for the site root."
+            missing=$((missing + 1))
+          }
+          if [ "$missing" -gt 0 ]; then
+            echo "::error::$missing generated file(s) missing. Refusing to publish an empty site."
+            exit 1
+          fi
+          echo "Manifest OK: $(grep -c . data/generated-pages.txt) pages, index.html present."
+
       - uses: actions/configure-pages@v5
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
+
       - id: deployment
         uses: actions/deploy-pages@v4
