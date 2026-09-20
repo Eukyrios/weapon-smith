@@ -72,6 +72,22 @@ export interface WeaponStatRow {
    * `python tools/scaled.py table` prints which is which, and the readings
    * that would settle the rest.
    *
+   * RANGE IS THE FOURTH. The Silent Suppressor reads +7 on the MK47's 30 and
+   * +13 on the RM277's 55 -- one part, two bases, one multiplier, and the best
+   * flat delta missing by 6. That is the whole of the evidence, and it is the
+   * only form of evidence this file accepts: the same part, read on two
+   * weapons whose base differs.
+   *
+   * Range was carried as a flat addition until then, which made every figure
+   * right on the weapon it was read from and wrong on the other three.
+   *
+   * There is outside corroboration for the mechanism, unusually. Tencent's own
+   * gunsmith guide says a barrel changes effective range "按百分比增长或衰减"
+   * -- grows or decays by percentage -- which is the one statement about the
+   * underlying arithmetic in any source found so far, Chinese or English. No
+   * source anywhere documents per-weapon variation for any other stat, which
+   * is not evidence against it: almost nobody opens one card on two guns.
+   *
    * THE GAME ROUNDS UP, and this was solved rather than guessed. For each
    * rounding rule and each reading there is an exact interval of multipliers
    * that reproduces it; intersecting the intervals for one part across two
@@ -112,7 +128,7 @@ export interface WeaponStatRow {
 
 export const WEAPON_STAT_ROWS: WeaponStatRow[] = [
   { key: 'Damage', max: 100 },
-  { key: 'Range', max: 100, unit: 'm' },
+  { key: 'Range', max: 100, unit: 'm', mode: 'scale' },
   { key: 'Control', max: 100 },
   { key: 'Handling', max: 100 },
   { key: 'Stability', max: 100 },

@@ -12,15 +12,25 @@
  * few lines is a bad trade — but an attachment page is about what fitting the
  * thing does to the gun, so that is all it shows.
  *
- * FIRE RATE, MUZZLE VELOCITY AND GUNSHOT HEARD ARE NOT IN THIS FILE.
+ * RANGE, FIRE RATE, MUZZLE VELOCITY AND GUNSHOT HEARD ARE NOT IN THIS FILE.
  *
- * The game SCALES those three rather than adding to them, so one number here
+ * The game SCALES those four rather than adding to them, so one number here
  * could only ever be true of one weapon. They live in data/scaled-stats.json
  * instead, which keeps the figure each card showed on each weapon and derives
  * a multiplier where two weapons disagree enough to settle one. The site reads
  * a weapon's own figure first and falls back to the multiplier only for guns
  * nobody has checked. Everything else about those parts -- rarity, weight, the
- * eight stats that add, whether anybody has read the card -- is still here.
+ * seven stats that add, whether anybody has read the card -- is still here.
+ *
+ * Range was the last to move, and it moved because one part was finally read
+ * twice: the Silent Suppressor is +7 on the MK47's base of 30 and +13 on the
+ * RM277's 55. Until then every Range value in here was a single reading
+ * applied to four weapons, correct on the one it came from and wrong on the
+ * rest. The ten that were here are now readings in that file, each recorded
+ * against the weapon whose card it was actually read off -- which the commit
+ * history had to settle, because the file itself never recorded it. That is
+ * the argument for scaled-stats.json in one sentence: a number without the
+ * weapon it came from cannot be checked, corrected, or safely reused.
  *
  * TIER IS A COLOUR, NOT A WORD
  *
@@ -248,7 +258,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'rm277-breaker-suppressor': {
     tier: 'purple', weight: 0.15, read: true,
     stats: {
-      Range: 10, Control: 5, Accuracy: -8
+      Control: 5, Accuracy: -8
     }
   },
   'cobweb-titanium-muzzle-brake': {
@@ -265,13 +275,13 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'rm277-whale-shark-barrel-combo': {
     tier: 'purple', weight: 0.4, read: true,
     stats: {
-      Range: 17, Control: 8, Handling: -9, Stability: 5, Accuracy: -12
+      Control: 8, Handling: -9, Stability: 5, Accuracy: -12
     }
   },
   'rm277-heavy-integral-barrel': {
     tier: 'purple', weight: 0.5, read: true,
     stats: {
-      Range: 10, Control: 7, Handling: -2, Stability: 5, Accuracy: 12
+      Control: 7, Handling: -2, Stability: 5, Accuracy: 12
     }
   },
 
@@ -355,11 +365,11 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'spiral-fire-flash-hider': { tier: 'purple', read: true,
     stats: { Control: 4, Stability: 1 } },
   'advanced-multi-caliber-suppressor': { tier: 'purple', read: true,
-    stats: { Range: 5, Control: 9, Handling: -6, Accuracy: -4 } },
+    stats: { Control: 9, Handling: -6, Accuracy: -4 } },
   'm7-practical-suppressor': { tier: 'purple', read: true,
     stats: { Control: 8, Handling: -4, Stability: 2 } },
   'silent-suppressor': { tier: 'purple', read: true,
-    stats: { Range: 7, Control: 8, Handling: -13, Stability: -5 } },
+    stats: { Control: 8, Handling: -13, Stability: -5 } },
   'sandstorm-vertical-compensator': {
     tier: 'purple',
     read: true,
@@ -372,7 +382,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   },
   'poseidon-flash-hider': { tier: 'purple', read: true },
   'whisper-tactical-suppressor': { tier: 'purple', read: true,
-    stats: { Range: 5, Control: 6, Handling: -5, Stability: 2, Accuracy: -4 } },
+    stats: { Control: 6, Handling: -5, Stability: 2, Accuracy: -4 } },
   'titanium-contest-muzzle-brake': { tier: 'purple', read: true },
   'blazing-fire-suppressor': { tier: 'purple', read: true },
   'steel-muzzle-brake': { tier: 'blue', read: true },
@@ -407,7 +417,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'dtk-muzzle-brake': { tier: 'purple', read: true,
     stats: { Control: 6, Accuracy: 12 } },
   'ak-bravefire-suppressor': { tier: 'purple', read: true,
-    stats: { Range: 5, Control: 3, Handling: -4, Stability: 3, Accuracy: -8 } },
+    stats: { Control: 3, Handling: -4, Stability: 3, Accuracy: -8 } },
   'pbs-russian-suppressor': { tier: 'purple', read: true,
     stats: { Control: 10, Handling: -4 } },
   // Read and unchanged: the catalogue already had both its lines right.
@@ -544,7 +554,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'ar57-wave-blaster-ultra-long-barrel': {
     tier: 'blue', read: true,
     stats: {
-      Range: 11, Control: 9, Handling: -7, Stability: 4, Accuracy: -12,
+      Control: 9, Handling: -7, Stability: 4, Accuracy: -12,
       // Its muzzle velocity is not here. See data/scaled-stats.json.
     }
   },
@@ -563,7 +573,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'night-gale-integrally-suppressed-combo': {
     tier: 'purple', read: true,
     stats: {
-      Range: 6, Control: 8, Handling: -2, Stability: 8, Accuracy: -4,
+      Control: 8, Handling: -2, Stability: 8, Accuracy: -4,
       // 620 and 210 on the card, against the rifle's 525 and 300.
     }
   },
@@ -689,7 +699,7 @@ export const CARD_FACTS: Record<string, CardFacts> = {
   'mcx-lt-hunter-barrel': {
     tier: 'blue',
     stats: {
-      Range: 9, Control: 12, Handling: -7, Stability: 5, Accuracy: -36,
+      Control: 12, Handling: -7, Stability: 5, Accuracy: -36,
       // Given as the card's figure, 760, not as a change -- the same way the
       // Fierce Barrel's damage was given. The rifle leaves the rack at 450, so
       // this is the longest barrel on the site by a distance: the RM277's
